@@ -31,11 +31,14 @@ def test_case_a_full_loop(workflow, paypal):
 
     workflow.approve(case_id)
     case = workflow.db.get_case(case_id)
-    paypal.refund_capture.assert_called_once_with(case["capture_id"], f"tradeos-refund-{case_id}")
+    paypal.refund_capture.assert_called_once_with(case["capture_id"], f"tradeos-refund-{case_id}",
+                                                  note_to_payer=case["note"]["text"])
+    assert case["note"]["outcome"] == "REFUND_NOTE" and "49.99 USD" in case["note"]["text"]
     assert case["status"] == "REFUND_COMPLETED"
     assert case["refund_status"] == "COMPLETED" and case["refund_id"].startswith("MOCK-REFUND")
     assert case["human_decision"] == "APPROVED"
-    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "supplier", "policy", "human", "paypal"]
+    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "supplier", "policy", "note", "human",
+                                       "paypal"]
 
 
 def test_case_a_double_approve_is_refused_and_refund_is_idempotent(workflow, paypal):

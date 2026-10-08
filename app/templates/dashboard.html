@@ -10,7 +10,7 @@
 <section class="controls">
   <div>
     <h1>Merchant operations</h1>
-    <p class="muted">One loop: customer request → AI intent → deterministic policy → supplier → human approval → PayPal refund (or block).</p>
+    <p class="muted">Customer speaks naturally → AI reads the language → Python rules decide → a human approves → PayPal moves the money.</p>
   </div>
   <div class="buttons">
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible exchange</button></form>
@@ -21,111 +21,204 @@
 
 {% if flash %}<div class="flash bad" role="alert">{{ flash }}</div>{% endif %}
 
-<div class="grid">
+<nav class="tabs" aria-label="Cases">
+  <span class="muted small">Cases:</span>
+  {% for c in cases[:14] %}
+    <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}" title="{{ c.label }}">
+      <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span> {{ status_chip(c.status) }}</a>
+  {% endfor %}
+</nav>
 
-  <!-- 1. Pending action -->
+<!-- The loop, lit for the selected case -->
+<ol class="pipeline" aria-label="Pipeline for the selected case">
+  {% for s in pipeline %}
+    <li class="step {{ s.state }}">
+      <span class="step-n">{% if s.state == 'done' %}✓{% elif s.state in ('blocked', 'failed') %}✕{% elif s.state == 'waiting' %}…{% else %}{{ s.n }}{% endif %}</span>
+      <span class="step-label">{{ s.label }}</span>
+      <span class="step-detail">{{ s.detail or ('not reached' if s.state == 'todo' else '') }}</span>
+    </li>
+  {% endfor %}
+</ol>
+
+<div class="grid-top">
+  <!-- 1. Pending action (+ result of the selected case) -->
   <section class="block" id="pending">
-    <h2><span class="num">1</span> Pending action</h2>
-    {% for c in pending %}
-      <article class="pending-card">
-        <div class="row between">
-          <strong>Case {{ c.id }}</strong>{{ status_chip(c.status) }}
-        </div>
-        <p class="quote">“{{ c.customer_message }}” <span class="muted">— {{ c.customer_name }}</span></p>
-        {% if c.status == "PENDING_APPROVAL" %}
-          <dl class="kv">
-            <dt>Reason</dt><dd>{{ c.intent.intent if c.intent }} / {{ c.intent.reason if c.intent }}</dd>
-            <dt>Policy</dt><dd><span class="chip ok">{{ c.decision }}</span>
-              {% if c.policy %}<span class="muted small">{{ c.policy.checks | selectattr('passed') | list | length }}/{{ c.policy.checks | length }} checks passed</span>{% endif %}</dd>
-            <dt>Supplier</dt><dd>{{ c.supplier_reply }} <span class="chip mock">MOCK</span></dd>
-            <dt>Refund amount</dt><dd><strong>${{ c.amount }} {{ c.currency }}</strong> (full refund of capture {{ c.capture_id }})</dd>
+    <h2><span class="num">1</span> Pending action
+      {% if current %}<span class="muted small">· {{ current.label }} · case {{ current.id }}</span>{% endif %}</h2>
+    {% if result %}
+      <article class="result-card {{ result.kind }}"{% if result.await_webhook %} data-await-webhook="{{ current.id }}"{% endif %}>
+        <div class="rc-head"><span class="rc-icon">{{ result.icon }}</span>
+          <div><div class="rc-title">{{ result.title }}</div><div class="rc-sub">{{ result.subtitle }}</div></div></div>
+        {% if result.reason %}<div class="rc-reason"><span class="muted">{{ 'Policy reason' if current.status == 'REJECTED' else 'PayPal said' }}:</span> {{ result.reason }}</div>{% endif %}
+        {% if result.rows %}
+          <dl class="rc-grid">
+            {% for k, v in result.rows %}<div><dt>{{ k }}</dt><dd>{{ v }}</dd></div>{% endfor %}
           </dl>
-          <div class="row gap">
-            <form method="post" action="/cases/{{ c.id }}/approve" class="js-busy"><button class="btn primary">Approve &amp; refund ${{ c.amount }}</button></form>
-            <form method="post" action="/cases/{{ c.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
+        {% endif %}
+        {% if result.confirmations %}
+          <div class="confirm">
+            {% for label, val, ok in result.confirmations %}<span class="chip {{ 'ok' if ok else 'neutral' }}">{{ label }}: {{ val }}</span>{% endfor %}
           </div>
-          <p class="muted small">Human approval is required before any financial action. Nothing is refunded automatically.</p>
-        {% elif c.status == "AWAITING_BUYER_APPROVAL" %}
-          <p>Card capture was not available, so this order needs a sandbox buyer to approve it.</p>
-          {% if c.approve_url %}<a class="btn" href="{{ c.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>{% endif %}
-          <p class="muted small">After approval PayPal redirects back here and TradeOS captures the payment.</p>
-        {% elif c.status == "REFUND_ERROR" %}
-          <div class="error">PayPal refund error: {{ c.error }}</div>
-          <form method="post" action="/cases/{{ c.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
         {% endif %}
-      </article>
-    {% else %}
-      <p class="muted">No pending actions. Run a demo case to create one.</p>
-    {% endfor %}
-
-    {% for c in cases if c.status == "ERROR" %}
-      <div class="error"><strong>Case {{ c.id }} failed:</strong> {{ c.error }}</div>
-    {% endfor %}
-
-    {% if latest_a and latest_a.refund_id %}
-      <div class="result {{ 'ok' if latest_a.refund_status == 'COMPLETED' else 'warn' }}">
-        {% if latest_a.refund_status == "COMPLETED" %}
-          <strong>✓ Refund confirmed by PayPal</strong> — Refund ID {{ latest_a.refund_id }}, status COMPLETED.
-        {% elif latest_a.refund_status == "PENDING" %}
-          <strong>⏳ Refund PENDING at PayPal</strong> — Refund ID {{ latest_a.refund_id }}. Not shown as success until COMPLETED.
-          <form method="post" action="/cases/{{ latest_a.id }}/refresh-refund" class="js-busy inline"><button class="btn small">Refresh status</button></form>
-        {% else %}
-          <strong>✗ Refund {{ latest_a.refund_status }}</strong> — Refund ID {{ latest_a.refund_id }}.
-        {% endif %}
-      </div>
-    {% endif %}
-
-    <p class="muted small">Exchange = supplier replacement + refund of the original PayPal transaction (see “Exchange vs refund” below).</p>
-  </section>
-
-  <!-- 2. Case timeline -->
-  <section class="block" id="timeline">
-    <h2><span class="num">2</span> Case timeline</h2>
-    <nav class="tabs">
-      {% for c in cases %}
-        <a href="/?case={{ c.id }}#timeline" class="tab {{ 'active' if current and c.id == current.id }}">{{ c.id }} {{ status_chip(c.status) }}</a>
-      {% endfor %}
-    </nav>
-    {% if current %}
-      <div class="case-head">
-        <div><strong>{{ current.customer_name }}</strong> · ${{ current.amount }} {{ current.currency }} · {{ current.product_sku }}</div>
         {% if current.purchase_date_seeded %}
           <div class="seeded">Purchase date {{ current.purchase_date_seeded }} — <strong>seeded demo data</strong>
-            (sandbox captures are always dated today; this merchant order record simulates a purchase {{ settings.case_b_days_since_purchase }} days ago).</div>
+            (sandbox captures are always dated today; this merchant order record simulates an older purchase).</div>
         {% endif %}
-        {% if current.status == "ERROR" %}<div class="error">PayPal error: {{ current.error }}</div>{% endif %}
+        {% if current.status == "PENDING_APPROVAL" %}
+          <div class="row gap actions">
+            {% if current.scenario == "D" %}
+              <form method="post" action="/cases/{{ current.id }}/approve-twice" class="js-busy"><button class="btn primary">Approve twice (simulated double-click)</button></form>
+            {% else %}
+              <form method="post" action="/cases/{{ current.id }}/approve" class="js-busy"><button class="btn primary">Approve &amp; refund ${{ current.amount }}</button></form>
+            {% endif %}
+            <form method="post" action="/cases/{{ current.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
+          </div>
+          <p class="muted small">Human approval is required before any financial action. Nothing is refunded automatically.</p>
+        {% elif current.status == "REFUND_ERROR" %}
+          <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy actions"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
+        {% elif current.status == "REFUND_PENDING" %}
+          <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy actions"><button class="btn small">Refresh status</button></form>
+        {% elif current.status == "AWAITING_BUYER_APPROVAL" and current.approve_url %}
+          <a class="btn actions" href="{{ current.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>
+        {% elif current.status == "NEW" %}
+          {% if current.scenario in ("A", "B") %}<form method="post" action="/demo/run/{{ current.scenario }}" class="js-busy actions"><button class="btn primary">▶ Run {{ current.label }}</button></form>{% endif %}
+        {% endif %}
+        {% if current.duplicate %}
+          <div class="dup">
+            <strong>Double-click evidence:</strong> clicks 2 · second click {{ current.duplicate.second_click }} ·
+            Refund API calls {{ current.duplicate.refund_api_calls }} with PayPal-Request-Id <code>{{ current.duplicate.paypal_request_id }}</code> ·
+            Refund IDs {{ current.duplicate.first_refund_id }} / {{ current.duplicate.replayed_refund_id }}
+            → <strong>{{ 'one refund' if current.duplicate.same_refund else 'TWO DIFFERENT REFUNDS' }}</strong>
+            {% if current.duplicate.total_refunded %}· total refunded {{ current.duplicate.total_refunded }}{% endif %}
+          </div>
+        {% endif %}
+      </article>
+    {% endif %}
+
+    {% if pending %}
+      <h3 class="small-h">Other cases waiting for you</h3>
+      <ul class="pending-list">
+        {% for c in pending %}
+          <li><a href="/?case={{ c.id }}">{{ c.label }} · {{ c.id }}</a> {{ status_chip(c.status) }}
+            <span class="muted small">${{ c.amount }}</span></li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </section>
+
+  <!-- Try it yourself: multilingual free text -->
+  <section class="block" id="try">
+    <h2>Try it yourself <span class="muted small">— any language</span></h2>
+    <form method="post" action="/cases/free" class="js-busy free" id="free-form">
+      <div class="chips" role="group" aria-label="Presets">
+        {% for p in presets %}
+          <button type="button" class="chip-btn {{ p.kind or '' }}" data-message="{{ p.message }}" data-late="{{ '1' if p.late else '' }}" data-preset="{{ p.key }}">{{ p.chip }}</button>
+        {% endfor %}
       </div>
+      <label for="message" class="sr-only">Customer message</label>
+      <textarea id="message" name="message" rows="3" maxlength="{{ max_chars }}" required
+        placeholder="Type a customer message, e.g. “Las zapatillas me quedan pequeñas…”">{{ draft }}</textarea>
+      <input type="hidden" name="preset" id="preset" value="">
+      <div class="row between">
+        <label class="toggle"><input type="checkbox" name="late" id="late" value="1" {{ 'checked' if draft_late }}> Purchased 45 days ago <span class="muted small">(seeded date → rejection demo)</span></label>
+        <span class="muted small"><span id="count">0</span>/{{ max_chars }}</span>
+      </div>
+      <button class="btn primary wide">▶ Run this message (real sandbox order + capture)</button>
+      <p class="muted small">Same loop as Case A/B. Rate-limited to protect the sandbox and the LLM quota. The AI only extracts intent; it cannot approve or move money.</p>
+    </form>
+  </section>
+</div>
+
+<div class="grid-mid">
+  <!-- 2. Case timeline -->
+  <section class="block" id="timeline">
+    <h2><span class="num">2</span> Case timeline {% if current %}<span class="muted small">· {{ current.id }}</span>{% endif %}</h2>
+    {% if current %}
+      {% if current.status == "ERROR" %}<div class="error">PayPal error: {{ current.error }}</div>{% endif %}
       {% if timeline %}
       <ol class="timeline">
         {% for e in timeline %}
           <li class="ev stage-{{ e.stage }}">
-            <div class="ev-head"><span class="stage">{{ e.stage }}</span><span class="ev-title">{{ e.title }}</span><time>{{ e.ts | ts }}</time></div>
-            {% if e.detail %}
-              {% if e.stage == "policy" and e.detail.checks %}
-                <ul class="checks">
-                  {% for ck in e.detail.checks %}<li class="{{ 'pass' if ck.passed else 'fail' }}">{{ '✓' if ck.passed else '✗' }} <code>{{ ck.name }}</code> {{ ck.detail }}</li>{% endfor %}
-                </ul>
-              {% elif e.detail.draft %}
-                <details><summary>Supplier draft</summary><pre>{{ e.detail.draft }}</pre></details>
-              {% else %}
-                <dl class="kv small">
-                  {% for k, v in e.detail.items() if v is not none and k not in ("details",) %}
-                    <dt>{{ k }}</dt><dd>{% if v is mapping %}{{ v.value ~ ' ' ~ v.currency_code if v.value else v }}{% else %}{{ v }}{% endif %}</dd>
-                  {% endfor %}
-                </dl>
-              {% endif %}
+            <div class="ev-head"><span class="stage">{{ e.stage }}</span><span class="ev-text">{{ e.text }}</span><time>{{ e.time }}</time></div>
+            {% if e.stage == "policy" and e.detail and e.detail.checks %}
+              <ul class="checks">
+                {% for ck in e.detail.checks %}<li class="{{ 'pass' if ck.passed else 'fail' }}">{{ '✓' if ck.passed else '✗' }} {{ ck.detail }}</li>{% endfor %}
+              </ul>
             {% endif %}
+            {% if e.detail and e.detail.draft %}
+              <details><summary>Supplier draft</summary><pre>{{ e.detail.draft }}</pre></details>
+            {% endif %}
+            {% if e.detail %}<details class="raw"><summary>raw</summary><pre>{{ e.detail | tojson(indent=2) }}</pre></details>{% endif %}
           </li>
         {% endfor %}
       </ol>
       {% else %}
-        <p class="muted">Case seeded, not run yet. Click “Run Case {{ current.scenario }}”.</p>
+        <p class="muted">Case seeded, not run yet.</p>
       {% endif %}
-      <p class="muted small">Timestamps in UTC. Raw JSON: <a href="/api/cases/{{ current.id }}">/api/cases/{{ current.id }}</a></p>
+      <p class="muted small">Times in UTC. Full raw JSON incl. every PayPal call: <a href="/api/cases/{{ current.id }}">/api/cases/{{ current.id }}</a></p>
     {% endif %}
   </section>
 
-  <!-- 3. Case economics -->
+  <!-- AI understanding -->
+  <section class="block" id="ai">
+    <h2>What the AI understood</h2>
+    {% if ai %}
+      <p class="quote">“{{ ai.message }}”</p>
+      {% if ai.injection %}
+        <div class="inject">⚠ Instruction-like text detected in the customer message. It is treated as data:
+          the model can only fill the intent schema, and everything below the line is decided by code.</div>
+      {% endif %}
+      <dl class="kv">
+        <dt>Detected language</dt><dd>{{ ai.assist.language ~ ' (' ~ ai.assist.language_code ~ ')' if ai.assist else 'unavailable' }}</dd>
+        <dt>Core intent <span class="muted small">(policy reads only this)</span></dt>
+        <dd><code>{{ ai.intent.intent }}</code> <code>{{ ai.intent.reason }}</code> <code>{{ ai.intent.requested_action }}</code></dd>
+        <dt>Extracted sizes <span class="muted small">(info only)</span></dt>
+        <dd>{% if ai.assist and (ai.assist.current_size or ai.assist.requested_size) %}{{ ai.assist.current_size or '?' }} → {{ ai.assist.requested_size or '?' }}{% else %}{{ 'none' if ai.assist else 'unavailable' }}{% endif %}</dd>
+        <dt>Merchant summary (EN)</dt><dd>{{ ai.assist.merchant_summary_en if ai.assist else 'unavailable' }}</dd>
+        <dt>Extractor</dt><dd class="small">{{ ai.extractor }} — {{ ai.extract_note }}{% if not ai.assist %} {{ ai.assist_note }}{% endif %}</dd>
+      </dl>
+      {% if ai.note %}
+        <div class="custnote">
+          <div class="row between"><strong>Customer note · {{ ai.note.language }}</strong><span class="muted small">{{ ai.note.text | length }}/255</span></div>
+          <p>{{ ai.note.text }}</p>
+          {% if ai.note.language != "English" %}<p class="muted small">English source (written by code from the policy result): {{ ai.note.source_en }}</p>{% endif %}
+          <p class="small"><strong>{{ ai.note_status }}</strong> <span class="muted">{{ ai.note.validation }}</span></p>
+        </div>
+      {% endif %}
+      <h3 class="small-h">Controlled by the backend, never by the message or the model</h3>
+      <table class="ctl">
+        {% for k, v, src in controls %}<tr><th>{{ k }}</th><td>{{ v }}</td><td class="muted small">{{ src }}</td></tr>{% endfor %}
+      </table>
+    {% else %}
+      <p class="muted">Run a case or type a message to see the AI's structured reading.</p>
+    {% endif %}
+  </section>
+</div>
+
+<!-- Failure & safety modes -->
+<section class="block failures" id="failures">
+  <h2>Failure &amp; safety modes <span class="muted small">— each runs the same loop against PayPal Sandbox</span></h2>
+  <div class="fm-grid">
+    {% for t in failure_modes %}
+      <div class="fm {{ 'ok' if t.ok else '' }}">
+        <div class="row between"><strong>{{ t.title }}</strong>
+          {% if t.action[0] == 'preset' %}
+            <form method="post" action="/cases/free" class="js-busy"><input type="hidden" name="preset" value="{{ t.action[1] }}"><button class="btn small">Run</button></form>
+          {% else %}
+            <form method="post" action="/demo/run/{{ t.action[1] }}" class="js-busy"><button class="btn small">Run</button></form>
+          {% endif %}
+        </div>
+        <p class="small muted">{{ t.expect }}</p>
+        {% if t.case and t.result %}
+          <p class="small"><a href="/?case={{ t.case.id }}">{{ t.case.id }}</a>: <strong>{{ t.result }}</strong> {{ '✓' if t.ok }}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div class="grid-bottom">
+  <!-- 3. Case economics (illustrative) -->
   <section class="block" id="economics">
     <h2><span class="num">3</span> Case economics</h2>
     <p class="label-illustrative">{{ economics.label }}</p>
@@ -140,35 +233,35 @@
       COST_HOURLY_RATE_USD={{ settings.costs.human_hourly_rate_usd }}, COST_AI_API_USD={{ settings.costs.ai_api_cost_per_case_usd }},
       COST_REVIEW_MINUTES={{ settings.costs.human_review_minutes }}. Not a measured saving.</p>
   </section>
-</div>
 
-<section class="evidence">
-  <h2>Demo evidence</h2>
-  <div class="evidence-grid">
-    {% for title, rows, case in [("Case A — eligible exchange, refund executed", evidence_a, latest_a),
-                                 ("Case B — same request, rejected", evidence_b, latest_b)] %}
-      <div class="panel">
-        <h3>{{ title }}</h3>
-        {% if rows %}
-          <table class="evtable">
-            {% for r in rows %}<tr><th>{{ r.label }}</th><td class="{{ 'ok' if r.ok else 'pending' }}">{{ r.value }}</td></tr>{% endfor %}
-          </table>
-          <p class="muted small">Case {{ case.id }} · <a href="/?case={{ case.id }}#timeline">timeline</a></p>
-        {% else %}
-          <p class="muted">Not run yet.</p>
-        {% endif %}
-      </div>
-    {% endfor %}
-  </div>
-  <h3>Exchange vs refund</h3>
-  <table class="layers">
-    <thead><tr><th>Layer</th><th>Field</th><th>MVP value</th></tr></thead>
-    <tbody>
-      <tr><td>Customer intent</td><td><code>EXCHANGE_REQUEST</code></td><td>Size 42 → size 43</td></tr>
-      <tr><td>Supplier resolution</td><td><code>REPLACEMENT_APPROVED</code></td><td>Mock, clearly labelled</td></tr>
-      <tr><td>Financial resolution</td><td><code>ORIGINAL_PAYMENT_REFUNDED</code></td><td>Real Sandbox refund</td></tr>
-    </tbody>
-  </table>
-  <p class="note">{{ exchange_copy }}</p>
-</section>
+  <section class="block evidence">
+    <h2>Demo evidence</h2>
+    <div class="evidence-grid">
+      {% for title, rows, case in [("Case A — eligible exchange, refund executed", evidence_a, latest_a),
+                                   ("Case B — same request, rejected", evidence_b, latest_b)] %}
+        <div class="panel">
+          <h3>{{ title }}</h3>
+          {% if rows %}
+            <table class="evtable">
+              {% for r in rows %}<tr><th>{{ r.label }}</th><td class="{{ 'ok' if r.ok else 'pending' }}">{{ r.value }}</td></tr>{% endfor %}
+            </table>
+            <p class="muted small">Case <a href="/?case={{ case.id }}">{{ case.id }}</a></p>
+          {% else %}
+            <p class="muted">Not run yet.</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+    <h3>Exchange vs refund</h3>
+    <table class="layers">
+      <thead><tr><th>Layer</th><th>Field</th><th>MVP value</th></tr></thead>
+      <tbody>
+        <tr><td>Customer intent</td><td><code>EXCHANGE_REQUEST</code></td><td>Size 42 → size 43</td></tr>
+        <tr><td>Supplier resolution</td><td><code>REPLACEMENT_APPROVED</code></td><td>Mock, clearly labelled <span class="chip mock">MOCK supplier</span></td></tr>
+        <tr><td>Financial resolution</td><td><code>ORIGINAL_PAYMENT_REFUNDED</code></td><td>Real Sandbox refund</td></tr>
+      </tbody>
+    </table>
+    <p class="note">{{ exchange_copy }}</p>
+  </section>
+</div>
 {% endblock %}

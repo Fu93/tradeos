@@ -54,7 +54,7 @@ def test_case_a_via_http(ctx):
     assert r.status_code == 303
     case = wf.db.get_case(case_id)
     html = client.get("/").text
-    assert case["refund_id"] in html and "Refund confirmed by PayPal" in html
+    assert case["refund_id"] in html and "Refund COMPLETED" in html and "Confirmed by PayPal" in html
     data = client.get(f"/api/cases/{case_id}").json()
     assert data["case"]["refund_status"] == "COMPLETED"
     assert [c["operation"] for c in data["paypal_calls"]] == ["create_order_with_card", "get_capture", "refund_capture"]
