@@ -154,8 +154,8 @@ def test_note_translation_validated_and_numbers_preserved():
 
     def handler(request):
         seen["body"] = json.loads(request.content)
-        return chat(json.dumps({"text": "Este reembolso de 49.99 USD corresponde a tu cambio (talla 42 → 43), "
-                                        "que aprobamos. El reemplazo se envía por separado. ¡Gracias!"}))
+        return chat(json.dumps({"text": "Este reembolso de 49.99 USD corresponde a tu cambio (talla 42 → 43). "
+                                        "El reemplazo se envía por separado. ¡Gracias!"}))
 
     note = note_writer(handler).write("REFUND_NOTE", amount="49.99", currency="USD", policy={},
                                       assist=AssistFields(**ASSIST))
@@ -334,13 +334,16 @@ def test_refund_failure_is_shown_never_success_and_retry_recovers(app_ctx):
     assert first.kwargs["mock_response"] == "REFUND_FAILED_INSUFFICIENT_FUNDS"
     html = client.get(f"/?case={case_id}").text
     assert "Refund FAILED at PayPal" in html and "Refund COMPLETED" not in html and "Retry refund" in html
-    assert "Not delivered — the refund failed" in html
+    assert "the refund could not be completed yet" in html and "FINAL" not in html
+    assert case["note"]["outcome"] == "FAILURE_NOTE" and "could not be completed yet" in case["note"]["text"]
 
     assert client.post(f"/cases/{case_id}/refund", follow_redirects=False).status_code == 303
     case = wf.db.get_case(case_id)
     retry = pp.refund_capture.call_args
     assert "mock_response" not in retry.kwargs and retry.args[1] == first.args[1]  # same PayPal-Request-Id
     assert case["status"] == "REFUND_COMPLETED" and case["refund_id"]
+    assert case["note"]["outcome"] == "COMPLETED_NOTE"
+    assert retry.kwargs["note_to_payer"] == first.kwargs["note_to_payer"]  # identical idempotent body
     calls = wf.db.paypal_calls(case_id, "refund_capture")
     assert [c["ok"] for c in calls] == [0, 1]
 
@@ -564,3 +567,129 @@ def test_fmt_ts_converts_paypal_offsets_to_utc():
     assert fmt_ts("2026-10-08T15:40:14-07:00") == "2026-10-08 22:40:14 UTC"
     assert fmt_ts("2026-10-08T22:40:14Z") == "2026-10-08 22:40:14 UTC"
     assert fmt_ts(None) == "—"
+
+
+# ------------------------------------------------------------------ state-aware note wording
+from app.notes import CLAIMS_ALLOWED, claims_consistent, makes_completion_claim  # noqa: E402
+
+LANGS = {
+    "en": AssistFields(**{**ASSIST, "language": "English", "language_code": "en"}),
+    "zh": AssistFields(**{**ASSIST, "language": "Chinese (Traditional)", "language_code": "zh-Hant"}),
+    "es": AssistFields(**ASSIST),
+    "de": AssistFields(**{**ASSIST, "language": "German", "language_code": "de"}),
+    "ja": AssistFields(**{**ASSIST, "language": "Japanese", "language_code": "ja"}),
+}
+GOOD_PENDING = {
+    "zh": "您的換貨請求（尺寸 42 → 43）已審核，正在等待商家核准。目前尚未退款。",
+    "es": "Su solicitud de cambio (talla 42 → 43) ha sido revisada y está pendiente de aprobación del comerciante. "
+          "Aún no se ha emitido ningún reembolso.",
+    "de": "Ihre Umtauschanfrage (Größe 42 → 43) wurde geprüft und wartet auf die Genehmigung des Händlers. "
+          "Es wurde noch keine Rückerstattung ausgestellt.",
+    "ja": "交換リクエスト（サイズ42→43）は確認済みで、販売者の承認待ちです。まだ返金は行われていません。",
+}
+BAD_PENDING = {
+    "zh": "您的換貨請求（尺寸 42 → 43）已批准，退款 49.99 USD 已退款。",
+    "es": "Su solicitud de cambio (talla 42 → 43) fue aprobada.",
+    "de": "Ihre Umtauschanfrage (Größe 42 → 43) wurde genehmigt.",
+    "ja": "交換リクエスト（サイズ42→43）は承認済みです。",
+    "en": "Your exchange request (size 42 → 43) was approved.",
+}
+
+
+def test_english_templates_only_claim_after_completion():
+    for outcome in ("PENDING_NOTE", "REFUND_NOTE", "COMPLETED_NOTE", "FAILURE_NOTE", "REJECTION_NOTE"):
+        text = english_note(outcome, amount="49.99", currency="USD",
+                            policy={"checks": [{"name": "return_window", "passed": False,
+                                                "detail": "Purchased 45 days ago; window is 30 days"}]},
+                            assist=LANGS["es"])
+        assert makes_completion_claim(text) == (outcome in CLAIMS_ALLOWED), outcome
+        assert len(text) <= 255
+    pending = english_note("PENDING_NOTE", amount="49.99", currency="USD", policy={}, assist=None)
+    assert "awaiting merchant approval" in pending and "No refund has been issued yet" in pending
+
+
+@pytest.mark.parametrize("lang", ["zh", "es", "de", "ja"])
+def test_pending_translation_without_claims_is_accepted(lang):
+    note = note_writer(lambda r: chat(json.dumps({"text": GOOD_PENDING[lang]}))).write(
+        "PENDING_NOTE", amount="49.99", currency="USD", policy={}, assist=LANGS[lang])
+    assert note.text == GOOD_PENDING[lang] and note.language == LANGS[lang].language
+    assert not makes_completion_claim(note.text)
+
+
+@pytest.mark.parametrize("lang", ["zh", "es", "de", "ja", "en"])
+@pytest.mark.parametrize("outcome", ["PENDING_NOTE", "FAILURE_NOTE", "REFUND_NOTE", "REJECTION_NOTE"])
+def test_translation_claiming_approval_falls_back_to_english(lang, outcome):
+    # "en" customers skip the LLM; emulate a model reply in English for a Spanish customer instead.
+    assist = LANGS["es"] if lang == "en" else LANGS[lang]
+    note = note_writer(lambda r: chat(json.dumps({"text": BAD_PENDING[lang]}))).write(
+        outcome, amount="49.99", currency="USD", policy={}, assist=assist)
+    assert note.language == "English" and note.text == note.source_en
+    assert not makes_completion_claim(note.text)
+    assert "approval/refund that has not happened" in note.validation or "number" in note.validation
+
+
+def test_completed_translation_may_claim_approval():
+    text = "您的換貨請求（尺寸 42 → 43）已批准，49.99 USD 的退款已由 PayPal 完成。替換品將另行寄出。謝謝！"
+    note = note_writer(lambda r: chat(json.dumps({"text": text}))).write(
+        "COMPLETED_NOTE", amount="49.99", currency="USD", policy={}, assist=LANGS["zh"])
+    assert note.text == text and claims_consistent("COMPLETED_NOTE", text)
+
+
+def bad_zh_writer():
+    return note_writer(lambda r: chat(json.dumps({"text": BAD_PENDING["zh"]})))
+
+
+def test_pending_case_note_never_claims_approval_even_with_bad_model(settings):
+    wf, pp = make_wf(settings, FakeExtractor(assist={**ASSIST, "language": "Chinese (Traditional)",
+                                                     "language_code": "zh-Hant"}), note_writer=bad_zh_writer())
+    case_id = wf.run_free_text(BY_KEY["zh"]["message"])
+    case = wf.db.get_case(case_id)
+    assert case["status"] == "PENDING_APPROVAL" and case["note"]["outcome"] == "PENDING_NOTE"
+    assert "已批准" not in case["note"]["text"] and not makes_completion_claim(case["note"]["text"])
+    assert "awaiting merchant approval" in case["note"]["text"] and case["payer_note"] is None
+    pp.refund_capture.assert_not_called()
+
+
+def test_completed_note_only_after_paypal_completed(settings):
+    paypal = MagicMock(wraps=MockPayPalClient(refund_status="PENDING"), is_mock=True)
+    wf, _ = make_wf(settings, paypal=paypal)
+    case_id = wf.run_scenario("A")
+    wf.approve(case_id)
+    case = wf.db.get_case(case_id)
+    assert case["refund_status"] == "PENDING"
+    assert case["note"]["outcome"] == "PENDING_NOTE" and not makes_completion_claim(case["note"]["text"])
+    assert not makes_completion_claim(case["payer_note"]["text"])  # what was sent WITH the refund call
+    wf.refresh_refund(case_id)
+    case = wf.db.get_case(case_id)
+    assert case["refund_status"] == "COMPLETED" and case["note"]["outcome"] == "COMPLETED_NOTE"
+    assert "was approved" in case["note"]["text"] and "has been completed" in case["note"]["text"]
+
+
+def test_failure_note_wording(settings):
+    paypal = MagicMock(wraps=MockPayPalClient(fail_refund=True), is_mock=True)
+    wf, _ = make_wf(settings, paypal=paypal)
+    case_id = wf.run_scenario("A")
+    with pytest.raises(PayPalError):
+        wf.approve(case_id)
+    case = wf.db.get_case(case_id)
+    assert case["note"]["outcome"] == "FAILURE_NOTE"
+    assert "could not be completed yet" in case["note"]["text"] and not makes_completion_claim(case["note"]["text"])
+
+
+def test_dashboard_labels_draft_vs_final(app_ctx):
+    client, _, wf = app_ctx
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    html = client.get(f"/?case={case_id}").text
+    assert "DRAFT — pending merchant approval. Not sent." in html and "DRAFT · not sent" in html
+    assert ">FINAL<" not in html and "note_to_payer ·" not in html
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    html = client.get(f"/?case={case_id}").text
+    assert ">FINAL<" in html and "only after the merchant approved and PayPal returned COMPLETED" in html
+    assert "PayPal note_to_payer" in html and "delivered with refund" in html
+
+
+def test_rejected_note_keeps_no_refund_wording(settings):
+    wf, _ = make_wf(settings)
+    case = wf.db.get_case(wf.run_scenario("B"))
+    assert case["note"]["outcome"] == "REJECTION_NOTE" and "No refund has been issued." in case["note"]["text"]
+    assert not makes_completion_claim(case["note"]["text"])

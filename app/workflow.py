@@ -14,7 +14,7 @@ from typing import Any, Callable
 
 from .config import Settings
 from .db import Database
-from .intent import IntentExtractor
+from .intent import AssistFields, IntentExtractor
 from .notes import TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
@@ -271,7 +271,8 @@ class Workflow:
             return
         self.db.update_case(case_id, policy_json=json.dumps(final.to_dict()), decision=final.decision,
                             status=PENDING_APPROVAL)
-        self._write_note(case_id, "REFUND_NOTE", final, extraction)
+        # Not approved yet: the draft says so. Approval wording only exists after PayPal COMPLETED.
+        self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
         self.db.audit(case_id, "human", "Waiting for human approval", {"amount": f"{case['amount']} {case['currency']}"})
 
     def _evaluate(self, case: dict, product: dict, intent, capture: dict, supplier_status: str | None,
@@ -304,21 +305,47 @@ class Workflow:
         self.db.audit(case_id, "paypal", "Refund API NOT CALLED — policy rejected the case",
                       {"reasons": result.reasons, "refund_id": None})
         if extraction is not None:
-            self._write_note(case_id, "REJECTION_NOTE", result, extraction)
+            self._write_note(case_id, "REJECTION_NOTE", result.to_dict(), extraction.assist)
 
-    def _write_note(self, case_id: str, outcome: str, result: PolicyResult, extraction) -> None:
-        """Customer-language note, written AFTER the policy decision from the real outcome."""
+    NOTE_TITLES = {
+        "PENDING_NOTE": "Customer note drafted: awaiting merchant approval (not sent)",
+        "REFUND_NOTE": "note_to_payer written for the refund call (neutral wording)",
+        "COMPLETED_NOTE": "Final customer note written after PayPal COMPLETED",
+        "FAILURE_NOTE": "Customer note drafted: refund could not be completed yet (not sent)",
+        "REJECTION_NOTE": "Customer decision note drafted (no refund issued)",
+    }
+
+    def _write_note(self, case_id: str, outcome: str, policy: dict | None, assist) -> dict | None:
+        """Customer-language note written from the case's ACTUAL state (see app/notes.py).
+
+        REFUND_NOTE goes to the payer_note column (sent with the refund call); every other
+        outcome replaces the customer note shown in the dashboard.
+        """
         case = self._case(case_id)
+        if isinstance(assist, dict):
+            try:
+                assist = AssistFields.model_validate(assist)
+            except Exception:
+                assist = None
         try:
             note = self.note_writer.write(outcome, amount=case["amount"], currency=case["currency"],
-                                          policy=result.to_dict(), assist=extraction.assist)
+                                          policy=policy or case.get("policy") or {}, assist=assist)
         except Exception as exc:  # the note is a convenience; never let it break the loop
             self.db.audit(case_id, "note", "Customer note unavailable", {"error": type(exc).__name__})
-            return
-        self.db.update_case(case_id, note_json=note.model_dump_json())
-        title = ("Customer refund note drafted (sent only with a real refund)" if outcome == "REFUND_NOTE"
-                 else "Customer decision note drafted (no refund issued)")
-        self.db.audit(case_id, "note", title, note.model_dump())
+            return None
+        column = "payer_note_json" if outcome == "REFUND_NOTE" else "note_json"
+        self.db.update_case(case_id, **{column: note.model_dump_json()})
+        self.db.audit(case_id, "note", self.NOTE_TITLES[outcome], note.model_dump())
+        return note.model_dump()
+
+    def _payer_note(self, case_id: str) -> str | None:
+        """The note_to_payer for the refund call: written once at Approve, reused on retries/replays
+        so the idempotent request body never changes."""
+        case = self._case(case_id)
+        if case.get("payer_note"):
+            return case["payer_note"]["text"]
+        note = self._write_note(case_id, "REFUND_NOTE", None, case.get("assist"))
+        return note["text"] if note else None
 
     # ------------------------------------------------------------------ human + money
     def approve(self, case_id: str, approver: str = "merchant") -> None:
@@ -357,7 +384,7 @@ class Workflow:
             if not case["refund_id"]:
                 raise RefundNotAllowed("No refund to replay.")
             request_id = f"tradeos-refund-{case_id}"
-            note = (case.get("note") or {}).get("text") if (case.get("note") or {}).get("outcome") == "REFUND_NOTE" else None
+            note = (case.get("payer_note") or {}).get("text")
             again = self._pp(case_id, "refund_capture", case["capture_id"], request_id, note_to_payer=note)
             total = ((again.get("seller_payable_breakdown") or {}).get("total_refunded_amount") or {})
             evidence = {
@@ -411,8 +438,7 @@ class Workflow:
             return case["refund"] or {}
 
         request_id = f"tradeos-refund-{case_id}"  # idempotent: double clicks return the same refund
-        note = case.get("note") or {}
-        note_text = note.get("text") if note.get("outcome") == "REFUND_NOTE" else None
+        note_text = self._payer_note(case_id)
         fault = case.get("refund_fault")
         kwargs = {"note_to_payer": note_text}
         if fault:
@@ -425,6 +451,7 @@ class Workflow:
             # The fault is injected exactly once, so "Retry" exercises a real recovery.
             self.db.update_case(case_id, status=REFUND_ERROR, error=str(exc), refund_fault=None)
             self.db.audit(case_id, "paypal", "Refund failed", {**exc.to_dict(), "paypal_request_id": request_id})
+            self._write_note(case_id, "FAILURE_NOTE", None, case.get("assist"))
             raise
         self._record_refund(case_id, refund, request_id)
         return refund
@@ -475,6 +502,11 @@ class Workflow:
                        "create_time": refund.get("create_time"), "paypal_request_id": request_id,
                        "note_to_payer": refund.get("note_to_payer"),
                        "status_details": refund.get("status_details")})
+        case = self._case(case_id)
+        if (status == "COMPLETED" and case.get("human_decision") == "APPROVED"
+                and (case.get("note") or {}).get("outcome") != "COMPLETED_NOTE"):
+            # Only now may the customer note say "approved" / "refunded".
+            self._write_note(case_id, "COMPLETED_NOTE", None, case.get("assist"))
 
     @staticmethod
     def _now() -> str:

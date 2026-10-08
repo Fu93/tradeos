@@ -178,11 +178,19 @@
         <dt>Extractor</dt><dd class="small">{{ ai.extractor }} — {{ ai.extract_note }}{% if not ai.assist %} {{ ai.assist_note }}{% endif %}</dd>
       </dl>
       {% if ai.note %}
-        <div class="custnote">
-          <div class="row between"><strong>Customer note · {{ ai.note.language }}</strong><span class="muted small">{{ ai.note.text | length }}/255</span></div>
+        <div class="custnote {{ ai.note_kind }}">
+          <div class="row between"><strong>Customer note · {{ ai.note.language }}</strong>
+            <span class="chip {{ 'ok' if ai.note_kind == 'final' else 'warn' }}">{{ 'FINAL' if ai.note_kind == 'final' else 'DRAFT · not sent' }}</span></div>
           <p>{{ ai.note.text }}</p>
-          {% if ai.note.language != "English" %}<p class="muted small">English source (written by code from the policy result): {{ ai.note.source_en }}</p>{% endif %}
+          {% if ai.note.language != "English" %}<p class="muted small">English source (written by code from the case state): {{ ai.note.source_en }}</p>{% endif %}
           <p class="small"><strong>{{ ai.note_status }}</strong> <span class="muted">{{ ai.note.validation }}</span></p>
+        </div>
+      {% endif %}
+      {% if ai.payer_note %}
+        <div class="custnote payer">
+          <div class="row between"><strong>PayPal note_to_payer · {{ ai.payer_note.language }}</strong><span class="muted small">{{ ai.payer_note.text | length }}/255</span></div>
+          <p>{{ ai.payer_note.text }}</p>
+          <p class="small muted">{{ ai.payer_note_status }}</p>
         </div>
       {% endif %}
       <h3 class="small-h">Controlled by the backend, never by the message or the model</h3>

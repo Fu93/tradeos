@@ -99,12 +99,21 @@ One strict structured-output call returns two separately validated parts:
 * Customer text is sent as data under a fixed system prompt with a strict JSON schema; anything outside the schema
   (e.g. a `"decision"` or `"refund_amount"` key) makes the whole output invalid → `UNKNOWN` → policy rejects.
 * If the LLM fails, the deterministic keyword extractor fills the core intent and the assist fields are shown as *unavailable*.
-* **Customer note, grounded in the real outcome.** After the policy decision, *code* writes an English note from the
-  actual result (e.g. “the 30-day return window has passed (purchased 45 days ago). No refund has been issued.”).
-  The LLM may only translate it into the customer's language; the translation must keep every number and fit
-  PayPal's 255-character limit, otherwise the English note is used. For eligible cases the note is phrased as
-  “This refund of 49.99 USD is for …” and is attached to the PayPal refund as **`note_to_payer`** — so it can only
-  ever reach the buyer together with a real refund. If the refund fails or the merchant declines, it is never sent.
+* **Customer note, grounded in the real case state.** *Code* writes the English note from what has actually
+  happened; the LLM may only translate it. The wording follows the state:
+
+  | Case state | Customer note | UI label |
+  | --- | --- | --- |
+  | Policy ELIGIBLE, waiting for the merchant | “…has been reviewed and is awaiting merchant approval. No refund has been issued yet.” | DRAFT · not sent |
+  | Merchant pressed Approve → refund call | `note_to_payer` sent **with** the refund call: “This refund of 49.99 USD is for your exchange request…” (neutral) | shown as PayPal note_to_payer |
+  | PayPal returned `COMPLETED` | “…was approved and your refund of 49.99 USD has been completed by PayPal…” — the **only** note allowed to say approved/refunded | FINAL |
+  | PayPal refused the refund | “…could not be completed yet. No money has been moved.” | DRAFT · not sent |
+  | Policy REJECTED | “…No refund has been issued.” | DRAFT · not sent |
+
+  Translation guard (deterministic): every number must survive, the text must fit PayPal's 255-character
+  `note_to_payer` limit, and — for every state except COMPLETED — the translation must not contain approval /
+  refund-completed claims (phrase lists for en, zh, ja, es, de, e.g. “approved”, “已批准”, “已退款”, “承認済”,
+  “aprobado”, “genehmigt”). Otherwise the code-written English note is used.
 * AI never decides eligibility, amount, capture or permission.
 
 Live check with Groq `openai/gpt-oss-20b` (2026-10-08): all five language presets → `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE`,
@@ -252,7 +261,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 104 tests.
+approval or a lying extractor. 135 tests.
 
 ## Demo flow (≈3 minutes)
 

@@ -214,17 +214,25 @@ def ai_panel(case: dict | None) -> dict | None:
     extraction = case.get("extraction") or {}
     note = case.get("note")
     status = case["status"]
-    note_status = None
+    note_status, note_kind = None, "draft"
     if note:
-        if note.get("outcome") == "REFUND_NOTE":
-            note_status = {
-                "REFUND_COMPLETED": f"Delivered by PayPal as note_to_payer with refund {case.get('refund_id')}.",
-                "REFUND_PENDING": f"Attached to refund {case.get('refund_id')} (PENDING).",
-                "REFUND_ERROR": "Not delivered — the refund failed. It is only ever sent together with a real refund.",
-                "DECLINED_BY_HUMAN": "Discarded — the merchant declined, so no refund and no note.",
-            }.get(status, "Draft. Sent to the buyer as PayPal note_to_payer ONLY if the refund executes.")
+        outcome = note.get("outcome")
+        if outcome == "PENDING_NOTE":
+            note_kind = "draft"
+            note_status = ("DRAFT — pending merchant approval. Not sent. Nothing approved or refunded yet."
+                           if status == "PENDING_APPROVAL" else
+                           "Discarded — the merchant declined. Not sent; no refund." if status == "DECLINED_BY_HUMAN"
+                           else "Draft — not sent.")
+        elif outcome == "COMPLETED_NOTE":
+            note_kind = "final"
+            note_status = (f"FINAL — written only after the merchant approved and PayPal returned COMPLETED "
+                           f"for refund {case.get('refund_id')}.")
+        elif outcome == "FAILURE_NOTE":
+            note_kind = "draft"
+            note_status = "DRAFT — the refund could not be completed yet. Not sent; no money moved."
         else:
-            note_status = "Draft for the customer. States that no refund was issued (true: Refund API not called)."
+            note_kind = "draft"
+            note_status = "DRAFT for the customer — states no refund was issued (true: Refund API not called). Not sent."
     return {
         "message": case["customer_message"],
         "intent": case["intent"],
@@ -234,6 +242,12 @@ def ai_panel(case: dict | None) -> dict | None:
         "assist_note": extraction.get("assist_note"),
         "note": note,
         "note_status": note_status,
+        "note_kind": note_kind,
+        "payer_note": case.get("payer_note"),
+        "payer_note_status": ("Sent to PayPal as note_to_payer with the refund call"
+                              + (f" — delivered with refund {case.get('refund_id')}." if case.get("refund_id")
+                                 else " — PayPal did not complete the refund, so it was not delivered."))
+        if case.get("payer_note") else None,
         "injection": looks_like_injection(case["customer_message"]),
     }
 
@@ -304,8 +318,14 @@ def narrate(e: dict) -> str:
         return f"Failure test: this one refund attempt carries PayPal's sandbox negative-testing header ({code})."
     if t.startswith("Refund API NOT CALLED"):
         return "Refund API NOT CALLED — the policy rejected the case. Refund ID: none."
-    if t.startswith("Customer refund note"):
-        return f"Refund note drafted in {d.get('language')} from the policy outcome; it is sent only with a real refund."
+    if t.startswith("Customer note drafted: awaiting"):
+        return f"Customer note drafted in {d.get('language')}: awaiting merchant approval, no refund yet (not sent)."
+    if t.startswith("note_to_payer written"):
+        return f"Neutral note_to_payer written in {d.get('language')} to travel with the refund call."
+    if t.startswith("Final customer note"):
+        return f"Final customer note written in {d.get('language')} — only now, after PayPal returned COMPLETED."
+    if t.startswith("Customer note drafted: refund could not"):
+        return f"Customer note drafted in {d.get('language')}: the refund could not be completed yet (not sent)."
     if t.startswith("Customer decision note"):
         return f"Decision note drafted in {d.get('language')}: no refund issued."
     if t.startswith("Second Approve click"):

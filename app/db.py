@@ -41,7 +41,8 @@ CREATE TABLE IF NOT EXISTS cases (
     intent_json TEXT,
     assist_json TEXT,                   -- non-decisional AI assist fields (policy never reads them)
     extraction_json TEXT,               -- extractor provenance / notes
-    note_json TEXT,                     -- customer-language note grounded in the actual outcome
+    note_json TEXT,                     -- customer-language note grounded in the actual case state
+    payer_note_json TEXT,               -- neutral note sent to PayPal as note_to_payer WITH the refund call
     policy_json TEXT,
     decision TEXT,
     supplier_draft TEXT,
@@ -79,7 +80,7 @@ CREATE TABLE IF NOT EXISTS paypal_calls (
 
 TABLES = ("paypal_calls", "audit_events", "cases", "products")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
-                "duplicate_json", "webhook_json")
+                "duplicate_json", "webhook_json", "payer_note_json")
 
 
 def utcnow() -> str:
@@ -112,7 +113,7 @@ class Database:
             # Lightweight forward migration for a kept database (TRADEOS_RESET_ON_START=0).
             have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
             for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
-                        "webhook_status", "webhook_json"):
+                        "webhook_status", "webhook_json", "payer_note_json"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
 
