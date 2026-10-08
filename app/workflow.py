@@ -237,10 +237,16 @@ class Workflow:
         self.db.update_case(case_id, intent_json=json.dumps(intent),
                             assist_json=json.dumps(assist, ensure_ascii=False) if assist else None,
                             extraction_json=json.dumps({"extractor": extraction.extractor, "note": extraction.note,
-                                                        "assist_note": extraction.assist_note}))
+                                                        "assist_note": extraction.assist_note,
+                                                        "injection_guard": extraction.injection_guard}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
                        "assist": assist, "assist_note": extraction.assist_note})
+        if extraction.injection_guard:
+            self.db.audit(case_id, "intent",
+                          "Keyword fallback + injection detected → intent UNKNOWN, sent to a human",
+                          {"why": "The LLM was unavailable, and keyword rules can be steered by injected words, "
+                                  "so this message cannot become an approvable request.", "forced": intent})
 
         # Step 4: policy engine, fed with live PayPal capture data.
         try:

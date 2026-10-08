@@ -118,19 +118,34 @@ def score(rows: list[dict], key: str) -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--keyword-only", action="store_true")
+    ap.add_argument("--keyword-only", action="store_true",
+                    help="re-run only the keyword fallback; LLM results already in results.json are kept")
     ap.add_argument("--delay", type=float, default=8.0, help="seconds between LLM calls (Groq free-tier friendly)")
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--rescore", action="store_true", help="recompute metrics from saved results.json (no API calls)")
     args = ap.parse_args()
     if args.rescore:
         old = json.loads(OUT_JSON.read_text())
-        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0))
+        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
+              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"))
         return
 
     data = json.loads(DATASET.read_text())
     msgs = data["messages"][: args.limit or None]
     kw = KeywordIntentExtractor()
+    if args.keyword_only and OUT_JSON.exists():
+        old = json.loads(OUT_JSON.read_text())
+        if old.get("model") and [r["id"] for r in old["rows"]] == [m["id"] for m in msgs]:
+            history = old.get("keyword_history") or []
+            history.append({"run_at": old.get("keyword_run_at") or old["run_at"], "exact": old["keyword"]["exact"],
+                            "unwarranted_accept": old["keyword"]["unwarranted_accept"],
+                            "injection_unwarranted_accept": old["injection"]["keyword"]["unwarranted_accept"]})
+            for r, m in zip(old["rows"], msgs):
+                r["keyword"] = kw.extract(m["message"]).result.model_dump()
+            now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+            write(old["rows"], old["model"], old["run_at"], old["llm_meta"]["retries_429"],
+                  keyword_run_at=now, keyword_history=history)
+            return
     use_llm = not args.keyword_only and bool(os.environ.get("LLM_API_KEY"))
     model = os.environ.get("LLM_MODEL") or DEFAULT_LLM_MODEL
     rec = RecordingTransport()
@@ -161,9 +176,11 @@ def main() -> None:
     write(rows, model if llm else None, datetime.now(timezone.utc).replace(microsecond=0).isoformat(), rec.retries_429)
 
 
-def write(rows: list[dict], model: str | None, run_at: str, retries_429: int) -> None:
+def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
+          keyword_run_at: str | None = None, keyword_history: list | None = None) -> None:
     llm = "llm" in rows[0]
-    results = {"run_at": run_at, "dataset_size": len(rows), "model": model, "keyword": score(rows, "keyword"), "per_language": {}, "rows": rows}
+    results = {"run_at": run_at, "keyword_run_at": keyword_run_at or run_at, "keyword_history": keyword_history or [],
+               "dataset_size": len(rows), "model": model, "keyword": score(rows, "keyword"), "per_language": {}, "rows": rows}
     langs = [l for l in LANG_ORDER if any(r["lang"] == l for r in rows)]
     for l in langs:
         sub = [r for r in rows if r["lang"] == l]
@@ -204,7 +221,21 @@ def render_md(res: dict) -> str:
              f"Run: {res['run_at']} · dataset: {res['dataset_size']} hand-labelled messages "
              f"([dataset.json](dataset.json)) · model: `{res['model']}` via Groq · script: `scripts/eval_intent.py`.", "",
              "Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards "
-             "to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).", "",
+             "to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).", ""]
+    if res.get("keyword_run_at") and res["keyword_run_at"] != res["run_at"]:
+        lines += [f"**Keyword-fallback column re-run {res['keyword_run_at']} (keyword-only, no LLM calls), after the "
+                  "fallback injection guard:** when the LLM is unavailable and the message looks like a prompt "
+                  "injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged "
+                  f"from the {res['run_at']} run.", ""]
+        for h in res.get("keyword_history", []):
+            inj_ids = h["injection_unwarranted_accept"]
+            lines += [f"* Before (keyword run {h['run_at']}): exact match {h['exact']}/{res['dataset_size']}; "
+                      f"injections the policy would wrongly accept: {len(inj_ids)}"
+                      f"{' (' + ', '.join(inj_ids) + ')' if inj_ids else ''}."]
+        inj_now = res["injection"]["keyword"]["unwarranted_accept"]
+        lines += [f"* After: exact match {res['keyword']['exact']}/{res['dataset_size']}; injections the policy would "
+                  f"wrongly accept: {len(inj_now)}{' (' + ', '.join(inj_now) + ')' if inj_now else ''}.", ""]
+    lines += [
              "## Overall", "", "| Metric | LLM | Keyword fallback |", "| --- | --- | --- |"]
     n = res["dataset_size"]
     def both(key, label):
@@ -233,8 +264,11 @@ def render_md(res: dict) -> str:
             f"{len(only_reason) - len(label_conv)} pick a different concrete reason, {len(miss) - len(only_reason)} get intent or action wrong.",
             f"* Prompt injections ({len(inj)}): the LLM output never produced a policy-acceptable request that was not warranted "
             f"({len(L['unwarranted_accept'])} across all {n} messages). The keyword fallback produced "
-            f"{len(k['unwarranted_accept'])} ({', '.join(k['unwarranted_accept']) or 'none'}) — both injections contain the word "
-            "\"EXCHANGE\"; those cases would still need every other policy check and a human click.",
+            f"{len(k['unwarranted_accept'])} ({', '.join(k['unwarranted_accept']) or 'none'})"
+            + (" — injected words like \"EXCHANGE\" fool keyword rules; such cases would still need every other "
+               "policy check and a human click." if k["unwarranted_accept"] else
+               " — with the injection guard, an instruction-like message on the fallback path becomes UNKNOWN and "
+               "goes to a human (this also routes m11, a genuine exchange wrapped in an injection, to a human)."),
             "* The keyword fallback is English-only by design (a no-key demo path); outside English it mostly returns UNKNOWN, "
             "which the policy routes to a human.", ""]
     lines += ["", "## Exact match per language", "", "| Language | n | LLM | Keyword |", "| --- | --- | --- | --- |"]
