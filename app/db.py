@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE TABLE IF NOT EXISTS cases (
     id TEXT PRIMARY KEY,
     scenario TEXT NOT NULL,
+    label TEXT,                         -- e.g. "Case A", "Spanish preset", "Free text"
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     status TEXT NOT NULL,
@@ -38,6 +39,10 @@ CREATE TABLE IF NOT EXISTS cases (
     capture_time TEXT,
     approve_url TEXT,
     intent_json TEXT,
+    assist_json TEXT,                   -- non-decisional AI assist fields (policy never reads them)
+    extraction_json TEXT,               -- extractor provenance / notes
+    note_json TEXT,                     -- customer-language note grounded in the actual case state
+    payer_note_json TEXT,               -- neutral note sent to PayPal as note_to_payer WITH the refund call
     policy_json TEXT,
     decision TEXT,
     supplier_draft TEXT,
@@ -47,6 +52,10 @@ CREATE TABLE IF NOT EXISTS cases (
     refund_id TEXT,
     refund_status TEXT,
     refund_json TEXT,
+    refund_fault TEXT,                  -- failure-mode demo: sandbox negative-testing code for ONE attempt
+    duplicate_json TEXT,                -- failure-mode demo: duplicate refund request evidence
+    webhook_status TEXT,                -- PayPal webhook second confirmation
+    webhook_json TEXT,
     error TEXT
 );
 
@@ -70,6 +79,8 @@ CREATE TABLE IF NOT EXISTS paypal_calls (
 """
 
 TABLES = ("paypal_calls", "audit_events", "cases", "products")
+JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
+                "duplicate_json", "webhook_json", "payer_note_json")
 
 
 def utcnow() -> str:
@@ -99,6 +110,12 @@ class Database:
                 for t in TABLES:
                     conn.execute(f"DROP TABLE IF EXISTS {t}")
             conn.executescript(SCHEMA)
+            # Lightweight forward migration for a kept database (TRADEOS_RESET_ON_START=0).
+            have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
+            for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
+                        "webhook_status", "webhook_json", "payer_note_json"):
+                if col not in have:
+                    conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -147,9 +164,18 @@ class Database:
             rows = conn.execute(sql, args).fetchall()
         return [_decode_case(r) for r in rows]
 
-    def latest_case(self, scenario: str) -> dict | None:
+    def latest_case(self, scenario: str, label: str | None = None) -> dict | None:
         cases = self.list_cases(scenario=scenario)
+        if label is not None:
+            cases = [c for c in cases if c.get("label") == label]
         return cases[0] if cases else None
+
+    def find_case_by(self, column: str, value: str) -> dict | None:
+        if column not in ("refund_id", "capture_id", "order_id"):
+            raise ValueError(column)
+        with self.connect() as conn:
+            row = conn.execute(f"SELECT * FROM cases WHERE {column}=?", (value,)).fetchone()
+        return _decode_case(row) if row else None
 
     # -- audit ------------------------------------------------------------
     def audit(self, case_id: str, stage: str, title: str, detail: Any = None) -> None:
@@ -190,7 +216,7 @@ class Database:
 
 def _decode_case(row: sqlite3.Row) -> dict:
     d = dict(row)
-    for key in ("intent_json", "policy_json", "refund_json"):
+    for key in JSON_COLUMNS:
         raw = d.get(key)
         d[key.removesuffix("_json")] = json.loads(raw) if raw else None
     return d

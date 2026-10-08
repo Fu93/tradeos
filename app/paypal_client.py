@@ -5,12 +5,19 @@ APIs used:
   POST /v2/checkout/orders                       (intent CAPTURE; optional card payment_source)
   POST /v2/checkout/orders/{id}/capture
   GET  /v2/payments/captures/{id}                (feeds the policy engine)
-  POST /v2/payments/captures/{id}/refund         (empty body = full refund, idempotent)
+  POST /v2/payments/captures/{id}/refund         (no amount = full refund, idempotent; optional note_to_payer)
   GET  /v2/payments/refunds/{id}                 (refresh a PENDING refund)
+  POST /v1/notifications/verify-webhook-signature (webhook: second, independent confirmation)
+  GET/POST /v1/notifications/webhooks            (one-off webhook registration script)
+
+Sandbox negative testing: ``refund_capture(..., mock_response=CODE)`` sends the
+``PayPal-Mock-Response`` header so PayPal itself returns a real error response. It is
+refused outside the sandbox.
 """
 
 from __future__ import annotations
 
+import json as _json
 import threading
 import time
 from datetime import date
@@ -124,7 +131,7 @@ class PayPalClient:
         )
 
     def _request(self, method: str, path: str, *, json: Any = None, content: bytes | None = None,
-                 request_id: str | None = None) -> dict:
+                 request_id: str | None = None, extra_headers: dict | None = None) -> dict:
         headers = {
             "Authorization": f"Bearer {self._access_token()}",
             "Content-Type": "application/json",
@@ -133,6 +140,7 @@ class PayPalClient:
         }
         if request_id:
             headers["PayPal-Request-Id"] = request_id
+        headers.update(extra_headers or {})
         try:
             resp = self._http.request(method, path, json=json, content=content, headers=headers)
         except httpx.HTTPError as exc:
@@ -203,10 +211,55 @@ class PayPalClient:
     def get_capture(self, capture_id: str) -> dict:
         return self._request("GET", f"/v2/payments/captures/{capture_id}")
 
-    def refund_capture(self, capture_id: str, request_id: str) -> dict:
-        """Full refund: empty JSON body. PayPal-Request-Id makes retries idempotent."""
-        return self._request("POST", f"/v2/payments/captures/{capture_id}/refund", content=b"{}",
-                             request_id=request_id)
+    @property
+    def is_sandbox(self) -> bool:
+        return "sandbox" in self.base_url
+
+    def refund_capture(self, capture_id: str, request_id: str, note_to_payer: str | None = None,
+                       mock_response: str | None = None) -> dict:
+        """Full refund (no amount). PayPal-Request-Id makes retries idempotent.
+
+        ``note_to_payer`` (<= 255 chars) is shown to the buyer with the refund.
+        ``mock_response`` = sandbox negative-testing error code (sandbox only).
+        """
+        extra = {}
+        if mock_response:
+            if not self.is_sandbox:
+                raise PayPalError("PayPal-Mock-Response negative testing is only allowed in the sandbox.")
+            extra["PayPal-Mock-Response"] = _json.dumps({"mock_application_codes": mock_response})
+        body: dict = {}
+        if note_to_payer:
+            body["note_to_payer"] = note_to_payer[:255]
+        content = _json.dumps(body, ensure_ascii=False).encode() if body else b"{}"
+        return self._request("POST", f"/v2/payments/captures/{capture_id}/refund", content=content,
+                             request_id=request_id, extra_headers=extra)
 
     def get_refund(self, refund_id: str) -> dict:
         return self._request("GET", f"/v2/payments/refunds/{refund_id}")
+
+    # -- Webhooks v1 ------------------------------------------------------
+    def verify_webhook_signature(self, headers: dict, raw_body: bytes, webhook_id: str) -> str:
+        """Postback verification. Returns PayPal's verification_status (SUCCESS / FAILURE).
+
+        The event is embedded byte-for-byte (not re-serialised), so the signature PayPal
+        computed over the original body still matches.
+        """
+        h = {k.lower(): v for k, v in headers.items()}
+        meta = {
+            "auth_algo": h.get("paypal-auth-algo", ""),
+            "cert_url": h.get("paypal-cert-url", ""),
+            "transmission_id": h.get("paypal-transmission-id", ""),
+            "transmission_sig": h.get("paypal-transmission-sig", ""),
+            "transmission_time": h.get("paypal-transmission-time", ""),
+            "webhook_id": webhook_id,
+        }
+        payload = _json.dumps(meta)[:-1] + ', "webhook_event": ' + raw_body.decode("utf-8") + "}"
+        result = self._request("POST", "/v1/notifications/verify-webhook-signature", content=payload.encode())
+        return result.get("verification_status", "FAILURE")
+
+    def list_webhooks(self) -> dict:
+        return self._request("GET", "/v1/notifications/webhooks")
+
+    def create_webhook(self, url: str, event_types: list[str]) -> dict:
+        return self._request("POST", "/v1/notifications/webhooks",
+                             json={"url": url, "event_types": [{"name": n} for n in event_types]})
