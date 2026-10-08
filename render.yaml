@@ -1,4 +1,4 @@
-# One-click Render Blueprint (not deployed yet). Secrets are prompted for in the dashboard (sync: false).
+# Render Blueprint. Secrets are prompted for in the dashboard (sync: false).
 services:
   - type: web
     name: tradeos
@@ -22,6 +22,8 @@ services:
         value: https://api.groq.com/openai/v1
       - key: LLM_MODEL
         value: openai/gpt-oss-20b
+      - key: PAYPAL_WEBHOOK_ID          # from scripts/register_webhook.py (not secret, but env-only)
+        sync: false
       - key: TRADEOS_DB_PATH
         value: /tmp/tradeos.db
       - key: TRADEOS_RESET_ON_START

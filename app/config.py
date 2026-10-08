@@ -74,6 +74,18 @@ class Settings:
     return_window_days: int = 30
     case_b_days_since_purchase: int = 45
 
+    # Free-text input protection (sandbox + LLM quota). Every run creates a real sandbox order.
+    free_text_max_chars: int = 500
+    rate_limit_per_minute: int = 5      # per client IP
+    rate_limit_per_hour: int = 30       # per client IP
+    rate_limit_global_per_hour: int = 200
+
+    # Failure-mode demo: PayPal sandbox negative testing code forced on ONE refund attempt.
+    refund_failure_mock_code: str = "REFUND_FAILED_INSUFFICIENT_FUNDS"
+
+    # PayPal webhook (second, independent confirmation). Not a secret; set via env, never committed.
+    paypal_webhook_id: str = ""
+
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
     @property
@@ -99,5 +111,11 @@ class Settings:
             reset_on_start=_env_bool("TRADEOS_RESET_ON_START", True),
             public_base_url=public.rstrip("/"),
             return_window_days=int(_env("RETURN_WINDOW_DAYS", "30")),
+            free_text_max_chars=int(_env("FREE_TEXT_MAX_CHARS", "500")),
+            rate_limit_per_minute=int(_env("RATE_LIMIT_PER_MINUTE", "5")),
+            rate_limit_per_hour=int(_env("RATE_LIMIT_PER_HOUR", "30")),
+            rate_limit_global_per_hour=int(_env("RATE_LIMIT_GLOBAL_PER_HOUR", "200")),
+            refund_failure_mock_code=_env("REFUND_FAILURE_MOCK_CODE") or "REFUND_FAILED_INSUFFICIENT_FUNDS",
+            paypal_webhook_id=_env("PAYPAL_WEBHOOK_ID"),
             costs=CostAssumptions.from_env(),
         )
