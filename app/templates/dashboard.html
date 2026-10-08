@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% macro status_chip(status) -%}
+  {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
+                 "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
+                 "REFUND_FAILED": "bad", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
+  <span class="chip {{ cls.get(status, 'neutral') }}">{{ status | replace('_', ' ') }}</span>
+{%- endmacro %}
+{% block content %}
+
+<section class="controls">
+  <div>
+    <h1>Merchant operations</h1>
+    <p class="muted">One loop: customer request → AI intent → deterministic policy → supplier → human approval → PayPal refund (or block).</p>
+  </div>
+  <div class="buttons">
+    <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible exchange</button></form>
+    <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
+    <form method="post" action="/demo/reset" class="js-busy"><button class="btn ghost">Reset demo</button></form>
+  </div>
+</section>
+
+{% if flash %}<div class="flash bad" role="alert">{{ flash }}</div>{% endif %}
+
+<div class="grid">
+
+  <!-- 1. Pending action -->
+  <section class="block" id="pending">
+    <h2><span class="num">1</span> Pending action</h2>
+    {% for c in pending %}
+      <article class="pending-card">
+        <div class="row between">
+          <strong>Case {{ c.id }}</strong>{{ status_chip(c.status) }}
+        </div>
+        <p class="quote">“{{ c.customer_message }}” <span class="muted">— {{ c.customer_name }}</span></p>
+        {% if c.status == "PENDING_APPROVAL" %}
+          <dl class="kv">
+            <dt>Reason</dt><dd>{{ c.intent.intent if c.intent }} / {{ c.intent.reason if c.intent }}</dd>
+            <dt>Policy</dt><dd><span class="chip ok">{{ c.decision }}</span>
+              {% if c.policy %}<span class="muted small">{{ c.policy.checks | selectattr('passed') | list | length }}/{{ c.policy.checks | length }} checks passed</span>{% endif %}</dd>
+            <dt>Supplier</dt><dd>{{ c.supplier_reply }} <span class="chip mock">MOCK</span></dd>
+            <dt>Refund amount</dt><dd><strong>${{ c.amount }} {{ c.currency }}</strong> (full refund of capture {{ c.capture_id }})</dd>
+          </dl>
+          <div class="row gap">
+            <form method="post" action="/cases/{{ c.id }}/approve" class="js-busy"><button class="btn primary">Approve &amp; refund ${{ c.amount }}</button></form>
+            <form method="post" action="/cases/{{ c.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
+          </div>
+          <p class="muted small">Human approval is required before any financial action. Nothing is refunded automatically.</p>
+        {% elif c.status == "AWAITING_BUYER_APPROVAL" %}
+          <p>Card capture was not available, so this order needs a sandbox buyer to approve it.</p>
+          {% if c.approve_url %}<a class="btn" href="{{ c.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>{% endif %}
+          <p class="muted small">After approval PayPal redirects back here and TradeOS captures the payment.</p>
+        {% elif c.status == "REFUND_ERROR" %}
+          <div class="error">PayPal refund error: {{ c.error }}</div>
+          <form method="post" action="/cases/{{ c.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
+        {% endif %}
+      </article>
+    {% else %}
+      <p class="muted">No pending actions. Run a demo case to create one.</p>
+    {% endfor %}
+
+    {% for c in cases if c.status == "ERROR" %}
+      <div class="error"><strong>Case {{ c.id }} failed:</strong> {{ c.error }}</div>
+    {% endfor %}
+
+    {% if latest_a and latest_a.refund_id %}
+      <div class="result {{ 'ok' if latest_a.refund_status == 'COMPLETED' else 'warn' }}">
+        {% if latest_a.refund_status == "COMPLETED" %}
+          <strong>✓ Refund confirmed by PayPal</strong> — Refund ID {{ latest_a.refund_id }}, status COMPLETED.
+        {% elif latest_a.refund_status == "PENDING" %}
+          <strong>⏳ Refund PENDING at PayPal</strong> — Refund ID {{ latest_a.refund_id }}. Not shown as success until COMPLETED.
+          <form method="post" action="/cases/{{ latest_a.id }}/refresh-refund" class="js-busy inline"><button class="btn small">Refresh status</button></form>
+        {% else %}
+          <strong>✗ Refund {{ latest_a.refund_status }}</strong> — Refund ID {{ latest_a.refund_id }}.
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <p class="muted small">Exchange = supplier replacement + refund of the original PayPal transaction (see “Exchange vs refund” below).</p>
+  </section>
+
+  <!-- 2. Case timeline -->
+  <section class="block" id="timeline">
+    <h2><span class="num">2</span> Case timeline</h2>
+    <nav class="tabs">
+      {% for c in cases %}
+        <a href="/?case={{ c.id }}#timeline" class="tab {{ 'active' if current and c.id == current.id }}">{{ c.id }} {{ status_chip(c.status) }}</a>
+      {% endfor %}
+    </nav>
+    {% if current %}
+      <div class="case-head">
+        <div><strong>{{ current.customer_name }}</strong> · ${{ current.amount }} {{ current.currency }} · {{ current.product_sku }}</div>
+        {% if current.purchase_date_seeded %}
+          <div class="seeded">Purchase date {{ current.purchase_date_seeded }} — <strong>seeded demo data</strong>
+            (sandbox captures are always dated today; this merchant order record simulates a purchase {{ settings.case_b_days_since_purchase }} days ago).</div>
+        {% endif %}
+        {% if current.status == "ERROR" %}<div class="error">PayPal error: {{ current.error }}</div>{% endif %}
+      </div>
+      {% if timeline %}
+      <ol class="timeline">
+        {% for e in timeline %}
+          <li class="ev stage-{{ e.stage }}">
+            <div class="ev-head"><span class="stage">{{ e.stage }}</span><span class="ev-title">{{ e.title }}</span><time>{{ e.ts | ts }}</time></div>
+            {% if e.detail %}
+              {% if e.stage == "policy" and e.detail.checks %}
+                <ul class="checks">
+                  {% for ck in e.detail.checks %}<li class="{{ 'pass' if ck.passed else 'fail' }}">{{ '✓' if ck.passed else '✗' }} <code>{{ ck.name }}</code> {{ ck.detail }}</li>{% endfor %}
+                </ul>
+              {% elif e.detail.draft %}
+                <details><summary>Supplier draft</summary><pre>{{ e.detail.draft }}</pre></details>
+              {% else %}
+                <dl class="kv small">
+                  {% for k, v in e.detail.items() if v is not none and k not in ("details",) %}
+                    <dt>{{ k }}</dt><dd>{% if v is mapping %}{{ v.value ~ ' ' ~ v.currency_code if v.value else v }}{% else %}{{ v }}{% endif %}</dd>
+                  {% endfor %}
+                </dl>
+              {% endif %}
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+      {% else %}
+        <p class="muted">Case seeded, not run yet. Click “Run Case {{ current.scenario }}”.</p>
+      {% endif %}
+      <p class="muted small">Timestamps in UTC. Raw JSON: <a href="/api/cases/{{ current.id }}">/api/cases/{{ current.id }}</a></p>
+    {% endif %}
+  </section>
+
+  <!-- 3. Case economics -->
+  <section class="block" id="economics">
+    <h2><span class="num">3</span> Case economics</h2>
+    <p class="label-illustrative">{{ economics.label }}</p>
+    <table class="econ">
+      <tbody>
+        {% for item, amount in economics.rows %}
+          <tr class="{{ 'total' if item in ('TradeOS estimated cost', 'Estimated saving') }}"><th>{{ item }}</th><td>{{ amount }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <p class="muted small">Assumptions (env): COST_HUMAN_MINUTES={{ settings.costs.human_minutes_per_case }},
+      COST_HOURLY_RATE_USD={{ settings.costs.human_hourly_rate_usd }}, COST_AI_API_USD={{ settings.costs.ai_api_cost_per_case_usd }},
+      COST_REVIEW_MINUTES={{ settings.costs.human_review_minutes }}. Not a measured saving.</p>
+  </section>
+</div>
+
+<section class="evidence">
+  <h2>Demo evidence</h2>
+  <div class="evidence-grid">
+    {% for title, rows, case in [("Case A — eligible exchange, refund executed", evidence_a, latest_a),
+                                 ("Case B — same request, rejected", evidence_b, latest_b)] %}
+      <div class="panel">
+        <h3>{{ title }}</h3>
+        {% if rows %}
+          <table class="evtable">
+            {% for r in rows %}<tr><th>{{ r.label }}</th><td class="{{ 'ok' if r.ok else 'pending' }}">{{ r.value }}</td></tr>{% endfor %}
+          </table>
+          <p class="muted small">Case {{ case.id }} · <a href="/?case={{ case.id }}#timeline">timeline</a></p>
+        {% else %}
+          <p class="muted">Not run yet.</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <h3>Exchange vs refund</h3>
+  <table class="layers">
+    <thead><tr><th>Layer</th><th>Field</th><th>MVP value</th></tr></thead>
+    <tbody>
+      <tr><td>Customer intent</td><td><code>EXCHANGE_REQUEST</code></td><td>Size 42 → size 43</td></tr>
+      <tr><td>Supplier resolution</td><td><code>REPLACEMENT_APPROVED</code></td><td>Mock, clearly labelled</td></tr>
+      <tr><td>Financial resolution</td><td><code>ORIGINAL_PAYMENT_REFUNDED</code></td><td>Real Sandbox refund</td></tr>
+    </tbody>
+  </table>
+  <p class="note">{{ exchange_copy }}</p>
+</section>
+{% endblock %}

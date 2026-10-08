@@ -1,0 +1,196 @@
+"""SQLite storage: products, cases, audit timeline, PayPal call log."""
+
+from __future__ import annotations
+
+import json
+import sqlite3
+from contextlib import contextmanager
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Iterator
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS products (
+    sku TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    returnable INTEGER NOT NULL,
+    price TEXT NOT NULL,
+    supplier TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS cases (
+    id TEXT PRIMARY KEY,
+    scenario TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    status TEXT NOT NULL,
+    customer_name TEXT NOT NULL,
+    customer_message TEXT NOT NULL,
+    product_sku TEXT NOT NULL REFERENCES products(sku),
+    amount TEXT NOT NULL,
+    currency TEXT NOT NULL,
+    purchase_date_seeded TEXT,          -- demo-only override (Case B); NULL => use PayPal capture time
+    order_id TEXT,
+    order_status TEXT,
+    capture_id TEXT,
+    capture_status TEXT,
+    capture_time TEXT,
+    approve_url TEXT,
+    intent_json TEXT,
+    policy_json TEXT,
+    decision TEXT,
+    supplier_draft TEXT,
+    supplier_reply TEXT,
+    human_decision TEXT,
+    human_at TEXT,
+    refund_id TEXT,
+    refund_status TEXT,
+    refund_json TEXT,
+    error TEXT
+);
+
+CREATE TABLE IF NOT EXISTS audit_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    case_id TEXT NOT NULL REFERENCES cases(id),
+    ts TEXT NOT NULL,
+    stage TEXT NOT NULL,
+    title TEXT NOT NULL,
+    detail_json TEXT
+);
+
+CREATE TABLE IF NOT EXISTS paypal_calls (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    case_id TEXT NOT NULL,
+    ts TEXT NOT NULL,
+    operation TEXT NOT NULL,
+    ok INTEGER NOT NULL,
+    result TEXT
+);
+"""
+
+TABLES = ("paypal_calls", "audit_events", "cases", "products")
+
+
+def utcnow() -> str:
+    return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+class Database:
+    def __init__(self, path: str) -> None:
+        self.path = path
+        if path != ":memory:":
+            Path(path).parent.mkdir(parents=True, exist_ok=True)
+
+    @contextmanager
+    def connect(self) -> Iterator[sqlite3.Connection]:
+        conn = sqlite3.connect(self.path, timeout=10)
+        conn.row_factory = sqlite3.Row
+        conn.execute("PRAGMA foreign_keys = ON")
+        try:
+            yield conn
+            conn.commit()
+        finally:
+            conn.close()
+
+    def init(self, reset: bool = False) -> None:
+        with self.connect() as conn:
+            if reset:
+                for t in TABLES:
+                    conn.execute(f"DROP TABLE IF EXISTS {t}")
+            conn.executescript(SCHEMA)
+
+    # -- products ---------------------------------------------------------
+    def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO products VALUES (?,?,?,?,?,?)",
+                (sku, name, category, int(returnable), price, supplier),
+            )
+
+    def get_product(self, sku: str) -> dict | None:
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM products WHERE sku=?", (sku,)).fetchone()
+        return dict(row) if row else None
+
+    # -- cases ------------------------------------------------------------
+    def insert_case(self, **fields: Any) -> None:
+        now = utcnow()
+        fields.setdefault("created_at", now)
+        fields.setdefault("updated_at", now)
+        cols = ",".join(fields)
+        marks = ",".join("?" for _ in fields)
+        with self.connect() as conn:
+            conn.execute(f"INSERT INTO cases ({cols}) VALUES ({marks})", tuple(fields.values()))
+
+    def update_case(self, case_id: str, **fields: Any) -> None:
+        fields["updated_at"] = utcnow()
+        sets = ",".join(f"{k}=?" for k in fields)
+        with self.connect() as conn:
+            conn.execute(f"UPDATE cases SET {sets} WHERE id=?", (*fields.values(), case_id))
+
+    def get_case(self, case_id: str) -> dict | None:
+        with self.connect() as conn:
+            row = conn.execute("SELECT * FROM cases WHERE id=?", (case_id,)).fetchone()
+        return _decode_case(row) if row else None
+
+    def list_cases(self, status: str | None = None, scenario: str | None = None) -> list[dict]:
+        sql, args = "SELECT * FROM cases WHERE 1=1", []
+        if status:
+            sql += " AND status=?"
+            args.append(status)
+        if scenario:
+            sql += " AND scenario=?"
+            args.append(scenario)
+        sql += " ORDER BY created_at DESC, rowid DESC"
+        with self.connect() as conn:
+            rows = conn.execute(sql, args).fetchall()
+        return [_decode_case(r) for r in rows]
+
+    def latest_case(self, scenario: str) -> dict | None:
+        cases = self.list_cases(scenario=scenario)
+        return cases[0] if cases else None
+
+    # -- audit ------------------------------------------------------------
+    def audit(self, case_id: str, stage: str, title: str, detail: Any = None) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO audit_events (case_id, ts, stage, title, detail_json) VALUES (?,?,?,?,?)",
+                (case_id, utcnow(), stage, title, json.dumps(detail, default=str) if detail is not None else None),
+            )
+
+    def timeline(self, case_id: str) -> list[dict]:
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT * FROM audit_events WHERE case_id=? ORDER BY id", (case_id,)
+            ).fetchall()
+        out = []
+        for r in rows:
+            d = dict(r)
+            d["detail"] = json.loads(d.pop("detail_json")) if d.get("detail_json") else None
+            out.append(d)
+        return out
+
+    # -- PayPal call log ---------------------------------------------------
+    def log_paypal_call(self, case_id: str, operation: str, ok: bool, result: str) -> None:
+        with self.connect() as conn:
+            conn.execute(
+                "INSERT INTO paypal_calls (case_id, ts, operation, ok, result) VALUES (?,?,?,?,?)",
+                (case_id, utcnow(), operation, int(ok), result),
+            )
+
+    def paypal_calls(self, case_id: str, operation: str | None = None) -> list[dict]:
+        sql, args = "SELECT * FROM paypal_calls WHERE case_id=?", [case_id]
+        if operation:
+            sql += " AND operation=?"
+            args.append(operation)
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute(sql + " ORDER BY id", args).fetchall()]
+
+
+def _decode_case(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    for key in ("intent_json", "policy_json", "refund_json"):
+        raw = d.get(key)
+        d[key.removesuffix("_json")] = json.loads(raw) if raw else None
+    return d
