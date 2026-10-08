@@ -249,6 +249,7 @@ def ai_panel(case: dict | None) -> dict | None:
                                  else " — PayPal did not complete the refund, so it was not delivered."))
         if case.get("payer_note") else None,
         "injection": looks_like_injection(case["customer_message"]),
+        "injection_guard": bool(extraction.get("injection_guard")),
     }
 
 

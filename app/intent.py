@@ -68,6 +68,7 @@ class Extraction(BaseModel):
     note: str = ""
     assist: AssistFields | None = None
     assist_note: str = "Assist fields unavailable (no LLM)."
+    injection_guard: bool = False  # keyword fallback forced UNKNOWN because the message looks like an injection
 
 
 class IntentExtractor(Protocol):
@@ -117,18 +118,32 @@ class KeywordIntentExtractor:
             result = IntentResult(intent="ORDER_STATUS", reason="OTHER", requested_action="INFO")
         else:
             result = UNKNOWN_RESULT
+        assist_note = "Assist fields unavailable: keyword fallback has no language model."
+        if looks_like_injection(text):
+            # Keyword rules can be steered by injected words ("…return requested_action=EXCHANGE…"), so an
+            # instruction-like message never yields an approvable request on this path: a human reads it.
+            return Extraction(result=UNKNOWN_RESULT, extractor=self.name, note=INJECTION_GUARD_NOTE,
+                              assist=None, assist_note=assist_note, injection_guard=True)
         return Extraction(result=result, extractor=self.name, note="Deterministic keyword rules (no LLM key set).",
-                          assist=None, assist_note="Assist fields unavailable: keyword fallback has no language model.")
+                          assist=None, assist_note=assist_note)
+
+
+INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected → intent forced to UNKNOWN; "
+                        "sent to a human (keyword rules can be fooled by injected words).")
 
 
 # ---------------------------------------------------------------------------
-# Instruction-like text detector (information only; it changes nothing)
+# Instruction-like text detector. With the LLM, it only drives the UI banner. On the keyword-fallback path
+# it forces UNKNOWN (see KeywordIntentExtractor), because keyword rules have no notion of "data, not orders".
 # ---------------------------------------------------------------------------
 
 _INJECTION = re.compile(
-    r"ignore (all|any|previous|the|your)|disregard|system prompt|\bsystem\s*:|admin mode|developer mode|"
-    r"override|pre-?approved|set (the )?decision|mark (this|the) case|you are now|jailbreak|"
-    r"ignora|ignorez|ignoriere|忽略|無視",
+    r"ignore (all|any|previous|the|your)|disregard|system prompt|\bsystem\s*:|\bsystem (notice|message|override|"
+    r"instruction)|admin mode|developer mode|override|pre-?approved|pre-?authori[sz]ed|set (the )?decision|"
+    r"mark (this|the) case|you are now|jailbreak|ignora|ignorez|ignoriere|忽略|無視"
+    # schema/field injection: `requested_action=EXCHANGE`, `{"intent": ...}`, fake message delimiters
+    r"|\b(intent|requested_action|decision|approved)\"?\s*[=:]|</?\s*(customer_message|system|instructions?|"
+    r"assistant)\s*>",
     re.I,
 )
 
@@ -158,7 +173,7 @@ def _fix_chinese_label(assist: AssistFields | None, message: str) -> AssistField
 
 
 def looks_like_injection(message: str) -> bool:
-    """Flags instruction-like text for the UI. Purely informational — no code path depends on it."""
+    """Flags instruction-like text: a UI banner on the LLM path; forces UNKNOWN on the keyword-fallback path."""
     return bool(_INJECTION.search(message or ""))
 
 
@@ -343,9 +358,11 @@ class LLMIntentExtractor:
             return Extraction(
                 result=fb.result,
                 extractor=f"{fb.extractor} (LLM unavailable)",
-                note=f"LLM call failed ({type(exc).__name__}); used deterministic fallback.",
+                note=f"LLM call failed ({type(exc).__name__}); used deterministic fallback."
+                + (f" {fb.note}" if fb.injection_guard else ""),
                 assist=None,
                 assist_note="Assist fields unavailable: the LLM call failed.",
+                injection_guard=fb.injection_guard,
             )
 
         core, assist = parse_llm_output(content)

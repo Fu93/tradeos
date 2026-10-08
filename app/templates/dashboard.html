@@ -165,8 +165,13 @@
     {% if ai %}
       <p class="quote">“{{ ai.message }}”</p>
       {% if ai.injection %}
+        {% if ai.injection_guard %}
+        <div class="inject">⚠ Instruction-like text detected while the LLM was unavailable. The keyword fallback can be
+          fooled by injected words, so the intent was forced to <code>UNKNOWN</code> and the case was sent to a human.</div>
+        {% else %}
         <div class="inject">⚠ Instruction-like text detected in the customer message. It is treated as data:
           the model can only fill the intent schema, and everything below the line is decided by code.</div>
+        {% endif %}
       {% endif %}
       <dl class="kv">
         <dt>Detected language</dt><dd>{{ ai.assist.language ~ ' (' ~ ai.assist.language_code ~ ')' if ai.assist else 'unavailable' }}</dd>
