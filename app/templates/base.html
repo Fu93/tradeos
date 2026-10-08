@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}TradeOS{% endblock %}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">TradeOS</span>
+      <span class="tagline">PayPal moves the money. TradeOS moves the work.</span>
+    </div>
+    <div class="badges">
+      {% if paypal_mode == "sandbox" %}
+        <span class="badge ok" title="{{ settings.paypal_base_url }}">PayPal: Sandbox (live API)</span>
+      {% elif paypal_mode == "mock" %}
+        <span class="badge bad">PayPal: MOCK mode — IDs are fake</span>
+      {% else %}
+        <span class="badge bad">PayPal: not configured — set PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET</span>
+      {% endif %}
+      <span class="badge neutral">Intent extractor: {{ extractor }}</span>
+    </div>
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer class="footer">
+    Use AI where language is ambiguous. Use code where money is at stake. ·
+    PayPal AI Hackathon MVP · Sandbox only · <a href="/api/docs">API</a>
+  </footer>
+  <script src="/static/app.js"></script>
+</body>
+</html>
