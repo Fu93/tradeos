@@ -142,8 +142,30 @@ mocked failure goes through normally.
 `/v1/notifications/verify-webhook-signature` (the original body is embedded byte-for-byte), matches it to the case by
 refund ID (or the capture link) and records it on the timeline as an independent second confirmation
 (“Signed PayPal webhook: verified ✓” on the result card). Unverified events are recorded as *not verified* and change nothing.
+Verified live on Render (Oct 2026): the signed event arrived 16–18 s after the refund and verified `SUCCESS`.
 Register the webhook once with `python scripts/register_webhook.py https://<host>/webhooks/paypal` and set the printed ID
 as `PAYPAL_WEBHOOK_ID`.
+
+## Evaluation: 52 multilingual messages
+
+`scripts/eval_intent.py` runs the production LLM extractor and the keyword fallback over a hand-labelled set of 52
+post-purchase messages (EN, Traditional Chinese, Spanish, German, Japanese, plus mixed-language / typo / slang / French,
+including 7 prompt-injection attempts). Full results, every miss and the limits: **[docs/eval/results.md](docs/eval/results.md)**
+(raw: [results.json](docs/eval/results.json), data: [dataset.json](docs/eval/dataset.json)).
+
+| (one run, `openai/gpt-oss-20b` on Groq) | LLM | Keyword fallback |
+| --- | --- | --- |
+| Exact match, all 3 core fields | 73% (38/52) | 19% (10/52) |
+| Exact match if reason `OTHER` ≈ `UNKNOWN` | 88% (46/52) | 19% (10/52) |
+| Intent accuracy | 94% (49/52) | 25% (13/52) |
+| Injections that yielded a policy-acceptable request they shouldn't | 0 / 7 | 2 / 7 |
+| Latency p50 / p95 | 0.63 s / 1.25 s | — |
+| Estimated cost per message (Groq list price) | $0.00013 | $0 |
+
+Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
+convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
+the policy still decides and only an eligible exchange reaches the human Approve button. The two keyword-fallback
+injections (which contain the literal word "EXCHANGE") would still need every other policy check and a human click.
 
 ## Architecture
 
@@ -261,7 +283,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 135 tests.
+approval or a lying extractor. 137 tests (incl. eval dataset checks).
 
 ## Demo flow (≈3 minutes)
 
