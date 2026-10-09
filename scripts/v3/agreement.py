@@ -67,47 +67,55 @@ def both() -> tuple[dict, dict]:
     return judge_labels(PRIMARY[0]), judge_labels(PRIMARY[1])
 
 
+FIELDS = ["speech_act", "primary_issue", "goal_family", "multi_item", "safety", "required_action"]
+
+
+def pair_stats(X: dict, Y: dict, ids: list) -> dict:
+    fx, fy = {i: fields(X[i]) for i in ids}, {i: fields(Y[i]) for i in ids}
+    return {"n": len(ids), "fields": {f: {"kappa": kappa([fx[i][f] for i in ids], [fy[i][f] for i in ids]),
+                                          "raw": round(sum(fx[i][f] == fy[i][f] for i in ids) / max(1, len(ids)), 3)}
+                                      for f in FIELDS}}
+
+
 def stats() -> dict:
-    A, B = both()
+    """Adapted protocol (disclosed): judge B (NVIDIA Nemotron-ultra) on all items; second LLM judges A (GLM-5.3) and
+    C (Meta muse-glimmer) on the subsets they completed before the cutoff (NVIDIA account throttling); the design-grid
+    intended action (author-specified before generation) on all items. Any disagreement -> author adjudication."""
     items = {i["id"]: i for i in load("heldout_v2")}
-    ids = [i for i in items if i in A and i in B]
     M = meta()
-    out = {"n_items": len(items), "n_both": len(ids), "missing_A": [i for i in items if i not in A],
-           "missing_B": [i for i in items if i not in B], "fields": {}}
-    fa, fb = {i: fields(A[i]) for i in ids}, {i: fields(B[i]) for i in ids}
-    for f in ["speech_act", "primary_issue", "goal_family", "multi_item", "safety", "required_action"]:
-        a, b = [fa[i][f] for i in ids], [fb[i][f] for i in ids]
-        out["fields"][f] = {"kappa": kappa(a, b), "raw_agreement": round(sum(x == y for x, y in zip(a, b)) / len(ids), 3)}
+    J = {j: judge_labels(j) for j in "ABC"}
+    B = J["B"]
+    out = {"n_items": len(items), "coverage": {j: len(v) for j, v in J.items()}, "missing_B": [i for i in items if i not in B]}
+    out["B_vs_A"] = pair_stats(B, J["A"], [i for i in items if i in B and i in J["A"]])
+    out["B_vs_C"] = pair_stats(B, J["C"], [i for i in items if i in B and i in J["C"]])
+    out["A_vs_C"] = pair_stats(J["A"], J["C"], [i for i in items if i in J["A"] and i in J["C"]])
+    ids = [i for i in items if i in B]
+    out["B_vs_design_action"] = {"n": len(ids), "kappa": kappa([B[i]["required_action"] for i in ids], [M[i]["designed"] for i in ids]),
+                                 "raw": round(sum(B[i]["required_action"] == M[i]["designed"] for i in ids) / max(1, len(ids)), 3)}
+    sec = [i for i in ids if i in J["A"] or i in J["C"]]
+    out["second_llm_judge_coverage"] = len(sec)
     by = defaultdict(list)
-    for i in ids:
+    for i in sec:
         by[M[i]["generator"]].append(i)
-    out["required_action_by_generator"] = {g: {"n": len(v), "kappa": kappa([fa[i]["required_action"] for i in v],
-                                                                           [fb[i]["required_action"] for i in v]),
-                                               "raw": round(sum(fa[i]["required_action"] == fb[i]["required_action"] for i in v) / len(v), 3)}
-                                           for g, v in by.items()}
-    bl = defaultdict(list)
-    for i in ids:
-        bl[M[i]["lang"]].append(i)
-    out["required_action_by_lang"] = {g: {"n": len(v), "raw": round(sum(fa[i]["required_action"] == fb[i]["required_action"] for i in v) / len(v), 3)}
-                                      for g, v in bl.items()}
-    dis = [{"id": i, "lang": M[i]["lang"], "kind": M[i]["kind"], "designed": M[i]["designed"],
-            "B": A[i]["required_action"], "B_rule": A[i].get("deciding_rule"), "B_reason": str(A[i].get("reasoning", ""))[:400],
-            "C": B[i]["required_action"], "C_rule": B[i].get("deciding_rule"), "C_reason": str(B[i].get("reasoning", ""))[:400],
-            "message": items[i]["message"], "customer": items[i]["customer"], "linked_order": items[i]["linked_order"]}
-           for i in ids if A[i]["required_action"] != B[i]["required_action"]]
-    out["n_action_disagreements"] = len(dis)
-    S = judge_labels(SUPPLEMENTARY)
-    out["supplementary_judge_A"] = {}
-    for name, X in (("A_vs_B", A), ("A_vs_C", B)):
-        sub = [i for i in S if i in X]
-        if sub:
-            out["supplementary_judge_A"][name] = {"n": len(sub), "required_action_kappa": kappa(
-                [S[i]["required_action"] for i in sub], [X[i]["required_action"] for i in sub]),
-                "raw": round(sum(S[i]["required_action"] == X[i]["required_action"] for i in sub) / len(sub), 3)}
-    for d_ in dis:
-        d_["A_glm"] = S.get(d_["id"], {}).get("required_action")
-    out["confusion"] = Counter(f"{A[i]['required_action']}|{B[i]['required_action']}" for i in ids).most_common()
-    out["agree_vs_designed"] = sum(A[i]["required_action"] == B[i]["required_action"] == M[i]["designed"] for i in ids)
+    def second(i):
+        return (J["A"].get(i) or J["C"].get(i))["required_action"]
+    out["B_vs_second_judge_action_by_generator"] = {g: {"n": len(v), "kappa": kappa([B[i]["required_action"] for i in v], [second(i) for i in v]),
+                                                        "raw": round(sum(B[i]["required_action"] == second(i) for i in v) / len(v), 3)}
+                                                    for g, v in by.items()}
+    dis = []
+    for i in items:
+        votes = {"B": B.get(i, {}).get("required_action"), "A": J["A"].get(i, {}).get("required_action"),
+                 "C": J["C"].get(i, {}).get("required_action"), "design": M[i]["designed"]}
+        present = {k: v for k, v in votes.items() if v}
+        if len(set(present.values())) > 1 or "B" not in present:
+            dis.append({"id": i, "lang": M[i]["lang"], "kind": M[i]["kind"], "tags": M[i]["tags"], "votes": present,
+                        "B_rule": B.get(i, {}).get("deciding_rule"), "B_reason": str(B.get(i, {}).get("reasoning", ""))[:500],
+                        "A_reason": str(J["A"].get(i, {}).get("reasoning", ""))[:300],
+                        "C_reason": str(J["C"].get(i, {}).get("reasoning", ""))[:300],
+                        "message": items[i]["message"], "customer": items[i]["customer"], "linked_order": items[i]["linked_order"]})
+    out["n_to_adjudicate"] = len(dis)
+    out["confusion_B_vs_design"] = Counter(f"{B[i]['required_action']}|{M[i]['designed']}" for i in ids
+                                           if B[i]["required_action"] != M[i]["designed"]).most_common()
     (E / "heldout-v2-disagreements.json").write_text(json.dumps(dis, ensure_ascii=False, indent=1))
     (E / "heldout-v2-agreement.json").write_text(json.dumps(out, ensure_ascii=False, indent=1))
     return out
@@ -126,10 +134,12 @@ def freeze() -> None:
             req = adj[i]["required_action"]
             acc = set(adj[i].get("acceptable_actions") or [req]) | {req}
             src, note = "author-adjudicated", adj[i]["reason"]
-        elif a and b and a["required_action"] == b["required_action"]:
+        elif a and all(x["required_action"] == a["required_action"] for x in (b, S.get(i)) if x) \
+                and a["required_action"] == M[i]["designed"]:
             req = a["required_action"]
-            acc = (set(a.get("acceptable_actions") or []) & set(b.get("acceptable_actions") or [])) | {req}
-            src, note = "judges agree", ""
+            accs = [set(x.get("acceptable_actions") or []) for x in (a, b, S.get(i)) if x]
+            acc = set.intersection(*accs) | {req}
+            src, note = "all labels agree (judge B + design" + (" + C" if b else "") + (" + A" if S.get(i) else "") + ")", ""
         else:
             raise SystemExit(f"{i}: not adjudicated and judges do not agree")
         if req != T:
