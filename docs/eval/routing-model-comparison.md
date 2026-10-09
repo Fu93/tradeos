@@ -90,7 +90,7 @@ Cases where the two models chose a different action: 6/60 (H20, H27, H32, H40, H
 | false triggers (of 194) | 8 | 5 | 2 | 1 |
 | median latency | 9.8 s | 46.5 s (p90 130.6 s, NVIDIA queueing) | same samples | same samples |
 
-v3 cost at Groq list prices (production provider), including agreement samples: about $0.001 per message (412k input +
+v3 cost at Groq list prices (production provider), including agreement samples: about $0.001 per message (512k input +
 847k output tokens for 300 messages). Production on Groq would need k separate requests for k>1, because Groq requires
 n=1. Latency was measured on NVIDIA's shared endpoint under heavy load; earlier rounds measured Groq at about 1–3 s per
 call.
