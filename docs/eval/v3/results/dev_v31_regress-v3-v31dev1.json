@@ -1,0 +1,2084 @@
+{
+ "meta": {
+  "set": "dev_v31_regress",
+  "pipeline": "v3",
+  "tag": "v31dev1",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "supplier-routing-rules/3.1.0 (taxonomy v3.1 experiment)",
+  "k": 1,
+  "agreement_temp": 0.6,
+  "labels": "designed",
+  "usage": {
+   "calls": 30,
+   "prompt_tokens": 35389,
+   "completion_tokens": 31728
+  },
+  "retries": 24,
+  "wall_s": 1013.4
+ },
+ "results": {
+  "R31-04": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, Bestellung TO-10421. Ich habe mich verklickt und 42 statt 43 genommen. Kann ich auf 43 umtauschen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Ich habe mich verklickt und 42 statt 43 genommen",
+      "issue_evidence": "42 statt 43 genommen",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "42",
+      "requested_variant_quote": "43",
+      "goals": [
+       {
+        "evidence": "Kann ich auf 43 umtauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 63.24,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-08": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-40012 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-40012"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40012": "CONFIRMED"
+    },
+    "order_id": "TO-40012",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-40012: yo pedí la lámpara blanca y me llegó negra. Cámbienmela por la blanca, por favor.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Pedido TO-40012: yo pedí la lámpara blanca y me llegó negra. Cámbienmela por la blanca, por favor.",
+      "issue_evidence": "yo pedí la lámpara blanca y me llegó negra",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "negra",
+      "requested_variant_quote": "blanca",
+      "goals": [
+       {
+        "evidence": "Cámbienmela por la blanca, por favor.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40012",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 85.31,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-12": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words burnt, S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) burnt plastic): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [
+      "burnt"
+     ],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": [
+      "burnt plastic"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60202: every time I boil water there's a nasty burnt plastic smell. Could you repair it?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "every time I boil water there's a nasty burnt plastic smell",
+      "issue_evidence": "burnt plastic smell",
+      "issue_type": "DEFECT",
+      "component_quote": "burnt plastic smell",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Could you repair it?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 56.51,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-05": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文TO-10421です。サイズを選び間違えて42にしてしまいました。43に交換をお願いできますか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "注文TO-10421です。サイズを選び間違えて42にしてしまいました。43に交換をお願いできますか。",
+      "issue_evidence": "サイズを選び間違えて42にしてしまいました",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "43に交換をお願いできますか。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 160.13,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-11": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Several products described and “枕カバーがほつれていて” cannot be matched to order TO-60201: resolve the data conflict before any multi-item handling.",
+   "derived": {
+    "order_refs": [
+     "TO-60201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60201": "CONFIRMED"
+    },
+    "order_id": "TO-60201",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文TO-60201について。枕カバーがほつれていて、フォークも曲がっていました。枕カバーは交換、フォークは返金してください。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "枕カバーがほつれていて",
+      "issue_evidence": "枕カバーがほつれていて",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "枕カバーは交換",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "フォークも曲がっていました",
+      "issue_evidence": "フォークも曲がっていました",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "フォークは返金してください",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 127.83,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-03": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "sin querer, uso la 43. ¿Me las"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, pedido TO-10421. Elegí la talla 42 sin querer, uso la 43. ¿Me las cambian por la 43?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "talla 42",
+      "issue_evidence": "Elegí la talla 42 sin querer, uso la 43.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 42",
+      "requested_variant_quote": "la 43",
+      "goals": [
+       {
+        "evidence": "¿Me las cambian por la 43?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 231.34,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-06": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "訂單TO-10421，是我自己選錯了，買成42號，我平常穿43號，可以換43號嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "訂單TO-10421，是我自己選錯了，買成42號，我平常穿43號，可以換43號嗎？",
+      "issue_evidence": "買成42號",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "可以換43號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 240.04,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-13": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) fuse): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": [
+      "fuse"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "注文TO-60202のケトルですが、使うとfuseが飛んでしまいます。交換をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "注文TO-60202のケトルですが、使うとfuseが飛んでしまいます。交換をお願いします。",
+      "issue_evidence": "fuseが飛んでしまいます",
+      "issue_type": "DEFECT",
+      "component_quote": "fuse",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "交換をお願いします",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 98.71,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-01": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, order TO-10421. Totally my fault, I picked 42 when I wear 43. Can I swap them for a 43 please?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hi, order TO-10421. Totally my fault, I picked 42 when I wear 43. Can I swap them for a 43 please?",
+      "issue_evidence": "I picked 42 when I wear 43.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "43",
+      "goals": [
+       {
+        "evidence": "Can I swap them for a 43 please?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 252.43,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-09": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+   "derived": {
+    "order_refs": [
+     "TO-40011"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40011": "CONFIRMED"
+    },
+    "order_id": "TO-40011",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "wrong_item_consistent": "ordered white (record), received black",
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9,
+    "requested_variant": "white"
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-40011: Bestellt war die weiße Lampe, gekommen ist eine schwarze. Bitte schicken Sie mir die weiße.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Bestellt war die weiße Lampe, gekommen ist eine schwarze.",
+      "issue_evidence": "Bestellt war die weiße Lampe, gekommen ist eine schwarze.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "schwarze",
+      "requested_variant_quote": "weiße",
+      "goals": [
+       {
+        "evidence": "Bitte schicken Sie mir die weiße.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40011",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 269.29,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "R31-19": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60202: kettle doesn't heat. I'd asked for a new lid before but forget that, I just want a refund now.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "kettle",
+      "issue_evidence": "kettle doesn't heat",
+      "issue_type": "DEFECT",
+      "component_quote": "kettle doesn't heat",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I just want a refund now",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.35,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-10": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Several products described and “bath mat” cannot be matched to order TO-60201: resolve the data conflict before any multi-item handling.",
+   "derived": {
+    "order_refs": [
+     "TO-60201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60201": "CONFIRMED"
+    },
+    "order_id": "TO-60201",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60201: two problems: the bath mat arrived stained and the wine glasses were cracked. Replace the mat and refund the glasses please.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "bath mat",
+      "issue_evidence": "the bath mat arrived stained",
+      "issue_type": "DEFECT",
+      "component_quote": "bath mat",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Replace the mat",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "wine glasses",
+      "issue_evidence": "the wine glasses were cracked",
+      "issue_type": "DEFECT",
+      "component_quote": "wine glasses",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "refund the glasses",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 286.47,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-14": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S5 electrical (burnt-plastic smell / power base / fuse) Heizsockel): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": [
+      "Heizsockel"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-60202: Der Heizsockel vom Wasserkocher funktioniert nicht mehr. Bitte um Ersatz.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Der Heizsockel vom Wasserkocher",
+      "issue_evidence": "Der Heizsockel vom Wasserkocher funktioniert nicht mehr",
+      "issue_type": "DEFECT",
+      "component_quote": "Heizsockel vom Wasserkocher",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte um Ersatz",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 128.36,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-02": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42 and what was shipped (C1).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "wrong_item_consistent": "ordered 42 (record), received 43",
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 10,
+    "requested_variant": "42"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, order TO-10421. I ordered 42 and the box had a 43 inside. Can you send me the 42 I ordered?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I ordered 42 and the box had a 43 inside.",
+      "issue_evidence": "I ordered 42 and the box had a 43 inside.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "43",
+      "requested_variant_quote": "42",
+      "goals": [
+       {
+        "evidence": "Can you send me the 42 I ordered?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 299.28,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "R31-18": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) Sicherung): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60204"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60204": "CONFIRMED"
+    },
+    "order_id": "TO-60204",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "DESK-LAMP"
+     ],
+     "S5_electrical": [
+      "Sicherung"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-60204: Wasser ist in den Fuß der Lampe gelaufen und seitdem fliegt die Sicherung. Bitte reparieren.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Lampe",
+      "issue_evidence": "Wasser ist in den Fuß der Lampe gelaufen und seitdem fliegt die Sicherung.",
+      "issue_type": "DEFECT",
+      "component_quote": "Sicherung",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte reparieren.",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60204",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 82.74,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-24": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60212"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60212": "CONFIRMED"
+    },
+    "order_id": "TO-60212",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "訂單TO-60212，檯燈一直閃爍，用起來很不舒服，真的很失望。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "檯燈一直閃爍",
+      "issue_evidence": "檯燈一直閃爍",
+      "issue_type": "DEFECT",
+      "component_quote": "檯燈一直閃爍",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60212",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 68.24,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-17": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first. Refund intent kept for the reviewer (D2).",
+   "derived": {
+    "order_refs": [
+     "TO-60206"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60206": "CONFIRMED"
+    },
+    "order_id": "TO-60206",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": [],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60206: the stove's gas knob won't turn off fully. I'd like my money back.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the stove's gas knob won't turn off fully.",
+      "issue_evidence": "the stove's gas knob won't turn off fully.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I'd like my money back.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60206",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "POSSIBLE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 133.07,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-21": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4b",
+   "family": null,
+   "reason": "The customer revises their request but is still unsure: ask which outcome they want.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文TO-60202：ケトルが温まりません。修理をお願いしようと思いましたが、やっぱり返金のほうがいいのか、まだ迷っています。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "ケトルが温まりません",
+      "issue_evidence": "ケトルが温まりません",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いしようと思いました",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "返金のほうがいいのか",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 98.5,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-27": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-60212"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60212": "CONFIRMED"
+    },
+    "order_id": "TO-60212",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "black",
+    "qty": 1,
+    "days": 400,
+    "warranty_basis": "400 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-60212: Die Lampe flackert ständig. Bitte reparieren oder ersetzen Sie sie.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Die Lampe flackert ständig.",
+      "issue_evidence": "Die Lampe flackert ständig.",
+      "issue_type": "DEFECT",
+      "component_quote": "Die Lampe flackert ständig.",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte reparieren oder ersetzen Sie sie.",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Bitte reparieren oder ersetzen Sie sie.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60212",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 84.15,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "R31-25": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-60202: el hervidor dejó de funcionar a los cuatro meses. Vaya decepción.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "el hervidor",
+      "issue_evidence": "el hervidor dejó de funcionar a los cuatro meses",
+      "issue_type": "DEFECT",
+      "component_quote": "el hervidor",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 157.0,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-15": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S5 electrical (burnt-plastic smell / power base / fuse) 電源底座): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": [
+      "電源底座"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "訂單TO-60202：熱水壺的電源底座壞了，完全不通電，請幫我換一台。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "熱水壺",
+      "issue_evidence": "電源底座壞了，完全不通電",
+      "issue_type": "DEFECT",
+      "component_quote": "電源底座壞了，完全不通電",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請幫我換一台",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 317.34,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-07": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered black, but order TO-40011 shows white: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-40011"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40011": "CONFIRMED"
+    },
+    "order_id": "TO-40011",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-40011: I'm sure I chose the black lamp but a white one turned up. Please exchange it for black.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Order TO-40011: I'm sure I chose the black lamp but a white one turned up. Please exchange it for black.",
+      "issue_evidence": "a white one turned up",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "white",
+      "requested_variant_quote": "black",
+      "goals": [
+       {
+        "evidence": "Please exchange it for black",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40011",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 513.8,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-29": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V10",
+   "family": null,
+   "reason": "An action is requested but no problem is described: a human decides.",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "ＴＯ－１０４２１の件です。気が変わったので、返金をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ＴＯ－１０４２１",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "ＴＯ－１０４２１",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 95.07,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-26": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 120,
+    "warranty_basis": "120 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60202: the kettle no longer heats. Could you arrange a repair under warranty please?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the kettle no longer heats",
+      "issue_evidence": "the kettle no longer heats",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Could you arrange a repair under warranty please?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 199.52,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "R31-22": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60202. The kettle stopped heating last week. Pretty annoyed, it wasn't cheap.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "the kettle",
+      "issue_evidence": "stopped heating",
+      "issue_type": "DEFECT",
+      "component_quote": "stopped heating",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 393.12,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-23": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60207"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60207": "CONFIRMED"
+    },
+    "order_id": "TO-60207",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-60207: Bei den Schuhen löst sich schon die Sohle. Schade, ich hatte mehr erwartet.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "Bei den Schuhen löst sich schon die Sohle",
+      "issue_evidence": "Sohle",
+      "issue_type": "DEFECT",
+      "component_quote": "Sohle",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60207",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 434.85,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-28": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-50199 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-50199"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50199": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Creo que mi pedido era TO‑50199. Quiero que me devuelvan el dinero, por favor.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Creo que mi pedido era TO‑50199. Quiero que me devuelvan el dinero, por favor.",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Quiero que me devuelvan el dinero, por favor.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO‑50199",
+    "order_ref_hedge_quote": "Creo que",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 456.18,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "R31-20": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPAIR"
+    ],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-60202: el hervidor no calienta. Al principio quería que lo repararan, pero mejor devuélvanme el dinero.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "el hervidor",
+      "issue_evidence": "el hervidor no calienta.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "devuélvanme el dinero",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Al principio quería que lo repararan",
+      "goal": "REPAIR"
+     }
+    ],
+    "order_ref_quote": "TO-60202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 636.27,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "R31-16": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first. Refund intent kept for the reviewer (D2).",
+   "derived": {
+    "order_refs": [
+     "TO-60206"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60206": "CONFIRMED"
+    },
+    "order_id": "TO-60206",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": [],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-60206: la válvula del hornillo se quedó atascada. Solo quiero el reembolso, gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la válvula del hornillo se quedó atascada.",
+      "issue_evidence": "la válvula del hornillo se quedó atascada.",
+      "issue_type": "DEFECT",
+      "component_quote": "la válvula del hornillo se quedó atascada.",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Solo quiero el reembolso",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60206",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 705.84,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "R31-30": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words melted, S2 model EXPLICIT, S4 mains-electric hazard): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60203"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60203": "CONFIRMED"
+    },
+    "order_id": "TO-60203",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [
+      "melted"
+     ],
+     "S2_model": "EXPLICIT",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-60203: the kettle base melted a little and smells. Please send a new one.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the kettle base melted a little and smells",
+      "issue_evidence": "the kettle base melted a little and smells",
+      "issue_type": "DEFECT",
+      "component_quote": "the kettle base melted a little and smells",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Please send a new one",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60203",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "the kettle base melted a little and smells",
+    "safety_level": "EXPLICIT",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 460.77,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 30,
+   "strict": 29,
+   "strict_ci": [
+    83.3,
+    99.4
+   ],
+   "lenient": 29,
+   "lenient_ci": [
+    83.3,
+    99.4
+   ],
+   "task_pred": 4,
+   "task_true": 4,
+   "task_tp": 4,
+   "task_precision": 1.0,
+   "task_recall": 1.0,
+   "false_triggers": [],
+   "non_supplier_n": 26,
+   "errors": [
+    {
+     "id": "R31-29",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V10",
+     "reason": "An action is requested but no problem is described: a human decides."
+    }
+   ]
+  }
+ }
+}
