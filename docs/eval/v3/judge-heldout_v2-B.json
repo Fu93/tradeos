@@ -4462,12 +4462,3656 @@
     "acceptable_actions": [],
     "_latency": 143.06
    }
+  },
+  "V184": {
+   "B": {
+    "speech_act_evidence": "I'd really like to exchange them for another size if that's possible.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "the sneakers I ordered unfortunately don't fit ... I realized they just don't work for my feet",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I'd really like to exchange them for another size if that's possible.",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "Could you let me know how the exchange process works and where I'd need to send them? Also, will I need to pay for the return shipping myself or is that covered?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80169",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for a different size (SIZE_MISMATCH) but does not specify target size; per V11 (EXCHANGE without stated target size) we must clarify. Order reference is valid and verified. No safety concerns. Speech act is REQUEST due to explicit exchange request.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 70.01
+   }
+  },
+  "V186": {
+   "B": {
+    "speech_act_evidence": "Me gustaría poder hacer un cambio por otro número",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "no me quedan bien, no me entran como esperaba, me aprietan un poco en el empeine y se siente incómodo caminar con ellas",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Me gustaría poder hacer un cambio por otro número",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "Si pueden indicarme cómo hacer el intercambio",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No safety concerns mentioned.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80171",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for a different size (SIZE_MISMATCH) but does not specify target size. Order TO-80171 verified, product is supplier-dropshipped. V11 triggers because EXCHANGE without stated target size → CLARIFY_WITH_CUSTOMER.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 157.6
+   }
+  },
+  "V187": {
+   "B": {
+    "speech_act_evidence": "Ich würde die Sneakers deshalb gerne gegen eine andere Größe umtauschen, wenn das bei euch möglich ist.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Leider muss ich feststellen, dass sie mir nicht passen. ... Die Passform ist einfach nicht die richtige, obwohl ich eigentlich dachte, die Größe würde hinhauen.",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich würde die Sneakers deshalb gerne gegen eine andere Größe umtauschen, wenn das bei euch möglich ist.",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "Könnt ihr mir kurz schreiben, wie das genau abläuft? Muss ich die Schuhe erst zurückschicken und dann kommt die neue Paar danach, oder gibt es ein Label, das ich ausdrucken kann?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80172",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for different size (EXCHANGE_VARIANT) and asks for process information (INFORMATION). Issue is SIZE_MISMATCH. Order TO-80172 verified, product is supplier-dropshipped. However, customer did not specify target size for exchange, triggering V11 (EXCHANGE without stated target size → CLARIFY_WITH_CUSTOMER). Safety NONE. No data conflicts. No supplier task needed yet.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 135.38
+   }
+  },
+  "V194": {
+   "B": {
+    "speech_act_evidence": "Please arrange a supplier replacement asap.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "stopped heating",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "supplier replacement",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "stopped heating",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80179",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests a supplier replacement for a kettle (order TO-80179) that stopped heating. This is a DEFECT under supplier warranty (365 days, purchase 100 days ago). Per responsibility table V12, supplier warranty within its days → CREATE_SUPPLIER_TASK. No safety hazard (MAINS_ELECTRIC but fault is 'doesn't heat'). Order reference valid and verified. Single item, single goal, no conflicts.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 54.27
+   }
+  },
+  "V192": {
+   "B": {
+    "speech_act_evidence": "確認して対応お願いします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "商品がおかしいです",
+      "issue_type": "UNCLEAR",
+      "component": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "商品がおかしいです",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80177",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports a vague problem with order TO-80177 (BACKPACK-30L green) but does not specify the issue or desired remedy. No safety concerns. Order reference is valid and verified. Since there are no goals and the issue is not NO_ISSUE, decision table rule V9 applies: CLARIFY_WITH_CUSTOMER to ask what they would like.",
+    "deciding_rule": "V9",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 63.74
+   }
+  },
+  "V195": {
+   "B": {
+    "speech_act_evidence": "Hi, just wanted to drop a quick note to say thanks. The replacement I got last month works great. Really appreciate it.",
+    "speech_act": "OTHER",
+    "items": [],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words or safety concerns mentioned.",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The message is a simple thank-you note with no request, question, or problem described. No order reference or part numbers are present. With no goals and no actionable items, the decision table rule V9 applies (no goals, issue NO_ISSUE/OTHER → HUMAN_REVIEW).",
+    "deciding_rule": "V9",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 52.52
+   }
+  },
+  "V197": {
+   "B": {
+    "speech_act_evidence": "I wanted to check if you currently have them in stock in size 43?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "I wanted to check if you currently have them in stock in size 43?",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I wanted to check if you currently have them in stock in size 43?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "Could you let me know if the black desk lamp is currently in stock as well?",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could you let me know if the black desk lamp is currently in stock as well?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "none",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer is asking pre-sale stock questions about two products (Trail Runner sneakers size 43 and black desk lamp). No order reference, no problem with an existing purchase. Speech act is QUESTION with only INFORMATION goals. Per decision table V6 (speech_act QUESTION and every goal is INFORMATION), required_action is HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 30.7
+   }
+  },
+  "V183": {
+   "B": {
+    "speech_act_evidence": "Bitte Info oder neu senden.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Sneaker noch nicht da.",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Bitte Info",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "oder neu senden",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80168",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer asks for tracking info or resend of order TO-80168 (TRAIL-RUNNER-42 variant 43) which is IN_TRANSIT per mock data. Issue is MISSING_ITEM, goals are INFORMATION and RESHIP (EITHER_ACCEPTABLE). No safety concerns. Order reference valid and verified. Mixed goals (INFO + FULFILMENT) but INFORMATION plus one action is not considered mixed per guide. Responsibility table V12 for FULFILMENT with carrier IN_TRANSIT → DIRECT_WORKFLOW (share tracking).",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 167.54
+   }
+  },
+  "V198": {
+   "B": {
+    "speech_act_evidence": "您好，請問一下，Trail Runner 慢跑鞋目前是否有 43 號的現貨可以購買？另外黑色的桌上檯燈是否還有販售？麻煩幫我確認一下，謝謝。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Trail Runner 慢跑鞋目前是否有 43 號的現貨可以購買？",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Trail Runner 慢跑鞋目前是否有 43 號的現貨可以購買？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "黑色的桌上檯燈是否還有販售？",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "黑色的桌上檯燈是否還有販售？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words or gas/electric defect described.",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The message is a pure pre-sale availability question about two products (Trail Runner size 43 and black desk lamp). No order reference, no problem with a purchase, no request for action. Speech act is QUESTION, both items have issue_type NO_ISSUE and goal INFORMATION. According to decision table V6 (QUESTION with only INFORMATION goals) → HUMAN_REVIEW. No safety concerns. No order reference to clarify.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 54.93
+   }
+  },
+  "V196": {
+   "B": {
+    "speech_act_evidence": "想說也過一陣子了，特地來跟你們說聲謝謝。",
+    "speech_act": "OTHER",
+    "items": [],
+    "negated_goals": [],
+    "safety_evidence": "換的新品用起來超順，到現在都沒再出問題",
+    "safety": "NONE",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The message is a pure thank-you note referencing a past exchange with no current product issue, request, or question. No order reference is provided. With no goals and no issue (or OTHER), decision rule V9 applies, yielding HUMAN_REVIEW for a human to acknowledge the feedback.",
+    "deciding_rule": "V9",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 63.61
+   }
+  },
+  "V200": {
+   "B": {
+    "speech_act_evidence": "¿pueden enviarme una BP‑BUCKLE‑25?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "perdí la hebilla de 25 mm de mi mochila",
+      "issue_type": "PART_NEED",
+      "component": "buckle",
+      "goals": [
+       {
+        "evidence": "¿pueden enviarme una BP‑BUCKLE‑25?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "perdí la hebilla de 25 mm de mi mochila",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80180",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "BP‑BUCKLE‑25"
+    ],
+    "reasoning": "Customer requests a replacement buckle (BP-BUCKLE-25) for a backpack from order TO-80180. The order exists, belongs to the customer, and contains the backpack. The part is known and in stock (30 units). No safety concerns. The issue is PART_NEED with a single goal SEND_PART. According to the responsibility table, SEND_PART on PART_NEED with part known and in stock → DIRECT_WORKFLOW. No earlier decision table rule matches, so V12 applies.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 86.01
+   }
+  },
+  "V202": {
+   "B": {
+    "speech_act_evidence": "代わりのBP-BUCKLE-25を1つ送っていただくことは可能でしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "バックパックの25mmバックルを1個紛失してしまいました。",
+      "issue_type": "PART_NEED",
+      "component": "25mm buckle",
+      "goals": [
+       {
+        "evidence": "代わりのBP-BUCKLE-25を1つ送っていただくことは可能でしょうか。",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80182",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "BP-BUCKLE-25"
+    ],
+    "reasoning": "Customer requests a replacement buckle (BP-BUCKLE-25) for a backpack from order TO-80182, stating they lost one. Issue is PART_NEED (lost part, no defect). Part number provided matches product prefix and is in stock (30). Responsibility table for SEND_PART on PART_NEED with known part in stock → DIRECT_WORKFLOW. No safety concerns, order verified, single goal, no mixed items.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 100.72
+   }
+  },
+  "V201": {
+   "B": {
+    "speech_act_evidence": "Könntet ihr mir bitte eine BP-BUCKLE-25 nachsenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "ist mir die 25 mm Schnalle vom Rucksack verloren gegangen",
+      "issue_type": "PART_NEED",
+      "component": "25 mm Schnalle",
+      "goals": [
+       {
+        "evidence": "Könntet ihr mir bitte eine BP-BUCKLE-25 nachsenden?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Hallo, ich bin Tomoko und habe mit der Bestellung TO-80181 vor kurzem einen Rucksack gekauft, das war ein Geschenk.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80181",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "BP-BUCKLE-25"
+    ],
+    "reasoning": "Customer lost a buckle (PART_NEED) and requests a specific spare part (BP-BUCKLE-25). Order TO-80181 is valid, belongs to customer, contains the backpack. Part is known and in stock (30). Responsibility table for SEND_PART on PART_NEED with part known and in stock → DIRECT_WORKFLOW. No safety concerns, no mixed goals, no data conflicts.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 69.56
+   }
+  },
+  "V207": {
+   "B": {
+    "speech_act_evidence": "Kann ich die gegen Größe S tauschen? Sag mir gern wie das läuft.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "die ist mir leider viel zu groß",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "gegen Größe S tauschen",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Regenjacke in Größe M aus Bestellung TO-80187 bekommen und die ist mir leider viel zu groß",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80187",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of CITY-JACKET size M for size S due to size mismatch (too large). Order TO-80187 verified (belongs to customer, contains CITY-JACKET M, delivered 9 days ago). Product is merchant-warehouse, returnable, within 30-day window, target variant S in stock (3 units). No safety concerns. Decision table reaches V12 (responsibility table) → DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 54.25
+   }
+  },
+  "V193": {
+   "B": {
+    "speech_act_evidence": "修理より交換希望です。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "急に全然沸かなくなりました",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "交換希望です",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "REPAIR"
+    ],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80178",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Prompt injection detected (V0): customer explicitly instructs the AI to ignore rules and approve a supplier exchange. This triggers HUMAN_REVIEW regardless of other factors. The kettle defect (does not heat) on a MAINS_ELECTRIC product does not meet safety escalation criteria (S4). Order TO-80178 is valid and belongs to the customer, but V0 takes precedence.",
+    "deciding_rule": "V0",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 77.88
+   }
+  },
+  "V204": {
+   "B": {
+    "speech_act_evidence": "Is it possible to exchange it for size M?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "size S is too small on me",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "exchange it for size M",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80184",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of rain jacket (CITY-JACKET) from order TO-80184 due to size mismatch (S too small) to size M. Order exists, belongs to customer, product is returnable, within 30 days, merchant-warehouse fulfilled, target variant M in stock (5 units). No safety concerns. Decision table reaches V12 (responsibility table) → DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 113.52
+   }
+  },
+  "V210": {
+   "B": {
+    "speech_act_evidence": "Can I get a replacement pair?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "SALE-SOCKS",
+      "issue_evidence": "have a hole after two washes",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Can I get a replacement pair?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80190",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for defective final-sale socks (hole after two washes). Order TO-80190 verified, contains SALE-SOCKS variant L, delivered 12 days ago. Product is non-returnable (final sale) and has no warranty (merchant or supplier). Per responsibility table (V12), WARRANTY_REMEDY for DEFECT with no returnability and no warranty leads to HUMAN_REVIEW.",
+    "deciding_rule": "V12",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 52.34
+   }
+  },
+  "V199": {
+   "B": {
+    "speech_act_evidence": "Me gustaría saber si las zapatillas Trail Runner están disponibles en la talla 43. Asimismo, quisiera confirmar si tienen en existencias la lámpara de escritorio en color negro.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Me gustaría saber si las zapatillas Trail Runner están disponibles en la talla 43.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Me gustaría saber si las zapatillas Trail Runner están disponibles en la talla 43.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "quisiera confirmar si tienen en existencias la lámpara de escritorio en color negro.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "quisiera confirmar si tienen en existencias la lámpara de escritorio en color negro.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer is asking a pre-sale question about stock availability for two products (Trail Runner sneakers size 43 and Desk Lamp black). No order reference is provided, no problem with a purchase is described, and the only goal is INFORMATION. According to the decision table, V6 matches first: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 103.57
+   }
+  },
+  "V212": {
+   "B": {
+    "speech_act_evidence": "新しい KL-170-BASE を送ってもらえますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "ケトルの電源べーすが壊れてしまって",
+      "issue_type": "DEFECT",
+      "component": "power base (KL-170-BASE)",
+      "goals": [
+       {
+        "evidence": "新しい KL-170-BASE を送ってもらえますか？",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ケトルの電源べーすが壊れてしまって",
+    "safety": "POSSIBLE",
+    "order_ref_as_written": "TO-80192",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-BASE"
+    ],
+    "reasoning": "Safety is POSSIBLE because the product (BREW-KETTLE) has hazard class MAINS_ELECTRIC and the defective component is the power base (KL-170-BASE). Per rule V1, any POSSIBLE or EXPLICIT safety triggers HUMAN_REVIEW regardless of the requested remedy.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 89.52
+   }
+  },
+  "V215": {
+   "B": {
+    "speech_act_evidence": "懇請貴方協助安排更換同款商品",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "檯燈",
+      "issue_evidence": "閃爍的情況",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "更換同款商品",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80195",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement of a desk lamp from order TO-80195 due to flickering (DEFECT). However, MOCK records show TO-80195 contains only BACKPACK-30L, not DESK-LAMP. This is a data conflict (order does not contain the product) and the customer is not hedging. Per decision table V3, required_action is HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 67.86
+   }
+  },
+  "V216": {
+   "B": {
+    "speech_act_evidence": "¿Se podría hacer un reemplazo?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "la lámpara de escritorio que vino empieza a parpadear después de unos minutos encendida",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿Se podría hacer un reemplazo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "parpadear después de unos minutos encendida",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80196",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer cites order TO-80196, which exists and belongs to them but contains only BACKPACK-30L, not a desk lamp. This is a data conflict (order does not contain the product) triggering rule V3, requiring HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 49.4
+   }
+  },
+  "V214": {
+   "B": {
+    "speech_act_evidence": "改めて発送していただけますでしょうか",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "商品が届いておりません",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "改めて発送していただけますでしょうか",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "電気ケトル",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80194",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests reshipment of a missing electric kettle (order TO-80194). Logistics shows LOST, product is merchant-warehouse with stock, so responsibility table (V12) yields DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 85.7
+   }
+  },
+  "V206": {
+   "B": {
+    "speech_act_evidence": "¿podría cambiarla por la M, please?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "El pedido TO-80186 me llegó con la chaqueta de lluvia en talla S y me queda pequeña",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿podría cambiarla por la M, please?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "El pedido TO-80186 me llegó con la chaqueta de lluvia en talla S y me queda pequeña; ¿podría cambiarla por la M, please? Thanks.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80186",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of CITY-JACKET size S for size M due to size mismatch (too small). Order TO-80186 verified: belongs to customer, delivered 9 days ago, contains CITY-JACKET variant S. Product is merchant warehouse, returnable, within 30-day window, target variant M in stock (5 units). Responsibility table (V12) directs to DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 88.81
+   }
+  },
+  "V213": {
+   "B": {
+    "speech_act_evidence": "Können Sie ihn bitte noch einmal senden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "meine Bestellung TO-80193 für den Wasserkocher ist nie angekommen",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Können Sie ihn bitte noch einmal senden?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80193",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests reshipment of a missing kettle (order TO-80193, logistics LOST). The product is merchant-warehouse fulfilled with stock available, so per responsibility table (FULFILMENT, LOST, merchant warehouse with stock) the action is DIRECT_WORKFLOW. No safety concerns, no data conflicts, order reference valid and verified.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 105.41
+   }
+  },
+  "V211": {
+   "B": {
+    "speech_act_evidence": "Könnt ihr mir bitte eine neue Power Base KL-170-BASE zusenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "die zugehörige Power Base nicht mehr funktioniert. Der Wasserkocher selbst ist soweit in Ordnung, aber die Basis lässt sich nicht mehr einschalten bzw. reagiert nicht mehr.",
+      "issue_type": "DEFECT",
+      "component": "power base",
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir bitte eine neue Power Base KL-170-BASE zusenden?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words; fault is power base not switching on, which per S4 example ('doesn't switch on' → no) is not a safety concern.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80191",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-BASE"
+    ],
+    "reasoning": "Speech act is REQUEST (asking for a part). Issue is DEFECT in a component (power base) of a MAINS_ELECTRIC product, but fault is not safety-relevant per S4 example. Order reference TO-80191 is valid, belongs to customer, contains BREW-KETTLE, purchased 150 days ago. Goal is SEND_PART with part number KL-170-BASE (correct prefix). Decision table: V0–V11 do not apply; V12 responsibility table for WARRANTY_REMEDY on DEFECT: >30 days but within supplier warranty (365d) → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 126.9
+   }
+  },
+  "MP02A": {
+   "B": {
+    "speech_act_evidence": "請問貴公司目前是否有水壺蓋 KL-170-LID 可供購買？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "收到時發現蓋子不見了",
+      "issue_type": "MISSING_ITEM",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "請問貴公司目前是否有水壺蓋 KL-170-LID 可供購買？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80198",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Customer asks if lid KL-170-LID is available for purchase after reporting it missing from order TO-80198. Speech act is QUESTION, only goal is INFORMATION. No safety issue. Order reference valid and verified. Decision table rule V6 matches (QUESTION with only INFORMATION goal) → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 119.05
+   }
+  },
+  "MP08A": {
+   "B": {
+    "speech_act_evidence": "Por favor, envíenme una tapa nueva KL-170-LID.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "tapa está agrietada",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "Por favor, envíenme una tapa nueva KL-170-LID.",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "tapa está agrietada",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80204",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Customer requests a replacement lid (KL-170-LID) for a cracked lid on the BREW-KETTLE from order TO-80204. The issue is a defect (cracked component). The product has supplier warranty (365 days) and the order is 120 days old, within warranty. Supplier supplies parts = true. According to responsibility table (V12), WARRANTY_REMEDY on DEFECT with supplier warranty within its days → CREATE_SUPPLIER_TASK. No earlier decision rule matches.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 78.86
+   }
+  },
+  "MP07A": {
+   "B": {
+    "speech_act_evidence": "麻煩請寄一個新的壺蓋給我,型號是 KL-170-LID,謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "壺蓋是裂開的。我完全沒有摔到或撞到,拆開包裝就是這樣",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "麻煩請寄一個新的壺蓋給我,型號是 KL-170-LID,謝謝。",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80203",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Customer reports cracked lid on BREW-KETTLE from order TO-80203 (120 days ago). Issue is DEFECT (broken component). Goal is SEND_PART (lid KL-170-LID). Safety NONE (cracked lid on MAINS_ELECTRIC kettle not a hazard per S4). Order reference valid and verified. Part number known (KL-170-LID) but stock 0; supplier supplies parts = true. Under WARRANTY_REMEDY for DEFECT: >30 days, supplier warranty 365d covers it → CREATE_SUPPLIER_TASK (V12).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 101.13
+   }
+  },
+  "MP08B": {
+   "B": {
+    "speech_act_evidence": "En realidad solo quiero mi dinero de vuelta",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "tapa está agrietada",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "solo quiero mi dinero de vuelta",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80204",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer explicitly requests a refund for a cracked lid on the kettle from order TO-80204. Speech act is REQUEST (refund demand). Issue is DEFECT (cracked lid). Only goal is REFUND. Safety is NONE because a cracked lid on a mains-electric kettle does not match the hazard conditions in S4 (no burning, melting, abnormal heat, sparks, water in power part, or power-base/cable/plug/battery involvement). Order reference is valid, verified, and belongs to the customer. The only action family is REFUND, so decision rule V8 applies, yielding DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 117.9
+   }
+  },
+  "MP07B": {
+   "B": {
+    "speech_act_evidence": "麻煩請寄一個新的壺蓋給我...請告訴我退款流程",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "壺蓋是裂開的...拆開包裝就是這樣",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "麻煩請寄一個新的壺蓋給我,型號是 KL-170-LID",
+        "goal": "SEND_PART"
+       },
+       {
+        "evidence": "不如直接把錢退給我就好了,請告訴我退款流程",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "lid cracked, no hazard words, not power base",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80203",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Single item (kettle lid cracked) with two alternative remedy goals spanning different families (SEND_PART = WARRANTY_REMEDY, REFUND = REFUND). Decision table V7 (mixed) triggers CLARIFY_WITH_CUSTOMER to confirm which outcome the customer wants.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 109.87
+   }
+  },
+  "MP11B": {
+   "B": {
+    "speech_act_evidence": "I would appreciate it if you could look into this issue and let me know the next steps. Repair or replace, either is fine.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "the light sometimes flickers when I adjust the brightness setting. This has been happening for a few days now, and I find it a bit distracting, especially when I am trying to focus on my work. I have tried plugging it into different outlets and checking the bulb, but the flickering persists.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Repair or replace, either is fine.",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Repair or replace, either is fine.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "the light sometimes flickers when I adjust the brightness setting",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80207",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports flickering desk lamp (DEFECT) from order TO-80207 (verified, belongs to customer, contains DESK-LAMP). Requests repair or replace (EITHER_ACCEPTABLE). Product is MAINS_ELECTRIC but flickering alone does not meet safety hazard criteria (no burning, melting, sparks, etc.). Order is 300 days old, beyond 30-day return window but within supplier warranty (730 days). Responsibility table (V12) for WARRANTY_REMEDY on DEFECT: supplier warranty within its days → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 45.67
+   }
+  },
+  "MP10A": {
+   "B": {
+    "speech_act_evidence": "つきましては、交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "箱を開けた時点で蓋にひび割れがありました。",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words; cracked lid on mains-electric kettle but fault is not burning/scorching/melting/abnormal heat/sparks/water in power part, and part is not power base/cable/plug/battery.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80206",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Defect (cracked lid) on BREW-KETTLE under supplier warranty (365 days, purchase 120 days ago). Responsibility table V12: supplier warranty within days → CREATE_SUPPLIER_TASK. Part number KL-170-LID provided, matches product prefix. No safety escalation, order verified, single item/goal.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 97.7
+   }
+  },
+  "MP11A": {
+   "B": {
+    "speech_act_evidence": "Please repair it.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "the light sometimes flickers when I adjust the brightness setting. This has been happening for a few days now, and I find it a bit distracting, especially when I am trying to focus on my work. I have tried plugging it into different outlets and checking the bulb, but the flickering persists.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Please repair it.",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words present; flickering is not listed as a safety trigger for mains electric appliances.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80207",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST due to explicit repair request. Issue is DEFECT (flickering). Goal is REPAIR (WARRANTY_REMEDY family). Order TO-80207 exists, belongs to customer, contains DESK-LAMP, delivered 300 days ago. Safety NONE. No data conflict (order matches product, delivered). No mixed items/goals. V0-V11 do not apply. V12 applies: WARRANTY_REMEDY on DEFECT, product is supplier dropshipped with supplier warranty 730 days, within warranty period → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 100.76
+   }
+  },
+  "MP13A": {
+   "B": {
+    "speech_act_evidence": "quisiera pedirles, por favor, que procedan a repararla",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "la lámpara ha empezado a parpadear de forma intermitente... el parpadeo sigue ahí, sobre todo cuando lleva un rato encendida, digamos a los veinte o treinta minutos",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "quisiera pedirles, por favor, que procedan a repararla",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "flickering only, no burning, scorching, melting, sparks, water inside power part, or power base/cable/plug/battery fault mentioned",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80209",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST (explicit ask for repair). One item: DESK-LAMP with DEFECT (flickering). Goal is REPAIR (WARRANTY_REMEDY family). Safety NONE (flickering on MAINS_ELECTRIC not a hazard per S4). Order TO-80209 valid, belongs to customer, contains product, delivered 300 days ago. Decision table: V0-V11 not triggered. V12 responsibility table: WARRANTY_REMEDY on DEFECT, >30 days but within supplier warranty (730 days), supplier dropshipped -> CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 45.42
+   }
+  },
+  "MP10B": {
+   "B": {
+    "speech_act_evidence": "交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。お手数をおかけしますが、ご対応のほどよろしくお願いいたします。なお、蓋の交換をお願いしようと思っていましたが、少し考えた結果、やはり全額返金していただきたいと思います。お手数ですが、返金の手続きをお願いできますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "箱を開けた時点で蓋にひび割れがありました。梱包には特に問題がなかったようなので、おそらく出荷前から割れていたものと思います。",
+      "issue_type": "DEFECT",
+      "component": "lid",
+      "goals": [
+       {
+        "evidence": "交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。",
+        "goal": "SEND_PART"
+       },
+       {
+        "evidence": "やはり全額返金していただきたいと思います。お手数ですが、返金の手続きをお願いできますでしょうか。",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80206",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Customer reports a cracked lid on a kettle (BREW-KETTLE) from order TO-80206 (120 days old). They first request a replacement lid (KL-170-LID) then state they want a full refund instead. This creates a single item with goals spanning two families (WARRANTY_REMEDY via SEND_PART and REFUND), triggering V7 (mixed goals) → CLARIFY_WITH_CUSTOMER. Safety is NONE because the defect is a cracked lid on a MAINS_ELECTRIC appliance but does not involve burning, melting, power base, cable, plug, battery, or water in the power part. Order reference is valid and verified. Part number KL-170-LID is provided and matches the product prefix.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 119.78
+   }
+  },
+  "MP13B": {
+   "B": {
+    "speech_act_evidence": "quisiera pedirles, por favor, que procedan a repararla o, si no fuera posible, a reemplazarla por otra unidad; cualquiera de las dos opciones me parece bien.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "la lámpara ha empezado a parpadear de forma intermitente... el parpadeo sigue ahí, sobre todo cuando lleva un rato encendida",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "quisiera pedirles, por favor, que procedan a repararla o, si no fuera posible, a reemplazarla por otra unidad; cualquiera de las dos opciones me parece bien.",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "quisiera pedirles, por favor, que procedan a repararla o, si no fuera posible, a reemplazarla por otra unidad; cualquiera de las dos opciones me parece bien.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "parpadear de forma intermitente",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80209",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair or replacement for a flickering desk lamp (DEFECT) under supplier warranty (730 days, purchase 300 days ago). Product is supplier-dropshipped with supplier warranty still valid. Responsibility table (V12) for WARRANTY_REMEDY on DEFECT: supplier warranty within its days → CREATE_SUPPLIER_TASK. No safety hazard (flickering only). Order reference valid and verified. Single item with goals in same family (WARRANTY_REMEDY), not mixed. Required action is CREATE_SUPPLIER_TASK via rule V12.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 112.52
+   }
+  },
+  "MP15A": {
+   "B": {
+    "speech_act_evidence": "修理をお願いいたします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "ちらつきます",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いいたします",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ちらつきます",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80211",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair for a flickering desk lamp (DEFECT) under order TO-80211 (valid, belongs to customer, delivered 300 days ago). Product is SUPPLIER_DROPSHIP with SUPPLIER warranty 730 days, within warranty period. Responsibility table (V12) for WARRANTY_REMEDY on DEFECT: supplier warranty within its days → CREATE_SUPPLIER_TASK. No safety hazard (flickering explicitly excluded from MAINS_ELECTRIC POSSIBLE per S4). No data conflicts, order reference valid, single goal REPAIR.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 131.15
+   }
+  },
+  "MP19B": {
+   "B": {
+    "speech_act_evidence": "Könnt ihr die Lampe reparieren oder mir das Geld zurückerstatten?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "Leider flackert sie seit ein paar Tagen ständig, obwohl sie noch fast neu ist",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr die Lampe reparieren",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "oder mir das Geld zurückerstatten?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80215",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST (asks for repair or refund). One item: DESK-LAMP with DEFECT (flickering). Goals are REPAIR and REFUND, customer explicitly undecided (UNDECIDED). This creates mixed goals across two families (WARRANTY_REMEDY and REFUND), triggering V7 (mixed) → CLARIFY_WITH_CUSTOMER. Safety NONE (flickering alone not a hazard for MAINS_ELECTRIC). Order reference valid and verified.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 86.64
+   }
+  },
+  "MP19A": {
+   "B": {
+    "speech_act_evidence": "Könnt ihr die Lampe reparieren oder mir eine neue schicken?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "flackert sie seit ein paar Tagen ständig",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "reparieren",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "eine neue schicken",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "flackert sie seit ein paar Tagen ständig",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80215",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports flickering desk lamp (DEFECT) from order TO-80215 (verified, 300 days old). Requests repair or replacement (both acceptable). Safety: flickering on MAINS_ELECTRIC product does not meet hazard criteria (no burning, melting, sparks, etc.). Order reference valid and verified. Single item with goals in same family (WARRANTY_REMEDY). Responsibility table: supplier warranty (730d) applies (300 days within), fulfilment SUPPLIER_DROPSHIP → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 123.51
+   }
+  },
+  "MP20B": {
+   "B": {
+    "speech_act_evidence": "修理していただくか返金していただくか、どちらか分からないのでご対応お願い致します。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "デスクランプが点滅します。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "修理していただくか",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "返金していただくか",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "点滅します",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80216",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests action (repair or refund) for a flickering desk lamp (DEFECT) from order TO-80216. Goals span two families (WARRANTY_REMEDY and REFUND) → mixed per V7 → CLARIFY_WITH_CUSTOMER. Safety NONE (flickering not a hazard for MAINS_ELECTRIC). Order reference valid and verified.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 104.89
+   }
+  },
+  "MP22A": {
+   "B": {
+    "speech_act_evidence": "想請問能否為我辦理退款？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "收到商品時發現扣環已經損壞，無法正常使用。",
+      "issue_type": "DEFECT",
+      "component": "buckle",
+      "goals": [
+       {
+        "evidence": "想請問能否為我辦理退款？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "收到商品時發現扣環已經損壞，無法正常使用。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80218",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests a refund for a backpack (order TO-80218) due to a broken buckle upon delivery. This is a DEFECT with a single REFUND goal. Order is valid, belongs to customer, 15 days old, product returnable. No safety hazard. Decision table V8 applies (only REFUND family) → DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 131.72
+   }
+  },
+  "MP25A": {
+   "B": {
+    "speech_act_evidence": "返金をお願いいたします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "届いたバックパックのバックルが壊れていました",
+      "issue_type": "DEFECT",
+      "component": "buckle",
+      "goals": [
+       {
+        "evidence": "返金をお願いいたします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words; product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80221",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests a refund for a broken buckle on the backpack from order TO-80221. Speech act is REQUEST. Single item with DEFECT issue and REFUND goal. Safety NONE. Order reference valid, verified, not hedged. Decision table: V8 matches (only action family is REFUND) → DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 71.39
+   }
+  },
+  "MP23A": {
+   "B": {
+    "speech_act_evidence": "quiero un reembolso",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "El buckle de la mochila se rompió",
+      "issue_type": "DEFECT",
+      "component": "buckle",
+      "goals": [
+       {
+        "evidence": "quiero un reembolso",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80219",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests a refund for a broken buckle on the backpack from order TO-80219. The order exists, belongs to the customer, contains the backpack, and was delivered 15 days ago. The issue is a defect (broken component). The only goal is REFUND, which falls under the REFUND family. According to decision table V8 (only action family is REFUND), required_action is DIRECT_WORKFLOW. No safety concerns, no data conflicts, order reference valid and verified.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 96.25
+   }
+  },
+  "MP23B": {
+   "B": {
+    "speech_act_evidence": "quiero un reembolso",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CAMP-STOVE",
+      "issue_evidence": "La válvula de la estufa de gas de camping se rompió",
+      "issue_type": "DEFECT",
+      "component": "valve",
+      "goals": [
+       {
+        "evidence": "quiero un reembolso",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "La válvula de la estufa de gas de camping se rompió",
+    "safety": "POSSIBLE",
+    "order_ref_as_written": "TO-80219",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Safety is POSSIBLE because the product is a gas appliance (CAMP-STOVE) and the customer reports a broken valve (DEFECT). Per rule V1, any POSSIBLE or EXPLICIT safety triggers HUMAN_REVIEW regardless of the requested remedy.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 99.91
+   }
+  },
+  "MP28A": {
+   "B": {
+    "speech_act_evidence": "Me gustaría devolver el producto y solicitar el reembolso correspondiente.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "no calienta el agua en absoluto; al parecer, el elemento de calentamiento no funciona.",
+      "issue_type": "DEFECT",
+      "component": "heating element",
+      "goals": [
+       {
+        "evidence": "Me gustaría devolver el producto y solicitar el reembolso correspondiente.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no calienta el agua en absoluto; al parecer, el elemento de calentamiento no funciona.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80224",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests refund for defective electric kettle (BREW-KETTLE) within 30-day return window. Order TO-80224 verified, product delivered, defect described without safety hazard words. Only goal is REFUND, so V8 applies → DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 120.15
+   }
+  },
+  "MP25B": {
+   "B": {
+    "speech_act_evidence": "返金をお願いいたします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CAMP-STOVE",
+      "issue_evidence": "バルブが壊れていました",
+      "issue_type": "DEFECT",
+      "component": "valve",
+      "goals": [
+       {
+        "evidence": "返金をお願いいたします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "キャンプ用ガスバーナーのバルブが壊れていました",
+    "safety": "POSSIBLE",
+    "order_ref_as_written": "TO-80221",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Safety is POSSIBLE because the product is a gas appliance (CAMP-STOVE, hazard class GAS_APPLIANCE) with a DEFECT (broken valve). Per rule V1, safety POSSIBLE triggers HUMAN_REVIEW regardless of the customer's refund request.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 33.94
+   }
+  },
+  "MP29A": {
+   "B": {
+    "speech_act_evidence": "Ich bitte um Rückgabe und Erstattung des Kaufpreises.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "Der Wasserkocher heizt nicht.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich bitte um Rückgabe und Erstattung des Kaufpreises.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80225",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests refund for defective kettle (does not heat) within 30-day return window. Order TO-80225 verified, contains BREW-KETTLE. Safety NONE (no hazard words, defect is 'does not heat' not a mains electric hazard per S4). Only action family is REFUND → V8 DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 113.0
+   }
+  },
+  "MP27A": {
+   "B": {
+    "speech_act_evidence": "想請問可以辦理退貨退款嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "電水壺不會加熱",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可以辦理退貨退款嗎？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80223",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests a refund for a defective electric kettle (doesn't heat) from order TO-80223, which is verified, belongs to them, and is within the 30-day return window. The only action family is REFUND, so V8 applies → DIRECT_WORKFLOW.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 73.26
+   }
+  },
+  "MP32B": {
+   "B": {
+    "speech_act_evidence": "請問能否幫我調換成白色的燈？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "我當初訂購的是黑色的，但現在想換成白色的",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "請問能否幫我調換成白色的燈？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words; customer only wants colour change.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80230",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer ordered black DESK-LAMP (TO-80230, verified, 6 days ago) but wants white instead — CUSTOMER_ORDERED_WRONG. Speech act is REQUEST for EXCHANGE_VARIANT. No safety issue. Order reference valid and verified. Single item, single goal family (EXCHANGE). V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW per C2).",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 35.2
+   }
+  },
+  "MP29B": {
+   "B": {
+    "speech_act_evidence": "Ich bitte um Rückgabe und Erstattung des Kaufpreises.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "Der Wasserkocher heizt nicht.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich bitte um Rückgabe und Erstattung des Kaufpreises.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "SALE-SOCKS",
+      "issue_evidence": "Außerdem haben die Socken ein Loch.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich bitte um Rückgabe und Erstattung des Kaufpreises.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80225",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Two actionable items (kettle defect + socks defect) each with a REFUND goal → mixed per V7, so required_action is CLARIFY_WITH_CUSTOMER. Safety NONE (kettle defect is 'does not heat', not a mains-electric hazard per S4). Order reference valid and verified.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 99.23
+   }
+  },
+  "MP27B": {
+   "B": {
+    "speech_act_evidence": "想請問可以辦理退貨退款嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "電水壺不會加熱",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想請問可以辦理退貨退款嗎？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "SALE-SOCKS",
+      "issue_evidence": "襪子也有破洞",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想請問可以辦理退貨退款嗎？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80223",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Two distinct products (BREW-KETTLE and SALE-SOCKS) each have a DEFECT and the customer requests a refund for both. This creates ≥2 actionable items with non-INFORMATION goals, triggering V7 (mixed) → CLARIFY_WITH_CUSTOMER to confirm which item to handle first or if both should be processed together.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 87.79
+   }
+  },
+  "MP28B": {
+   "B": {
+    "speech_act_evidence": "Me gustaría devolver ambos productos y solicitar el reembolso correspondiente. Agradecería que me indicaran los pasos a seguir para gestionar la devolución.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "no calienta el agua en absoluto; al parecer, el elemento de calentamiento no funciona",
+      "issue_type": "DEFECT",
+      "component": "heating element",
+      "goals": [
+       {
+        "evidence": "Me gustaría devolver ambos productos y solicitar el reembolso correspondiente",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "SALE-SOCKS (Merino socks (final sale))",
+      "issue_evidence": "los calcetines que venían en el mismo pedido tienen un agujero",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Me gustaría devolver ambos productos y solicitar el reembolso correspondiente",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words present; kettle defect is 'does not heat' (no burning, scorching, melting, sparks, water in power part, or power base/cable/plug/battery fault).",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80224",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Two actionable items (kettle DEFECT + REFUND, socks DEFECT + REFUND) trigger V7 (mixed ≥2 actionable items) before V8 (REFUND-only family). Order TO-80224 verifies and contains both products. Safety NONE. No part numbers. Required action is CLARIFY_WITH_CUSTOMER per V7; DIRECT_WORKFLOW is also defensible because customer explicitly requests refund for both items in a single request.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 200.02
+   }
+  },
+  "MP37B": {
+   "B": {
+    "speech_act_evidence": "想麻煩您協助查詢配送狀況，並盡快將檯燈寄出給我",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "商品至今尚未送達",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "盡快將檯燈寄出給我",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "無安全隱患描述",
+    "safety": "NONE",
+    "order_ref_as_written": "T0-80238",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "客戶提供的訂單號 T0-80238 格式錯誤（應為 TO- 開頭），屬於 malformed order reference，根據決策表 V4 條件，需向客戶確認正確訂單號。",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 104.6
+   }
+  },
+  "MP41B": {
+   "B": {
+    "speech_act_evidence": "Could you please provide me with the recommended descaling procedure or any cleaning tips?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "The kettle is functioning perfectly and is not broken; I simply need instructions on how to descale it.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could you please provide me with the recommended descaling procedure or any cleaning tips?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "The kettle is functioning perfectly and is not broken",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80242",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks for descaling instructions for a kettle that works perfectly (NO_ISSUE). The only goal is INFORMATION. Speech act is QUESTION. Safety is NONE. Order reference TO-80242 is valid, belongs to the customer, and contains the product. Decision table V6 matches: QUESTION with only INFORMATION goal → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 50.38
+   }
+  },
+  "MP41A": {
+   "B": {
+    "speech_act_evidence": "Could you please provide me with the recommended descaling procedure or any cleaning tips?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "the kettle itself works perfectly and there is no malfunction. I am not experiencing any issues with the kettle's performance; it is not broken at all, I only want to know how to descale it.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could you please provide me with the recommended descaling procedure or any cleaning tips?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "the kettle itself works perfectly and there is no malfunction. I am not experiencing any issues with the kettle's performance; it is not broken at all",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80242",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks only for descaling instructions for a kettle that works perfectly; this is a pure information request (speech_act QUESTION, goal INFORMATION). The order reference TO-80242 is valid, belongs to the customer, and contains the product. No safety concern (limescale is not a hazard). Decision table rule V6 matches first: speech_act QUESTION with only INFORMATION goals → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 85.06
+   }
+  },
+  "MP43A": {
+   "B": {
+    "speech_act_evidence": "¿Me podéis indicar los pasos o recomendarme algún producto?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "No está roto en absoluto, funciona perfectamente, solo me gustaría saber cómo descalcificarlo",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿Me podéis indicar los pasos o recomendarme algún producto?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No está roto en absoluto, funciona perfectamente",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80244",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pure information request about descaling a working kettle. Speech act is QUESTION, only goal is INFORMATION, issue_type is NO_ISSUE. Order reference TO-80244 is valid, verified, belongs to customer, contains BREW-KETTLE. Decision table V6 matches: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 29.6
+   }
+  },
+  "MP42A": {
+   "B": {
+    "speech_act_evidence": "我想確認一下：電 kettle 完全沒有壞掉，我只是想知道要怎麼 descale 它。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "電 kettle 完全沒有壞掉",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "我只是想知道要怎麼 descale 它",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80243",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pure information question about descaling a kettle that the customer explicitly says is not broken. Speech act is QUESTION, only goal is INFORMATION, issue_type NO_ISSUE. Decision table V6 matches (QUESTION with only INFORMATION goals) → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 58.05
+   }
+  },
+  "MP39B": {
+   "B": {
+    "speech_act_evidence": "Könnt ihr bitte prüfen und ggf. nachsenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Lampe",
+      "issue_evidence": "die Lampe aus meiner Bestellung noch nicht angekommen ist",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr bitte prüfen und ggf. nachsenden?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-802400",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer requests a reship of a missing lamp (MISSING_ITEM, goal RESHIP). The provided order reference TO-802400 is not found in the system records (NO SUCH ORDER). According to decision table rule V11 (order not found → CLARIFY_WITH_CUSTOMER), we must ask the customer for a valid order number before proceeding.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 121.8
+   }
+  },
+  "MP48B": {
+   "B": {
+    "speech_act_evidence": "Necesito un reemplazo lo antes posible.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "tetera (kettle)",
+      "issue_evidence": "la tetera que compré dejó de calentar después de apenas dos semanas de uso",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Necesito un reemplazo lo antes posible",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "dejó de calentar",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80256",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for defective kettle (stopped heating after two weeks). Order reference TO-80256 is hedged ('creo') and belongs to a different customer with a different product (TRAIL-RUNNER-42). Per V4, hedged order that fails verification requires clarification.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 36.52
+   }
+  },
+  "MP47B": {
+   "B": {
+    "speech_act_evidence": "我想要申請 replacement",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "我的 kettle 停止加熱了",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "我想要申請 replacement",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "停止加熱了",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80255",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for a kettle that stopped heating (DEFECT). Order reference TO-80255 is hedged ('I think') and verification fails: the order belongs to a different customer and contains sneakers, not a kettle. Per decision table V4 (hedged order reference that fails verification), required_action is CLARIFY_WITH_CUSTOMER.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 73.02
+   }
+  },
+  "MP52A": {
+   "B": {
+    "speech_act_evidence": "想跟你們反映一個蠻傻眼的情況",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "鞋底就整個脫落了",
+      "issue_type": "DEFECT",
+      "component": "sole",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words; product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80253",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports a defect (sole detachment) on TRAIL-RUNNER-42 from order TO-80253 (90 days old, supplier-dropshipped, supplier warranty 180 days). No explicit request or question is made, so speech_act is COMPLAINT_ONLY. The item has issue_type DEFECT with no stated goals. According to decision table, V9 matches first: no goals and issue ≠ NO_ISSUE → CLARIFY_WITH_CUSTOMER to ask what remedy they want.",
+    "deciding_rule": "V9",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 46.46
+   }
+  },
+  "MP50A": {
+   "B": {
+    "speech_act_evidence": "交換お願いしたいです",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "ケトールが温まらなくなっtて困ってます",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "交換お願いしたいです",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ケトールが温まらなくなっtて困ってます",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80251",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for a kettle (BREW-KETTLE) that stopped heating (DEFECT). Order TO-80251 verified (belongs to customer, contains product, delivered 150 days ago). Product is MERCHANT_WAREHOUSE with SUPPLIER warranty 365 days; purchase within warranty period. Responsibility table (V12) for WARRANTY_REMEDY (REPLACE_SAME) with supplier warranty within its days → CREATE_SUPPLIER_TASK. No safety hazard (no burning, smoke, etc.). No data conflicts, order reference valid, single goal.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 92.46
+   }
+  },
+  "MP54A": {
+   "B": {
+    "speech_act_evidence": "Die Sohle der Sneaker ist abgegangen, sehr ärgerlich.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Die Sohle der Sneaker ist abgegangen",
+      "issue_type": "DEFECT",
+      "component": "sole",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80255",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer complains about sole detachment (DEFECT) on order TO-80255 (verified, belongs to customer, contains TRAIL-RUNNER-42). No request or question expressed, so speech_act=COMPLAINT_ONLY. No goals stated, issue ≠ NO_ISSUE → V9 triggers CLARIFY_WITH_CUSTOMER to ask desired remedy. Safety NONE. Order reference valid and not hedged. No part numbers.",
+    "deciding_rule": "V9",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 94.71
+   }
+  },
+  "MP43B": {
+   "B": {
+    "speech_act_evidence": "¿Me podéis indicar los pasos o recomendarme algún producto?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "No tiene ninguna avería, funciona de maravilla",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "solo me gustaría saber cómo puedo quitarle la cal",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "¿Me podéis indicar los pasos o recomendarme algún producto?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No tiene ninguna avería, funciona de maravilla",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80244",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pure information question about descaling a working kettle (NO_ISSUE). Speech act is QUESTION, only goal is INFORMATION. Order reference TO-80244 is valid, verified, and belongs to the customer. Safety NONE. Decision table V6 matches: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 99.28
+   }
+  },
+  "MP52B": {
+   "B": {
+    "speech_act_evidence": "可以麻煩你們幫我寄一雙同款的替換鞋過來嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "鞋底就整個脫落了",
+      "issue_type": "DEFECT",
+      "component": "sole",
+      "goals": [
+       {
+        "evidence": "可以麻煩你們幫我寄一雙同款的替換鞋過來嗎？",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80253",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports sole detachment on TRAIL-RUNNER-42 from order TO-80253 (90 days old, supplier-dropshipped, supplier warranty 180 days). Requests replacement of same item (REPLACE_SAME). No safety hazard. Order reference valid and verified. Single item, single warranty remedy goal. Decision table reaches V12: supplier warranty within its days and supplier confirms stock → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 79.59
+   }
+  },
+  "MP54B": {
+   "B": {
+    "speech_act_evidence": "Bitte senden Sie ein Ersatzpaar.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Die Sohle der Sneaker ist abgegangen",
+      "issue_type": "DEFECT",
+      "component": "sole",
+      "goals": [
+       {
+        "evidence": "Bitte senden Sie ein Ersatzpaar",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80255",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for defective sneakers (sole detached) from order TO-80255. Order belongs to customer, contains TRAIL-RUNNER-42 (supplier-dropshipped, supplier warranty 180 days). Purchase 90 days ago exceeds 30-day return window but within supplier warranty period. Responsibility table (V12) directs to CREATE_SUPPLIER_TASK for supplier warranty claim.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 94.08
+   }
+  },
+  "MP55A": {
+   "B": {
+    "speech_act_evidence": "右足の靴底がまるごと剥がれてしまっていたのです。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers variant 42)",
+      "issue_evidence": "右足の靴底がまるごと剥がれてしまっていたのです。",
+      "issue_type": "DEFECT",
+      "component": "sole",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "右足の靴底がまるごと剥がれてしまっていたのです。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80256",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer describes a defect (sole detachment) on a supplier-dropshipped product (TRAIL-RUNNER-42) from order TO-80256 (90 days old, delivered). No explicit request or question is made; speech act is COMPLAINT_ONLY. No goals stated, so per decision table V9 (no goals, issue ≠ NO_ISSUE) we must clarify what remedy the customer wants. Safety is NONE (no hazard words, product hazard class NONE). Order reference is valid and verified. No part numbers mentioned.",
+    "deciding_rule": "V9",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 105.49
+   }
+  },
+  "MP48A": {
+   "B": {
+    "speech_act_evidence": "Necesito un reemplazo lo antes posible",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "la tetera que compré dejó de calentar después de apenas dos semanas de uso",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Necesito un reemplazo lo antes posible",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words; defect is 'doesn't heat' which is explicitly not a safety concern for MAINS_ELECTRIC",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80249",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for a defective kettle (stopped heating) under supplier warranty (150 days ago, within 365-day supplier warranty). Order TO-80249 verified, belongs to customer, contains BREW-KETTLE. Safety NONE. Responsibility table V12: WARRANTY_REMEDY on DEFECT with supplier warranty within its days → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 88.81
+   }
+  },
+  "MP50B": {
+   "B": {
+    "speech_act_evidence": "交換お願いしたいです",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "ケトールが温まらなくなった",
+      "issue_type": "DEFECT",
+      "component": "heating element",
+      "goals": [
+       {
+        "evidence": "交換お願いしたいです",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words; defect is 'doesn't heat' which is not a safety concern for MAINS_ELECTRIC per D5",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80258",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for kettle that stopped heating (DEFECT → REPLACE_SAME). Order reference TO-80258 is hedged ('かな？と思います') and belongs to a different customer per MOCK records, so verification fails. Rule V4 (hedged order reference that fails verification) matches before V12, requiring CLARIFY_WITH_CUSTOMER to obtain a valid order number.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 100.72
+   }
+  },
+  "MP59B": {
+   "B": {
+    "speech_act_evidence": "I would like a repair.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "The kettle stopped heating — there was smoke and a burning smell from the base",
+      "issue_type": "DEFECT",
+      "component": "base",
+      "goals": [
+       {
+        "evidence": "I would like a repair",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "smoke and a burning smell from the base",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80260",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Safety is EXPLICIT due to smoke and burning smell from the base of a mains-electric kettle (hazard class MAINS_ELECTRIC). Rule V1 matches first, requiring HUMAN_REVIEW.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 36.22
+   }
+  },
+  "MP57B": {
+   "B": {
+    "speech_act_evidence": "我想申請 repair，請問可以如何處理？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "我的電熱水壺最近突然不加熱了，插電後完全沒反應，水一直是冷的，底部有冒煙並有燒焦味",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "我想申請 repair",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "底部有冒煙並有燒焦味",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80258",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Safety is EXPLICIT due to explicit hazard words 'smoke' (冒煙) and 'burnt smell' (燒焦味) on a MAINS_ELECTRIC appliance (BREW-KETTLE). This triggers rule V1 (safety POSSIBLE or EXPLICIT) which mandates HUMAN_REVIEW regardless of the customer's requested remedy (repair).",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 80.88
+   }
+  },
+  "MP57A": {
+   "B": {
+    "speech_act_evidence": "我想申請 repair，請問可以如何處理？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "我的電熱水壺最近突然不加熱了，插電後完全沒反應，水一直是冷的",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "我想申請 repair",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "沒有煙也沒有異味",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80258",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair for a defective electric kettle (BREW-KETTLE) under order TO-80258. The order exists, belongs to the customer, and contains the product. The defect (no heating, no reaction) is not a safety hazard (explicitly no smoke/smell). The product has a supplier warranty of 365 days; purchase was 200 days ago, within warranty. According to the responsibility table (V12), a DEFECT with REPAIR goal under supplier warranty within its days triggers CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 98.05
+   }
+  },
+  "MP58A": {
+   "B": {
+    "speech_act_evidence": "¿Me podríais decir cómo hago para enviarla y que la reparéis?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "hace unos días dejó de calentar: la enciendo, la luz se enciende, pero el agua se queda fría del todo.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "que la reparéis",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Eso sí, no ha echado humo ni olor a quemado",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80259",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair for a defective electric kettle (BREW-KETTLE) from order TO-80259 (verified, 200 days old). Safety is NONE because the customer explicitly denies smoke/burnt smell and the fault is 'doesn't heat' (not a mains-electric hazard per S4). The product has a supplier warranty of 365 days, which covers this defect. Per responsibility table V12, supplier warranty within its days → CREATE_SUPPLIER_TASK. No earlier decision rule matches.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 100.55
+   }
+  },
+  "MP61B": {
+   "B": {
+    "speech_act_evidence": "do you sell it separately?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "I've been really enjoying it so far",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "do you sell it separately?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words; customer only asks about purchasing a clamp",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80262",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "reasoning": "The customer asks an information-only question about whether a desk clamp (DL-CLAMP-M) for their DESK-LAMP (order TO-80262) is sold separately. No problem with the product is reported. Speech act is QUESTION, only goal is INFORMATION. Decision table rule V6 matches: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW (support answers; no task).",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 73.34
+   }
+  },
+  "MP63B": {
+   "B": {
+    "speech_act_evidence": "¿Venden el desk clamp DL-CLAMP-M por separado?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "¿Venden el desk clamp DL-CLAMP-M por separado?",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿Venden el desk clamp DL-CLAMP-M por separado?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words or defect described; only a question about part availability.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80264",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "reasoning": "The customer asks only whether the desk clamp DL-CLAMP-M is sold separately. This is a pure availability question (speech_act QUESTION) with goal INFORMATION. No problem with the order is reported (issue_type NO_ISSUE). The order reference TO-80264 is valid, belongs to the customer, and contains the DESK-LAMP. Safety is NONE. Decision table rule V6 matches: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 63.17
+   }
+  },
+  "MP67B": {
+   "B": {
+    "speech_act_evidence": "想請問可以換成 size 44 嗎？如果可以再麻煩告訴我怎麼處理，謝謝你們。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "鞋子",
+      "issue_evidence": "穿起來太小，腳完全塞不進去",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想請問可以換成 size 44 嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "No order reference provided in the message; the customer only describes the shoes they bought. According to the decision table, rule V11 applies: no order reference at all (none written, none linked) → CLARIFY_WITH_CUSTOMER. Additionally, the target variant (size 44) must be verified against the actual product once the order is identified. The product appears to be TRAIL-RUNNER-42 (supplier-dropshipped), but without an order reference we cannot confirm eligibility, return window, or stock. Therefore we must ask for the order number first.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 39.45
+   }
+  },
+  "MP68B": {
+   "B": {
+    "speech_act_evidence": "los zapatos que recibí son demasiado pequeños, necesito talla 44",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "los zapatos que recibí son demasiado pequeños",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "necesito talla 44",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange to size 44 for shoes that are too small (SIZE_MISMATCH). No order reference provided (none written, none linked), so V11 triggers CLARIFY_WITH_CUSTOMER to obtain order number.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 62.87
+   }
+  },
+  "MP63A": {
+   "B": {
+    "speech_act_evidence": "Por favor envíen el desk clamp DL-CLAMP-M, lo perdieron.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "lo perdieron",
+      "issue_type": "PART_NEED",
+      "component": "desk clamp",
+      "goals": [
+       {
+        "evidence": "Por favor envíen el desk clamp DL-CLAMP-M",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80264",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "reasoning": "Customer requests a replacement desk clamp (DL-CLAMP-M) for order TO-80264, stating they lost it. This is a PART_NEED with goal SEND_PART. Order reference is valid, belongs to customer, contains DESK-LAMP. Part number matches product prefix DL-, known in parts table with stock 0. Supplier supplies parts for DESK-LAMP. Responsibility table (V12) for SEND_PART on PART_NEED: known part, 0 stock, supplier supplies parts → CREATE_SUPPLIER_TASK. No earlier decision rule matches.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 69.71
+   }
+  },
+  "MP33A": {
+   "B": {
+    "speech_act_evidence": "Quiero la blanca.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "recibí una lámpara negra en lugar de la blanca que pedí",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Quiero la blanca.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "recibí una lámpara negra en lugar de la blanca que pedí",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80231",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer received wrong variant (black instead of ordered white) for a supplier-dropshipped DESK-LAMP. Order TO-80231 verified (belongs to customer, contains white variant, delivered 6 days ago). Speech act is REQUEST for exchange to ordered variant. Issue type WRONG_ITEM_OR_VARIANT. Goal EXCHANGE_VARIANT. Safety NONE. Decision table: V0-V11 do not match; V12 responsibility table for supplier-dropshipped product with wrong variant → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 103.09
+   }
+  },
+  "MP69B": {
+   "B": {
+    "speech_act_evidence": "Bitte sagen Sie mir, wie ich den Umtausch am schnellsten erledigen kann.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "die gelieferten Schuhe sind mir deutlich zu klein",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "ich benötige Größe 44",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports shoes too small (SIZE_MISMATCH) and wants to exchange for size 44 (EXCHANGE_VARIANT). No order reference provided in message and no linked order on case. Decision table V11 matches: no order reference at all → CLARIFY_WITH_CUSTOMER.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 129.16
+   }
+  },
+  "MP64A": {
+   "B": {
+    "speech_act_evidence": "Schickt ihr mir die vieleicht noch nach?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "Bei der Lieferung war die Tischklemme DL-CLAMP-M nicht dabei",
+      "issue_type": "MISSING_ITEM",
+      "component": "DL-CLAMP-M",
+      "goals": [
+       {
+        "evidence": "Schickt ihr mir die vieleicht noch nach?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80265",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "reasoning": "The customer requests a missing component (DL-CLAMP-M) for a supplier-dropshipped DESK-LAMP delivered 100 days ago. Logistics shows DELIVERED in full, so the responsibility table (V12) for FULFILMENT/RESHIP of MISSING_ITEM yields HUMAN_REVIEW because the carrier record shows full delivery, creating a data conflict with the missing-part claim.",
+    "deciding_rule": "V12",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 205.25
+   }
+  },
+  "V126": {
+   "B": {
+    "speech_act_evidence": "Ich würde daher gerne einen Ersatz erhalten. Bitte lassen Sie mich wissen, wie wir das am besten regeln können.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "dass sich an einem Schuh die Naht aufgesplittert hat",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich würde daher gerne einen Ersatz erhalten",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80118",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports a defect (seam split) on Trail Runner sneakers ordered 9 days ago (order TO-80118) and requests a replacement. Speech act is REQUEST. Issue is DEFECT with goal REPLACE_SAME (WARRANTY_REMEDY). Order reference is valid, verified, and not hedged. Safety NONE. Decision table: V0–V11 do not apply; V12 responsibility table for WARRANTY_REMEDY on DEFECT: ≤30 days and returnable → DIRECT_WORKFLOW (product returnable, purchase 9 days ago).",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 62.93
+   }
+  },
+  "V125": {
+   "B": {
+    "speech_act_evidence": "Le agradecería que me envíen una unidad de reemplazo lo antes posible.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "desde el primer día parpadea de forma constante",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Le agradecería que me envíen una unidad de reemplazo lo antes posible",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "desde el primer día parpadea de forma constante",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80117",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests replacement for a defective LED desk lamp (flickering) within 9 days of purchase. Order TO-80117 verified, belongs to customer, contains DESK-LAMP (white). Product is supplier dropshipped, returnable, within 30-day return window. Responsibility table (V12) for WARRANTY_REMEDY on DEFECT: ≤30 days and returnable → DIRECT_WORKFLOW. No safety concerns (flickering alone not a hazard for MAINS_ELECTRIC). Single item, single goal REPLACE_SAME, no mixed or unclear issues.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 71.18
+   }
+  },
+  "V120": {
+   "B": {
+    "speech_act_evidence": "¿Me podrían ayudar con un reemplazo?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "hizo un pequeño pop y el módulo LED se quemó, incluso se ve una marca de quemado en esa zona",
+      "issue_type": "DEFECT",
+      "component": "LED module",
+      "goals": [
+       {
+        "evidence": "¿Me podrían ayudar con un reemplazo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "se quemó, incluso se ve una marca de quemado",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80112",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Safety is EXPLICIT due to explicit hazard words 'se quemó' and 'marca de quemado' on a MAINS_ELECTRIC product (DESK-LAMP). Per decision table V1, any safety POSSIBLE or EXPLICIT triggers HUMAN_REVIEW regardless of requested remedy.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 27.14
+   }
+  },
+  "V111": {
+   "B": {
+    "speech_act_evidence": "I would like to get a replacement valve part CS-VALVE-2 for it if that's possible. Please let me know how to proceed with that.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CAMP-STOVE",
+      "issue_evidence": "the pot support was bent",
+      "issue_type": "DEFECT",
+      "component": "pot support",
+      "goals": [
+       {
+        "evidence": "I would like to get a replacement valve part CS-VALVE-2 for it if that's possible.",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "camping gas stove ... pot support was bent",
+    "safety": "POSSIBLE",
+    "order_ref_as_written": "TO-80103",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "CS-VALVE-2"
+    ],
+    "reasoning": "Safety POSSIBLE due to gas appliance (CAMP-STOVE) with defect (pot support bent) triggers V1 → HUMAN_REVIEW.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 105.13
+   }
+  },
+  "V128": {
+   "B": {
+    "speech_act_evidence": "このバックルの修理が可能であれば、ぜひ対応をお願いしたいと思います。保証期間内かどうかも確認したく、修理にかかる費用や送付方法などを教えていただければ幸いです。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "左側のストラップバックルが突然外れてしまい、今では全く固定できなくなってしまいました",
+      "issue_type": "DEFECT",
+      "component": "buckle",
+      "goals": [
+       {
+        "evidence": "このバックルの修理が可能であれば、ぜひ対応をお願いしたいと思います",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "保証期間内かどうかも確認したく、修理にかかる費用や送付方法などを教えていただければ幸いです",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80120",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer describes a buckle defect on a daypack from order TO-80120 (verified, belongs to customer, 100 days old). However, the customer describes a black 20L daypack while the order contains a navy 30L variant (BACKPACK-30L). This constitutes a data conflict (size/colour mismatch) per V3, triggering HUMAN_REVIEW. The request is for repair (warranty) and information.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 66.74
+   }
+  },
+  "V129": {
+   "B": {
+    "speech_act_evidence": "I was wondering if you guys can repair it? Let me know what I need to do",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "The strap buckle just broke off",
+      "issue_type": "DEFECT",
+      "component": "strap buckle",
+      "goals": [
+       {
+        "evidence": "can repair it",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "The strap buckle just broke off",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80121",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair of a broken buckle on a backpack from order TO-80121 (verified, 200 days ago). Issue is DEFECT (broken component). Goal is REPAIR (WARRANTY_REMEDY family). Product BACKPACK-30L has merchant warranty 365 days and is returnable; within warranty period → DIRECT_WORKFLOW per responsibility table (merchant warranty within its days). No safety concerns, no data conflicts, order reference valid and verified. Single item, single goal, no mixed families.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 68.09
+   }
+  },
+  "V134": {
+   "B": {
+    "speech_act_evidence": "サイズ交換でできますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "サイズ41を注文しちゃったんですが、ほんとおは42が欲しかったです",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "サイズ交換でできますか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80126",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer explicitly states they ordered size 41 but wanted size 42 (CUSTOMER_ORDERED_WRONG). Per C2/D3, this is handled via DIRECT_WORKFLOW (return/exchange policy). Decision table V10 matches CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW. Order TO-80126 verifies (belongs to customer, contains TRAIL-RUNNER-42 variant 41). No safety concerns (hazard class NONE). Single item, single goal family (EXCHANGE).",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 44.55
+   }
+  },
+  "V127": {
+   "B": {
+    "speech_act_evidence": "新しい商品との交換をお願いできないでしょうか",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "点灯するとチカチカと点滅してしまうそうです。初期不良ではないかと思うのですが",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "新しい商品との交換をお願いできないでしょうか",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "交換の手続きについて教えていただけますと助かります",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "点灯するとチカチカと点滅してしまう",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80119",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for a flickering LED desk lamp (DEFECT) within 3 days of delivery. Order TO-80119 verified, product returnable and within 30-day window. Responsibility table (V12) for WARRANTY_REMEDY on DEFECT: ≤30 days and returnable → DIRECT_WORKFLOW. No safety hazard (flickering not listed for MAINS_ELECTRIC). Single item, goals REPLACE_SAME + INFORMATION (not mixed per note).",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 138.94
+   }
+  },
+  "V100": {
+   "B": {
+    "speech_act_evidence": "Ich möchte gerne eine Rückerstattung.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "Nach nur einer Woche ist der Reißverschluss kaputt.",
+      "issue_type": "DEFECT",
+      "component": "zipper",
+      "goals": [
+       {
+        "evidence": "Ich möchte gerne eine Rückerstattung.",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "Wie läuft das ab?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-800920",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests refund for defective zipper on rain jacket (CITY-JACKET) citing order TO-800920. Order does not exist in records (NO SUCH ORDER), customer not hedged → data conflict (V3) triggers HUMAN_REVIEW. Safety NONE (rain jacket hazard class NONE). Goals: REFUND + INFORMATION (process question).",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 92.37
+   }
+  },
+  "V123": {
+   "B": {
+    "speech_act_evidence": "Could I please get a replacement?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "it's been flickering since a few days ago",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could I please get a replacement?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80115",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST because customer asks for replacement. Issue is DEFECT (flickering). Goal is REPLACE_SAME. Order reference TO-80115 is valid and verified. Safety NONE because flickering on mains electric desk lamp is not a listed hazard. Decision table: V12 applies, responsibility table for WARRANTY_REMEDY on DEFECT within 30 days and returnable → DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 255.78
+   }
+  },
+  "V135": {
+   "B": {
+    "speech_act_evidence": "Can I exchange it for a size 42 please? Let me know what I need to do to return this and get the correct size.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "I ordered the wrong size by mistake, I meant 42.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Can I exchange it for a size 42 please?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80127",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer admits ordering wrong size (CUSTOMER_ORDERED_WRONG) and requests exchange for size 42. Order TO-80127 verified, product is supplier-dropshipped but C2 mandates DIRECT_WORKFLOW for customer-ordered-wrong. No safety, mixed, or slot issues. V10 matches first.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 131.85
+   }
+  },
+  "V130": {
+   "B": {
+    "speech_act_evidence": "能不能安排維修",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "肩帶上面的塑膠扣環整個裂開斷掉了",
+      "issue_type": "DEFECT",
+      "component": "plastic buckle",
+      "goals": [
+       {
+        "evidence": "想請問你們有沒有提供維修的服務？流程大概怎麼走？",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "能不能安排維修",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "可以直接寄一個相容的扣環給我",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words; product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80122",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests repair or sending a compatible buckle for a broken shoulder-strap buckle on a BACKPACK-30L (order TO-80122, 200 days old). Issue is DEFECT. Goals include INFORMATION, REPAIR, and SEND_PART (UNDECIDED). No safety concern. Order reference valid and verified. However, SEND_PART goal lacks a specific part number (customer only describes a plastic buckle). Per decision table V11, missing part number for SEND_PART triggers CLARIFY_WITH_CUSTOMER.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 232.63
+   }
+  },
+  "V136": {
+   "B": {
+    "speech_act_evidence": "想問可以直接跟你們換白色的嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "顏色點錯點到黑色的，但其實我要的是白色",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想問可以直接跟你們換白色的嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "燈收到都還沒拆封",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80128",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer ordered wrong colour (black instead of white) for DESK-LAMP (order TO-80128, delivered 6 days ago). Issue is CUSTOMER_ORDERED_WRONG, goal is EXCHANGE_VARIANT to white. Safety NONE (no hazard words, not a defect). Order reference valid and verified. Decision table: V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW per C2). Responsibility table not reached because V10 wins first.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 103.97
+   }
+  },
+  "V132": {
+   "B": {
+    "speech_act_evidence": "想請問是否可以幫我安排更換？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "縫線的地方會滲水，穿起來就不太防雨了。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "安排更換",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80124",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer requests a replacement for a defective CITY-JACKET (seams leak) from order TO-80124 (75 days old). The product has no warranty (NONE 0d) and is beyond the 30-day return window. Per responsibility table (V12), WARRANTY_REMEDY for DEFECT with no applicable warranty falls to HUMAN_REVIEW.",
+    "deciding_rule": "V12",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 202.8
+   }
+  },
+  "V137": {
+   "B": {
+    "speech_act_evidence": "¿Podemos cambiarla por la blanca?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "llegó con lámpara negra pero pedí blanca",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿Podemos cambiarla por la blanca?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80129",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of black desk lamp for white variant (WRONG_ITEM_OR_VARIANT). Order TO-80129 is valid, belongs to customer, contains DESK-LAMP (black). Product is supplier-dropshipped; per responsibility table (V12) and C1, wrong variant on dropshipped product → CREATE_SUPPLIER_TASK. No safety concerns, no data conflicts, all slots filled.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 113.67
+   }
+  },
+  "V139": {
+   "B": {
+    "speech_act_evidence": "つきましては、サイズ41のものを42と交換していただくことは可能でしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "注文いたしました商品のサイズを41にしてしまったようなのですが、私が本当に欲しかったのは42でした。数字を押し間違えたのだと思います。",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "サイズ41のものを42と交換していただくことは可能でしょうか。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80131",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer admits ordering wrong size (41 instead of 42) and requests exchange to correct size. Issue type is CUSTOMER_ORDERED_WRONG. Speech act is REQUEST (asks for exchange). Single goal EXCHANGE_VARIANT. Order reference TO-80131 is valid, verified, belongs to customer, contains the product. Safety NONE. Decision table: V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW per C2). No other rules trigger. Required action is DIRECT_WORKFLOW.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 63.93
+   }
+  },
+  "V143": {
+   "B": {
+    "speech_act_evidence": "The left shoe has a torn seam – please send a replacement. The coffee mug arrived cracked – I'd like a refund.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "left shoe",
+      "issue_evidence": "The left shoe has a torn seam",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "please send a replacement",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "coffee mug",
+      "issue_evidence": "The coffee mug arrived cracked",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I'd like a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80135",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Both items reference order TO-80135, but that order contains only BREW-KETTLE and SALE-SOCKS. Neither a shoe nor a coffee mug appears in the order, creating a data conflict (cited order does not contain the product). Per decision table rule V3, this requires HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 43.88
+   }
+  },
+  "V140": {
+   "B": {
+    "speech_act_evidence": "solicito que me la reemplacen ... prefiero que me devuelvan el importe",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "funda de almohada",
+      "issue_evidence": "llegó con una costura rota",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "solicito que me la reemplacen",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "juego de cubiertos",
+      "issue_evidence": "faltaba una cuchara",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "prefiero que me devuelvan el importe de ese artículo",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80132",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer cites order TO-80132, which belongs to them and was delivered 12 days ago, but the order lines are BREW-KETTLE and SALE-SOCKS. The described products (pillowcase, cutlery set) are not in that order. This is a data conflict (order does not contain the products) per V3, so required_action is HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 69.84
+   }
+  },
+  "V145": {
+   "B": {
+    "speech_act_evidence": "ese quiero que me lo cambiéis por otro. Y las zapatillas son talla 42 cuando pedí la 41, de esas prefiero que me devolváis el dinero.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "jersey",
+      "issue_evidence": "el jersey llegó con una mancha en la manga",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "ese quiero que me lo cambiéis por otro",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "zapatillas",
+      "issue_evidence": "las zapatillas son talla 42 cuando pedí la 41",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "de esas prefiero que me devolváis el dinero",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80137",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer references order TO-80137 (belongs to them, bought 15 days ago) but describes products (jersey and sneakers) not present in that order (which contains DESK-LAMP and BACKPACK-30L). This is a data conflict per V3: cited order does not contain the products. No safety concerns. Speech act is REQUEST with two actionable items (DEFECT+REPLACE_SAME, WRONG_ITEM_OR_VARIANT+REFUND). V3 matches first in decision table → HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 74.18
+   }
+  },
+  "V146": {
+   "B": {
+    "speech_act_evidence": "könnt ihr das bitte ersetzen? ... dafür hätte ich lieber mein Geld zurück.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "T-Shirt",
+      "issue_evidence": "Beim ersten T-Shirt ist der Druck total verwischt",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "könnt ihr das bitte ersetzen?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "Powerbank",
+      "issue_evidence": "der Powerbankk, lädt sie überhaupt nicht",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "dafür hätte ich lieber mein Geld zurück",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80138",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer references order TO-80138 which belongs to them but contains BREW-KETTLE and SALE-SOCKS, not a T-shirt or power bank. This is a data conflict (order does not contain the described products). Per decision table V3, required_action is HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 72.51
+   }
+  },
+  "V141": {
+   "B": {
+    "speech_act_evidence": "Die würde ich gern zurückgeben und einen refund bekommen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "rote Bluse",
+      "issue_evidence": "Die rote Bluse hat beim Auspacken schon einen hellen Fleck am Saum, sieht aus wie ein Waschfehler.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Die würde ich gern zurückgeben und einen refund bekommen.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "Ohrringe",
+      "issue_evidence": "Bei den Ohrringen aus demselben Paket fehlt leider ein Stecker, also ist nur eines tragbar.",
+      "issue_type": "DEFECT",
+      "component": "Stecker",
+      "goals": [
+       {
+        "evidence": "Kann ich das bitte ersetzen lassen? Ein neues Paar würde mir reichen.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words in message",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80133",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Data conflict: order TO-80133 contains DESK-LAMP and BACKPACK-30L, but the customer describes a red blouse and earrings which are not in that order. The customer is not hedging the order reference. Per rule V3, this requires HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 86.88
+   }
+  },
+  "V142": {
+   "B": {
+    "speech_act_evidence": "可能であれば新しい商品との交換をお願いできますでしょうか。 / 返品のうえ、返金していただきたく存じます。 / 返品・交換の手続きにつきましてご案内いただけますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "陶器のマグカップ",
+      "issue_evidence": "開封いたしましたところ、取っ手の付け根のあたりにひびが入っておりました。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可能であれば新しい商品との交換をお願いできますでしょうか。",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "返品・交換の手続きにつきましてご案内いただけますでしょうか。",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "product": "コットンの長袖Tシャツ",
+      "issue_evidence": "左脇の縫い目が数センチほどほつれており、このままでは着用できない状態でした。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "こちらは返品のうえ、返金していただきたく存じます。",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "返品・交換の手続きにつきましてご案内いただけますでしょうか。",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80134",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer cites order TO-80134 (verified as theirs, 15 days old) but describes two products (ceramic mug, cotton long-sleeve T-shirt) that are not in that order (which contains DESK-LAMP and BACKPACK-30L). This is a data conflict per V3: the cited order does not contain the products. Safety is NONE. The first matching rule is V3, so required_action is HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 149.73
+   }
+  },
+  "V147": {
+   "B": {
+    "speech_act_evidence": "Could you let me know what my options are and what the process would look like for each?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "the LED desk lamp I bought from you has stopped working ... last week it just flickered once and then went completely dark",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could you let me know what my options are and what the process would look like for each?",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "I can't decide if I'd rather have it repaired or just get a refund",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "I can't decide if I'd rather have it repaired or just get a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "no hazard words; fault described as flickered once then went dark, tried different outlets and spare power brick",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80139",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer describes a defect (lamp stopped working) on order TO-80139 (verified, 200 days old, supplier-dropshipped DESK-LAMP). They explicitly ask for information about repair vs refund options and are undecided between the two remedies. This creates a single item with action goals spanning two families (REFUND and WARRANTY_REMEDY), triggering mixed (V7) → CLARIFY_WITH_CUSTOMER. Safety is NONE (MAINS_ELECTRIC product but fault not burning/scorching/melting/sparks/water in power part). Order reference valid and verified. No part numbers mentioned.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 106.23
+   }
+  },
+  "V151": {
+   "B": {
+    "speech_act_evidence": "修理をお願いするか、それとも返金にしてもらうか、自分でもまだ決められなくて、まずはご連絡しました。どっちのほうが早く対応できますか？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "前に注文したLEDのデスクライトが、急につかえなくなちゃいまして…。スイチッを入れても全然つきません。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いするか",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "それとも返金にしてもらうか",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "スイチッを入れても全然つきません。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80143",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer asks which is faster: repair or refund, for a DESK-LAMP (MAINS_ELECTRIC) that stopped working (DEFECT). Order TO-80143 verifies (belongs to customer, contains product, DELIVERED 90 days ago). Safety NONE (no hazard words). Single item with two action goals spanning different families (REPAIR=WARRANTY_REMEDY, REFUND=REFUND) → V7 mixed → CLARIFY_WITH_CUSTOMER.",
+    "deciding_rule": "V7",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 71.14
+   }
   }
  },
  "stats": {
-  "calls": 135,
-  "retries": 369,
-  "prompt_tokens": 713485,
-  "completion_tokens": 329528
+  "calls": 24,
+  "retries": 30,
+  "prompt_tokens": 127783,
+  "completion_tokens": 68742
  }
 }

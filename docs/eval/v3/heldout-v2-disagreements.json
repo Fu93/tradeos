@@ -1,0 +1,1540 @@
+[
+ {
+  "id": "V034",
+  "lang": "es",
+  "kind": "defect_kettle_warranty",
+  "tags": [],
+  "votes": {
+   "B": "CREATE_SUPPLIER_TASK",
+   "C": "HUMAN_REVIEW",
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": "V12",
+  "B_reason": "Customer requests repair of a defective electric kettle (BREW-KETTLE) under supplier warranty (365 days, purchase 280 days ago). Order TO-80034 verified, belongs to customer, contains the product. Safety NONE. No data conflicts. Single actionable goal (REPAIR) within WARRANTY_REMEDY family. Responsibility table: supplier warranty within its days → CREATE_SUPPLIER_TASK.",
+  "A_reason": "",
+  "C_reason": "Speech act is QUESTION with only INFORMATION goal about warranty/repair process. Order TO-80034 belongs to customer and contains BREW-KETTLE bought 280 days ago, delivered. Issue is DEFECT, no safety hazard. V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW for support ans",
+  "message": "Buenas tardes:\n\nLes escribo porque tengo un problema con una tetera eléctrica que compré en su tienda hace unos nueve meses, más o menos. La compré por ahí en marzo, si no recuerdo mal, que justo andábamos con la reforma de la cocina y quería estrenarla en la encimera nueva, así que me hacía bastante ilusión, la verdad.\n\nEl caso es que la tetera dejó de calentar el agua. Enciende, se oye el clic del botón y la lucecita se enciende como siempre, pero el agua se queda ahí, fría como si nada. Al principio pensé que sería cosa de la cal, porque en mi zona el agua es durísima (mi madre siempre dice que aquí hasta el grifo escupe piedras), así que la descalcifiqué con vinagre, la dejé remojar toda la noche como me aconsejó mi cuñada, que de estas cosas sabe un rato… y nada, exactamente igual. También probé a enchufarla en otro enchufe de la cocina, por si acaso, pero tampoco fue eso.\n\nLes comento que el número de pedido es TO-80034, ese lo tengo bien apuntado porque guardo todos los correos de confirmación de las compras. No conservo la caja original, la reciclé con el cartón hace unos meses, pero el correo del pedido sí lo tengo.\n\nComo han pasado solo unos nueve meses desde la compra, entiendo que todavía está en garantía, ¿verdad? Lo que quería preguntarles es si se puede reparar, si ustedes tienen algún servicio técnico al que llevarla o si tengo que enviarla a algún sitio, y qué pasos tendría que seguir en ese caso. Preferiría que la arreglaran, porque la tetera me va genial y además es de un color que combina muy bien con la cocina, y ahora ando calentando agua en un cazo como en el siglo pasado, que para el té de la mañana antes de ir al trabajo es un poco desesperante.\n\nGracias de antemano por la ayuda y quedo a la espera de su respuesta.\n\nUn saludo,\nInes",
+  "customer": "ines034@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V097",
+  "lang": "en",
+  "kind": "refund_malformed",
+  "tags": [
+   "malformed_order"
+  ],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": "V3",
+  "B_reason": "Customer requests refund for defective zipper on rain jacket (CITY-JACKET). Order reference TO-800890 does not exist in records (NO SUCH ORDER) and customer is not hedged → data conflict (V3) → HUMAN_REVIEW.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi,\n\nI bought a rain jacket from you recently, order TO-800890, and unfortunately the zip has already broken after only a week. I've hardly worn it — maybe three or four times — and this morning the zipper pull came off in my hand and now it won't close at all.\n\nFor a brand new jacket I honestly expected better. I'd like a refund please. I still have the jacket and the original packaging if you need me to send it back.\n\nPlease let me know the next steps.\n\nThanks,\nTomoko",
+  "customer": "tomoko097@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V100",
+  "lang": "de",
+  "kind": "refund_malformed",
+  "tags": [
+   "malformed_order"
+  ],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": "V3",
+  "B_reason": "Customer requests refund for defective zipper on rain jacket (CITY-JACKET) citing order TO-800920. Order does not exist in records (NO SUCH ORDER), customer not hedged → data conflict (V3) triggers HUMAN_REVIEW. Safety NONE (rain jacket hazard class NONE). Goals: REFUND + INFORMATION (process question).",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo,\n\nich habe bei euch eine Regenjacke gekauft (Bestellnummer TO-800920). Nach nur einer Woche ist der Reißverschluss kaputt. Ich möchte gerne eine Rückerstattung. Wie läuft das ab?\n\nDanke, Wei",
+  "customer": "wei100@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V128",
+  "lang": "ja",
+  "kind": "backpack_warranty",
+  "tags": [],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": "V3",
+  "B_reason": "Customer describes a buckle defect on a daypack from order TO-80120 (verified, belongs to customer, 100 days old). However, the customer describes a black 20L daypack while the order contains a navy 30L variant (BACKPACK-30L). This constitutes a data conflict (size/colour mismatch) per V3, triggering HUMAN_REVIEW. The request is for repair (warranty) and information.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。 Yusuf と申します。先日、注文番号 TO-80120 で購入しましたブラックのデイパック（容量20L）についてご連絡差し上げます。実は、先月の初めに週末のハイキングで使用していた際、左側のストラップバックルが突然外れてしまい、今では全く固定できなくなってしまいました。購入からまだ3ヶ月ほどしか経っていないのですが、普段は通勤時に荷物を入れて使っているほか、たまにカフェでの作業にも持ち歩いており、特に荷物が重い日には肩への負担が大きく感じていました。色はブラックで、内側のポケットにペンや小物を入れるのが好きで、先日購入したノートPC用スリーブも同時に注文したのですが、そちらは特に問題なく使えています。このバックルの修理が可能であれば、ぜひ対応をお願いしたいと思います。保証期間内かどうかも確認したく、修理にかかる費用や送付方法などを教えていただければ幸いです。お手数をおかけしますが、よろしくお願いいたします。",
+  "customer": "yusuf128@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V130",
+  "lang": "zh-Hant",
+  "kind": "backpack_warranty",
+  "tags": [],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "你們好：\n\n我在你們網站上買了一個後背包，訂單編號是TO-80122，大概用了三、四個月而已。平常我都是背它通勤上下班，有時候週末去圖書館或去市場買點東西也是背這個，可以說是我的主力包，用得很勤，但也算愛惜，沒有亂塞亂丟的習慣，裡面通常就放筆電、水壺跟一把折傘而已，應該不算超重。\n\n結果上禮拜三早上出門的時候，我把背包背起來，聽到「咔」一聲，原本還以為是踩到什麼東西，低頭一看才發現肩帶上面的塑膠扣環整個裂開斷掉了，肩帶直接垂下來。當下真的有點傻眼，因為趕著出門，只好先把肩帶打個結勉強撐著去上班，那天下午還下大雨，整路背得心驚膽跳，很怕背帶又整個掉下來。\n\n其實背包其他部分的狀態都還很好，布料、拉鍊、內裡都跟新的差不多，就只有那個扣環壞了。我看了一下，感覺那個零件應該是可以更換的，想說與其整個包報廢，不如先問問看你們那邊能不能安排維修，畢竟才用幾個月就丟掉實在太可惜了，我朋友也說這種扣環通常換一個就好。\n\n想請問你們有沒有提供維修的服務？流程大概怎麼走？是需要我把整個背包寄回去給你們處理，還是可以直接寄一個相容的扣環給我，我再拿去給巷口的修改店換（老闆說只要有零件就能處理）？如果需要照片的話，我也可以馬上拍斷掉的地方給你們看。\n\n不好意思麻煩你們了，等你們回覆，謝謝。\n\nAiko 敬上",
+  "customer": "aiko130@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V132",
+  "lang": "zh-Hant",
+  "kind": "jacket_old_defect",
+  "tags": [],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，我是 Carla，想請教一下關於訂單 TO-80124 的雨衣。\n\n這件大概兩個半月前買的，當初是買來送朋友的禮物，最近朋友使用時發現縫線的地方會滲水，穿起來就不太防雨了。\n\n想請問是否可以幫我安排更換？麻煩您了，謝謝！\n\nCarla",
+  "customer": "carla132@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V135",
+  "lang": "en",
+  "kind": "customer_ordered_wrong",
+  "tags": [
+   "responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, I need help with order TO-80127. I just got the delivery and it’s size 41, I ordered the wrong size by mistake, I meant 42. \n\nCan I exchange it for a size 42 please? Let me know what I need to do to return this and get the correct size.",
+  "customer": "farid135@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V136",
+  "lang": "zh-Hant",
+  "kind": "customer_ordered_wrong",
+  "tags": [
+   "responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "哈囉 你們好～\n\n我之前在你們網站訂了一台桌燈，訂單編號 TO-80128，結果我自己手殘，顏色點錯點到黑色的，但其實我要的是白色😂\n\n燈收到都還沒拆封，想問可以直接跟你們換白色的嗎？運費我自己出沒問題，有需要的話我在寄回去給你們。\n\n麻煩你們樂，謝謝～",
+  "customer": "greta136@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V137",
+  "lang": "es",
+  "kind": "customer_ordered_wrong",
+  "tags": [
+   "responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Hiro. Mi pedido TO-80129 llegó con lámpara negra pero pedí blanca. ¿Podemos cambiarla por la blanca? Gracias.",
+  "customer": "hiro137@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V139",
+  "lang": "ja",
+  "kind": "customer_ordered_wrong",
+  "tags": [
+   "responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。Jonasと申します。\n\nこのたびは注文番号TO-80131の件でご連絡させていただきました。実は、先日注文いたしました商品のサイズを41にしてしまったようなのですが、私が本当に欲しかったのは42でした。注文確認のメールを眺めていて初めて間違いに気づき、その場でかなり慌ててしまいました。\n\n少し弁解めくなってしまうのですが、普段からずっと42を使っておりまして、てっきり42を選んだつもりでおりました。注文したのが夜遅くで、その日は仕事で疲れて帰宅した後、夕食もそこそこにスマートフォンでポチッとしてしまったものですから、数字を押し間違えたのだと思います。画面が小さいと、こういうときに本当に不便ですね。まったく自分の不注意で、お恥ずかしい限りです。\n\nつきましては、サイズ41のものを42と交換していただくことは可能でしょうか。配送は大変速くて助かり、先日すでに受け取っておりますが、間違いに気づいたのが箱を開ける前でしたので、商品はそのままの状態で保管しております。もし交換の手順や、返送の際の送料などについてご教示いただけますと大変ありがたく存じます。\n\nお忙しいところお手数をおかけしてしまい誠に申し訳ございませんが、ご確認のうえご返信いただけますと幸いです。何卒よろしくお願い申し上げます。\n\nJonas",
+  "customer": "jonas139@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V140",
+  "lang": "es",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Kenta. En el pedido TO-80132 recibí dos artículos con problemas. El primero, una funda de almohada, llegó con una costura rota; solicito que me la reemplacen. El segundo, un juego de cubiertos, faltaba una cuchara; prefiero que me devuelvan el importe de ese artículo. Gracias.",
+  "customer": "kenta140@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V141",
+  "lang": "de",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo,\n\nich bin Lucia und habe gerade meine Bestellung TO-80133 erhalten. Leider gibt es bei zwei Artikeln Probleme.\n\nDie rote Bluse hat beim Auspacken schon einen hellen Fleck am Saum, sieht aus wie ein Waschfehler. Die würde ich gern zurückgeben und einen refund bekommen.\n\nBei den Ohrringen aus demselben Paket fehlt leider ein Stecker, also ist nur eines tragbar. Kann ich das bitte ersetzen lassen? Ein neues Paar würde mir reichen.\n\nMeldet euch gern, wie ich das am besten zurückschicken soll.\n\nDanke und viele Grüße\nLucia",
+  "customer": "lucia141@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V142",
+  "lang": "ja",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。\nこのたび、注文番号TO-80134の商品についてお問い合わせしたく、ご連絡いたしました。\n同じ注文で購入いたしました2点の商品に、それぞれ不具合がございました。\n\n1点目は陶器のマグカップです。開封いたしましたところ、取っ手の付け根のあたりにひびが入っておりました。外箱には目立った損傷がなかったため、配送中の事故ではないかと思います。こちらは未使用のまま保管しておりますので、可能であれば新しい商品との交換をお願いできますでしょうか。\n\nもう1点は、コットンの長袖Tシャツです。届いた商品を確認いたしましたところ、左脇の縫い目が数センチほどほつれており、このままでは着用できない状態でした。縫製の不良ではないかと思われますので、こちらは返品のうえ、返金していただきたく存じます。タグは外しておりません。\n\nお手数をおかけして申し訳ございませんが、返品・交換の手続きにつきましてご案内いただけますでしょうか。ご必要でしたら、両商品の写真をお送りいたします。\n\nお忙しいところ恐れ入りますが、ご確認のほどよろしくお願い申し上げます。\n\nメイ",
+  "customer": "mei142@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V143",
+  "lang": "en",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi Nils here, order TO-80135. The left shoe has a torn seam – please send a replacement. The coffee mug arrived cracked – I’d like a refund. Thanks.",
+  "customer": "nils143@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V144",
+  "lang": "zh-Hant",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": "V3",
+  "B_reason": "The customer cites order TO-80136 (not hedged) which belongs to her but contains only BREW-KETTLE and SALE-SOCKS per MOCK records. Neither the wool-blend cardigan nor the ceramic mug appear in that order, creating a data conflict (cited order does not contain the products). Rule V3 triggers HUMAN_REVIEW.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，客服您好\n\n我是 Olga，訂單號碼是 TO-80136，上禮拜三收到的包裹，當時我其實人不在家，是我媽幫我簽收的，她說箱子看起來還好，只是放在門口被我家那隻貓先撲上去踩了一下，毛都沾在箱子上，有點好笑。\n\n先說第一個問題，是那件米白色的羊毛混紡開襟外套，穿起來是還蠻舒服的，不過我回家洗完澡拿出來要穿的時候才發現左邊袖口的縫線好像有一小段開掉了，線頭都跑出來了，有點擔心繼續穿會越扯越大。我平常工作都要穿這類外套，現在這樣有點尷尬。所以這件我應該是想要申請退款就好，不需要再寄回來了嗎？如果一定要退回請告訴我流程。\n\n第二個問題是那個陶瓷馬克杯，我原本選的是霧面深藍色，商品頁的照片看起來很漂亮，但實際收到的是亮面淺藍色，而且杯底還有一點點小刮痕，不是很明顯但燈光下看得到。我平常每天早上都要喝兩杯咖啡，這個杯子是我特地買來配新買的咖啡機用的，所以顏色真的滿重要的。我可以請你們幫我更換成正確的霧面深藍色嗎？我這邊的杯子還沒有使用過，是完整的。\n\n麻煩你們幫我確認一下這兩件事怎麼處理會比較好，謝謝你們的幫忙。\n\n祝順心\nOlga",
+  "customer": "olga144@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V145",
+  "lang": "es",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Pablo. Es por el pedido TO-80137. Dos cosas: el jersey llegó con una mancha en la manga, ese quiero que me lo cambiéis por otro. Y las zapatillas son talla 42 cuando pedí la 41, de esas prefiero que me devolváis el dinero. Gracias.",
+  "customer": "pablo145@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V146",
+  "lang": "de",
+  "kind": "multi_item",
+  "tags": [
+   "multi_item"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, ich hab meine Bestellung TO-80138 erhalten und zwei Sachen sind kaputt. Beim ersten T-Shirt ist der Druck total verwischt, könnt ihr das bitte ersetzen? Beim zweiten Artikel, der Powerbankk, lädt sie überhaupt nicht, dafür hätte ich lieber mein Geld zurück. Danke!",
+  "customer": "qing146@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V147",
+  "lang": "en",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi there,\n\nI’m writing because the LED desk lamp I bought from you has stopped working and I’m honestly not sure what I’d prefer to do about it. I’ve had it on my desk for a few months now and it was perfect for late-night reading, but last week it just flickered once and then went completely dark. I’ve tried different outlets and even the spare power brick I have lying around from an old phone charger just to be sure, but nothing.\n\nI ordered it on order number TO-80139 if that helps you find it. I’m still working from home most days now that the kitchen renovation is finally done, which meant a lot of dust everywhere for a while, but I kept the lamp covered so I don’t think that’s it. My cat also likes to sit on the windowsill right next to it, but she hasn’t knocked it over or anything, she’s actually very careful.\n\nAt this point I can’t decide if I’d rather have it repaired or just get a refund. Part of me likes the lamp and the color temperature is exactly what I wanted, so repair would be nice, but I also don’t want to wait weeks without a lamp if I have to send it back. Could you let me know what my options are and what the process would look like for each? That would really help me decide.\n\nThanks so much for your help.\n\nBest,\nRosa",
+  "customer": "rosa147@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V148",
+  "lang": "zh-Hant",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好：\n\n我是 Sven，先前向您們購買了一台 LED 桌燈，訂單編號為 TO-80140。這幾天使用時，桌燈突然完全無法點亮，疑似故障了。\n\n由於我不太確定該選擇送修還是直接辦理退款，想先向您請教：如果送修的話，大約需要多久的時間？另外，退款的部分是否也有辦理的空間？希望您能提供相關的資訊與建議，我再決定後續的處理方式。\n\n造成您的不便，敬請見諒。感謝您的協助，期待您的回覆。\n\nSven 敬上",
+  "customer": "sven148@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V149",
+  "lang": "es",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, mi hervidor eléctrico de 1.7 L (pedido TO-80141) dejó de funcionar. No sé si prefiero que lo reparen o me devuelvan el dinero.",
+  "customer": "tomoko149@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V150",
+  "lang": "de",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, ich bin Ugo. Mein 1.7 L Wasserkocher aus der Bestellung TO-80142 funktioniert plötzlich nicht mehr, er heizt gar nicht. Ich kann mich gerade nicht entscheiden, ob ich ihn lieber reparieren lassen soll oder ob ich einfach einen refund bekommen möchte. Was wäre denn möglich? Danke.",
+  "customer": "ugo150@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V151",
+  "lang": "ja",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になってます。Veraです。\n前に注文したLEDのデスクライトが、急につかえなくなちゃいまして…。スイチッを入れても全然つきません。\n修理をお願いするか、それとも返金にしてもらうか、自分でもまだ決められなくて、まずはご連絡しました。どっちのほうが早く対応できますか？\n注文番号はTO-80143です。\nお返事まってます。よろしくお願いします。",
+  "customer": "vera151@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V152",
+  "lang": "en",
+  "kind": "cross_family_undecided",
+  "tags": [
+   "compound_goal"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Dear Customer Support,\n\nMy name is Wei. My 1.7 L electric kettle (order number TO-80144) has stopped working and I am unsure whether I would prefer to have it repaired or receive a refund. I would appreciate guidance on the available options.\n\nThank you,\nWei",
+  "customer": "wei152@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V153",
+  "lang": "en",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": "V1",
+  "B_reason": "Customer describes multiple defects (broken on arrival, burnt smell, lid malfunction) without any explicit request or question. The burnt smell triggers explicit safety (S1 hazard word). No order reference provided. Per decision table V1, safety EXPLICIT requires HUMAN_REVIEW regardless of goals.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hey I'm Xenia. Just wanted to vent about the 1.7 L electric kettle I bought from you guys. It was broken basically right out of the box and the plastic smells burnt everytime I use it. The build feels realy cheap and the lid doesnt even stay on properly. Bad quality for what it cost, honestly pretty dissapointed.",
+  "customer": "xenia153@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V154",
+  "lang": "zh-Hant",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "你們好：\n\n我是上個月在你們網站買了一顆 1.7 公升電熱水壺的顧客，我叫 Yusuf。會寫這封信，老實說我猶豫了好幾天，因為我這個人平常真的不太愛抱怨，我太太也一直勸我算了，再買一顆就好，但我實在嚥不下這口氣，想了很久，還是決定把心裡的話說出來。\n\n事情是這樣的。這顆水壺買回來到現在，前後加起來用不到兩個月。一開始我其實滿期待的，因為我們家早上要泡咖啡，我太太習慣喝熱茶，小朋友放學回家也想喝點溫的，想說 1.7 公升的容量剛剛好，一次煮全家都夠用，放在廚房流理台旁邊大小也合適。結果上個禮拜三早上，我照常把它放到底座上按下去，燈有亮，可是水就是一直不滾。我等了快十五分鐘，壺身摸起來涼涼的，完全沒有動靜。我第一個反應是懷疑我們家的插座，特地換了別的插頭試，連廚房那個本來要留給微波爐用的插座都試過了，結果一模一樣，確定就是壺本身壞了。\n\n後來我還想說會不會是水垢卡到，特地跑去樓下五金行買了檸檬酸，泡了一個晚上認真洗了一遍，隔天再試，還是照樣不會加熱。那天我還為了這顆壺搞到上班遲到，匆匆忙忙出門，一路上滿肚子火。\n\n說真的，這種品質讓我很傻眼。我之前那顆雜牌快煮壺用了五年都頭好壯壯，是因為外觀太舊、我自己覺得不好意思才把它換掉的。沒想到換了你們家的，不到兩個月就罷工。這幾天我們家只能用瓦斯爐燒水，鍋子又小，一次煮不了多少，小朋友早上上學前等熱水等得直跳腳，整個家的節奏都被打亂了。這陣子天氣又開始轉涼，想喝個熱水、泡個茶都搞得這麼折騰，心裡真的很不是滋味。\n\n最嘔的是，我之前還跟辦公室同事推薦過你們這個牌子，現在想想真是丟臉，之後見面都不曉得要怎麼面對人家。\n\n我知道東西用久了難免會壞，機器嘛，這個道理我懂。但一顆電熱水壺最基本的功能就是把水煮開，連這件事都做不到，而且是在這麼短的時間內就壞掉，這擺明就是品質有問題。我不是一個苛刻的客人，平常網購遇到小瑕疵我都懶得反映，這次是真的太誇張了，不吐不快。\n\n耽誤你們時間看完這些抱怨，不好意思。總之，這次的購物經驗讓我非常、非常失望，短時間內我大概不會再考慮你們家的產品了。這封信沒有別的目的，純粹就是把話說出來而已。\n\n祝你們生意興隆。\n\nYusuf 敬上",
+  "customer": "yusuf154@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V155",
+  "lang": "es",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Zara, acabo de abrir el paquete del pedido TO-80147 y la lámpara LED de escritorio viene con la base floja y la luz parpedea raro, parece de mala calidad, estoy bastante frustrado.",
+  "customer": "zara155@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V156",
+  "lang": "de",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo, ich bin Aiko. Ich muss ehrlich sagen, ich bin total enttäuscht von dem Daypack 30L. Der Rucksack ist schon nach kurzer Zeit komplett broken und wirkt wie Made for one use. Die Nähte geben nach und das Material fühlt sich einfach nach schlechter quality an. Echt ärgerlich, so viel Geld für so ein Produkt auszugeben.",
+  "customer": "aiko156@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V157",
+  "lang": "ja",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Trail Runnerのスニーカー、届いて2週間でソールが剥がれました。2回しか履いてないのに。この品質はひどすぎます。ほんとにがっかりしました。ブラム",
+  "customer": "bram157@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V158",
+  "lang": "en",
+  "kind": "complaint_only",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Dear Support,\n\nI am writing to inform you that the 1.7 L electric kettle I received with order TO-80150 is defective. It fails to heat properly and the build quality feels substandard. I am disappointed with the product.\n\nThank you.",
+  "customer": "carla158@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V159",
+  "lang": "de",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo, Dmitri hier. Meine Schreibtischlampe ist nie angekommen. Bitte nachsenden.",
+  "customer": "dmitri159@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V160",
+  "lang": "ja",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "こんにちは。5ヶ月前に購入したケトルですが、加熱しなくなってしまいました。交換をお願いできますか？よろしくお願いします。エレナ",
+  "customer": "elena160@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V161",
+  "lang": "en",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi there, I’m Farid. I got the item as a gift, but the lid (KL‑170‑LID) is missing. Could you please send me a replacement? Thanks so much!",
+  "customer": "farid161@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V162",
+  "lang": "zh-Hant",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，\n\n我是 Greta，先前訂購的桌燈至今仍未收到，想請您協助確認是否已出貨，並安排重新寄送，謝謝您的幫忙。",
+  "customer": "greta162@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V163",
+  "lang": "es",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Buenas tardes:\n\nLes escribo porque hace unas semanas compré una lámpara de escritorio en su tienda y, hasta el día de hoy, no me ha llegado. Ya pasó bastante tiempo desde la fecha estimada de entrega y no he recibido el paquete.\n\nLes agradecería mucho que me la enviaran lo antes posible, o que al menos me informaran cuándo podré recibirla.\n\nQuedo a la espera de su respuesta. Muchas gracias por su atención.\n\nAtentamente,\nHiro",
+  "customer": "hiro163@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V164",
+  "lang": "de",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, mein Wasserkocher heizt seit fünf Monaten nicht mehr. Könnt ihr mir bitte einen Ersatz schicken? Danke!",
+  "customer": "ines164@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V165",
+  "lang": "ja",
+  "kind": "no_order_ref",
+  "tags": [
+   "missing_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "こんにちは、Jonasです。\nKL-170-LID の lid を新しいものに交換していただきたいのですが、送っていただけますか？\nご対応よろしくお願いします。",
+  "customer": "jonas165@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V168",
+  "lang": "zh-Hant",
+  "kind": "malformed_request",
+  "tags": [
+   "malformed_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，我是 Mei，想請您幫忙一下。\n\n我大概 5 個月前買的電熱水壺，最近突然不加熱了，插電有燈但水就是不會熱。這個是當初買來送朋友的禮物，朋友很常使用所以才發現問題。\n\n訂單編號是 WO-80153，想問看能不能幫我安排換一台新的，麻煩您了，謝謝！",
+  "customer": "mei168@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V170",
+  "lang": "de",
+  "kind": "malformed_request",
+  "tags": [
+   "malformed_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo, mein Wasserkocher (ca. 5 Monate alt) heizt nicht mehr. Bitte um Ersatz. Bestellnummer: OT-80155",
+  "customer": "olga170@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V171",
+  "lang": "ja",
+  "kind": "hedged_bad_request",
+  "tags": [
+   "hedged_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "こんにちは。パブロです。\n\n友人へのプレゼント用にデスクランプを注文したのですが、まだ届いていないようです。注文番号は TO-40011 だと思うのですが、はっきり覚えていなくてすみません。\n\nもし届いていないようでしたら再送していただけると助かります。状況を確認いただけますか？よろしくお願いいたします。",
+  "customer": "pablo171@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V172",
+  "lang": "en",
+  "kind": "hedged_bad_request",
+  "tags": [
+   "hedged_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi,\n\nI ordered a desk lamp from you a while back and it still hasn't shown up. No updates, nothing — I've been waiting far longer than I should have at this point.\n\nI can't find my confirmation email right now, but I think the order number is TO-50120. Apologies if that's slightly off.\n\nCould you please look into it and get the lamp sent out to me? I'd appreciate a prompt reply, as I'd rather not have to chase this up again.\n\nThanks,\nQing",
+  "customer": "qing172@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V174",
+  "lang": "es",
+  "kind": "hedged_bad_request",
+  "tags": [
+   "hedged_order"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Sven. Les escribo porque la lampara de escritorio que pedi nunca llego y no se que paso. ¿La podrian reenviarme? Creo que el pedido es TO-50120 pero no estoy seguro del todo, lo vi por ahi hace tiempo. Gracias!",
+  "customer": "sven174@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V175",
+  "lang": "de",
+  "kind": "other_customer_order",
+  "tags": [
+   "data_conflict"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo zusammen,\n\nich hoffe, ihr könnt mir weiterhelfen. Mein Wasserkocher, den ich vor ein paar Monaten zum Geburtstag geschenkt bekommen habe, heizt leider nicht mehr. Das Gerät schaltet sich normal ein und die Kontrollleuchte leuchtet auch, aber das Wasser bleibt einfach kalt.\n\nDa es ein Geschenk war, habe ich selbst keinen Kaufbeleg – die Bestellnummer lautet TO-60202.\n\nKönnt ihr mir sagen, ob eine Reparatur möglich wäre? Ich würde das Gerät gerne einschicken, wenn das in Ordnung ist. Der Wasserkocher hat mir richtig gut gefallen und ich würde ihn nur ungern ersetzen müssen.\n\nVielen Dank schon mal und liebe Grüße\nTomoko",
+  "customer": "tomoko175@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V176",
+  "lang": "ja",
+  "kind": "other_customer_order",
+  "tags": [
+   "data_conflict"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。Ugoです。注文番号 TO-60202 の電気ケトルが加熱しなくなりましたので、修理をお願いしたくご連絡いたしました。何卒よろしくお願いいたします。",
+  "customer": "ugo176@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V177",
+  "lang": "en",
+  "kind": "other_customer_order",
+  "tags": [
+   "data_conflict"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, I'm Vera. My kettle from order TO-70301 stopped heating. Can it be repaired? Please let me know next steps.",
+  "customer": "vera177@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V181",
+  "lang": "zh-Hant",
+  "kind": "in_transit",
+  "tags": [],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "哈囉你們好～\n\n我三天前在你們網站訂了一雙球鞋（訂單編號：TO-80166），是要送給朋友的生日禮物，但到現在都還沒收到耶。可以麻煩幫我查一下包裹目前到哪裡了嗎？\n\n因為有點趕著要送人，如果包裹真的找不到，是不是可以幫我重新寄一雙過來？謝謝你們喔！\n\nZara",
+  "customer": "zara181@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V185",
+  "lang": "zh-Hant",
+  "kind": "exchange_no_target",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，我的訂單號是 TO-80170，收到的運動鞋尺寸不合適，想要換另一個尺寸，請問該怎麼做？謝謝。",
+  "customer": "dmitri185@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V188",
+  "lang": "ja",
+  "kind": "part_wrong_product",
+  "tags": [],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "グレタです。注文番号TO-80173のケトル用に部品BP-BUCKLE-25を送ってください。",
+  "customer": "greta188@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V189",
+  "lang": "en",
+  "kind": "part_wrong_product",
+  "tags": [],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, Hiro here. Order TO-80174. Can you send part BP-BUCKLE-25 for my kettle?",
+  "customer": "hiro189@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V190",
+  "lang": "es",
+  "kind": "unclear_issue",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Buenas tardes:\n\nSoy Ines y os escribo por mi pedido TO-80175, que ya he recibido. La verdad es que algo no va bien con el pedido y quiero que lo solucionéis, ya sea enviándome un reemplazo o como veáis mejor.\n\nNo estoy nada contenta, para qué engañaros, pero confío en que podáis arreglarlo cuanto antes. Quedo a la espera de vuestra respuesta.\n\nUn saludo,\nInes",
+  "customer": "ines190@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V191",
+  "lang": "de",
+  "kind": "unclear_issue",
+  "tags": [],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo, bei meiner Bestellung TO-80176 ist irgendwas not right, könnt ihr das bitte prüfen und austauschen? Danke.",
+  "customer": "jonas191@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V194",
+  "lang": "en",
+  "kind": "injection",
+  "tags": [
+   "injection"
+  ],
+  "votes": {
+   "B": "CREATE_SUPPLIER_TASK",
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": "V12",
+  "B_reason": "Customer requests a supplier replacement for a kettle (order TO-80179) that stopped heating. This is a DEFECT under supplier warranty (365 days, purchase 100 days ago). Per responsibility table V12, supplier warranty within its days → CREATE_SUPPLIER_TASK. No safety hazard (MAINS_ELECTRIC but fault is 'doesn't heat'). Order reference valid and verified. Single item, single goal, no conflicts.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, my kettle (order TO-80179) stopped heating. Please arrange a supplier replacement asap.",
+  "customer": "mei194@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V203",
+  "lang": "en",
+  "kind": "part_in_stock",
+  "tags": [],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, I’m Vera. I lost the 25 mm buckle from my backpack (order TO-80183). Could you please send me a replacement BP-BUCKLE-25? Thanks.",
+  "customer": "vera203@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V205",
+  "lang": "zh-Hant",
+  "kind": "exchange_in_stock",
+  "tags": [],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，我訂單TO-80185買的雨衣M號穿起來太大件，想換成S號，請問換貨流程要怎麼辦？謝謝。\n\nXenia",
+  "customer": "xenia205@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V208",
+  "lang": "de",
+  "kind": "socks_final_sale",
+  "tags": [],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo,\n\nich habe die Merino-Socken aus meiner Bestellung TO-80188 erst zweimal gewaschen und jetzt haben sie schon ein Loch. Ich weiß, dass es ein Sale-Artikel war, aber das kann einfach nicht normal sein.\n\nIch hätte gerne ein Ersatzpaar. Ein Foto vom Loch kann ich euch gerne schicken.\n\nVielen Dank,\nAiko",
+  "customer": "aiko208@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V209",
+  "lang": "ja",
+  "kind": "socks_final_sale",
+  "tags": [],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "平素よりお世話になっております。Bram と申します。注文番号 TO-80189 のメリノソックス（セール品）が、2回洗濯しただけで穴が開いてしまいました。返金をお願いしたく、ご対応いただけますでしょうか。",
+  "customer": "bram209@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "V211",
+  "lang": "de",
+  "kind": "kettle_power_base",
+  "tags": [
+   "safety_catalog"
+  ],
+  "votes": {
+   "B": "CREATE_SUPPLIER_TASK",
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": "V12",
+  "B_reason": "Speech act is REQUEST (asking for a part). Issue is DEFECT in a component (power base) of a MAINS_ELECTRIC product, but fault is not safety-relevant per S4 example. Order reference TO-80191 is valid, belongs to customer, contains BREW-KETTLE, purchased 150 days ago. Goal is SEND_PART with part number KL-170-BASE (correct prefix). Decision table: V0–V11 do not apply; V12 responsibility table for WARRANTY_REMEDY on DEFECT: >30 days but within supplier warranty (365d) → CREATE_SUPPLIER_TASK.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo zusammen,\n\nich hoffe, es geht euch gut! Ich habe vor ein paar Wochen den Wasserkocher bei euch bestellt (Bestellnummer TO-80191) und ihn leider erst kürzlich verschenkt – es war ein Geschenk für meine Schwester.\n\nJetzt hat sie mir leider mitgeteilt, dass die zugehörige Power Base nicht mehr funktioniert. Der Wasserkocher selbst ist soweit in Ordnung, aber die Basis lässt sich nicht mehr einschalten bzw. reagiert nicht mehr. Sie hat schon alles Mögliche probiert, auch eine andere Steckdose – leider ohne Erfolg.\n\nKönnt ihr mir bitte eine neue Power Base KL-170-BASE zusenden? Das wäre wirklich super, meine Schwester ist nämlich total begeistert von dem Wasserkocher und würde ihn nur ungern hergeben müssen. 😊\n\nFalls ihr noch Informationen oder einen Kaufbeleg braucht, lasst es mich einfach wissen.\n\nVielen Dank im Voraus und liebe Grüße\nDmitri",
+  "customer": "dmitri211@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP01A",
+  "lang": "en",
+  "kind": "pair:DIR_question_to_request",
+  "tags": [
+   "DIR_question_to_request"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi,\n\nI'm writing about my order TO-80197. Do you have the kettle lid KL-170-LID available? I'd appreciate a quick reply so this can be sorted out without unnecessary delays.\n\nThanks,\nJonas",
+  "customer": "jonas217@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP01B",
+  "lang": "en",
+  "kind": "pair:DIR_question_to_request",
+  "tags": [
+   "DIR_question_to_request"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi,\n\nI'm writing about my order TO-80197. Please send me the lid KL-170-LID. I'd appreciate a quick reply so this can be sorted out without unnecessary delays.\n\nThanks,\nJonas",
+  "customer": "jonas217@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP02B",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_question_to_request",
+  "tags": [
+   "DIR_question_to_request"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，\n\n我在訂單 TO-80198 中購買了電熱水壺，但收到時發現蓋子不見了。\n\n請問貴公司能否幫我寄送水壺蓋 KL-170-LID？\n\n謝謝，\nKenta",
+  "customer": "kenta218@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP04A",
+  "lang": "de",
+  "kind": "pair:DIR_question_to_request",
+  "tags": [
+   "DIR_question_to_request"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo ihr Lieben,\n\nder Wasserkocher war ein Geburtstagsgeschenk (Bestellnummer TO-80200) und ich benutze ihn jeden Tag total gern. Leider ist der Deckel heute Morgen zu Bruch gegangen. Habt ihr den Deckel KL-170-LID zufällig verfügbar?\n\nVielen Dank im Voraus und liebe Grüße\nMei",
+  "customer": "mei220@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP04B",
+  "lang": "de",
+  "kind": "pair:DIR_question_to_request",
+  "tags": [
+   "DIR_question_to_request"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo ihr Lieben,\n\nder Wasserkocher war ein Geburtstagsgeschenk (Bestellnummer TO-80200) und ich benutze ihn jeden Tag total gern. Leider ist der Deckel heute Morgen zu Bruch gegangen. Könnt ihr mir den Deckel KL-170-LID bitte zuschicken?\n\nVielen Dank im Voraus und liebe Grüße\nMei",
+  "customer": "mei220@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP07B",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_refund_override",
+  "tags": [
+   "DIR_refund_override"
+  ],
+  "votes": {
+   "B": "CLARIFY_WITH_CUSTOMER",
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": "V7",
+  "B_reason": "Single item (kettle lid cracked) with two alternative remedy goals spanning different families (SEND_PART = WARRANTY_REMEDY, REFUND = REFUND). Decision table V7 (mixed) triggers CLARIFY_WITH_CUSTOMER to confirm which outcome the customer wants.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好,\n\n我上週收到訂單編號 TO-80203 的快煮壺,結果一開箱就發現壺蓋是裂開的。我完全沒有摔到或撞到,拆開包裝就是這樣,老實說真的有點傻眼。\n\n麻煩請寄一個新的壺蓋給我,型號是 KL-170-LID,謝謝。\n\n不過後來想想,與其等新的壺蓋,不如直接把錢退給我就好了,請告訴我退款流程。\n\nPablo",
+  "customer": "pablo223@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP10B",
+  "lang": "ja",
+  "kind": "pair:DIR_refund_override",
+  "tags": [
+   "DIR_refund_override"
+  ],
+  "votes": {
+   "B": "CLARIFY_WITH_CUSTOMER",
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": "V7",
+  "B_reason": "Customer reports a cracked lid on a kettle (BREW-KETTLE) from order TO-80206 (120 days old). They first request a replacement lid (KL-170-LID) then state they want a full refund instead. This creates a single item with goals spanning two families (WARRANTY_REMEDY via SEND_PART and REFUND), triggering V7 (mixed goals) → CLARIFY_WITH_CUSTOMER. Safety is NONE because the defect is a cracked lid on a MAINS_ELECTRIC appliance but does not involve burning, melting, power base, cable, plug, battery, or",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。\n先日注文したケトル(注文番号 TO-80206)が届いたのですが、箱を開けた時点で蓋にひび割れがありました。梱包には特に問題がなかったようなので、おそらく出荷前から割れていたものと思います。せっかくの新品がこの状態で、正直がっかりしています。\nつきましては、交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。お手数をおかけしますが、ご対応のほどよろしくお願いいたします。\nなお、蓋の交換をお願いしようと思っていましたが、少し考えた結果、やはり全額返金していただきたいと思います。お手数ですが、返金の手続きをお願いできますでしょうか。\nSven",
+  "customer": "sven226@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP15B",
+  "lang": "ja",
+  "kind": "pair:INV_compound_same_family",
+  "tags": [
+   "INV_compound_same_family"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。Xeniaです。注文番号 TO-80211 のデスクランプがちらつきますので、修理または交換のどちらでも構いません。ご確認のほどよろしくお願いいたします。",
+  "customer": "xenia231@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP17A",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_compound_cross_family",
+  "tags": [
+   "DIR_compound_cross_family"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "抱歉，您好，我在 TO-80213 訂購的桌燈出現閃爍的問題，煩請幫忙維修或換貨，兩者皆可。此致，敬禮，Zara",
+  "customer": "zara233@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP17B",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_compound_cross_family",
+  "tags": [
+   "DIR_compound_cross_family"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "抱歉，您好，我在 TO-80213 訂購的桌燈出現閃爍的問題，煩請幫忙維修或退款給我，我不確定要哪一種。此致，敬禮，Zara",
+  "customer": "zara233@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP20A",
+  "lang": "ja",
+  "kind": "pair:DIR_compound_cross_family",
+  "tags": [
+   "DIR_compound_cross_family"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。\n\n注文番号 TO-80216 のデスクランプが点滅します。\n\n修理か交換、どちらでも構いません。\n\nよろしくお願いいたします。\n\nCarla",
+  "customer": "carla236@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP22B",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_safety_catalog",
+  "tags": [
+   "DIR_safety_catalog"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好：\n\n我日前在貴網站訂購了露營瓦斯爐（訂單編號：TO-80218），收到商品時發現閥門已經損壞，無法正常使用。\n\n由於商品一送達就有問題，想請問能否為我辦理退款？勞煩您協助處理，非常感謝。\n\n敬祝 順心\nElena 敬上",
+  "customer": "elena238@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP32A",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_responsibility",
+  "tags": [
+   "DIR_responsibility"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，\n\n我最近在貴店訂購了一盞燈（訂單號：TO-80229），這盞燈是送給朋友的禮物。然而，我收到的燈顏色是黑色的，而我當初訂購的是白色的。請問能否幫我調換成白色的燈？謝謝！\n\n此致\nOlga",
+  "customer": "olga248@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP33B",
+  "lang": "es",
+  "kind": "pair:DIR_responsibility",
+  "tags": [
+   "DIR_responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, soy Pablo. Con el pedido TO-80232 pedí una lámpara negra por error. Quiero la blanca. Gracias.",
+  "customer": "pablo249@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP34A",
+  "lang": "de",
+  "kind": "pair:DIR_responsibility",
+  "tags": [
+   "DIR_responsibility"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Guten Tag,\n\nich habe letzte Woche bei Ihnen eine Lampe bestellt (Bestellnummer TO-80233). Leider ist dabei etwas schiefgelaufen: Sie haben mir eine schwarze Lampe geschickt, obwohl ich eine weiße bestellt hatte.\n\nIch hätte die Lampe aber gerne in Weiß. Bitte teilen Sie mir mit, wie wir das am schnellsten regeln können – ob ich die schwarze Lampe zurückschicken soll und wann ich mit der weißen rechnen kann. Da ich die Lampe bald brauche, wäre eine zügige Lösung wirklich wünschenswert, auch wenn mich die Sache ehrlich gesagt etwas ärgert.\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüßen\nQing",
+  "customer": "qing250@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP34B",
+  "lang": "de",
+  "kind": "pair:DIR_responsibility",
+  "tags": [
+   "DIR_responsibility"
+  ],
+  "votes": {
+   "design": "DIRECT_WORKFLOW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Guten Tag,\n\nich habe letzte Woche bei Ihnen eine Lampe bestellt (Bestellnummer TO-80234). Leider ist dabei etwas schiefgelaufen: Ich habe versehentlich eine schwarze Lampe bestellt, obwohl ich eigentlich eine weiße wollte.\n\nIch hätte die Lampe aber gerne in Weiß. Bitte teilen Sie mir mit, wie wir das am schnellsten regeln können – ob ich die schwarze Lampe zurückschicken soll und wann ich mit der weißen rechnen kann. Da ich die Lampe bald brauche, wäre eine zügige Lösung wirklich wünschenswert, auch wenn mich die Sache ehrlich gesagt etwas ärgert.\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüßen\nQing",
+  "customer": "qing250@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP36A",
+  "lang": "en",
+  "kind": "pair:DIR_order_id_malformed",
+  "tags": [
+   "DIR_order_id_malformed"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, lamp never arrived for order TO-80237. Please send it. Thanks, Sven",
+  "customer": "sven252@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP36B",
+  "lang": "en",
+  "kind": "pair:DIR_order_id_malformed",
+  "tags": [
+   "DIR_order_id_malformed"
+  ],
+  "votes": {
+   "design": "CLARIFY_WITH_CUSTOMER"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi, lamp never arrived for order #A80237. Please send it. Thanks, Sven",
+  "customer": "sven252@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP37A",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_order_id_malformed",
+  "tags": [
+   "DIR_order_id_malformed"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "親愛的客服團隊您好，\n\n我是貴店的顧客 Tomoko。先前於貴店訂購了一盞檯燈，訂單編號為 TO-80238，但商品至今尚未送達。想麻煩您協助查詢配送狀況，並盡快將檯燈寄出給我，謝謝。\n\n感謝您的協助，靜候回覆。\n\n敬祝 順心\nTomoko 敬上",
+  "customer": "tomoko253@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP39A",
+  "lang": "de",
+  "kind": "pair:DIR_order_id_malformed",
+  "tags": [
+   "DIR_order_id_malformed"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo liebes Team,\n\nich wollte freundlich nachfragen, weil die Lampe aus meiner Bestellung noch nicht angekommen ist. Sie sollte eigentlich ein Geschenk werden und ich würde sie sehr gerne rechtzeitig verschicken können. Könnt ihr bitte prüfen und ggf. nachsenden?\n\nBestellnummer: TO-80240\n\nVielen Dank schon mal!\nHerzliche Grüße\nVera",
+  "customer": "vera255@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP42B",
+  "lang": "zh-Hant",
+  "kind": "pair:INV_negation_paraphrase",
+  "tags": [
+   "INV_negation_paraphrase"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "您好，\n\n關於訂單編號 TO-80243 的 kettle，我想確認一下：電 kettle 完全沒有壞掉，我只是想了解 descale 的方法。\n\n謝謝，Yusuf",
+  "customer": "yusuf258@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP47A",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_hedged_wrong",
+  "tags": [
+   "DIR_hedged_wrong"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "親愛的客服，\n\n我的 kettle 停止加熱了，我想要申請 replacement。\n訂單號是 TO-80248。\n請協助處理，謝謝！\n\n此致\nDmitri",
+  "customer": "dmitri263@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP55B",
+  "lang": "ja",
+  "kind": "pair:DIR_complaint_to_request",
+  "tags": [
+   "DIR_complaint_to_request"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "お世話になっております。\nこのたびは、注文番号TO-80256で購入いたしましたスニーカーの件でご連絡させていただきました。商品が届いてからまだ三週間ほどしか経っていないにもかかわらず、昨日の朝、愛犬の散歩に出かけようと靴を履いたところ、右足の靴底がまるごと剥がれてしまっていたのです。玄関のタイルの上にぺたんと張り付いた剥がれたソールを見た瞬間の情けなさといったら、今思い出してもため息が出てしまいます。あの日はここ数日久しぶりの快晴で、朝から気分がよく、新しい靴下まで履いて出かけようとしていたところでしたので、余計にショックが大きかったです。結局、片方だけ底の剥がれた靴のまま、近所の公園までの道をとぼとぼと往復してきたわけですが、その姿を思うと本当にがっかりと腹立たしさでいっぱいになります。毎日の散歩や近所への買い物用に、購入してからそれなりに丁寧に履いていたつもりでしたので、このような早い時期に靴底が剥がれるとは夢にも思いませんでした。正直に申し上げて、非常に不愉快な思いをしております。つきましては、お手数ではございますが、同じ商品の代替のペアを一足お送りいただけますと幸いに存じます。\n取り急ぎ、ご連絡まで差し上げました。\n今後ともよろしくお願いいたします。\nルシア",
+  "customer": "lucia271@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP58B",
+  "lang": "es",
+  "kind": "pair:DIR_negated_vs_real_hazard",
+  "tags": [
+   "DIR_negated_vs_real_hazard"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "¡Hola! Os escribo porque tengo un problema con la tetera eléctrica que compré en vuestra tienda, pedido TO-80259. Era un regalo de mi hermana para mi cumpleaños, así que imaginaos la ilusión que me hacía. El caso es que hace unos días dejó de calentar: la enciendo, la luz se enciende, pero el agua se queda fría del todo. Eso sí, echó humo por la base y olor a quemado, así que la desenchufé enseguida. ¿Me podríais decir cómo hago para enviarla y que la reparéis? Creo que todavía está en garantía. Muchísimas gracias de antemano. Un saludo, Olga",
+  "customer": "olga274@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP59A",
+  "lang": "de",
+  "kind": "pair:DIR_negated_vs_real_hazard",
+  "tags": [
+   "DIR_negated_vs_real_hazard"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi,\n\nI bought the kettle with order number TO-80260. The kettle stopped heating — no smoke or smell, it just stays cold; I would like a repair.\n\nThanks,\nPablo",
+  "customer": "pablo275@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP61A",
+  "lang": "en",
+  "kind": "pair:DIR_part_need_vs_info",
+  "tags": [
+   "DIR_part_need_vs_info"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi there! Hope you're doing well. I'm writing about my order TO-80262 — it was a gift, and I've been really enjoying it so far. I wanted to ask about the desk clamp DL-CLAMP-M: it never made it into the package, so it seems to have gotten lost on your end. Could you please send it to me? Thanks so much for your help! Best, Rosa",
+  "customer": "rosa277@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP64A",
+  "lang": "de",
+  "kind": "pair:DIR_part_need_vs_info",
+  "tags": [
+   "DIR_part_need_vs_info"
+  ],
+  "votes": {
+   "B": "HUMAN_REVIEW",
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": "V12",
+  "B_reason": "The customer requests a missing component (DL-CLAMP-M) for a supplier-dropshipped DESK-LAMP delivered 100 days ago. Logistics shows DELIVERED in full, so the responsibility table (V12) for FULFILMENT/RESHIP of MISSING_ITEM yields HUMAN_REVIEW because the carrier record shows full delivery, creating a data conflict with the missing-part claim.",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo zusammen,\nich schreib euch wegen meiner Bestellug TO-80265. Bei der Lieferung war die Tischklemme DL-CLAMP-M nicht dabei, die muss bei euch verloren gegangen sein. Schickt ihr mir die vieleicht noch nach?\nDanke schonmal und liebe Grüße\nUgo",
+  "customer": "ugo280@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP64B",
+  "lang": "de",
+  "kind": "pair:DIR_part_need_vs_info",
+  "tags": [
+   "DIR_part_need_vs_info"
+  ],
+  "votes": {
+   "design": "HUMAN_REVIEW"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hallo zusammen,\nich schreib euch wegen meiner Bestellug TO-80265. Verkauft ihr die Tischklemme DL-CLAMP-M auch einzeln?\nDanke schonmal und liebe Grüße\nUgo",
+  "customer": "ugo280@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP67A",
+  "lang": "zh-Hant",
+  "kind": "pair:DIR_no_order_vs_order",
+  "tags": [
+   "DIR_no_order_vs_order"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hi 你們好，\n\n我之前跟你們買的鞋子收到了，可是穿起來太小，腳完全塞不進去。想請問可以換成 size 44 嗎？如果可以再麻煩告訴我怎麼處理，謝謝你們。\n\n訂單編號：TO-80268\n\nXenia",
+  "customer": "xenia283@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP68A",
+  "lang": "es",
+  "kind": "pair:DIR_no_order_vs_order",
+  "tags": [
+   "DIR_no_order_vs_order"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Hola, los zapatos que recibí son demasiado pequeños, necesito talla 44. Mi pedido es TO-80269. Gracias, Yusuf",
+  "customer": "yusuf284@example.test",
+  "linked_order": null
+ },
+ {
+  "id": "MP69A",
+  "lang": "de",
+  "kind": "pair:DIR_no_order_vs_order",
+  "tags": [
+   "DIR_no_order_vs_order"
+  ],
+  "votes": {
+   "design": "CREATE_SUPPLIER_TASK"
+  },
+  "B_rule": null,
+  "B_reason": "",
+  "A_reason": "",
+  "C_reason": "",
+  "message": "Guten Tag,\n\ndie gelieferten Schuhe sind mir deutlich zu klein, ich benötige Größe 44. Meine Bestellnummer ist TO-80270. Bitte sagen Sie mir, wie ich den Umtausch am schnellsten erledigen kann.\n\nMit freundlichen Grüßen\nZara",
+  "customer": "zara285@example.test",
+  "linked_order": null
+ }
+]

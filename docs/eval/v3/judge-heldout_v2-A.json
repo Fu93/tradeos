@@ -2184,12 +2184,172 @@
     "acceptable_actions": [],
     "_latency": 200.2
    }
+  },
+  "V107": {
+   "A": {
+    "speech_act_evidence": "返金をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L, ordered variant standard)",
+      "issue_evidence": "コンセントに差し込んだときに火花が出ました。",
+      "issue_type": "DEFECT",
+      "component": "power/plug side (sparking when plugged in)",
+      "goals": [
+       {
+        "evidence": "返金をお願いします。",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "火花が出ました",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80099",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer states the 1.7 L electric kettle from order TO-80099 produced sparks (火花) when plugged into the outlet, and asks for a refund. Speech act is REQUEST (explicit refund ask). One item: the kettle, DEFECT (sparking fault), goal REFUND, relation SINGLE. Safety: 火花 is an S1 hazard word with real meaning (not negated) → EXPLICIT; independently S4 also applies (MAINS_ELECTRIC product, DEFECT with sparks) → POSSIBLE, so the most severe is EXPLICIT. The order reference TO-80099 is well-formed, unhedged, and verifies (belongs to this customer, contains BREW-KETTLE, bought 10 days ago, DELIVERED), so V3/V4 do not fire. Decision table, first match wins with safety first: V1 (safety EXPLICIT) → HUMAN_REVIEW, and per D2 this holds even though the customer only wants a refund (the refund wish is kept for the human). No other action is defensible: DIRECT_WORKFLOW would bypass the mandated safety escalation, and CREATE_SUPPLIER_TASK is never acceptable on a non-supplier-task message.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 93.31
+   }
+  },
+  "V103": {
+   "A": {
+    "speech_act_evidence": "Quisiera pedir el reembolso.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "zapatillas (sneakers, no SKU confirmed)",
+      "issue_evidence": "son muy incómodas, apenas puedo usarlas",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Quisiera pedir el reembolso.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": "TO-60201",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST ('Quisiera pedir el reembolso.'). One item: sneakers that are 'muy incómodas, apenas puedo usarlas' — a fit/comfort problem with no claim that what arrived differs from the order and no defect claim, so SIZE_MISMATCH; sole goal REFUND (SINGLE). Safety NONE: no hazard words, and the product described (sneakers) has hazard class NONE. Order reference: written exactly 'TO-60201' and hedged ('No estoy muy segura del número de pedido, creo que es TO-60201'). Verification fails: per MOCK, TO-60201 belongs to a different customer and contains a BREW-KETTLE, not sneakers. V3 does not match because V3 requires the customer to be NOT unsure about the reference; here she explicitly is. V4 is the first matching rule: order reference hedged AND fails verification, and per D8 this applies to refund requests too → CLARIFY_WITH_CUSTOMER (ask for the correct order number). V8 (refund-only → DIRECT_WORKFLOW) would only be reached after a verifiable order reference exists. No other action is defensible: DIRECT_WORKFLOW cannot run without a verified order, and CREATE_SUPPLIER_TASK is never acceptable here.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 165.0
+   }
+  },
+  "V105": {
+   "A": {
+    "speech_act_evidence": "返金お願いできますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "sneakers (スニーカー; catalogue candidate TRAIL-RUNNER-42, but unverifiable because the cited order does not exist)",
+      "issue_evidence": "購入したスニーカーが履いても痛くて全然履けません",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "返金お願いできますか？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": "TO-89017",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer politely asks for a refund (REQUEST per D9: '返金お願いできますか？'). The sneakers are painful and unwearable with no claim that they differ from the order, so this is a fit problem → SIZE_MISMATCH; the only goal is REFUND (SINGLE). Safety NONE: footwear, no hazard words, hazard class NONE. The order reference 'TO-89017' is well-formed but hedged ('注文番号はTO-89017だと思います') and fails verification (MOCK: NO SUCH ORDER). V3 does not apply because the customer is unsure of the reference. V4 applies for every speech act, including refund requests (D8): CLARIFY_WITH_CUSTOMER to ask for the correct order number. If the reference had verified, this would have been refund-only (V8 → DIRECT_WORKFLOW), but the hedged, unverified reference takes precedence; no other action is defensible without a valid order.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 116.5
+   }
+  },
+  "V110": {
+   "A": {
+    "speech_act_evidence": "Quiero un reembolso.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "El hervidor eléctrico de 1.7 L que compré (pedido TO-80102) chispeó al enchufarlo.",
+      "issue_type": "DEFECT",
+      "component": "kettle (sparked on plugging in)",
+      "goals": [
+       {
+        "evidence": "Quiero un reembolso.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "chispeó al enchufarlo",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80102",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST ('Quiero un reembolso.'). One item: the 1.7 L electric kettle (BREW-KETTLE on TO-80102) sparked when plugged in — a fault, so DEFECT. Safety: 'chispeó' is the S1 hazard word (sparks/chispas) with real meaning on a MAINS_ELECTRIC product (S4 would independently give POSSIBLE for sparks), so safety = EXPLICIT. Decision table, safety first: V1 matches (safety EXPLICIT, even though the customer only wants a refund — D2 keeps the refund wish for the human) → HUMAN_REVIEW. No earlier rule applies: no prompt injection (V0); the order TO-80102 is well-formed, unhedged, and verifies (belongs to this customer, contains the kettle, DELIVERED), so no V3 data conflict and no V4 clarification; not a QUESTION (V6); single item, single goal family, so not mixed (V7). Note the purchase is 80 days old, outside the 30-day return window, so the DIRECT refund flow (V8) would not apply anyway — but V1 decides first. No other action is defensible: CREATE_SUPPLIER_TASK is excluded by rule, and DIRECT_WORKFLOW is blocked by both the safety escalation and the expired return window.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 88.72
+   }
+  },
+  "V108": {
+   "A": {
+    "speech_act_evidence": "I would just like a refund for this item.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "the plastic near where the cable comes out of the base had melted a little and looks warped",
+      "issue_type": "DEFECT",
+      "component": "power base / cable exit",
+      "goals": [
+       {
+        "evidence": "I would just like a refund for this item.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "the plastic near where the cable comes out of the base had melted a little and looks warped",
+    "safety": "EXPLICIT",
+    "order_ref_as_written": "TO-80100",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the BREW-KETTLE from TO-80100, with melted/warped plastic at the cable exit of the base — a DEFECT. Speech act is REQUEST ('I would just like a refund for this item'); 'Please let me know how to proceed with the return' is instrumental to the refund, so goals = [REFUND], SINGLE. Safety: 'melted' is an S1 hazard word with real meaning (not negated — the plastic actually melted), giving EXPLICIT; S4 independently applies as well (melting involving the power base/cable of a MAINS_ELECTRIC product). The order reference TO-80100 is well-formed, unhedged, and verifies (belongs to this customer, contains BREW-KETTLE), so V3/V4 do not fire; the 'received a few days ago' vs. 80-day-old purchase is not one of the enumerated V3 conflicts, and V1 precedes V3 in any case. Decision table: V0 no; V1 yes (safety EXPLICIT, and D2 says safety escalates even when the customer only wants a refund — the refund wish is kept for the human). First match wins → HUMAN_REVIEW, deciding rule V1. Without safety this would have been refund-only (V8 → DIRECT_WORKFLOW), but the guide explicitly forbids that shortcut here, so no other action is genuinely defensible.",
+    "deciding_rule": "V1",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 102.22
+   }
   }
  },
  "stats": {
-  "calls": 119,
-  "retries": 186,
-  "prompt_tokens": 574953,
-  "completion_tokens": 557551
+  "calls": 144,
+  "retries": 227,
+  "prompt_tokens": 696026,
+  "completion_tokens": 693730
  }
 }
