@@ -249,3 +249,33 @@ Screenshots: [regression: LED question](supplier-routing-panel-r2-led-question.p
 4. **Mixed / two-item detection is inconsistent** in both directions: H08, H12 and H14 were over-flagged; H28 and H30 were missed.
 5. **Confidence does not separate right from wrong** (above). On held-out 20b, P(self-report of right > wrong) = 0.49, which is no separation; the combined score gives 0.63. It stays a demote-only signal.
 6. **Small samples.** The keyword fallback only routes to people. The labels are pending human review (1 erratum: H60). Everything is MOCK data.
+
+## Round 3 (rules 3.0.0, taxonomy v3) — EXPERIMENT
+
+Additive and separate from 0.2.0: `app/routing_v3.py` (extraction schema, code checks, rules), `app/routing_v3_service.py`
+(own `routing_v3_*` tables), `app/routing_v3_web.py` + `routing_v3_panel.html` (panel labelled EXPERIMENTAL). The 0.2.0
+pipeline, refund path and the 152 Phase A tests are untouched.
+
+- **Extraction (LLM, strict json_schema, gpt-oss-20b):** speech act, items[] (issue_type per item, goals[] + goal_relation),
+  negated goals, order-ref / hedge / part / variant quotes, safety level + quote. No action, no `mixed`, no identifiers
+  from the model: every decision-relevant field carries a verbatim quote verified by code (NFKC/case/whitespace).
+- **Code-derived facts:** order status (CONFIRMED / OTHER_CUSTOMER / NOT_FOUND / MALFORMED / HEDGED), part numbers,
+  variants, safety S1 (multilingual hazard words, narrow negation guard), S3 gas appliances, S4 mains-electric (burn words or
+  power parts), catalogue/inventory/logistics/responsibility tables.
+- **Rules V0–V12 (first match, safety first):** injection → safety → evidence invalid → data conflict → uncertain order ref
+  (clarify) → availability-question cross-check → information question → mixed (computed) → refund (existing flow) →
+  no goal → non-actionable combos → slots → responsibility table. Demote-only checks; the refund-handoff confidence demotion
+  is kept (D10); no confidence demotion of supplier tasks.
+- **V13 agreement gate (optional):** k−1 extra samples only for suggested tasks; all must agree on action + family.
+  Pre-registered primary k=1; k=3/5 reported as a trade-off.
+- **Clarify engine:** rule-chosen templates (ASK_ORDER_REF, ASK_WHICH_ITEM(_FIRST), ASK_GOAL(_CHOICE), ASK_VARIANT, ASK_PART,
+  ASK_FAULT), LLM translation with code checks (placeholders verbatim, no new identifiers/numbers, length) and a cache;
+  max 2 rounds, a slot is never asked twice, ≤2 slots per question; the reply is re-gated with the original message; reply
+  with injection / request for a person → human. In the panel the customer reply is **simulated**; nothing is sent.
+- **Supplier task = suggestion:** status SUGGESTED_TASK; a human confirms → internal draft (NOT sent) or dismisses.
+
+Results: `docs/eval/v3/heldout-v2-results.md` (single final run on held-out v2 vs rules 0.2.0 on the same set);
+dev tuning: `docs/eval/v3/dev-tuning-log.md`; labelling: `docs/eval/v3/heldout-v2-labelling-protocol.md`.
+
+Next (not done): human review of `heldout-v2-review.csv`; a fresh human-written test set; Groq production k-sample cost
+(Groq requires n=1 → k requests); translation cache review workflow; real supplier channel stays out of scope.
