@@ -1552,12 +1552,1102 @@
     "reasoning": "REQUEST to send lid KL-170-LID for BREW-KETTLE TO-80054. Issue is wear of seal → PART_NEED. Part known, stock 0, supplier supplies parts=True for BREW-KETTLE, so SEND_PART on PART_NEED maps to CREATE_SUPPLIER_TASK per responsibility table V12. Safety NONE, order verified, no data conflict.",
     "_latency": 170.77
    }
+  },
+  "V056": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_quote": "請寄送DL-CLAMP-M零件",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_type": "PART_NEED",
+      "issue_type_quote": "訂單TO-80056的LED桌燈遺失了夾座",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "quote": "請寄送DL-CLAMP-M零件"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80056",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST for a spare part for DESK-LAMP on order TO-80056 belonging to the customer. Issue is PART_NEED with goal SEND_PART. Part DL-CLAMP-M is known for DESK-LAMP but stock 0. Catalogue shows DESK-LAMP fulfilment SUPPLIER_DROPSHIP with supplier supplies parts=True. Per responsibility table for SEND_PART on PART_NEED: known, 0 in stock, supplier supplies parts → CREATE_SUPPLIER_TASK. No safety trigger for a clamp on a MAINS_ELECTRIC lamp.",
+    "_latency": 152.75
+   }
+  },
+  "V049": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Me serviría igualmente una reparación o un reemplazo del producto, así que les dejo a ustedes la elección de la opción que les resulte más sencilla.",
+    "items": [
+     {
+      "issue_type": "DEFECT",
+      "issue_type_quote": "Desde hace un tiempo la lámpara no deja de parpadea, y el problema persiste, por lo que resulta prácticamente imposible usarla con normalidad.",
+      "goals": [
+       {
+        "goal": "REPAIR",
+        "quote": "Me serviría igualmente una reparación o un reemplazo del producto"
+       },
+       {
+        "goal": "REPLACE_SAME",
+        "quote": "Me serviría igualmente una reparación o un reemplazo del producto"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": null,
+    "order_ref_as_written": "TO-80049",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is REQUEST for remedy. One item DESK-LAMP with DEFECT flickering. Goals REPAIR and REPLACE_SAME, either acceptable, same WARRANTY_REMEDY family. Order TO-80049 belongs to customer, bought 500 days ago, contains DESK-LAMP black delivered. No safety trigger for mains electric flicker. Supplier warranty 730d is within period and fulfilment is SUPPLIER_DROPSHIP, so warranty remedy falls to supplier → CREATE_SUPPLIER_TASK per V12 responsibility table.",
+    "_latency": 107.42
+   }
+  },
+  "V060": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "アーム部分の交換用として当該部品を1点ご用意いただけますでしょうか。",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_type": "PART_NEED",
+      "issue_type_evidence": "アーム部分の交換用として当該部品を1点ご用意いただけますでしょうか。",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "evidence": "可能であれば発送をお願いいたします。"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80060",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-ARM-2"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80060 exists for the customer and contains DESK-LAMP. Customer requests a spare arm part DL-ARM-2 for the lamp, no defect claimed → PART_NEED with goal SEND_PART. Part number is written and prefix DL- matches DESK-LAMP but the part is unknown in the parts table. For SEND_PART on PART_NEED with unknown part number, product prefix matches and supplier answers compatibility = True, responsibility table directs a supplier task.",
+    "_latency": 108.71
+   }
+  },
+  "V058": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_quote": "Könnten Sie mir bitte das 5-W-LED-Modul mit der Artikelnummer DL-LED-5W zusenden?",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_quote": "Um für den Fall eines Defekts gerüstet zu sein, würde ich mir gerne ein Ersatzmodul auf Vorrat zulegen.",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "quote": "Könnten Sie mir bitte das 5-W-LED-Modul mit der Artikelnummer DL-LED-5W zusenden?"
+       },
+       {
+        "goal": "INFORMATION",
+        "quote": "Ich wäre Ihnen dankbar, wenn Sie mir kurz mitteilen könnten, ob das Teil verfügbar ist und welche Kosten dafür anfallen."
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80058",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-LED-5W"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80058 belongs to the customer and contains DESK-LAMP. The request is for a spare 5-W LED module DL-LED-5W on stock, no defect claimed → PART_NEED with goals SEND_PART + INFORMATION. Part is known for DESK-LAMP, stock 0, supplier supplies parts = true. Responsibility table for SEND_PART on PART_NEED with 0 stock and supplier supplies parts → CREATE_SUPPLIER_TASK. No safety trigger.",
+    "_latency": 237.64
+   }
+  },
+  "V061": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Would it be possible for you to obtain this part and send it to me?",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_evidence": "It turns out that I need a part for it",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "goal_evidence": "Would it be possible for you to obtain this part and send it to me?"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80061",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-ARM-2"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80061 belongs to the customer and contains DESK-LAMP white delivered. Issue is PART_NEED for DESK-LAMP with one part number DL-ARM-2 provided. Part number is unknown in parts table but prefix DL- matches DESK-LAMP and supplier answers compatibility = True and supplier supplies parts = True. SEND_PART on PART_NEED with unknown part number, matching prefix and supplier answers compatibility → responsibility table V12 CREATE_SUPPLIER_TASK. No safety trigger.",
+    "_latency": 124.02
+   }
+  },
+  "V062": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "麻煩貴店幫我安排一件並寄送給我",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_quote": "最近需要更換DL-ARM-2零件",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "quote": "麻煩貴店幫我安排一件並寄送給我"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80062",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-ARM-2"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST for a spare part for DESK-LAMP. Issue is PART_NEED with goal SEND_PART. Part number DL-ARM-2 is unknown in parts table but prefix DL- matches DESK-LAMP and supplier answers compatibility = True. Per responsibility table for SEND_PART on PART_NEED with unknown part number, product prefix match and supplier answers compatibility, a supplier task is required to confirm compatibility and supply.",
+    "_latency": 213.18
+   }
+  },
+  "V057": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_quote": "Quiero un módulo de repuesto de 5 W, parte DL-LED-5W, para tenerlo de reserva.",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_quote": "Quiero un módulo de repuesto de 5 W, parte DL-LED-5W, para tenerlo de reserva.",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "quote": "¿Me pueden enviar uno"
+       },
+       {
+        "goal": "INFORMATION",
+        "quote": "cómo pago el envío?"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": null,
+    "order_ref_as_written": "TO-80057",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-LED-5W"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80057 belongs to customer and contains DESK-LAMP. Issue is PART_NEED for DL-LED-5W with no defect claim. Part is known, stock 0, DESK-LAMP supplier supplies parts = True. SEND_PART on PART_NEED with 0 stock and supplier supplies parts → CREATE_SUPPLIER_TASK per responsibility table V12. Information about shipping payment is additional INFORMATION goal, information + one action is not mixed.",
+    "_latency": 197.78
+   }
+  },
+  "V063": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "想請問是否可以幫我更換一台新的呢？",
+    "items": [
+     {
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "最近發現它突然不加熱了，按開關也沒有反應。",
+      "goals": [
+       {
+        "goal": "REPLACE_SAME",
+        "evidence": "想請問是否可以幫我更換一台新的呢？"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80063",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "DEFECT on BREW-KETTLE, order TO-80063 belongs to customer and contains the product; hedged reference verifies per C5. Bought 160 days ago, warranty SUPPLIER 365d, within warranty. Warranty remedy with supplier warranty → CREATE_SUPPLIER_TASK per V12 responsibility table. No safety trigger.",
+    "_latency": 153.82
+   }
+  },
+  "V059": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "品番DL-LED-5Wをおくってもらえますか？",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_evidence": "以前注文したTO-80059のLEDデスクランプ用に、スペアの5W LEDモジュールが欲しいです。",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "evidence": "品番DL-LED-5Wをおくってもらえますか？"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80059",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-LED-5W"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST for a spare part for DESK-LAMP on order TO-80059 which belongs to the customer and is delivered. Issue is PART_NEED with goal SEND_PART. Part DL-LED-5W is known for DESK-LAMP but stock is 0 and supplier supplies parts=True for DESK-LAMP. Responsibility table for SEND_PART on PART_NEED with known part, zero stock, supplier supplies parts => CREATE_SUPPLIER_TASK. No safety trigger.",
+    "_latency": 254.45
+   }
+  },
+  "V055": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Me gustaría saber si sería posible que me enviaran una tapa de repuesto, con el número de pieza KL-170-LID.",
+    "items": [
+     {
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "el aparato se me cayó accidentalmente y la tapa se agrietó.",
+      "goals": [
+       {
+        "goal": "SEND_PART",
+        "evidence": "Me gustaría saber si sería posible que me enviaran una tapa de repuesto, con el número de pieza KL-170-LID."
+       },
+       {
+        "goal": "INFORMATION",
+        "evidence": "les agradecería que me indicaran el procedimiento a seguir, así como el coste en caso de que lo haya."
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80055",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80055 belongs to customer and contains BREW-KETTLE bought 250 days ago, delivered. Issue is a cracked lid after a fall → DEFECT. Customer requests a replacement lid KL-170-LID and asks about procedure/cost → SEND_PART + INFORMATION. Part number is known and matches product prefix. Broken-component SEND_PART follows DEFECT warranty table per C4. Warranty is SUPPLIER 365d and 250 days < 365d, so supplier warranty applies → CREATE_SUPPLIER_TASK per V12. No safety trigger for lid crack on mains electric kettle.",
+    "_latency": 119.79
+   }
+  },
+  "V064": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Quería pedir un reemplazo.",
+    "items": [
+     {
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "ya no calienta",
+      "goals": [
+       {
+        "goal": "REPLACE_SAME",
+        "evidence": "Quería pedir un reemplazo."
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80064",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST for REPLACE_SAME of BREW-KETTLE, DEFECT 'ya no calienta'. Order TO-80064 is hedged but verified: belongs to customer, contains BREW-KETTLE, bought 160 days ago, DELIVERED. Safety NONE for mains electric non-hazard fault. Warranty remedy: purchase >30 days, warranty SUPPLIER 365d and 160 days <365, fulfilment MERCHANT_WAREHOUSE. Responsibility table V12 → supplier warranty within days → CREATE_SUPPLIER_TASK.",
+    "_latency": 20.99
+   }
+  },
+  "V070": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_quote": "もう一回送ってもらえますか？",
+    "items": [
+     {
+      "issue_type": "MISSING_ITEM",
+      "issue_type_quote": "もうだいぶ経つのにまだ届いてません。",
+      "goals": [
+       {
+        "goal": "RESHIP",
+        "quote": "もう一回送ってもらえますか？"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Request to reship DESK-LAMP on linked order TO-80070. Logistics is LOST, product is SUPPLIER_DROPSHIP with supplier reships=True. FULFILMENT missing-item rule for LOST dropshipped with reship capability maps to CREATE_SUPPLIER_TASK per V12.",
+    "_latency": 224.91
+   }
+  },
+  "V067": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "麻煩你們直接幫我補寄一個新的過來",
+    "items": [
+     {
+      "issue_type": "MISSING_ITEM",
+      "issue_type_evidence": "我在你們網站訂購的檯燈到現在都還沒收到",
+      "goals": [
+       {
+        "goal": "RESHIP",
+        "evidence": "麻煩你們直接幫我補寄一個新的過來"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "REFUND"
+    ],
+    "negated_goals_evidence": "我不要退款，就是要把檯燈拿到手",
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Item is DESK-LAMP on linked order TO-80067 with logistics LOST. Customer requests reship and explicitly negates refund. Fulfilment is SUPPLIER_DROPSHIP with supplier reships=True, so FULFILMENT LOST dropship reship maps to CREATE_SUPPLIER_TASK per V12.",
+    "_latency": 203.91
+   }
+  },
+  "V071": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "ケトル用フタ KL-170-LID または別売りのフィルターを単品で購入できるかどうかお尋ねしたく、ご連絡いたしました。お手数ですが在庫状況をご教示いただけますでしょうか。",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80071",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is an availability/stock information request about BREW-KETTLE parts with no actionable remedy requested. Speech act is QUESTION with only INFORMATION goal, so V6 applies: support answers go to HUMAN_REVIEW.",
+    "_latency": 240.38
+   }
+  },
+  "V072": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_quote": "Just wondereing if you sell the kettle lid KL-170-LID seperately, or spare filters for it? Not looking to order right now just checking if you stock them.",
+    "items": [
+     {
+      "issue_type": "NO_ISSUE",
+      "issue_type_quote": "Not looking to order right now just checking if you stock them.",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "quote": "Just wondereing if you sell the kettle lid KL-170-LID seperately, or spare filters for it?"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80072",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is a stock-availability question with no actionable request. The only goal is INFORMATION and the order TO-80072 is verified for this customer and contains BREW-KETTLE. V6 applies: QUESTION with only INFORMATION goals → HUMAN_REVIEW for support answer.",
+    "_latency": 153.14
+   }
+  },
+  "V075": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "Ich wollte höflich fragen, ob Sie den Wasserkocherdeckel KL-170-LID oder Ersatzfilter separat führen und verkaufen?",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80074",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is an availability/information question about selling the kettle lid KL-170-LID or a replacement filter separately. Speech act is QUESTION with only INFORMATION intent and no actionable request/problem. V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW for support answer.",
+    "_latency": 160.4
+   }
+  },
+  "V068": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Le agradecería mucho que pudiera enviarme una reposición a la mayor brevedad posible.",
+    "items": [
+     {
+      "issue_type": "MISSING_ITEM",
+      "issue_type_evidence": "la lámpara de escritorio que solicité aún no ha llegado",
+      "goals": [
+       {
+        "goal": "RESHIP",
+        "evidence": "pudiera enviarme una reposición a la mayor brevedad posible"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST to reship DESK-LAMP. Linked order TO-80068 belongs to customer, bought 12 days ago, line DESK-LAMP black qty1 logistics LOST. Issue is MISSING_ITEM with goal RESHIP. Fulfilment is SUPPLIER_DROPSHIP, supplier reships=True, logistics LOST → FULFILMENT responsibility table V12 gives CREATE_SUPPLIER_TASK. No safety trigger for missing mains-electric item.",
+    "_latency": 116.9
+   }
+  },
+  "V076": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "ケトルのふたのみ（型番：KL-170-LID）は、貴店でお取り扱いがございますでしょうか。",
+    "items": [
+     {
+      "issue_type": "PART_NEED",
+      "issue_type_evidence": "先日ふたを取り外して洗っていた際に、うっかり手を滑らせて落としてしまいました。",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "quote": "ケトルのふたのみ（型番：KL-170-LID）は、貴店でお取り扱いがございますでしょうか。"
+       },
+       {
+        "goal": "INFORMATION",
+        "quote": "もし在庫があるようでしたら、価格やお手元に届くまでのおおよその日数なども教えていただけますと大変助かります。"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is QUESTION about availability/price/delivery of lid part KL-170-LID and about spare consumables. No order reference is provided and the only goal expressed is INFORMATION. V6 applies: speech_act QUESTION with every goal INFORMATION → HUMAN_REVIEW.",
+    "_latency": 91.73
+   }
+  },
+  "V065": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "bitte ich um einen Austausch oder eine Reparatur",
+    "items": [
+     {
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "heizt seit einigen Tagen nicht mehr",
+      "goals": [
+       {
+        "goal": "REPLACE_SAME",
+        "evidence": "Austausch"
+       },
+       {
+        "goal": "REPAIR",
+        "evidence": "Reparatur"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": null,
+    "order_ref_as_written": "TO-80065",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is REQUEST for remedy. One item BREW-KETTLE with DEFECT 'heizt seit einigen Tagen nicht mehr'. Goals REPLACE_SAME and REPAIR are either acceptable. Order TO-80065 is hedged 'wahrscheinlich TO-80065, bin mir jedoch nicht völlig sicher' but verification succeeds: order belongs to this customer, contains BREW-KETTLE, bought 160 days ago, DELIVERED. No safety hazard words and mains-electric defect is 'doesn't heat' not a S4 trigger. Warranty is SUPPLIER 365d, within 160 days, so WARRANTY_REMEDY on DEFECT with supplier warranty → CREATE_SUPPLIER_TASK per V12 responsibility table. V4 not triggered because hedged order verifies per C5.",
+    "_latency": 133.27
+   }
+  },
+  "V048": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "可以維修或換新都可以",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "最近一直閃爍",
+      "goals": [
+       {
+        "goal": "REPAIR",
+        "evidence": "可以維修或換新都可以"
+       },
+       {
+        "goal": "REPLACE_SAME",
+        "evidence": "可以維修或換新都可以"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80048",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "DEFECT on DESK-LAMP, order TO-80048 belongs to customer and contains the product, bought 500 days ago. Warranty is SUPPLIER 730d, within period, fulfilment SUPPLIER_DROPSHIP. Warranty remedy with supplier warranty within days → CREATE_SUPPLIER_TASK per responsibility table V12. Safety NONE; flicker is not a mains-electric hazard trigger.",
+    "_latency": 257.37
+   }
+  },
+  "V078": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_quote": "你們有單獨販售 KL-170-LID 的電茶壺蓋，或是備用的濾網嗎？",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Availability question about selling KL-170-LID lid / spare filter for a gift kettle. No order reference, no problem described. Speech act is QUESTION with only INFORMATION goal, so V6 applies → HUMAN_REVIEW for support answer.",
+    "_latency": 97.85
+   }
+  },
+  "V079": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "do you ship to Mexico? If so, roughly how long does delivery take?",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Pre-sale shipping availability question with no product problem or order reference. Speech act is QUESTION with only INFORMATION intent. Rule V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW.",
+    "_latency": 80.29
+   }
+  },
+  "V080": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_quote": "貴公司有 ship 到墨西哥嗎？",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Pure shipping-availability question with no product problem or order reference. Speech act is QUESTION with INFORMATION goal only, so V6 applies → HUMAN_REVIEW.",
+    "_latency": 78.62
+   }
+  },
+  "V066": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "交換をお願いできればと思います。",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "約5か月前に購入した電気ケトルが、最近全く加熱しなくなりました。",
+      "goals": [
+       {
+        "goal": "REPLACE_SAME",
+        "evidence": "まだ保証期間内かと思いますので、交換をお願いできればと思います。"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80066",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "deciding_rule": "V12",
+    "acceptable_actions": [],
+    "reasoning": "REQUEST for replacement of BREW-KETTLE due to DEFECT '全く加熱しなくなりました'. Order TO-80066 is hedged but verifies: belongs to customer, contains BREW-KETTLE, bought 160 days ago, DELIVERED. No safety trigger. Warranty is SUPPLIER 365d and 160 days < 365d, fulfilment MERCHANT_WAREHOUSE. Warranty remedy on defect with supplier warranty within days → CREATE_SUPPLIER_TASK per V12 responsibility table.",
+    "_latency": 205.15
+   }
+  },
+  "V074": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "quería preguntar si teneis por separado la tapa de la tetera KL-170-LID o también los filtros de repuesto",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is an availability/information question about buying the kettle lid KL-170-LID and replacement filters separately. Speech act is QUESTION with only INFORMATION intent, no order reference and no actionable problem stated. V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW for support answer.",
+    "_latency": 224.04
+   }
+  },
+  "V082": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "fällt sie eher klein aus?",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Pre-sale sizing question with no order reference and no product problem. Speech act is QUESTION with only INFORMATION intent, so V6 applies: support answer, human review.",
+    "_latency": 59.48
+   }
+  },
+  "V073": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_quote": "請問你們有沒有單獨販售 KL-170-LID 這個壺蓋？另外，備用濾網有單賣嗎？",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80073",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Availability question about selling KL-170-LID lid and spare filter separately, no defect or action requested. Speech act is QUESTION with only INFORMATION intent, so V6 applies → HUMAN_REVIEW.",
+    "_latency": 153.88
+   }
+  },
+  "V081": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "queria saber cuanto tiempo tengo para hacer una devolucion si no me convence",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": null,
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is a pre-sale policy question about return window with no product problem and no order reference. Speech act is QUESTION with goal INFORMATION only, matching V6 → HUMAN_REVIEW.",
+    "_latency": 121.94
+   }
+  },
+  "V077": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "if you have the kettle lid KL-170-LID or spare filters available separately?",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_type": "NO_ISSUE",
+      "issue_type_evidence": "I just placed order TO-80075 and was wonderring if you have the kettle lid KL-170-LID or spare filters available separately?",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "goal_evidence": "if you have the kettle lid KL-170-LID or spare filters available separately?"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80075",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is a pure availability question about parts for the BREW-KETTLE on order TO-80075. No defect/problem is claimed and the only goal is INFORMATION. V6 applies: speech_act QUESTION with only INFORMATION goals → HUMAN_REVIEW for support answer. Order TO-80075 exists for this customer and contains BREW-KETTLE, bought 150 days ago DELIVERED. Safety NONE.",
+    "_latency": 178.41
+   }
+  },
+  "V083": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "メキシコへの発送は可能ですか？",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "General shipping policy question with no product/problem and no order reference. Speech act is QUESTION with only INFORMATION intent, matching V6 → HUMAN_REVIEW.",
+    "_latency": 115.9
+   }
+  },
+  "V084": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "Solo quiero saber cómo descalcificarla y qué filtro debo usar.",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_type": "NO_ISSUE",
+      "issue_type_evidence": "La tetera no está rota, funciona bien.",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "evidence": "Solo quiero saber cómo descalcificarla y qué filtro debo usar."
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is a QUESTION for information about descaling and filter choice. Kettle is stated to work fine, so issue is NO_ISSUE with goal INFORMATION only. No order reference is provided. V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW for support answer.",
+    "_latency": 76.49
+   }
+  },
+  "V088": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "想請教保養方面的問題。",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_type": "NO_ISSUE",
+      "issue_type_quote": "水壺本身完全沒有壞，煮水、自動斷電一切正常",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "quote": "想請教保養方面的問題。"
+       },
+       {
+        "goal": "INFORMATION",
+        "quote": "如果要更換或加購那個濾網，應該買哪一種型號？你們官網或一般通路買得到嗎？"
+       },
+       {
+        "goal": "INFORMATION",
+        "quote": "官方建議的除垢方式是什麼？大概多久除一次比較恰當？"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is a pure information request about maintenance/descaling and filter model/availability for a BREW-KETTLE with no defect reported. Speech act is QUESTION and the only goal is INFORMATION. Per decision table V6, a QUESTION with only INFORMATION goals is HUMAN_REVIEW for support answers.",
+    "_latency": 258.99
+   }
+  },
+  "V090": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_quote": "請協助辦理退款",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "issue_type_quote": "經過考慮後，我決定不需要此商品",
+      "goals": [
+       {
+        "goal": "REFUND",
+        "quote": "請協助辦理退款"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "goal": "EXCHANGE_VARIANT",
+      "quote": "不需要換貨或其他處理"
+     }
+    ],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "TO-80082",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "DIRECT_WORKFLOW",
+    "deciding_rule": "V8",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80082 belongs to the customer, bought 25 days ago, contains CITY-JACKET variant M delivered. Customer changed mind and explicitly requests refund only, no exchange. Only action family is REFUND, product is returnable within 30 days. V8 applies; C2 for CUSTOMER_ORDERED_WRONG also directs to DIRECT_WORKFLOW.",
+    "_latency": 238.94
+   }
+  },
+  "V086": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "石灰の落とし方とおすすめのフィルターを教えてください。",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_quote": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "The message states the kettle is not broken and asks how to remove limescale and for a filter recommendation. No problem is reported and the speech act is a pure information question. Speech_act QUESTION with only INFORMATION intent triggers V6 → HUMAN_REVIEW.",
+    "_latency": 93.81
+   }
+  },
+  "V087": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "Just need to know how to descale it and which filter to use.",
+    "items": [],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80079",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is QUESTION about descaling and filter choice with no actionable request. Order TO-80079 is verified for this customer and contains BREW-KETTLE. No safety trigger and no actionable goals. V6 applies: QUESTION with only INFORMATION goals → HUMAN_REVIEW.",
+    "_latency": 92.88
+   }
+  },
+  "V093": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "返金だけお願いします。",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_type": "DEFECT",
+      "issue_type_evidence": "5日前くらいに買ったばかりのCity rain jacketがもう壊れちゃいました。",
+      "goals": [
+       {
+        "goal": "REFUND",
+        "evidence": "返金だけお願いします。"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80085",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "DIRECT_WORKFLOW",
+    "deciding_rule": "V8",
+    "acceptable_actions": [],
+    "reasoning": "Speech act is a request for refund only. One item CITY-JACKET with DEFECT. Order TO-80085 belongs to customer, bought 5 days ago, delivered, contains the product. No safety issue. Only action family is REFUND, so V8 applies → DIRECT_WORKFLOW.",
+    "_latency": 92.32
+   }
+  },
+  "V085": {
+   "C": {
+    "speech_act": "QUESTION",
+    "speech_act_evidence": "würde ich gerne wissen, wie ich das Gerät am besten entkalke",
+    "items": [
+     {
+      "issue_type": "NO_ISSUE",
+      "issue_type_evidence": "mein Wasserkocher einwandfrei funktioniert – es liegt also kein Defekt und kein Grund zur Reklamation vor",
+      "goals": [
+       {
+        "goal": "INFORMATION",
+        "evidence": "würde ich gerne wissen, wie ich das Gerät am besten entkalke. Reicht dafür handelsübliche Zitronensäure oder empfehlen Sie ein bestimmtes Mittel? Und in welchen Abständen ist eine Entkalkung Ihrer Erfahrung nach sinnvoll?"
+       },
+       {
+        "goal": "INFORMATION",
+        "evidence": "Außerdem interessiert mich, ob es für den Wasserkocher einen geeigneten Wasser- bzw. Kalkschutzfilter gibt, den ich verwenden sollte – und wenn ja, welchen Sie empfehlen würden"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "HUMAN_REVIEW",
+    "deciding_rule": "V6",
+    "acceptable_actions": [],
+    "reasoning": "Message is a pure information request about descaling a working BREW-KETTLE and about a suitable limescale filter. Speech act is QUESTION with only INFORMATION goals, no defect/problem, no order reference. Decision table V6 applies: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW for support answer.",
+    "_latency": 269.24
+   }
+  },
+  "V094": {
+   "C": {
+    "speech_act": "REQUEST",
+    "speech_act_evidence": "Please let me know how to send it back and get the refund.",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_type": "SIZE_MISMATCH",
+      "issue_type_evidence": "it doesn't fit me",
+      "goals": [
+       {
+        "goal": "REFUND",
+        "evidence": "I just want my money back"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety": "NONE",
+    "safety_evidence": "",
+    "order_ref_as_written": "TO-80086",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "required_action": "DIRECT_WORKFLOW",
+    "deciding_rule": "V8",
+    "acceptable_actions": [],
+    "reasoning": "Order TO-80086 belongs to the customer, bought 25 days ago, contains CITY-JACKET M delivered. Issue is size mismatch with explicit refund request and explicit rejection of exchange. No safety flags, order verified, single REFUND family → V8 DIRECT_WORKFLOW.",
+    "_latency": 155.51
+   }
   }
  },
  "stats": {
-  "calls": 70,
-  "retries": 1,
-  "prompt_tokens": 336810,
-  "completion_tokens": 187080
+  "calls": 116,
+  "retries": 35,
+  "prompt_tokens": 556841,
+  "completion_tokens": 299678
  }
 }

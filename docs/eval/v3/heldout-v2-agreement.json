@@ -2,87 +2,10 @@
  "n_items": 300,
  "coverage": {
   "A": 71,
-  "B": 224,
-  "C": 39
+  "B": 300,
+  "C": 87
  },
- "missing_B": [
-  "V130",
-  "V132",
-  "V135",
-  "V136",
-  "V137",
-  "V139",
-  "V140",
-  "V141",
-  "V142",
-  "V143",
-  "V145",
-  "V146",
-  "V147",
-  "V148",
-  "V149",
-  "V150",
-  "V151",
-  "V152",
-  "V154",
-  "V155",
-  "V156",
-  "V157",
-  "V158",
-  "V159",
-  "V160",
-  "V161",
-  "V162",
-  "V163",
-  "V164",
-  "V165",
-  "V168",
-  "V170",
-  "V171",
-  "V172",
-  "V174",
-  "V175",
-  "V176",
-  "V177",
-  "V181",
-  "V185",
-  "V188",
-  "V189",
-  "V190",
-  "V191",
-  "V203",
-  "V205",
-  "V208",
-  "V209",
-  "MP01A",
-  "MP01B",
-  "MP02B",
-  "MP04A",
-  "MP04B",
-  "MP15B",
-  "MP17A",
-  "MP17B",
-  "MP20A",
-  "MP22B",
-  "MP32A",
-  "MP33B",
-  "MP34A",
-  "MP34B",
-  "MP36A",
-  "MP36B",
-  "MP37A",
-  "MP39A",
-  "MP42B",
-  "MP47A",
-  "MP55B",
-  "MP58B",
-  "MP59A",
-  "MP61A",
-  "MP64B",
-  "MP67A",
-  "MP68A",
-  "MP69A"
- ],
+ "missing_B": [],
  "B_vs_A": {
   "n": 71,
   "fields": {
@@ -113,48 +36,48 @@
   }
  },
  "B_vs_C": {
-  "n": 39,
+  "n": 87,
   "fields": {
    "speech_act": {
-    "kappa": 0.0,
-    "raw": 0.974
+    "kappa": 0.966,
+    "raw": 0.989
    },
    "primary_issue": {
-    "kappa": 1.0,
-    "raw": 1.0
+    "kappa": 0.874,
+    "raw": 0.897
    },
    "goal_family": {
-    "kappa": 0.96,
-    "raw": 0.974
+    "kappa": 0.845,
+    "raw": 0.885
    },
    "multi_item": {
-    "kappa": 1.0,
-    "raw": 1.0
+    "kappa": 0.0,
+    "raw": 0.977
    },
    "safety": {
     "kappa": 1.0,
     "raw": 1.0
    },
    "required_action": {
-    "kappa": 0.0,
-    "raw": 0.974
+    "kappa": 0.97,
+    "raw": 0.989
    }
   }
  },
  "A_vs_C": {
-  "n": 25,
+  "n": 57,
   "fields": {
    "speech_act": {
     "kappa": 1.0,
     "raw": 1.0
    },
    "primary_issue": {
-    "kappa": 1.0,
-    "raw": 1.0
+    "kappa": 0.882,
+    "raw": 0.912
    },
    "goal_family": {
-    "kappa": 1.0,
-    "raw": 1.0
+    "kappa": 0.867,
+    "raw": 0.912
    },
    "multi_item": {
     "kappa": 1.0,
@@ -171,32 +94,36 @@
   }
  },
  "B_vs_design_action": {
-  "n": 224,
-  "kappa": 0.937,
-  "raw": 0.955
+  "n": 300,
+  "kappa": 0.908,
+  "raw": 0.933
  },
- "second_llm_judge_coverage": 85,
+ "second_llm_judge_coverage": 101,
  "B_vs_second_judge_action_by_generator": {
   "z-ai/glm-5.3": {
-   "n": 26,
-   "kappa": 0.894,
-   "raw": 0.962
+   "n": 33,
+   "kappa": 0.933,
+   "raw": 0.97
   },
   "nvidia/nemotron-3-super-120b-a12b": {
-   "n": 28,
+   "n": 33,
    "kappa": 1.0,
    "raw": 1.0
   },
   "meta/muse-glimmer-30b": {
-   "n": 31,
+   "n": 35,
    "kappa": 1.0,
    "raw": 1.0
   }
  },
- "n_to_adjudicate": 87,
+ "n_to_adjudicate": 21,
  "confusion_B_vs_design": [
   [
    "HUMAN_REVIEW|CLARIFY_WITH_CUSTOMER",
+   11
+  ],
+  [
+   "CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW",
    4
   ],
   [
@@ -204,11 +131,11 @@
    2
   ],
   [
-   "CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW",
-   2
+   "HUMAN_REVIEW|DIRECT_WORKFLOW",
+   1
   ],
   [
-   "HUMAN_REVIEW|DIRECT_WORKFLOW",
+   "CREATE_SUPPLIER_TASK|DIRECT_WORKFLOW",
    1
   ],
   [

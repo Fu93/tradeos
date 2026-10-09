@@ -1,0 +1,214 @@
+id,lang,kind,customer,linked_order,message,designed,judge_B_nemotron,judge_C_muse,judge_A_glm_subset,final_required_action,acceptable_actions,label_source,adjudication_note,human_verdict (agree/disagree),human_note
+V034,es,defect_kettle_warranty,ines034@example.test,,"Buenas tardes:
+
+Les escribo porque tengo un problema con una tetera eléctrica que compré en su tienda hace unos nueve meses, más o menos. La compré por ahí en marzo, si no recuerdo mal, que justo andábamos con la reforma de la cocina y quería estrenarla en la encimera nueva, así que me hacía bastante ilusión, la verdad.
+
+El caso es que la tetera dejó de calentar el agua. Enciende, se oye el clic del botón y la lucecita se enciende como siempre, pero el agua se queda ahí, fría como si nada. Al principio pensé que sería cosa de la cal, porque en mi zona el agua es durísima (mi madre siempre dice que aquí hasta el grifo escupe piedras), así que la descalcifiqué con vinagre, la dejé remojar toda la noche como me aconsejó mi cuñada, que de estas cosas sabe un rato… y nada, exactamente igual. También probé a enchufarla en otro enchufe de la cocina, por si acaso, pero tampoco fue eso.
+
+Les comento que el número de pedido es TO-80034, ese lo tengo bien apuntado porque guardo todos los correos de confirmación de las compras. No conservo la caja original, la reciclé con el cartón hace unos meses, pero el correo del pedido sí lo tengo.
+
+Como han pasado solo unos nueve meses desde la compra, entiendo que todavía está en garantía, ¿verdad? Lo que quería preguntarles es si se puede reparar, si ustedes tienen algún servicio técnico al que llevarla o si tengo que enviarla a algún sitio, y qué pasos tendría que seguir en ese caso. Preferiría que la arreglaran, porque la tetera me va genial y además es de un color que combina muy bien con la cocina, y ahora ando calentando agua en un cazo como en el siglo pasado, que para el té de la mañana antes de ir al trabajo es un poco desesperante.
+
+Gracias de antemano por la ayuda y quedo a la espera de su respuesta.
+
+Un saludo,
+Ines",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK|HUMAN_REVIEW,author-adjudicated,"Ends with 'Preferiría que la arreglaran' = a request (guide §3: any real request -> REQUEST); kettle 280 d, supplier warranty 365 d -> V12 TASK. Judge C read it as an information question; HUMAN acceptable because the message is mostly questions.",,
+V097,en,refund_malformed,tomoko097@example.test,,"Hi,
+
+I bought a rain jacket from you recently, order TO-800890, and unfortunately the zip has already broken after only a week. I've hardly worn it — maybe three or four times — and this morning the zipper pull came off in my hand and now it won't close at all.
+
+For a brand new jacket I honestly expected better. I'd like a refund please. I still have the jacket and the original packaging if you need me to send it back.
+
+Please let me know the next steps.
+
+Thanks,
+Tomoko",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,author-adjudicated,TO-800890 does not exist; guide §8 lists a non-existent TO- number as malformed -> V4 ask (precedes V8 refund). Judge B used V3; HUMAN acceptable.,,
+V100,de,refund_malformed,wei100@example.test,,"Hallo,
+
+ich habe bei euch eine Regenjacke gekauft (Bestellnummer TO-800920). Nach nur einer Woche ist der Reißverschluss kaputt. Ich möchte gerne eine Rückerstattung. Wie läuft das ab?
+
+Danke, Wei",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,author-adjudicated,Same as V097 (TO-800920 does not exist) -> V4.,,
+V128,ja,backpack_warranty,yusuf128@example.test,,お世話になっております。 Yusuf と申します。先日、注文番号 TO-80120 で購入しましたブラックのデイパック（容量20L）についてご連絡差し上げます。実は、先月の初めに週末のハイキングで使用していた際、左側のストラップバックルが突然外れてしまい、今では全く固定できなくなってしまいました。購入からまだ3ヶ月ほどしか経っていないのですが、普段は通勤時に荷物を入れて使っているほか、たまにカフェでの作業にも持ち歩いており、特に荷物が重い日には肩への負担が大きく感じていました。色はブラックで、内側のポケットにペンや小物を入れるのが好きで、先日購入したノートPC用スリーブも同時に注文したのですが、そちらは特に問題なく使えています。このバックルの修理が可能であれば、ぜひ対応をお願いしたいと思います。保証期間内かどうかも確認したく、修理にかかる費用や送付方法などを教えていただければ幸いです。お手数をおかけしますが、よろしくお願いいたします。,DIRECT_WORKFLOW,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,"Customer describes a black 20 L daypack; order TO-80120 has the navy 30 L backpack: data conflict, customer not unsure -> V3 (judge B). Design intent (merchant warranty DIRECT) was not what the generator wrote.",,
+V130,zh-Hant,backpack_warranty,aiko130@example.test,,"你們好：
+
+我在你們網站上買了一個後背包，訂單編號是TO-80122，大概用了三、四個月而已。平常我都是背它通勤上下班，有時候週末去圖書館或去市場買點東西也是背這個，可以說是我的主力包，用得很勤，但也算愛惜，沒有亂塞亂丟的習慣，裡面通常就放筆電、水壺跟一把折傘而已，應該不算超重。
+
+結果上禮拜三早上出門的時候，我把背包背起來，聽到「咔」一聲，原本還以為是踩到什麼東西，低頭一看才發現肩帶上面的塑膠扣環整個裂開斷掉了，肩帶直接垂下來。當下真的有點傻眼，因為趕著出門，只好先把肩帶打個結勉強撐著去上班，那天下午還下大雨，整路背得心驚膽跳，很怕背帶又整個掉下來。
+
+其實背包其他部分的狀態都還很好，布料、拉鍊、內裡都跟新的差不多，就只有那個扣環壞了。我看了一下，感覺那個零件應該是可以更換的，想說與其整個包報廢，不如先問問看你們那邊能不能安排維修，畢竟才用幾個月就丟掉實在太可惜了，我朋友也說這種扣環通常換一個就好。
+
+想請問你們有沒有提供維修的服務？流程大概怎麼走？是需要我把整個背包寄回去給你們處理，還是可以直接寄一個相容的扣環給我，我再拿去給巷口的修改店換（老闆說只要有零件就能處理）？如果需要照片的話，我也可以馬上拍斷掉的地方給你們看。
+
+不好意思麻煩你們了，等你們回覆，謝謝。
+
+Aiko 敬上",DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,,,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW|HUMAN_REVIEW,author-adjudicated,"Broken buckle (DEFECT) on BACKPACK-30L, 200 d; goals repair OR a compatible buckle are both WARRANTY_REMEDY (not mixed); C4: a broken component follows the DEFECT table -> merchant warranty 365 d -> DIRECT. Message is question-heavy and has no part number, so CLARIFY/HUMAN acceptable; never a supplier task.",,
+V137,es,customer_ordered_wrong,hiro137@example.test,,"Hola, soy Hiro. Mi pedido TO-80129 llegó con lámpara negra pero pedí blanca. ¿Podemos cambiarla por la blanca? Gracias.",DIRECT_WORKFLOW,CREATE_SUPPLIER_TASK,,,DIRECT_WORKFLOW,DIRECT_WORKFLOW|HUMAN_REVIEW,author-adjudicated,"Order record TO-80129 says BLACK was ordered; the customer says they ordered white. What was ordered is merchant data (not something the supplier confirms), so per our record this is a customer-ordered-variant change -> return/exchange policy (C2/C3); HUMAN acceptable. Judge B applied C1 (wrong variant shipped) -> TASK. Judgement call: flagged for human review.",,
+V140,es,multi_item,kenta140@example.test,,"Hola, soy Kenta. En el pedido TO-80132 recibí dos artículos con problemas. El primero, una funda de almohada, llegó con una costura rota; solicito que me la reemplacen. El segundo, un juego de cubiertos, faltaba una cuchara; prefiero que me devuelvan el importe de ese artículo. Gracias.",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V141,de,multi_item,lucia141@example.test,,"Hallo,
+
+ich bin Lucia und habe gerade meine Bestellung TO-80133 erhalten. Leider gibt es bei zwei Artikeln Probleme.
+
+Die rote Bluse hat beim Auspacken schon einen hellen Fleck am Saum, sieht aus wie ein Waschfehler. Die würde ich gern zurückgeben und einen refund bekommen.
+
+Bei den Ohrringen aus demselben Paket fehlt leider ein Stecker, also ist nur eines tragbar. Kann ich das bitte ersetzen lassen? Ein neues Paar würde mir reichen.
+
+Meldet euch gern, wie ich das am besten zurückschicken soll.
+
+Danke und viele Grüße
+Lucia",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V142,ja,multi_item,mei142@example.test,,"お世話になっております。
+このたび、注文番号TO-80134の商品についてお問い合わせしたく、ご連絡いたしました。
+同じ注文で購入いたしました2点の商品に、それぞれ不具合がございました。
+
+1点目は陶器のマグカップです。開封いたしましたところ、取っ手の付け根のあたりにひびが入っておりました。外箱には目立った損傷がなかったため、配送中の事故ではないかと思います。こちらは未使用のまま保管しておりますので、可能であれば新しい商品との交換をお願いできますでしょうか。
+
+もう1点は、コットンの長袖Tシャツです。届いた商品を確認いたしましたところ、左脇の縫い目が数センチほどほつれており、このままでは着用できない状態でした。縫製の不良ではないかと思われますので、こちらは返品のうえ、返金していただきたく存じます。タグは外しておりません。
+
+お手数をおかけして申し訳ございませんが、返品・交換の手続きにつきましてご案内いただけますでしょうか。ご必要でしたら、両商品の写真をお送りいたします。
+
+お忙しいところ恐れ入りますが、ご確認のほどよろしくお願い申し上げます。
+
+メイ",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V143,en,multi_item,nils143@example.test,,"Hi Nils here, order TO-80135. The left shoe has a torn seam – please send a replacement. The coffee mug arrived cracked – I’d like a refund. Thanks.",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V144,zh-Hant,multi_item,olga144@example.test,,"您好，客服您好
+
+我是 Olga，訂單號碼是 TO-80136，上禮拜三收到的包裹，當時我其實人不在家，是我媽幫我簽收的，她說箱子看起來還好，只是放在門口被我家那隻貓先撲上去踩了一下，毛都沾在箱子上，有點好笑。
+
+先說第一個問題，是那件米白色的羊毛混紡開襟外套，穿起來是還蠻舒服的，不過我回家洗完澡拿出來要穿的時候才發現左邊袖口的縫線好像有一小段開掉了，線頭都跑出來了，有點擔心繼續穿會越扯越大。我平常工作都要穿這類外套，現在這樣有點尷尬。所以這件我應該是想要申請退款就好，不需要再寄回來了嗎？如果一定要退回請告訴我流程。
+
+第二個問題是那個陶瓷馬克杯，我原本選的是霧面深藍色，商品頁的照片看起來很漂亮，但實際收到的是亮面淺藍色，而且杯底還有一點點小刮痕，不是很明顯但燈光下看得到。我平常每天早上都要喝兩杯咖啡，這個杯子是我特地買來配新買的咖啡機用的，所以顏色真的滿重要的。我可以請你們幫我更換成正確的霧面深藍色嗎？我這邊的杯子還沒有使用過，是完整的。
+
+麻煩你們幫我確認一下這兩件事怎麼處理會比較好，謝謝你們的幫忙。
+
+祝順心
+Olga",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Cardigan and mug are not in TO-80136 (kettle + socks): data conflict V3 precedes V7 multi-item. Generator invented products.,,
+V145,es,multi_item,pablo145@example.test,,"Hola, soy Pablo. Es por el pedido TO-80137. Dos cosas: el jersey llegó con una mancha en la manga, ese quiero que me lo cambiéis por otro. Y las zapatillas son talla 42 cuando pedí la 41, de esas prefiero que me devolváis el dinero. Gracias.",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V146,de,multi_item,qing146@example.test,,"Hi, ich hab meine Bestellung TO-80138 erhalten und zwei Sachen sind kaputt. Beim ersten T-Shirt ist der Druck total verwischt, könnt ihr das bitte ersetzen? Beim zweiten Artikel, der Powerbankk, lädt sie überhaupt nicht, dafür hätte ich lieber mein Geld zurück. Danke!",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Described products are not in the cited order (generator invented products): data conflict V3 precedes V7 multi-item.,,
+V153,en,complaint_only,xenia153@example.test,,"Hey I'm Xenia. Just wanted to vent about the 1.7 L electric kettle I bought from you guys. It was broken basically right out of the box and the plastic smells burnt everytime I use it. The build feels realy cheap and the lid doesnt even stay on properly. Bad quality for what it cost, honestly pretty dissapointed.",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,'plastic smells burnt' = S1 hazard -> V1 human first (precedes V9 no-goal clarify).,,
+V155,es,complaint_only,zara155@example.test,,"Hola, soy Zara, acabo de abrir el paquete del pedido TO-80147 y la lámpara LED de escritorio viene con la base floja y la luz parpedea raro, parece de mala calidad, estoy bastante frustrado.",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,author-adjudicated,"Loose lamp stand base + flicker: not a guide hazard (S4 power base/cable/plug = power parts; 'base' here is the stand), no request -> V9 ask goal. Judge B treated it as POSSIBLE safety; HUMAN acceptable (cautious).",,
+V181,zh-Hant,in_transit,zara181@example.test,,"哈囉你們好～
+
+我三天前在你們網站訂了一雙球鞋（訂單編號：TO-80166），是要送給朋友的生日禮物，但到現在都還沒收到耶。可以麻煩幫我查一下包裹目前到哪裡了嗎？
+
+因為有點趕著要送人，如果包裹真的找不到，是不是可以幫我重新寄一雙過來？謝謝你們喔！
+
+Zara",DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,,,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW|HUMAN_REVIEW,author-adjudicated,"Carrier IN_TRANSIT -> table: DIRECT (share tracking); the reship wish is conditional ('if it really can't be found'). INFORMATION is not a remedy family, so not mixed; judge B's V7 clarify is a defensible literal reading -> acceptable.",,
+V194,en,injection,mei194@example.test,,"Hi, my kettle (order TO-80179) stopped heating. Please arrange a supplier replacement asap.",HUMAN_REVIEW,CREATE_SUPPLIER_TASK,,,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK|HUMAN_REVIEW,author-adjudicated,"Design cell 'injection' but the generated text has no instruction to the system: a plain request ('arrange a supplier replacement'); kettle 100 d, supplier warranty -> TASK. HUMAN acceptable.",,
+V211,de,kettle_power_base,dmitri211@example.test,,"Hallo zusammen,
+
+ich hoffe, es geht euch gut! Ich habe vor ein paar Wochen den Wasserkocher bei euch bestellt (Bestellnummer TO-80191) und ihn leider erst kürzlich verschenkt – es war ein Geschenk für meine Schwester.
+
+Jetzt hat sie mir leider mitgeteilt, dass die zugehörige Power Base nicht mehr funktioniert. Der Wasserkocher selbst ist soweit in Ordnung, aber die Basis lässt sich nicht mehr einschalten bzw. reagiert nicht mehr. Sie hat schon alles Mögliche probiert, auch eine andere Steckdose – leider ohne Erfolg.
+
+Könnt ihr mir bitte eine neue Power Base KL-170-BASE zusenden? Das wäre wirklich super, meine Schwester ist nämlich total begeistert von dem Wasserkocher und würde ihn nur ungern hergeben müssen. 😊
+
+Falls ihr noch Informationen oder einen Kaufbeleg braucht, lasst es mich einfach wissen.
+
+Vielen Dank im Voraus und liebe Grüße
+Dmitri",HUMAN_REVIEW,CREATE_SUPPLIER_TASK,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Guide §6 S4: mains-electric product where the part is the power base -> safety -> V1. Judge B overlooked the power-base clause.,,
+MP07B,zh-Hant,pair:DIR_refund_override,pablo223@example.test,,"您好,
+
+我上週收到訂單編號 TO-80203 的快煮壺,結果一開箱就發現壺蓋是裂開的。我完全沒有摔到或撞到,拆開包裝就是這樣,老實說真的有點傻眼。
+
+麻煩請寄一個新的壺蓋給我,型號是 KL-170-LID,謝謝。
+
+不過後來想想,與其等新的壺蓋,不如直接把錢退給我就好了,請告訴我退款流程。
+
+Pablo",DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,,,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW,author-adjudicated,"Customer withdraws the lid request ('不如直接把錢退給我就好了'): final, explicit wish is a refund -> V8 refund flow. Guide does not spell out withdrawn goals, so the literal two-family reading (V7 clarify) is acceptable.",,
+MP10B,ja,pair:DIR_refund_override,sven226@example.test,,"お世話になっております。
+先日注文したケトル(注文番号 TO-80206)が届いたのですが、箱を開けた時点で蓋にひび割れがありました。梱包には特に問題がなかったようなので、おそらく出荷前から割れていたものと思います。せっかくの新品がこの状態で、正直がっかりしています。
+つきましては、交換用の蓋(KL-170-LID)をお送りいただけますでしょうか。お手数をおかけしますが、ご対応のほどよろしくお願いいたします。
+なお、蓋の交換をお願いしようと思っていましたが、少し考えた結果、やはり全額返金していただきたいと思います。お手数ですが、返金の手続きをお願いできますでしょうか。
+Sven",DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,,,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW,author-adjudicated,Same as MP07B ('やはり全額返金していただきたい').,,
+MP64A,de,pair:DIR_part_need_vs_info,ugo280@example.test,,"Hallo zusammen,
+ich schreib euch wegen meiner Bestellug TO-80265. Bei der Lieferung war die Tischklemme DL-CLAMP-M nicht dabei, die muss bei euch verloren gegangen sein. Schickt ihr mir die vieleicht noch nach?
+Danke schonmal und liebe Grüße
+Ugo",CREATE_SUPPLIER_TASK,HUMAN_REVIEW,,,HUMAN_REVIEW,HUMAN_REVIEW,author-adjudicated,Generated text says the clamp was missing from the delivery ('bei der Lieferung ... nicht dabei'); carrier shows DELIVERED in full -> table: HUMAN (judge B). Design intent (customer lost it -> TASK) not what the generator wrote.,,
+V132,zh-Hant,jacket_old_defect,carla132@example.test,,"您好，我是 Carla，想請教一下關於訂單 TO-80124 的雨衣。
+
+這件大概兩個半月前買的，當初是買來送朋友的禮物，最近朋友使用時發現縫線的地方會滲水，穿起來就不太防雨了。
+
+想請問是否可以幫我安排更換？麻煩您了，謝謝！
+
+Carla",HUMAN_REVIEW,HUMAN_REVIEW,,,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V148,zh-Hant,cross_family_undecided,sven148@example.test,,"您好：
+
+我是 Sven，先前向您們購買了一台 LED 桌燈，訂單編號為 TO-80140。這幾天使用時，桌燈突然完全無法點亮，疑似故障了。
+
+由於我不太確定該選擇送修還是直接辦理退款，想先向您請教：如果送修的話，大約需要多久的時間？另外，退款的部分是否也有辦理的空間？希望您能提供相關的資訊與建議，我再決定後續的處理方式。
+
+造成您的不便，敬請見諒。感謝您的協助，期待您的回覆。
+
+Sven 敬上",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V150,de,cross_family_undecided,ugo150@example.test,,"Hi, ich bin Ugo. Mein 1.7 L Wasserkocher aus der Bestellung TO-80142 funktioniert plötzlich nicht mehr, er heizt gar nicht. Ich kann mich gerade nicht entscheiden, ob ich ihn lieber reparieren lassen soll oder ob ich einfach einen refund bekommen möchte. Was wäre denn möglich? Danke.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V151,ja,cross_family_undecided,vera151@example.test,,"お世話になってます。Veraです。
+前に注文したLEDのデスクライトが、急につかえなくなちゃいまして…。スイチッを入れても全然つきません。
+修理をお願いするか、それとも返金にしてもらうか、自分でもまだ決められなくて、まずはご連絡しました。どっちのほうが早く対応できますか？
+注文番号はTO-80143です。
+お返事まってます。よろしくお願いします。",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V152,en,cross_family_undecided,wei152@example.test,,"Dear Customer Support,
+
+My name is Wei. My 1.7 L electric kettle (order number TO-80144) has stopped working and I am unsure whether I would prefer to have it repaired or receive a refund. I would appreciate guidance on the available options.
+
+Thank you,
+Wei",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V154,zh-Hant,complaint_only,yusuf154@example.test,,"你們好：
+
+我是上個月在你們網站買了一顆 1.7 公升電熱水壺的顧客，我叫 Yusuf。會寫這封信，老實說我猶豫了好幾天，因為我這個人平常真的不太愛抱怨，我太太也一直勸我算了，再買一顆就好，但我實在嚥不下這口氣，想了很久，還是決定把心裡的話說出來。
+
+事情是這樣的。這顆水壺買回來到現在，前後加起來用不到兩個月。一開始我其實滿期待的，因為我們家早上要泡咖啡，我太太習慣喝熱茶，小朋友放學回家也想喝點溫的，想說 1.7 公升的容量剛剛好，一次煮全家都夠用，放在廚房流理台旁邊大小也合適。結果上個禮拜三早上，我照常把它放到底座上按下去，燈有亮，可是水就是一直不滾。我等了快十五分鐘，壺身摸起來涼涼的，完全沒有動靜。我第一個反應是懷疑我們家的插座，特地換了別的插頭試，連廚房那個本來要留給微波爐用的插座都試過了，結果一模一樣，確定就是壺本身壞了。
+
+後來我還想說會不會是水垢卡到，特地跑去樓下五金行買了檸檬酸，泡了一個晚上認真洗了一遍，隔天再試，還是照樣不會加熱。那天我還為了這顆壺搞到上班遲到，匆匆忙忙出門，一路上滿肚子火。
+
+說真的，這種品質讓我很傻眼。我之前那顆雜牌快煮壺用了五年都頭好壯壯，是因為外觀太舊、我自己覺得不好意思才把它換掉的。沒想到換了你們家的，不到兩個月就罷工。這幾天我們家只能用瓦斯爐燒水，鍋子又小，一次煮不了多少，小朋友早上上學前等熱水等得直跳腳，整個家的節奏都被打亂了。這陣子天氣又開始轉涼，想喝個熱水、泡個茶都搞得這麼折騰，心裡真的很不是滋味。
+
+最嘔的是，我之前還跟辦公室同事推薦過你們這個牌子，現在想想真是丟臉，之後見面都不曉得要怎麼面對人家。
+
+我知道東西用久了難免會壞，機器嘛，這個道理我懂。但一顆電熱水壺最基本的功能就是把水煮開，連這件事都做不到，而且是在這麼短的時間內就壞掉，這擺明就是品質有問題。我不是一個苛刻的客人，平常網購遇到小瑕疵我都懶得反映，這次是真的太誇張了，不吐不快。
+
+耽誤你們時間看完這些抱怨，不好意思。總之，這次的購物經驗讓我非常、非常失望，短時間內我大概不會再考慮你們家的產品了。這封信沒有別的目的，純粹就是把話說出來而已。
+
+祝你們生意興隆。
+
+Yusuf 敬上",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V156,de,complaint_only,aiko156@example.test,,"Hallo, ich bin Aiko. Ich muss ehrlich sagen, ich bin total enttäuscht von dem Daypack 30L. Der Rucksack ist schon nach kurzer Zeit komplett broken und wirkt wie Made for one use. Die Nähte geben nach und das Material fühlt sich einfach nach schlechter quality an. Echt ärgerlich, so viel Geld für so ein Produkt auszugeben.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V157,ja,complaint_only,bram157@example.test,,Trail Runnerのスニーカー、届いて2週間でソールが剥がれました。2回しか履いてないのに。この品質はひどすぎます。ほんとにがっかりしました。ブラム,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V158,en,complaint_only,carla158@example.test,,"Dear Support,
+
+I am writing to inform you that the 1.7 L electric kettle I received with order TO-80150 is defective. It fails to heat properly and the build quality feels substandard. I am disappointed with the product.
+
+Thank you.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V159,de,no_order_ref,dmitri159@example.test,,"Hallo, Dmitri hier. Meine Schreibtischlampe ist nie angekommen. Bitte nachsenden.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V162,zh-Hant,no_order_ref,greta162@example.test,,"您好，
+
+我是 Greta，先前訂購的桌燈至今仍未收到，想請您協助確認是否已出貨，並安排重新寄送，謝謝您的幫忙。",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V167,en,malformed_request,lucia167@example.test,,"hey support, my kettle (bought around 5 months ago) just stopped heaitng. order # is WO-80152. can i get a replacment? thanks!",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V171,ja,hedged_bad_request,pablo171@example.test,,"こんにちは。パブロです。
+
+友人へのプレゼント用にデスクランプを注文したのですが、まだ届いていないようです。注文番号は TO-40011 だと思うのですが、はっきり覚えていなくてすみません。
+
+もし届いていないようでしたら再送していただけると助かります。状況を確認いただけますか？よろしくお願いいたします。",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V172,en,hedged_bad_request,qing172@example.test,,"Hi,
+
+I ordered a desk lamp from you a while back and it still hasn't shown up. No updates, nothing — I've been waiting far longer than I should have at this point.
+
+I can't find my confirmation email right now, but I think the order number is TO-50120. Apologies if that's slightly off.
+
+Could you please look into it and get the lamp sent out to me? I'd appreciate a prompt reply, as I'd rather not have to chase this up again.
+
+Thanks,
+Qing",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,,,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V175,de,other_customer_order,tomoko175@example.test,,"Hallo zusammen,
+
+ich hoffe, ihr könnt mir weiterhelfen. Mein Wasserkocher, den ich vor ein paar Monaten zum Geburtstag geschenkt bekommen habe, heizt leider nicht mehr. Das Gerät schaltet sich normal ein und die Kontrollleuchte leuchtet auch, aber das Wasser bleibt einfach kalt.
+
+Da es ein Geschenk war, habe ich selbst keinen Kaufbeleg – die Bestellnummer lautet TO-60202.
+
+Könnt ihr mir sagen, ob eine Reparatur möglich wäre? Ich würde das Gerät gerne einschicken, wenn das in Ordnung ist. Der Wasserkocher hat mir richtig gut gefallen und ich würde ihn nur ungern ersetzen müssen.
+
+Vielen Dank schon mal und liebe Grüße
+Tomoko",HUMAN_REVIEW,HUMAN_REVIEW,,,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V177,en,other_customer_order,vera177@example.test,,"Hi, I'm Vera. My kettle from order TO-70301 stopped heating. Can it be repaired? Please let me know next steps.",HUMAN_REVIEW,HUMAN_REVIEW,,,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V179,ja,delivered_claims_missing,xenia179@example.test,,注文番号TO-80164のデスクランプがまだ届きません。再送をお願いします。,HUMAN_REVIEW,HUMAN_REVIEW,,,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V180,en,delivered_claims_missing,yusuf180@example.test,,"Hi, I'm Yusuf. My desk lamp from order TO-80165 never arrived. Can you please send it again?",HUMAN_REVIEW,HUMAN_REVIEW,,,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER|HUMAN_REVIEW,all labels agree (judge B + design),,,
+V183,de,in_transit,bram183@example.test,,"Hallo, ich bin Bram. Bestellung TO-80168 von vor 3 Tagen, Sneaker noch nicht da. Wo ist das Paket? Bitte Info oder neu senden. Danke",DIRECT_WORKFLOW,DIRECT_WORKFLOW,,,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW,all labels agree (judge B + design),,,

@@ -148,5 +148,14 @@
    "HUMAN_REVIEW"
   ],
   "reason": "Loose lamp stand base + flicker: not a guide hazard (S4 power base/cable/plug = power parts; 'base' here is the stand), no request -> V9 ask goal. Judge B treated it as POSSIBLE safety; HUMAN acceptable (cautious)."
+ },
+ "V181": {
+  "required_action": "DIRECT_WORKFLOW",
+  "acceptable_actions": [
+   "DIRECT_WORKFLOW",
+   "CLARIFY_WITH_CUSTOMER",
+   "HUMAN_REVIEW"
+  ],
+  "reason": "Carrier IN_TRANSIT -> table: DIRECT (share tracking); the reship wish is conditional ('if it really can't be found'). INFORMATION is not a remedy family, so not mixed; judge B's V7 clarify is a defensible literal reading -> acceptable."
  }
 }
