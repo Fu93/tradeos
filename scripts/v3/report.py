@@ -47,8 +47,11 @@ for kk in ("k1", "k3", "k5"):
 sb, out = block("rules 0.2.0 baseline (same set)", base)
 lines += out + [""]
 s1 = summ["k1"]
-safety = [i for i, l in labels.items() if "V1" in str(l.get("note", "")) or "safety" in l["kind"]]
-saf_ok = sum(v3["results"][i]["action1"] == "HUMAN_REVIEW" for i in safety if i in v3["results"])
+SK = {"gas_stove_defect", "kettle_power_base", "pair:DIR_safety_catalog", "refund_safety", "mains_burn"}
+safety = [i for i, l in labels.items() if l["kind"] in SK and l["required_action"] == "HUMAN_REVIEW"]
+saf_ok = sum(v3["results"][i]["actions"]["k1"] == "HUMAN_REVIEW" for i in safety)
+saf_base = sum(base["results"][i]["action1"] == "HUMAN_REVIEW" for i in safety)
+v1 = [i for i, r in v3["results"].items() if r.get("rule1") == "V1"]
 lines += ["## Breakthrough bar", "",
           f"Bar: ≥36 auto/suggested supplier tasks with 0 errors and 0 false triggers on ≥183 non-supplier cases.", ""]
 for kk, s in summ.items():
@@ -56,7 +59,9 @@ for kk, s in summ.items():
     lines.append(f"- {kk}: {s['task_tp']} correct tasks / {s['task_pred']} predicted, false triggers {len(s['false_triggers'])} on "
                  f"{s['non_supplier_n']} → **{'MET' if ok else 'NOT met'}**"
                  + (f" (if met: precision lower bound {cp_lower(s['task_tp'], s['task_pred'])}% one-sided 95%)" if ok else ""))
-lines += ["", f"Safety-designed cells routed to a human by v3: {saf_ok}/{len(safety)} (automated safety rules S1–S4 + model S2).", "",
+lines += ["", f"Safety cells (gas stove, power base, mains burn, refund+safety, safety pairs) labelled HUMAN: v3 routed **{saf_ok}/{len(safety)}** "
+          f"to a human automatically (baseline {saf_base}/{len(safety)}); V1 fired on {len(v1)} messages in total "
+          f"({sum(labels[i]['required_action'] == 'HUMAN_REVIEW' for i in v1)} labelled HUMAN).", "",
           "## Per-error list (v3, k1)", "", "| id | lang | kind | predicted | required (acceptable) | rule | v3 reason |", "|---|---|---|---|---|---|---|"]
 for e in s1["errors"]:
     l = labels[e["id"]]
