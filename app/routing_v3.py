@@ -120,7 +120,8 @@ order_ref_quote: the order number exactly as written (even if it looks wrong); o
 the customer is unsure about it ("I think", "creo que", "glaube", "と思います", "可能是"), else null.
 part_number_quote / current_variant_quote / requested_variant_quote: verbatim, else null.
 safety_level: EXPLICIT if the text describes fire, smoke, sparks, burning/burnt smell, melting, electric shock, gas
-smell/leak or injury; POSSIBLE if a hazard is plausible but unclear; NONE otherwise (a hazard that is clearly negated,
+smell/leak or injury; POSSIBLE if a hazard is plausible but unclear (NOT for ordinary faults: flickering, not heating,
+stopped working, leaking water, noise are NONE unless heat/smoke/sparks/shock/gas are mentioned); NONE otherwise (a hazard that is clearly negated,
 e.g. "no smoke", is NONE). confidence: 0-1 (logged only)."""
 
 
@@ -355,18 +356,18 @@ class DecisionV3:
                                                "rule_version")} | {"decided_by": self.decided_by}
 
 
-def norm_goal(issue: str, goal: str) -> str:
+def norm_goal(issue: str, goal: str, part_quote: str | None = None) -> str:
     """Goal normalisation by issue type (guide C1 + responsibility table): 'send the right one' for a wrong item is an
     exchange to the ordered variant; 'send it (again)' for a missing item is a reship."""
     if issue == "WRONG_ITEM_OR_VARIANT" and goal in ("REPLACE_SAME", "RESHIP"):
         return "EXCHANGE_VARIANT"
-    if issue == "MISSING_ITEM" and goal == "REPLACE_SAME":
-        return "RESHIP"
+    if issue == "MISSING_ITEM" and (goal == "REPLACE_SAME" or (goal == "SEND_PART" and not part_quote)):
+        return "RESHIP"  # a whole missing item (no part number) is a reship
     return goal
 
 
 def action_goals(item: ItemX, negated: set[str]) -> list[str]:
-    out = [norm_goal(item.issue_type, g["goal"]) for g in item.goals if g["goal"] != "INFORMATION" and g["goal"] not in negated]
+    out = [norm_goal(item.issue_type, g["goal"], item.part_number_quote) for g in item.goals if g["goal"] != "INFORMATION" and g["goal"] not in negated]
     return list(dict.fromkeys(out))
 
 
@@ -376,6 +377,27 @@ def families(item: ItemX, negated: set[str]) -> set[str]:
 
 def is_actionable(item: ItemX, negated: set[str]) -> bool:
     return item.issue_type != "NO_ISSUE" and (bool(action_goals(item, negated)) or not item.goals)
+
+
+_MISSING_WORDS = re.compile(
+    r"\b(?:missing|never (?:arrived|came)|(?:has|have|hasn't|haven't|did ?n[o']t|didn't|not) (?:yet )?(?:arrived|come|received)"
+    r"|wasn't in|was not in|only (?:one|1|got)|not in the (?:box|package)|fehlt|fehlte|nicht (?:angekommen|dabei|enthalten)"
+    r"|nie angekommen|falta|faltaba|no (?:ha )?lleg\w*|no ven[ií]a|nunca lleg\w*)\b"
+    r"|足りな|届いていな|届かな|入っていな|入ってな|欠品|少了|缺|沒收到|没收到|沒有收到|未收到|沒寄", re.I)
+
+
+def part_request_consistency(item: ItemX, message: str, parts_in_text: list[str]) -> ItemX:
+    """Guide C4: a request for ONE specific catalogue part number with no defect claim and no missing-delivery claim
+    is PART_NEED + SEND_PART, whatever the model called the issue (MISSING_ITEM / UNCLEAR). Code-verified facts only."""
+    from .routing_data import PARTS
+    if item.issue_type not in ("MISSING_ITEM", "UNCLEAR") or len(set(parts_in_text)) != 1 or parts_in_text[0] not in PARTS:
+        return item
+    if not any(g["goal"] in ("SEND_PART", "REPLACE_SAME") for g in item.goals) or _MISSING_WORDS.search(message or ""):
+        return item
+    goals = [{"goal": "SEND_PART", "evidence": g["evidence"]} if g["goal"] in ("SEND_PART", "REPLACE_SAME") else g
+             for g in item.goals]
+    return ItemX(item.item_quote, item.issue_evidence, "PART_NEED", item.component_quote, parts_in_text[0],
+                 item.current_variant_quote, item.requested_variant_quote, goals, item.goal_relation)
 
 
 _AVAIL_Q = re.compile(
@@ -472,6 +494,11 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         return d.stop("V2", "HUMAN_REVIEW", f"Evidence quote not found in the message ({', '.join(bad[:4])}): a human reads it.")
     d.step("V2", True, "all decision quotes verified in the text")
 
+    fixed = [part_request_consistency(it, message, parts_in_text) for it in items]
+    if [it.issue_type for it in fixed] != [it.issue_type for it in items]:
+        d.derived["issue_consistency"] = "MISSING_ITEM/UNCLEAR + one catalogue part number, no missing claim -> PART_NEED (C4)"
+    items = fixed
+    issues_present = {it.issue_type for it in items}
     holding = {"DEFECT", "PART_NEED", "SIZE_MISMATCH", "CUSTOMER_ORDERED_WRONG"}
     # ---- V3 data conflicts (customer not unsure)
     if oid and order:
@@ -580,7 +607,8 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         return d.stop("V11", "CLARIFY_WITH_CUSTOMER", "No order number in the message and no linked order: ask for it.",
                       "ASK_ORDER_REF", ["order_ref"], quote="")
     cand = [l for l in order["lines"] if l["sku"] in mentioned] if mentioned else list(order["lines"])
-    part_cands = list(dict.fromkeys(scan_part_numbers(item.part_number_quote or "") or parts_in_text))
+    # every part number in the TEXT counts (the model may have extracted only one of several)
+    part_cands = list(dict.fromkeys(parts_in_text or scan_part_numbers(item.part_number_quote or "")))
     if len(cand) > 1 and part_cands:
         cand = [l for l in cand if part_cands[0].startswith(CATALOG[l["sku"]]["part_prefix"])] or cand
     if len(cand) != 1:
