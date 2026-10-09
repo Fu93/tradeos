@@ -758,7 +758,7 @@ def agreement_gate(first: DecisionV3, extras: list[ExtractionV3], message: str, 
 
 # ----------------------------------------------------------------------------- clarifying follow-up (D4, D7)
 TEMPLATES = {
-    "ASK_ORDER_REF": "Could you send the order number from your confirmation email? It looks like TO-12345.{quote_part}",
+    "ASK_ORDER_REF": "Could you send the order number from your confirmation email? Our order numbers have the format TO-12345.{quote_part}",
     "ASK_WHICH_ITEM": "Is this about {option_a} or {option_b}?",
     "ASK_WHICH_ITEM_FIRST": "You mentioned {item_1} and {item_2}. We handle each item separately. Which would you like us "
                             "to start with, and what would you like for it?",
