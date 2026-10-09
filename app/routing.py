@@ -1,9 +1,14 @@
-"""Supplier routing — EXPERIMENT, MVP 1 ("reliable triage only").
+"""Supplier routing — EXPERIMENT, MVP 1 ("reliable triage only"), rules 0.2.0 (round 2: three dimensions).
 
-    complaint -> AI extracts (app/routing_extract.py) -> FOUR deterministic gates (this file) -> route
+    message -> AI extracts issue_type + customer_goal (app/routing_extract.py, non-decisional)
+            -> deterministic rules (this file) compute required_action:
+               DIRECT_WORKFLOW | CREATE_SUPPLIER_TASK | CLARIFY_WITH_CUSTOMER | HUMAN_REVIEW
 
-Gate 1  Intent clear?            a real EXCHANGE / RESHIP / DEFECT / PART_REPLACEMENT request (not a policy
-                                 question, an order lookup or venting)
+Gate 1  Intent rules             injection / safety -> human; mixed goals -> clarify; INFORMATION -> human (answer,
+                                 not a complaint); REFUND -> existing refund policy flow (DIRECT_WORKFLOW, never a
+                                 supplier task); no outcome -> clarify; else issue x goal -> one of four families
+                                 (EXCHANGE / RESHIP / DEFECT / PART_REPLACEMENT). Text cues (deterministic) can only
+                                 make this more conservative.
 Gate 2  Case matches order?      order number, ownership, product line and the type-specific identifier
                                  (size/colour, part number, fault) are present in the TEXT and match the
                                  (MOCK) order. The AI never fills a gap: missing => ask; conflicting => human.
@@ -11,7 +16,8 @@ Gate 3  Supplier necessary?      existing data (order, MOCK inventory, MOCK logi
                                  responsibility table) is checked first. If it resolves the case => DIRECT_WORKFLOW.
                                  "No data found" is NOT "ask the supplier": the supplier is only chosen when the
                                  responsibility table names it as the next actor / source of truth.
-Gate 4  Confidence + duplicates  thresholds (initial assumptions) and "no open task for this order/item/type".
+Gate 4  Confidence + duplicates  confidence may only DEMOTE an automatic action to human review (never promote),
+                                 then "no open task for this order/item/family".
 
 Only if all four pass is an INTERNAL supplier task created (DRAFT_READY). Nothing is ever sent.
 
@@ -36,9 +42,9 @@ from datetime import date, datetime, timezone
 from typing import Callable, Iterator
 
 from .routing_data import CATALOG, INVENTORY, MOCK_LABEL, PARTS, order_with_dates
-from .routing_extract import SUPPORTED_TYPES, RoutingExtraction, RoutingExtractor, _SAFETY
+from .routing_extract import ACTION_GOALS, SUPPORTED_TYPES, RoutingExtraction, RoutingExtractor, _SAFETY
 
-RULE_VERSION = "supplier-routing-rules/0.1.1 (MVP 1 experiment)"
+RULE_VERSION = "supplier-routing-rules/0.2.0 (MVP 1 experiment, round 2)"
 
 # ----------------------------------------------------------------------------- statuses
 CASE_RECEIVED = "CASE_RECEIVED"
@@ -51,12 +57,16 @@ SUPPLIER_TASK_OPEN = "SUPPLIER_TASK_OPEN"
 CASE_STATUSES = (CASE_RECEIVED, CLASSIFYING, DIRECT_WORKFLOW, NEEDS_CLARIFICATION, NEEDS_HUMAN_REVIEW,
                  SUPPLIER_REQUIRED, SUPPLIER_TASK_OPEN)
 ROUTES = (DIRECT_WORKFLOW, NEEDS_CLARIFICATION, NEEDS_HUMAN_REVIEW, SUPPLIER_REQUIRED)
+# The third dimension (computed, never extracted). Case statuses keep their round-1 names.
+REQUIRED_ACTION = {DIRECT_WORKFLOW: "DIRECT_WORKFLOW", SUPPLIER_REQUIRED: "CREATE_SUPPLIER_TASK",
+                   NEEDS_CLARIFICATION: "CLARIFY_WITH_CUSTOMER", NEEDS_HUMAN_REVIEW: "HUMAN_REVIEW"}
+AUTOMATIC_ROUTES = (DIRECT_WORKFLOW, SUPPLIER_REQUIRED)  # what confidence may demote (never promote into)
 
 CASE_TRANSITIONS: dict[str, set[str]] = {
     CASE_RECEIVED: {CLASSIFYING},
     CLASSIFYING: {DIRECT_WORKFLOW, NEEDS_CLARIFICATION, NEEDS_HUMAN_REVIEW, SUPPLIER_REQUIRED},
     SUPPLIER_REQUIRED: {SUPPLIER_TASK_OPEN},
-    NEEDS_HUMAN_REVIEW: {SUPPLIER_REQUIRED},  # human confirms a gate-passing supplier route (0.70-0.89 band)
+    NEEDS_HUMAN_REVIEW: {SUPPLIER_REQUIRED},  # human confirms a gate-passing supplier route that was demoted
     DIRECT_WORKFLOW: set(), NEEDS_CLARIFICATION: set(), SUPPLIER_TASK_OPEN: set(),
 }
 
@@ -107,27 +117,27 @@ def check_task_transition(old: str, new: str, mvp1: bool = True) -> None:
 # ----------------------------------------------------------------------------- config
 @dataclass(frozen=True)
 class RoutingConfig:
-    """Thresholds are INITIAL ASSUMPTIONS, not calibrated values. Override via env."""
+    """Confidence is UNCALIBRATED. It is used one way only: an automatic action (DIRECT_WORKFLOW or a supplier
+    task) whose confidence is below `demote_below` is demoted to HUMAN_REVIEW. Nothing is ever promoted: a case
+    that fails a hard gate or a routing rule stays where it is at any confidence. Override via env."""
 
-    auto_threshold: float = 0.90       # >= : automatic route candidate
-    confirm_threshold: float = 0.70    # [confirm, auto) : human confirms the proposed route
-    keyword_confidence_cap: float = 0.85  # keyword fallback can never reach auto-route
+    demote_below: float = 0.90         # < : automatic action demoted to human review (initial assumption)
+    keyword_confidence_cap: float = 0.85  # keyword fallback is always below the floor => never automatic
     return_window_days: int = 30
     identifier_penalty: float = 0.25   # per AI identifier not found in the customer's text
     keyword_disagreement_penalty: float = 0.10
     injection_cap: float = 0.50
 
     def __post_init__(self) -> None:
-        if not (0 <= self.confirm_threshold <= self.auto_threshold <= 1):
-            raise ValueError("need 0 <= ROUTING_CONFIRM_THRESHOLD <= ROUTING_AUTO_THRESHOLD <= 1")
+        if not (0 <= self.demote_below <= 1):
+            raise ValueError("need 0 <= ROUTING_DEMOTE_BELOW <= 1")
 
     @classmethod
     def from_env(cls) -> "RoutingConfig":
         def f(name, default):
             raw = (os.environ.get(name) or "").strip()
             return float(raw) if raw else default
-        return cls(auto_threshold=f("ROUTING_AUTO_THRESHOLD", 0.90),
-                   confirm_threshold=f("ROUTING_CONFIRM_THRESHOLD", 0.70),
+        return cls(demote_below=f("ROUTING_DEMOTE_BELOW", f("ROUTING_AUTO_THRESHOLD", 0.90)),
                    keyword_confidence_cap=f("ROUTING_KEYWORD_CONFIDENCE_CAP", 0.85),
                    return_window_days=int(f("RETURN_WINDOW_DAYS", 30)))
 
@@ -237,7 +247,11 @@ class Decision:
     gates: list[Gate] = field(default_factory=list)
     proposed_route: str | None = None
     final_route: str | None = None
-    complaint_type: str | None = None
+    complaint_type: str | None = None   # internal family (EXCHANGE/RESHIP/DEFECT/PART_REPLACEMENT), rule-derived
+    issue_type: str | None = None       # dimension 1 (AI-extracted, text-checked)
+    customer_goal: str | None = None    # dimension 2 (AI-extracted, text-checked)
+    mixed: bool = False
+    decided_by: str = ""                # which gate / rule produced the final route
     confidence: dict = field(default_factory=dict)
     data_used: list[dict] = field(default_factory=list)
     identifiers: dict = field(default_factory=dict)
@@ -248,6 +262,7 @@ class Decision:
     def stop(self, gate: int, name: str, route: str, reason: str) -> "Decision":
         self.gates.append(Gate(gate, name, False, reason, route))
         self.proposed_route = route
+        self.decided_by = f"gate {gate} ({name}): {reason}"
         return self
 
     def ok(self, gate: int, name: str, reason: str) -> None:
@@ -260,9 +275,14 @@ class Decision:
     def all_gates_passed(self) -> bool:
         return bool(self.gates) and all(g.passed for g in self.gates)
 
+    @property
+    def required_action(self) -> str | None:
+        return REQUIRED_ACTION.get(self.final_route)
+
     def to_dict(self) -> dict:
         d = asdict(self)
         d["all_gates_passed"] = self.all_gates_passed
+        d["required_action"] = self.required_action
         return d
 
 
@@ -279,27 +299,34 @@ class CaseContext:
 # ----------------------------------------------------------------------------- confidence
 def compute_confidence(ex: RoutingExtraction, discarded: list[str], cfg: RoutingConfig) -> dict:
     """Honest description: base = the model's self-reported probability (validated 0..1; 0.5 if missing).
-    Keyword mode has no model, so base is a fixed rule score (0.80 single clear type + request, else 0.60),
-    capped below the auto threshold. Penalties are rule-based signals. Nothing here is calibrated."""
+    Keyword mode has no model, so base is a fixed rule score (0.80 one clear goal, else 0.60), capped below the
+    demotion floor. Penalties are rule-based signals. Nothing here is calibrated, and the result is used ONLY to
+    demote an automatic action to human review (never to promote anything)."""
     llm_mode = ex.extractor.startswith("llm:")
+    f = ex.fields
     signals: list[dict] = []
     if llm_mode:
         base = ex.llm_confidence if ex.llm_confidence is not None else 0.5
         signals.append({"signal": "llm_self_report" if ex.llm_confidence is not None else "llm_confidence_missing",
                         "value": base})
     else:
-        clear = len(ex.keyword_types) == 1 and ex.fields.request_kind == "ACTION_REQUEST"
+        clear = len(ex.cues.goals) == 1 and f.issue_type != "UNCLEAR"
         base = 0.80 if clear else 0.60
         signals.append({"signal": "keyword_rule_score", "value": base})
     score = base
-    for f in discarded:
+    for name in discarded:
         score -= cfg.identifier_penalty
-        signals.append({"signal": f"ai_identifier_not_in_text:{f}", "value": -cfg.identifier_penalty})
-    if llm_mode and ex.keyword_types and ex.fields.complaint_type in SUPPORTED_TYPES \
-            and ex.fields.complaint_type not in ex.keyword_types:
-        score -= cfg.keyword_disagreement_penalty
-        signals.append({"signal": "keyword_scan_disagrees", "value": -cfg.keyword_disagreement_penalty,
-                        "keyword_types": ex.keyword_types})
+        signals.append({"signal": f"ai_identifier_not_in_text:{name}", "value": -cfg.identifier_penalty})
+    if llm_mode:
+        if ex.cues.issues and f.issue_type in ("SIZE_MISMATCH", "DEFECT", "MISSING_ITEM", "PART_NEED") \
+                and f.issue_type not in ex.cues.issues:
+            score -= cfg.keyword_disagreement_penalty
+            signals.append({"signal": "keyword_scan_disagrees_issue", "value": -cfg.keyword_disagreement_penalty,
+                            "keyword_issues": ex.cues.issues})
+        if ex.cues.goals and f.customer_goal in (*ACTION_GOALS, "REFUND") and f.customer_goal not in ex.cues.goals:
+            score -= cfg.keyword_disagreement_penalty
+            signals.append({"signal": "keyword_scan_disagrees_goal", "value": -cfg.keyword_disagreement_penalty,
+                            "keyword_goals": ex.cues.goals})
     cap = 1.0
     if not llm_mode:
         cap = min(cap, cfg.keyword_confidence_cap)
@@ -308,11 +335,42 @@ def compute_confidence(ex: RoutingExtraction, discarded: list[str], cfg: Routing
         cap = min(cap, cfg.injection_cap)
         signals.append({"signal": "instruction_like_text_cap", "value": cfg.injection_cap})
     combined = round(max(0.0, min(score, cap)), 3)
-    band = ("AUTO" if combined >= cfg.auto_threshold else
-            "HUMAN_CONFIRM" if combined >= cfg.confirm_threshold else "LOW")
+    band = "NOT_DEMOTED" if combined >= cfg.demote_below else "DEMOTE_IF_AUTOMATIC"
     return {"llm": ex.llm_confidence, "base": base, "signals": signals, "combined": combined, "band": band,
-            "thresholds": {"auto": cfg.auto_threshold, "confirm": cfg.confirm_threshold,
-                           "note": "initial assumptions, not calibrated"}}
+            "thresholds": {"demote_below": cfg.demote_below,
+                           "note": "uncalibrated; demote-only (an automatic action below the floor goes to a "
+                                   "human); never promotes"}}
+
+
+# ----------------------------------------------------------------------------- rule 1: issue x goal -> family
+def _family(issue: str, goal: str) -> str | None:
+    """Deterministic issue x goal table (rules 0.2.0). None => the combination is not actionable as stated."""
+    if goal == "EXCHANGE":
+        return {"SIZE_MISMATCH": "EXCHANGE", "NO_ISSUE_INQUIRY": "EXCHANGE", "UNCLEAR": "EXCHANGE",
+                "DEFECT": "DEFECT"}.get(issue)
+    if goal == "RESHIP":
+        return {"MISSING_ITEM": "RESHIP", "UNCLEAR": "RESHIP", "DEFECT": "DEFECT"}.get(issue)
+    if goal == "REPAIR":
+        return {"DEFECT": "DEFECT", "UNCLEAR": "DEFECT", "PART_NEED": "PART_REPLACEMENT"}.get(issue)
+    if goal == "BUY_PART":
+        return {"PART_NEED": "PART_REPLACEMENT", "DEFECT": "PART_REPLACEMENT", "UNCLEAR": "PART_REPLACEMENT",
+                "NO_ISSUE_INQUIRY": "PART_REPLACEMENT"}.get(issue)
+    return None
+
+
+def effective_dimensions(ex: RoutingExtraction) -> tuple[str, str, list[str]]:
+    """Text cross-checks on the AI's two dimensions. They can only make the outcome MORE conservative
+    (towards 'not a complaint' / 'ask' / 'human'); they never create an action the AI did not extract."""
+    f, cues = ex.fields, ex.cues
+    issue, goal, notes = f.issue_type, f.customer_goal, []
+    if issue == "DEFECT" and (cues.problem_negated or (cues.inquiry and "DEFECT" not in cues.issues)):
+        notes.append("AI said DEFECT, but the text " + ("explicitly negates a problem" if cues.problem_negated
+                     else "is a question without any defect wording") + ": treated as NO_ISSUE_INQUIRY.")
+        issue = "NO_ISSUE_INQUIRY"
+        if goal in ACTION_GOALS:
+            notes.append(f"AI goal {goal} on a non-problem question: treated as INFORMATION.")
+            goal = "INFORMATION"
+    return issue, goal, notes
 
 
 # ----------------------------------------------------------------------------- the gates
@@ -320,9 +378,12 @@ def decide(ex: RoutingExtraction, message: str, ctx: CaseContext, cfg: RoutingCo
            open_task_for: Callable[[str], dict | None] = lambda key: None) -> Decision:
     d = Decision()
     f = ex.fields
-    ctype = f.complaint_type
-    d.complaint_type = ctype
-    d.use("ai_extraction", "complaint_type/request_kind", f"{ctype}/{f.request_kind}", mock=False)
+    issue, goal, notes = effective_dimensions(ex)
+    d.issue_type, d.customer_goal, d.mixed = issue, goal, bool(f.mixed_goals)
+    d.use("ai_extraction", "issue_type / customer_goal / mixed",
+          f"{f.issue_type}/{f.customer_goal}/{'mixed' if f.mixed_goals else 'single'}", mock=False)
+    for n in notes:
+        d.use("text cross-check", "dimension override (conservative)", n, mock=False)
 
     # Verify AI identifiers against the text (the AI can never supply a value the customer did not write).
     discarded: list[str] = []
@@ -337,34 +398,49 @@ def decide(ex: RoutingExtraction, message: str, ctx: CaseContext, cfg: RoutingCo
         ai_part = None
 
     def finish(route_stop: Decision) -> Decision:
-        route_stop.confidence = compute_confidence(ex, discarded, cfg)
-        route_stop.final_route = route_stop.proposed_route
-        return route_stop
+        """Non-automatic outcomes (clarify / human) are final at any confidence; an automatic one is demoted."""
+        return _apply_confidence(route_stop, ex, discarded, cfg)
 
-    # ---------------- Gate 1: intent clear?
+    # ---------------- Gate 1: intent rules (issue x goal; first match wins)
+    G1 = "intent_rules"
     if ex.injection_like:
-        return finish(d.stop(1, "intent_clear", NEEDS_HUMAN_REVIEW,
-                             "Instruction-like text in the message; it is data, a human reads it."))
-    if f.request_kind == "VENTING":
-        return finish(d.stop(1, "intent_clear", NEEDS_CLARIFICATION,
-                             "Complaint without a request (venting): ask what outcome the customer wants."))
-    if f.request_kind in ("POLICY_QUESTION", "ORDER_LOOKUP"):
-        return finish(d.stop(1, "intent_clear", NEEDS_HUMAN_REVIEW,
-                             f"{f.request_kind.replace('_', ' ').lower()}, not a request to act on an order: "
-                             "standard support answers it; no supplier."))
-    if ctype == "MULTIPLE":
-        return finish(d.stop(1, "intent_clear", NEEDS_CLARIFICATION,
-                             "Several complaint types in one message: ask the customer to separate them."))
-    if ctype == "NONE":
-        return finish(d.stop(1, "intent_clear", NEEDS_HUMAN_REVIEW,
-                             "Not an exchange / reship / defect / part request: standard support."))
-    if ctype not in SUPPORTED_TYPES:
-        return finish(d.stop(1, "intent_clear", NEEDS_CLARIFICATION, "Request type unclear: ask what they need."))
-    if f.request_kind != "ACTION_REQUEST":
-        return finish(d.stop(1, "intent_clear", NEEDS_CLARIFICATION,
-                             f"{ctype} complaint without a clear request ({f.request_kind.lower()}): "
-                             "ask what outcome they want."))
-    d.ok(1, "intent_clear", f"Actionable {ctype} request (label alone does not trigger anything).")
+        return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                             "R1 instruction-like text in the message; it is data, a human reads it."))
+    if f.safety_issue or ex.cues.safety or _SAFETY.search(message or ""):
+        d.use("safety rule", "safety words / AI flag", True, mock=False)
+        return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                             "R2 possible safety issue (fire/smoke/sparks/shock/gas/injury): always a human first."))
+    if f.mixed_goals:
+        return finish(d.stop(1, G1, NEEDS_CLARIFICATION,
+                             "R3 mixed / undecided goals or several items: ask the customer to separate them."))
+    if goal == "INFORMATION":
+        return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                             f"R4 customer_goal INFORMATION (issue {issue}): a question, not a request to act; "
+                             "support answers it. No supplier task."))
+    if goal == "REFUND":
+        return finish(d.stop(1, G1, DIRECT_WORKFLOW,
+                             "R5 customer_goal REFUND: the existing refund policy flow (policy checks, human "
+                             "approval, PayPal) owns it. Never a supplier task."))
+    if ex.cues.refund_only and goal in ACTION_GOALS:
+        return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                             f"R6 the text only asks for money back but the AI goal is {goal}: conflicting reading, "
+                             "a human decides (never a supplier task on a refund wish)."))
+    if goal == "UNCLEAR":
+        if issue == "NO_ISSUE_INQUIRY":
+            return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                                 "R7 no problem and no requested outcome: standard support reads it."))
+        return finish(d.stop(1, G1, NEEDS_CLARIFICATION,
+                             f"R7 issue {issue} but no requested outcome: ask what the customer wants."))
+    if ex.cues.inquiry or ex.cues.problem_negated:
+        return finish(d.stop(1, G1, NEEDS_HUMAN_REVIEW,
+                             f"R8 the text is question-form{' / negates a problem' if ex.cues.problem_negated else ''}"
+                             f" but the AI goal is {goal}: a human answers (no automatic action on a question)."))
+    ctype = _family(issue, goal)
+    if ctype is None:
+        return finish(d.stop(1, G1, NEEDS_CLARIFICATION,
+                             f"R9 issue {issue} with goal {goal} is not an actionable combination: ask."))
+    d.complaint_type = ctype
+    d.ok(1, G1, f"R10 issue {issue} + goal {goal} -> {ctype} family (a label alone does not trigger anything).")
 
     # ---------------- Gate 2: case matches order / product?
     order = None
@@ -496,42 +572,45 @@ def decide(ex: RoutingExtraction, message: str, ctx: CaseContext, cfg: RoutingCo
     route, reason = _necessity(d, ctype, f, message, order, line, product, cfg, today)
     if route != SUPPLIER_REQUIRED:
         d.stop(3, "supplier_necessary", route, reason)
-        return _apply_confidence(d, ex, discarded, cfg)
+        return finish(d)
     d.ok(3, "supplier_necessary", reason)
     d.trigger_reason = reason
 
-    # ---------------- Gate 4: confidence + no duplicate open task
+    # ---------------- Gate 4: confidence (demote-only) + no duplicate open task
     d.dedup_key = f"{order['order_id']}|{sku}|{ctype}"
     d.confidence = compute_confidence(ex, discarded, cfg)
-    band = d.confidence["band"]
     existing = open_task_for(d.dedup_key)
-    if band != "AUTO":
+    if d.confidence["combined"] < cfg.demote_below:
         d.stop(4, "confidence_and_duplicates", NEEDS_HUMAN_REVIEW,
-               f"Confidence {d.confidence['combined']} < auto threshold {cfg.auto_threshold}: "
-               + ("a human confirms the supplier route." if band == "HUMAN_CONFIRM" else "human review."))
+               f"Supplier task proposed, but confidence {d.confidence['combined']} < {cfg.demote_below}: demoted; "
+               "a human confirms or rejects the proposal.")
         d.proposed_route = SUPPLIER_REQUIRED
         d.final_route = NEEDS_HUMAN_REVIEW
         return d
     if existing:
         d.gates.append(Gate(4, "confidence_and_duplicates", True,
-                            f"Confidence {d.confidence['combined']} >= {cfg.auto_threshold}; an open task "
+                            f"Confidence {d.confidence['combined']} not below {cfg.demote_below}; an open task "
                             f"{existing['id']} already exists for {d.dedup_key}: linked, no new task."))
         d.identifiers["duplicate_of_task"] = existing["id"]
     else:
-        d.ok(4, "confidence_and_duplicates", f"Confidence {d.confidence['combined']} >= {cfg.auto_threshold}; "
-             f"no open task for {d.dedup_key}.")
+        d.ok(4, "confidence_and_duplicates", f"Confidence {d.confidence['combined']} not below {cfg.demote_below} "
+             f"(no demotion); no open task for {d.dedup_key}.")
     d.proposed_route = d.final_route = SUPPLIER_REQUIRED
+    d.decided_by = f"gates 1-4 passed: {reason}"
     return d
 
 
 def _apply_confidence(d: Decision, ex: RoutingExtraction, discarded: list[str], cfg: RoutingConfig) -> Decision:
+    """Demote-only. A non-automatic outcome (clarify / human) is never changed. An automatic outcome below the
+    floor becomes HUMAN_REVIEW. There is no path from here to a more automatic route."""
     d.confidence = compute_confidence(ex, discarded, cfg)
     d.final_route = d.proposed_route
-    if d.proposed_route == DIRECT_WORKFLOW and d.confidence["band"] != "AUTO":
+    if d.proposed_route in AUTOMATIC_ROUTES and d.confidence["combined"] < cfg.demote_below:
         d.final_route = NEEDS_HUMAN_REVIEW
-        d.gates.append(Gate(4, "confidence", False,
-                            f"Direct workflow proposed, but confidence {d.confidence['combined']} < "
-                            f"{cfg.auto_threshold}: a human confirms.", NEEDS_HUMAN_REVIEW))
+        d.gates.append(Gate(4, "confidence_demotion", False,
+                            f"{REQUIRED_ACTION[d.proposed_route]} proposed, but confidence "
+                            f"{d.confidence['combined']} < {cfg.demote_below}: demoted to a human.", NEEDS_HUMAN_REVIEW))
+        d.decided_by += f" -> demoted (confidence {d.confidence['combined']} < {cfg.demote_below})"
     return d
 
 

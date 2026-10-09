@@ -31,9 +31,9 @@
             <button class="btn" formaction="/routing/tradeos/{{ current.id }}">Triage selected case {{ current.id }}</button>
           {% endif %}
         </div>
-        <p class="muted small">Extractor: {{ R.extractor }} (extracts only). Thresholds (initial assumptions):
-          auto ≥ {{ R.thresholds.auto_threshold }}, human-confirm ≥ {{ R.thresholds.confirm_threshold }};
-          keyword fallback capped at {{ R.thresholds.keyword_confidence_cap }} (never auto).</p>
+        <p class="muted small">Extractor: {{ R.extractor }} (extracts issue + goal only; rules compute the action).
+          Confidence is uncalibrated and <strong>demote-only</strong>: an automatic action below {{ R.thresholds.demote_below }}
+          goes to a human; nothing is ever promoted. Keyword fallback capped at {{ R.thresholds.keyword_confidence_cap }} (never automatic).</p>
       </form>
 
       {% if R.recent %}
@@ -63,6 +63,12 @@
           <span class="chip {{ v.chip }}">{{ v.case.status | replace('_', ' ') }}</span>
         </div>
         <p class="quote">“{{ v.case.message }}”</p>
+        <div class="rt-dims">
+          <div><span class="muted small">issue_type (AI)</span><code>{{ v.decision.issue_type or '—' }}</code></div>
+          <div><span class="muted small">customer_goal (AI)</span><code>{{ v.decision.customer_goal or '—' }}</code>{% if v.decision.mixed %} <span class="chip warn">mixed</span>{% endif %}</div>
+          <div><span class="muted small">required_action (rules)</span><code>{{ v.decision.required_action or '—' }}</code></div>
+        </div>
+        <p class="small"><strong>Decided by:</strong> {{ v.decision.decided_by }}</p>
         <dl class="kv">
           <dt>Route</dt><dd><code>{{ v.case.route }}</code>{% if v.case.proposed_route and v.case.proposed_route != v.case.route %} <span class="muted small">(rules proposed {{ v.case.proposed_route }})</span>{% endif %}</dd>
           <dt>Supplier task</dt><dd><code>{{ v.case.supplier_status }}</code> — {{ v.task_text }}</dd>
@@ -70,7 +76,7 @@
           <dt>Confidence</dt><dd>{{ v.confidence.combined }} <span class="chip neutral">{{ v.confidence.band }}</span>
             <span class="muted small">LLM self-report {{ v.confidence.llm if v.confidence.llm is not none else 'n/a' }};
             {% for s in v.confidence.signals %}{{ s.signal }} {{ s.value }}{{ '; ' if not loop.last }}{% endfor %}</span></dd>
-          <dt>Extraction</dt><dd class="small">{{ v.extraction.extractor }} · <code>{{ v.extraction.fields.complaint_type }}</code> <code>{{ v.extraction.fields.request_kind }}</code>
+          <dt>Extraction</dt><dd class="small">{{ v.extraction.extractor }} · raw AI: <code>{{ v.extraction.fields.issue_type }}</code> <code>{{ v.extraction.fields.customer_goal }}</code>{% if v.decision.complaint_type %} · family <code>{{ v.decision.complaint_type }}</code>{% endif %}
             {% if v.extraction.fields.summary_en %}· {{ v.extraction.fields.summary_en }}{% endif %}</dd>
           <dt>Rule version</dt><dd class="small"><code>{{ v.decision.rule_version }}</code> · decided {{ v.case.updated_at | ts }}</dd>
         </dl>

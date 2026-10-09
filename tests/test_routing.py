@@ -1,4 +1,5 @@
-"""Supplier routing EXPERIMENT (MVP 1): gates, thresholds, duplicates, state machine, refund independence."""
+"""Supplier routing EXPERIMENT (MVP 1, rules 0.2.0): three dimensions, gates, demote-only confidence, duplicates,
+state machine, refund independence."""
 
 import json
 import re
@@ -38,19 +39,20 @@ class FakeLLM:
     def extract(self, message):
         self.calls += 1
         from app.intent import looks_like_injection
-        from app.routing_extract import keyword_types
+        from app.routing_extract import scan_text
         return RoutingExtraction(fields=RoutingFields(**self.fields), llm_confidence=self.confidence,
-                                 extractor=self.name, keyword_types=keyword_types(message),
+                                 extractor=self.name, cues=scan_text(message),
                                  injection_like=looks_like_injection(message))
 
 
-def ex(confidence=0.95, **fields):
-    fields.setdefault("request_kind", "ACTION_REQUEST")
-    return FakeLLM(confidence, **fields).extract
+# The four internal families expressed as (issue_type, customer_goal) the AI would extract.
+F = {"EXCHANGE": dict(issue_type="SIZE_MISMATCH", customer_goal="EXCHANGE"),
+     "RESHIP": dict(issue_type="MISSING_ITEM", customer_goal="RESHIP"),
+     "DEFECT": dict(issue_type="DEFECT", customer_goal="REPAIR"),
+     "PART_REPLACEMENT": dict(issue_type="PART_NEED", customer_goal="BUY_PART")}
 
 
 def run(message, customer, confidence=0.95, ctx=None, open_task=None, cfg=None, **fields):
-    fields.setdefault("request_kind", "ACTION_REQUEST")
     e = FakeLLM(confidence, **fields).extract(message)
     return decide(e, message, ctx or CaseContext(customer=customer), cfg or RoutingConfig(), TODAY,
                   (lambda k: open_task) if open_task else (lambda k: None))
@@ -62,29 +64,32 @@ def svc(tmp_path, extractor, cfg=None):
     return RoutingService(store, extractor, cfg or RoutingConfig(), today=lambda: TODAY)
 
 
-EXCH = dict(complaint_type="EXCHANGE", order_ref="TO-10421", current_variant="42", requested_variant="43")
+EXCH = dict(**F["EXCHANGE"], order_ref="TO-10421", current_variant="42", requested_variant="43")
 EXCH_MSG = "Order TO-10421: shoes too small, exchange size 42 for 43 please"
 
 
-# ------------------------------------------------------------------ gate 1: intent clear
-@pytest.mark.parametrize("kind,ctype,route", [
-    ("POLICY_QUESTION", "EXCHANGE", NEEDS_HUMAN_REVIEW),
-    ("ORDER_LOOKUP", "RESHIP", NEEDS_HUMAN_REVIEW),
-    ("VENTING", "DEFECT", NEEDS_CLARIFICATION),
-    ("ACTION_REQUEST", "UNKNOWN", NEEDS_CLARIFICATION),
-    ("ACTION_REQUEST", "MULTIPLE", NEEDS_CLARIFICATION),
-    ("ACTION_REQUEST", "NONE", NEEDS_HUMAN_REVIEW),
-    ("OTHER", "EXCHANGE", NEEDS_CLARIFICATION),
+# ------------------------------------------------------------------ gate 1: intent rules (issue x goal)
+@pytest.mark.parametrize("issue,goal,mixed,route", [
+    ("SIZE_MISMATCH", "INFORMATION", False, NEEDS_HUMAN_REVIEW),     # a question, not a request
+    ("NO_ISSUE_INQUIRY", "INFORMATION", False, NEEDS_HUMAN_REVIEW),
+    ("DEFECT", "UNCLEAR", False, NEEDS_CLARIFICATION),               # venting: no outcome requested
+    ("UNCLEAR", "UNCLEAR", False, NEEDS_CLARIFICATION),
+    ("SIZE_MISMATCH", "EXCHANGE", True, NEEDS_CLARIFICATION),        # mixed goals
+    ("NO_ISSUE_INQUIRY", "UNCLEAR", False, NEEDS_HUMAN_REVIEW),
+    ("MISSING_ITEM", "EXCHANGE", False, NEEDS_CLARIFICATION),        # not an actionable combination
+    ("SIZE_MISMATCH", "REFUND", False, DIRECT_WORKFLOW),             # refund flow, never supplier
 ])
-def test_gate1_unclear_intent_never_reaches_supplier(kind, ctype, route):
-    d = run(EXCH_MSG, "ana@example.test", confidence=0.99, **{**EXCH, "complaint_type": ctype, "request_kind": kind})
-    assert d.final_route == route and d.gates[0].gate == 1 and not d.gates[0].passed
+def test_gate1_intent_rules_never_reach_supplier(issue, goal, mixed, route):
+    d = run(EXCH_MSG, "ana@example.test", confidence=0.99,
+            **{**EXCH, "issue_type": issue, "customer_goal": goal, "mixed_goals": mixed})
+    assert d.proposed_route == route and d.gates[0].gate == 1 and not d.gates[0].passed
+    assert d.final_route != SUPPLIER_REQUIRED and d.decided_by.startswith("gate 1")
 
 
 def test_label_alone_never_triggers_defect_covered_by_refund_policy():
     # A DEFECT label on a 10-day-old order: existing return/refund policy covers it -> no supplier.
     d = run("Order TO-60201: my kettle leaks, please help", "pia@example.test",
-            complaint_type="DEFECT", defect_description="leaks")
+            **F["DEFECT"], defect_description="leaks")
     assert d.final_route == DIRECT_WORKFLOW
     assert "refund policy" in d.gates[-1].reason
 
@@ -136,18 +141,18 @@ def test_gate2_nonexistent_size_asks():
 
 def test_gate2_part_model_never_guessed():
     d = run("Order TO-70301: the lid broke, need a new lid part", "wen@example.test",
-            complaint_type="PART_REPLACEMENT", part_model="KL-170-LID", order_ref="TO-70301")
+            **F["PART_REPLACEMENT"], part_model="KL-170-LID", order_ref="TO-70301")
     assert d.final_route == NEEDS_CLARIFICATION and "part_model" not in d.identifiers
 
 
 def test_gate2_part_from_other_family_goes_to_human():
-    d = run("Order TO-70302: I need part KL-170-LID", "xia@example.test", complaint_type="PART_REPLACEMENT",
+    d = run("Order TO-70302: I need part KL-170-LID", "xia@example.test", **F["PART_REPLACEMENT"],
             part_model="KL-170-LID", order_ref="TO-70302")
     assert d.final_route == NEEDS_HUMAN_REVIEW
 
 
 def test_gate2_multi_item_order_without_item_asks():
-    d = run("Order TO-50140 arrived but something is missing", "lea@example.test", complaint_type="RESHIP",
+    d = run("Order TO-50140 arrived but something is missing", "lea@example.test", **F["RESHIP"],
             order_ref="TO-50140")
     assert d.final_route == NEEDS_CLARIFICATION
 
@@ -156,44 +161,44 @@ def test_gate2_multi_item_order_without_item_asks():
 @pytest.mark.parametrize("msg,cust,fields,route", [
     # exchange
     ("Order TO-20033: swap XL for S", "hal@example.test",
-     dict(complaint_type="EXCHANGE", requested_variant="S"), DIRECT_WORKFLOW),            # in our stock
+     dict(**F["EXCHANGE"], requested_variant="S"), DIRECT_WORKFLOW),            # in our stock
     ("Order TO-20031: exchange M for L", "chen@example.test",
-     dict(complaint_type="EXCHANGE", requested_variant="L"), SUPPLIER_REQUIRED),          # 0 stock, supplier restocks
+     dict(**F["EXCHANGE"], requested_variant="L"), SUPPLIER_REQUIRED),          # 0 stock, supplier restocks
     ("Order TO-30077: swap black for navy", "eva@example.test",
-     dict(complaint_type="EXCHANGE", requested_variant="navy"), NEEDS_HUMAN_REVIEW),      # no inventory record
+     dict(**F["EXCHANGE"], requested_variant="navy"), NEEDS_HUMAN_REVIEW),      # no inventory record
     ("Order TO-20013: exchange L for M", "dora@example.test",
-     dict(complaint_type="EXCHANGE", requested_variant="M"), DIRECT_WORKFLOW),            # outside window
+     dict(**F["EXCHANGE"], requested_variant="M"), DIRECT_WORKFLOW),            # outside window
     ("Order TO-40005: socks M for L", "felix@example.test",
-     dict(complaint_type="EXCHANGE", requested_variant="L"), DIRECT_WORKFLOW),            # final sale
+     dict(**F["EXCHANGE"], requested_variant="L"), DIRECT_WORKFLOW),            # final sale
     # reship
     ("Order TO-50120: shoes not arrived, resend", "jon@example.test",
-     dict(complaint_type="RESHIP"), DIRECT_WORKFLOW),                                     # in transit
+     dict(**F["RESHIP"]), DIRECT_WORKFLOW),                                     # in transit
     ("Order TO-50130: backpack not arrived", "kim@example.test",
-     dict(complaint_type="RESHIP"), NEEDS_HUMAN_REVIEW),                                  # carrier says delivered
+     dict(**F["RESHIP"]), NEEDS_HUMAN_REVIEW),                                  # carrier says delivered
     ("Order TO-50160: kettle missing", "noa@example.test",
-     dict(complaint_type="RESHIP"), NEEDS_HUMAN_REVIEW),                                  # no logistics data
+     dict(**F["RESHIP"]), NEEDS_HUMAN_REVIEW),                                  # no logistics data
     ("Order TO-50101: one lamp missing", "hana@example.test",
-     dict(complaint_type="RESHIP"), SUPPLIER_REQUIRED),                                   # drop-ship partial
+     dict(**F["RESHIP"]), SUPPLIER_REQUIRED),                                   # drop-ship partial
     ("Order TO-50110: kettle lost", "ivan@example.test",
-     dict(complaint_type="RESHIP"), DIRECT_WORKFLOW),                                     # we reship
+     dict(**F["RESHIP"]), DIRECT_WORKFLOW),                                     # we reship
     # defect
     ("Order TO-60202: kettle broken", "quinn@example.test",
-     dict(complaint_type="DEFECT", defect_description="no heat"), SUPPLIER_REQUIRED),     # supplier warranty
+     dict(**F["DEFECT"], defect_description="no heat"), SUPPLIER_REQUIRED),     # supplier warranty
     ("Order TO-60203: kettle broken", "rui@example.test",
-     dict(complaint_type="DEFECT", defect_description="no heat"), NEEDS_HUMAN_REVIEW),    # out of warranty
+     dict(**F["DEFECT"], defect_description="no heat"), NEEDS_HUMAN_REVIEW),    # out of warranty
     ("Order TO-60206: stove sparks and smoke", "uma@example.test",
-     dict(complaint_type="DEFECT", defect_description="sparks"), NEEDS_HUMAN_REVIEW),     # safety
+     dict(**F["DEFECT"], defect_description="sparks"), NEEDS_HUMAN_REVIEW),     # safety
     ("Order TO-60208: zip broken", "zoe@example.test",
-     dict(complaint_type="DEFECT", defect_description="zip"), DIRECT_WORKFLOW),           # merchant warranty
+     dict(**F["DEFECT"], defect_description="zip"), DIRECT_WORKFLOW),           # merchant warranty
     # parts
     ("Order TO-70301: need KL-170-FLT", "wen@example.test",
-     dict(complaint_type="PART_REPLACEMENT", part_model="KL-170-FLT"), DIRECT_WORKFLOW),  # in stock
+     dict(**F["PART_REPLACEMENT"], part_model="KL-170-FLT"), DIRECT_WORKFLOW),  # in stock
     ("Order TO-70301: need KL-170-LID", "wen@example.test",
-     dict(complaint_type="PART_REPLACEMENT", part_model="KL-170-LID"), SUPPLIER_REQUIRED),
+     dict(**F["PART_REPLACEMENT"], part_model="KL-170-LID"), SUPPLIER_REQUIRED),
     ("Order TO-70302: does DL-LED-7W fit?", "xia@example.test",
-     dict(complaint_type="PART_REPLACEMENT", part_model="DL-LED-7W"), SUPPLIER_REQUIRED),  # compatibility
+     dict(**F["PART_REPLACEMENT"], part_model="DL-LED-7W"), SUPPLIER_REQUIRED),  # compatibility
     ("Order TO-70303: need CS-VALVE-2", "yan@example.test",
-     dict(complaint_type="PART_REPLACEMENT", part_model="CS-VALVE-2"), NEEDS_HUMAN_REVIEW),
+     dict(**F["PART_REPLACEMENT"], part_model="CS-VALVE-2"), NEEDS_HUMAN_REVIEW),
 ])
 def test_gate3_existing_data_first(msg, cust, fields, route):
     d = run(msg, cust, **fields)
@@ -202,7 +207,7 @@ def test_gate3_existing_data_first(msg, cust, fields, route):
 
 
 def test_no_data_found_is_not_a_supplier_trigger():
-    d = run("Order TO-50160: kettle missing", "noa@example.test", complaint_type="RESHIP")
+    d = run("Order TO-50160: kettle missing", "noa@example.test", **F["RESHIP"])
     assert d.final_route != SUPPLIER_REQUIRED and "No logistics record" in d.gates[-1].reason
 
 
@@ -214,31 +219,49 @@ def test_even_099_cannot_bypass_hard_gates():
         assert d.final_route != SUPPLIER_REQUIRED and not d.all_gates_passed
 
 
-@pytest.mark.parametrize("conf,route,band", [(0.95, SUPPLIER_REQUIRED, "AUTO"), (0.90, SUPPLIER_REQUIRED, "AUTO"),
-                                             (0.89, NEEDS_HUMAN_REVIEW, "HUMAN_CONFIRM"),
-                                             (0.70, NEEDS_HUMAN_REVIEW, "HUMAN_CONFIRM"),
-                                             (0.69, NEEDS_HUMAN_REVIEW, "LOW"), (None, NEEDS_HUMAN_REVIEW, "LOW")])
-def test_confidence_bands(conf, route, band):
+@pytest.mark.parametrize("conf,route,band", [(0.95, SUPPLIER_REQUIRED, "NOT_DEMOTED"),
+                                             (0.90, SUPPLIER_REQUIRED, "NOT_DEMOTED"),
+                                             (0.89, NEEDS_HUMAN_REVIEW, "DEMOTE_IF_AUTOMATIC"),
+                                             (0.30, NEEDS_HUMAN_REVIEW, "DEMOTE_IF_AUTOMATIC"),
+                                             (None, NEEDS_HUMAN_REVIEW, "DEMOTE_IF_AUTOMATIC")])
+def test_confidence_demotes_supplier_task(conf, route, band):
     d = run(EXCH_MSG, "ana@example.test", confidence=conf, **EXCH)
     assert (d.final_route, d.confidence["band"]) == (route, band)
     if route != SUPPLIER_REQUIRED:
-        assert d.proposed_route == SUPPLIER_REQUIRED  # gates passed; a human confirms
+        assert d.proposed_route == SUPPLIER_REQUIRED  # gates passed; a human confirms or rejects
 
 
-def test_direct_workflow_below_auto_needs_human_confirm():
+def test_direct_workflow_below_floor_is_demoted_to_human():
     d = run("Order TO-20033: swap XL for S", "hal@example.test", confidence=0.8,
-            complaint_type="EXCHANGE", requested_variant="S")
+            **F["EXCHANGE"], requested_variant="S")
     assert d.proposed_route == DIRECT_WORKFLOW and d.final_route == NEEDS_HUMAN_REVIEW
+    assert "demoted" in d.decided_by
 
 
-def test_thresholds_configurable(monkeypatch):
-    monkeypatch.setenv("ROUTING_AUTO_THRESHOLD", "0.97")
-    monkeypatch.setenv("ROUTING_CONFIRM_THRESHOLD", "0.5")
+@pytest.mark.parametrize("msg,cust,fields", [
+    ("shoes too small exchange 42 for 43", "ana@example.test", {**EXCH, "order_ref": None}),          # gate 2
+    ("Order TO-10412: exchange 42 for 43", "ana@example.test", {**EXCH, "order_ref": "TO-10412"}),    # gate 2
+    ("Order TO-30077: swap black for navy", "eva@example.test",
+     dict(**F["EXCHANGE"], requested_variant="navy")),                                                # gate 3
+    ("Order TO-10421: exchange 42 for 43", "ana@example.test", {**EXCH, "customer_goal": "INFORMATION"}),  # rule
+    ("Order TO-10421: exchange 42 for 43", "ana@example.test", {**EXCH, "mixed_goals": True}),           # rule
+    ("Order TO-10421: 42 is too small", "ana@example.test", {**EXCH, "customer_goal": "UNCLEAR"}),       # rule
+])
+def test_confidence_only_demotes_never_promotes(msg, cust, fields):
+    """Same case at confidence 0.0 / 0.5 / 0.99 / 1.0: a case that fails a hard gate or routing rule is never
+    moved into automation by high confidence, and a non-automatic outcome is identical at every confidence."""
+    routes = {c: run(msg, cust, confidence=c, **fields).final_route for c in (0.0, 0.5, 0.99, 1.0)}
+    assert len(set(routes.values())) == 1, routes
+    assert routes[1.0] not in (SUPPLIER_REQUIRED, DIRECT_WORKFLOW)
+
+
+def test_demotion_floor_configurable(monkeypatch):
+    monkeypatch.setenv("ROUTING_DEMOTE_BELOW", "0.97")
     cfg = RoutingConfig.from_env()
-    assert (cfg.auto_threshold, cfg.confirm_threshold) == (0.97, 0.5)
+    assert cfg.demote_below == 0.97
     assert run(EXCH_MSG, "ana@example.test", confidence=0.95, cfg=cfg, **EXCH).final_route == NEEDS_HUMAN_REVIEW
     with pytest.raises(ValueError):
-        RoutingConfig(auto_threshold=0.6, confirm_threshold=0.7)
+        RoutingConfig(demote_below=1.5)
 
 
 def test_keyword_fallback_can_never_auto_trigger(tmp_path):
@@ -256,14 +279,15 @@ def test_confidence_validation(raw, ok):
 
 
 def test_llm_output_strictly_validated():
-    good = {"complaint_type": "EXCHANGE", "request_kind": "ACTION_REQUEST", "order_ref": "TO-10421",
+    good = {"issue_type": "SIZE_MISMATCH", "customer_goal": "EXCHANGE", "mixed_goals": False, "order_ref": "TO-10421",
             "current_variant": None, "requested_variant": "43", "part_model": None, "item_mention": "shoes",
             "defect_description": None, "safety_issue": False, "language_code": "en", "confidence": 0.9,
             "summary_en": "x"}
     f, c = parse_routing_output(json.dumps(good))
-    assert f.complaint_type == "EXCHANGE" and c == 0.9
+    assert (f.issue_type, f.customer_goal) == ("SIZE_MISMATCH", "EXCHANGE") and c == 0.9
     assert parse_routing_output(json.dumps({**good, "decision": "SUPPLIER_REQUIRED"})) == (None, None)
-    assert parse_routing_output(json.dumps({**good, "complaint_type": "REFUND"}))[0] is None
+    assert parse_routing_output(json.dumps({**good, "customer_goal": "SUPPLIER"}))[0] is None
+    assert parse_routing_output(json.dumps({**good, "required_action": "CREATE_SUPPLIER_TASK"})) == (None, None)
     f, c = parse_routing_output(json.dumps({**good, "confidence": 7}))
     assert f is not None and c is None  # invalid confidence never breaks extraction, just lowers trust
     assert set(routing_json_schema()["required"]) == set(good)
@@ -279,7 +303,7 @@ def test_llm_http_failure_falls_back_to_keywords():
 
 # ------------------------------------------------------------------ duplicates + tasks + state machine
 def test_duplicate_complaint_links_existing_task(tmp_path):
-    s = svc(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(**EXCH))
     ctx = CaseContext(customer="ana@example.test")
     r1, r2 = s.triage(EXCH_MSG, ctx), s.triage("再寫一次: TO-10421 鞋子 42 換 43", ctx)
     tasks = s.store.list_tasks()
@@ -290,7 +314,7 @@ def test_duplicate_complaint_links_existing_task(tmp_path):
 
 
 def test_concurrent_duplicates_create_one_task(tmp_path):
-    s = svc(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(**EXCH))
     threads = [threading.Thread(target=s.triage, args=(EXCH_MSG, CaseContext(customer="ana@example.test")))
                for _ in range(8)]
     [t.start() for t in threads]
@@ -299,7 +323,7 @@ def test_concurrent_duplicates_create_one_task(tmp_path):
 
 
 def test_db_unique_index_blocks_second_open_task(tmp_path):
-    s = svc(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(**EXCH))
     s.triage(EXCH_MSG, CaseContext(customer="ana@example.test"))
     t = s.store.list_tasks()[0]
     clone = {k: t[k] for k in ("created_at", "routing_case_id", "dedup_key", "order_id", "sku", "complaint_type",
@@ -308,7 +332,7 @@ def test_db_unique_index_blocks_second_open_task(tmp_path):
 
 
 def test_task_draft_complete_internal_and_never_contacted(tmp_path):
-    s = svc(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(**EXCH))
     rid = s.triage(EXCH_MSG, CaseContext(customer="ana@example.test"))
     t = s.store.list_tasks()[0]
     assert t["status"] == "DRAFT_READY" and t["is_mock"] == 1 and task_complete(t)
@@ -319,7 +343,7 @@ def test_task_draft_complete_internal_and_never_contacted(tmp_path):
 
 
 def test_decision_log_records_reason_data_version_time(tmp_path):
-    s = svc(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(**EXCH))
     rid = s.triage(EXCH_MSG, CaseContext(customer="ana@example.test"))
     ev = next(e for e in s.store.events(rid) if e["event"] == "status CLASSIFYING → SUPPLIER_REQUIRED")
     for k in ("trigger_reason", "data_used", "rule_version", "decided_at", "gates", "confidence"):
@@ -341,7 +365,7 @@ def test_state_machines():
 
 
 def test_human_confirm_only_after_hard_gates(tmp_path):
-    s = svc(tmp_path, FakeLLM(confidence=0.8, **{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    s = svc(tmp_path, FakeLLM(confidence=0.8, **EXCH))
     rid = s.triage(EXCH_MSG, CaseContext(customer="ana@example.test"))
     assert s.store.get_case(rid)["status"] == NEEDS_HUMAN_REVIEW and not s.store.list_tasks()
     s.confirm_supplier_route(rid)
@@ -371,9 +395,10 @@ REFUND_COLS = ("status", "decision", "policy_json", "human_decision", "refund_id
 
 
 def test_supplier_task_cannot_enable_refund_on_rejected_case(tmp_path):
-    # confidence 1.0: the keyword cross-check (message reads as EXCHANGE) subtracts 0.10 -> still AUTO
-    client, pp, wf, routing = make(tmp_path, FakeLLM(confidence=1.0, complaint_type="DEFECT",
-                                                     request_kind="ACTION_REQUEST", defect_description="sole came off"))
+    # confidence 1.0: the keyword issue cross-check (text reads as a size problem) subtracts 0.10 -> 0.90,
+    # not demoted. DEFECT + EXCHANGE (a replacement) maps to the DEFECT family.
+    client, pp, wf, routing = make(tmp_path, FakeLLM(confidence=1.0, issue_type="DEFECT", customer_goal="EXCHANGE",
+                                                     defect_description="sole came off"))
     b = wf.run_scenario("B")
     case = wf.db.get_case(b)
     assert case["status"] == REJECTED
@@ -392,8 +417,7 @@ def test_supplier_task_cannot_enable_refund_on_rejected_case(tmp_path):
 
 
 def test_routing_never_writes_the_cases_table(tmp_path):
-    client, pp, wf, routing = make(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST",
-                                                        "order_ref": None}))
+    client, pp, wf, routing = make(tmp_path, FakeLLM(**{**EXCH, "order_ref": None}))
     a = wf.run_scenario("A")
     before = wf.db.get_case(a)
     timeline_before = wf.db.timeline(a)
@@ -422,7 +446,7 @@ def test_case_a_and_b_outcomes_identical_with_routing_installed(tmp_path):
 
 
 def test_dashboard_panel_and_endpoints(tmp_path):
-    client, pp, wf, routing = make(tmp_path, FakeLLM(**{**EXCH, "request_kind": "ACTION_REQUEST"}))
+    client, pp, wf, routing = make(tmp_path, FakeLLM(**EXCH))
     html = client.get("/").text
     assert "Supplier routing" in html and "EXPERIMENT" in html and "MOCK" in html
     r = client.post("/routing/triage", data={"message": EXCH_MSG, "customer": "ana@example.test"},
@@ -464,5 +488,118 @@ def test_safety_words_need_word_boundaries():
 
 def test_second_part_number_in_text_is_not_hidden_by_ai_pick():
     d = run("Bestellung TO-70309: Ich brauche die Ersatzteile DL-LED-5W und DL-CLAMP-M.", "eli@example.test",
-            complaint_type="PART_REPLACEMENT", part_model="DL-LED-5W")
+            **F["PART_REPLACEMENT"], part_model="DL-LED-5W")
     assert d.final_route == NEEDS_CLARIFICATION and "Several part numbers" in d.gates[-1].reason
+
+
+# ------------------------------------------------------------------ round 2: three dimensions (permanent regressions)
+MONEY_BACK = "I just want my money back"
+LED_Q = "Do you sell the LED module separately?"
+
+
+@pytest.mark.parametrize("extractor", [
+    KeywordRoutingExtractor(),
+    FakeLLM(confidence=0.99, issue_type="UNCLEAR", customer_goal="REFUND"),
+    # adversarial / wrong extraction: the AI calls it a defect repair. Rules must still not create a task.
+    FakeLLM(confidence=1.0, issue_type="DEFECT", customer_goal="REPAIR", defect_description="broken"),
+    FakeLLM(confidence=1.0, issue_type="PART_NEED", customer_goal="BUY_PART", part_model="DL-LED-5W"),
+])
+@pytest.mark.parametrize("ctx", [CaseContext(customer="quinn@example.test", linked_order_id="TO-60202"),
+                                 CaseContext(customer="xia@example.test", linked_order_id="TO-70302"),
+                                 CaseContext(customer="ana@example.test")])
+def test_regression_money_back_never_creates_supplier_task(tmp_path, extractor, ctx):
+    s = svc(tmp_path, extractor)
+    rid = s.triage(MONEY_BACK, ctx)
+    c = s.store.get_case(rid)
+    assert c["route"] != SUPPLIER_REQUIRED and c["status"] != SUPPLIER_TASK_OPEN and not s.store.list_tasks()
+
+
+def test_regression_money_back_goes_to_refund_flow():
+    d = run(MONEY_BACK, "ana@example.test", confidence=0.95, issue_type="UNCLEAR", customer_goal="REFUND")
+    assert d.final_route == DIRECT_WORKFLOW and d.required_action == "DIRECT_WORKFLOW" and "refund" in d.decided_by
+    k = KeywordRoutingExtractor().extract(MONEY_BACK)
+    assert k.fields.customer_goal == "REFUND" and k.cues.refund_only
+
+
+@pytest.mark.parametrize("extractor", [
+    KeywordRoutingExtractor(),
+    FakeLLM(confidence=0.99, issue_type="PART_NEED", customer_goal="INFORMATION"),
+    FakeLLM(confidence=0.99, issue_type="NO_ISSUE_INQUIRY", customer_goal="BUY_PART"),
+    # adversarial: the AI calls a pure question a defect -> the text check overrides it (no defect wording)
+    FakeLLM(confidence=1.0, issue_type="DEFECT", customer_goal="REPAIR", defect_description="LED"),
+    FakeLLM(confidence=1.0, issue_type="DEFECT", customer_goal="INFORMATION"),
+])
+@pytest.mark.parametrize("ctx", [CaseContext(customer="xia@example.test", linked_order_id="TO-70302"),
+                                 CaseContext(customer="xia@example.test")])
+def test_regression_led_module_question_is_never_defect_nor_task(tmp_path, extractor, ctx):
+    s = svc(tmp_path, extractor)
+    rid = s.triage(LED_Q, ctx)
+    c = s.store.get_case(rid)
+    assert c["decision"]["issue_type"] != "DEFECT" and c["decision"]["complaint_type"] != "DEFECT"
+    assert c["route"] in (NEEDS_HUMAN_REVIEW, NEEDS_CLARIFICATION) and not s.store.list_tasks()
+
+
+def test_three_dimensions_recorded_separately(tmp_path):
+    s = svc(tmp_path, FakeLLM(**EXCH))
+    rid = s.triage(EXCH_MSG, CaseContext(customer="ana@example.test"))
+    dec = s.store.get_case(rid)["decision"]
+    assert (dec["issue_type"], dec["customer_goal"], dec["required_action"]) == \
+        ("SIZE_MISMATCH", "EXCHANGE", "CREATE_SUPPLIER_TASK")
+    assert dec["decided_by"]
+
+
+def test_defect_does_not_imply_supplier():
+    # defect + repair inside the 30-day window: existing policy, no supplier
+    d = run("Order TO-60201: kettle leaks, please repair", "pia@example.test", **F["DEFECT"], defect_description="leak")
+    assert d.required_action == "DIRECT_WORKFLOW"
+    # defect but the customer wants money back: refund flow even though the supplier warranty would apply
+    d = run("Order TO-60202: kettle stopped heating, refund please", "quinn@example.test",
+            issue_type="DEFECT", customer_goal="REFUND", defect_description="no heat")
+    assert d.required_action == "DIRECT_WORKFLOW" and d.complaint_type is None
+
+
+def test_negated_outcome_and_problem():
+    k = KeywordRoutingExtractor().extract("The lamp shade cracked. I don't want a replacement, just refund me.")
+    assert k.fields.customer_goal == "REFUND" and "REPAIR" in k.cues.negated_goals
+    k = KeywordRoutingExtractor().extract("My kettle is not broken at all, just asking how to clean the filter KL-170-FLT")
+    assert k.fields.issue_type == "NO_ISSUE_INQUIRY"
+    # AI says DEFECT on a negated problem: treated as a non-problem, never a task
+    d = run("Order TO-60202: the kettle is not broken, works fine. Repair?", "quinn@example.test", confidence=1.0,
+            **F["DEFECT"], defect_description="none")
+    assert d.issue_type == "NO_ISSUE_INQUIRY" and d.final_route == NEEDS_HUMAN_REVIEW
+
+
+def test_mixed_goals_clarify():
+    k = KeywordRoutingExtractor().extract("Order TO-10421: too small. Exchange for 43 or refund, I don't know.")
+    assert k.fields.mixed_goals
+    d = run("Order TO-10421: exchange 42 for 43 or refund?", "ana@example.test", confidence=1.0,
+            **{**EXCH, "mixed_goals": True})
+    assert d.final_route == NEEDS_CLARIFICATION
+
+
+def test_refund_wording_vs_ai_action_goal_goes_to_human():
+    d = run("Order TO-60202: I just want a refund.", "quinn@example.test", confidence=1.0,
+            **F["DEFECT"], defect_description="x")
+    assert d.final_route == NEEDS_HUMAN_REVIEW and "R6" in d.decided_by
+
+
+def test_question_form_with_ai_action_goal_goes_to_human():
+    d = run("Order TO-70301: do you sell KL-170-LID separately?", "wen@example.test", confidence=1.0,
+            **F["PART_REPLACEMENT"], part_model="KL-170-LID")
+    assert d.final_route == NEEDS_HUMAN_REVIEW and "R8" in d.decided_by
+
+
+def test_heldout_labels_frozen_shape():
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1] / "docs/eval"
+    h = json.loads((root / "heldout-labels.json").read_text())
+    assert h["status"] == "blind-generated, author-labelled, pending human review"
+    assert len(h["cases"]) == 60
+    langs = {c["language"] for c in h["cases"]}
+    assert langs == {"en", "zh-Hant", "es", "de", "ja"}
+    for c in h["cases"]:
+        assert c["required_action"] in c["acceptable_actions"]
+        if c["required_action"] != "CREATE_SUPPLIER_TASK":
+            assert "CREATE_SUPPLIER_TASK" not in c["acceptable_actions"]
+    dims = json.loads((root / "routing-dataset-dims.json").read_text())["cases"]
+    assert len(dims) == 100 and all(d["issue_type"] and d["customer_goal"] for d in dims)
