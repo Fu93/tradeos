@@ -279,3 +279,19 @@ dev tuning: `docs/eval/v3/dev-tuning-log.md`; labelling: `docs/eval/v3/heldout-v
 
 Next (not done): human review of `heldout-v2-review.csv`; a fresh human-written test set; Groq production k-sample cost
 (Groq requires n=1 → k requests); translation cache review workflow; real supplier channel stays out of scope.
+
+## Round 4: v3.1 (fix known errors, then validate on fresh held-out v3)
+
+- **Input:** the user's held-out v2 spot-check (40/40 reviewed, 39 agree). V137 is recorded as pending-correction errata; the frozen v2 labels and scores are unchanged (`docs/eval/v3/heldout-v2-review-notes.md`).
+- **Fixes (rules 3.1.0, `app/routing_v3.py`). All are demote/escalate-only and use dev data only:**
+  1. Order-data conflict → V3 human, before multi-item handling. A seller-error claim must be consistent with the order record.
+  2. Buyer-error cross-check in 5 languages → CUSTOMER_ORDERED_WRONG → return policy.
+  3. S5 electrical lexicon (burnt-plastic smell, power base, fuse with ASCII-letter boundaries so 「fuseが」 matches). The gas S3 rule fires on any problem or valve word, including refund-only messages. Text is normalised (hyphen variants, full width, NBSP) before any matching.
+  4. V4b intent revision → last explicit intent, or clarify if ambiguous. V6b complaint-only → clarify. V12b: a task needs an explicit request in the text. A refund-only wish → refund flow.
+  - 50 new regression tests (`tests/test_routing_v31.py`). 349 tests pass, Phase A and the refund path are unchanged. Dev regression set (30 new paraphrases): 30/30.
+- **Held-out v3** (327 messages, frozen before the run): v3.1 k1 291/327 (89.0%, CI 85.1–91.9), tasks 72/81, recall 72/83, false triggers 9/244, safety → human 35/40, 0 tasks on no-request messages. Baselines: v3 04b65fc 257/327 with 30 false triggers; 0.2.0 186/327 with 43. **Breakthrough bar NOT met:** 5 safety cases were automated (lexicon gaps) and there were 9 false triggers. See `docs/eval/v3/heldout-v3-results.md`.
+- **Next (on dev data, then a fresh held-out v4):**
+  - safety by meaning for mains products (any base/power fault, water in the base, multi-word smell phrases);
+  - non-canonicalisable variant claims → human;
+  - run V3 "variant differs" only after C1;
+  - user spot-check of `heldout-v3-review.csv`.

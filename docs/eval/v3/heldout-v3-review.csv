@@ -1,0 +1,221 @@
+priority,id,lang,kind,slice,customer,message,designed,judge_N_nemotron,judge_M_muse,final_required_action,acceptable_actions,label_source,v31_k1_action,v31_rule,v31_reason,human_verdict (agree/disagree),human_note,reviewed_required_action
+1 safety automated,W149,de,safety_burnt_plastic,safety,fumiko149@example.test,"Der Wasserkocher (Bestellnummer TO-90149, gekauft vor 250 Tagen) riecht beim Kochen nach verbranntem Plastik. Bitte erstatten Sie den Kaufpreis.",HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+1 safety automated,W156,ja,safety_power_base,safety,mina156@example.test,こんにちは、ミナです。200日前に買った電気ポットの台が壊れて、置いても電源入らなくなっちゃいました。注文番号はTO-90156でし。交換たいおうお願いできますか？よろしく！,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",,,
+1 safety automated,W153,zh-Hant,safety_power_base,safety,julia153@example.test,您好，我是Julia，訂單TO-90153購買的電熱水壺底座接觸鬆動經常斷電，已使用200天，請協助更換新品。謝謝。,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",,,
+1 safety automated,W183,de,safety_water_base,safety,paula183@example.test,"Guten Tag,
+
+mein Name ist Paula und ich wende mich bezüglich meiner LED-Schreibtischlampe mit der Bestellnummer TO-90183 an Sie.
+
+Leider ist Wasser in den Fuß der Lampe gelangt. Seitdem gibt sie beim Betrieb ein deutliches Summen von sich.
+
+Können Sie mir bitte mitteilen, wie ich die Lampe zur Reparatur einsenden kann?
+
+Vielen Dank im Voraus.
+
+Mit freundlichen Grüßen
+Paula",HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",,,
+1 safety automated,W181,zh-Hant,safety_water_base,safety,noah181@example.test,您好，我是 Noah，訂單號 TO-90181，LED 桌燈底座進水後有嗡嗡聲，請問能否維修？謝謝。,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",,,
+2 false trigger,W019,ja,seller_wrong_colour_lamp,buyer_vs_seller,ulla019@example.test,"こんにちは、Ullaです。
+8日前に注文したLEDデスクランプの件でご連絡します。注文番号 TO-90019 なんですが、ブラックを注文したつもりが届いたのはホワイトでした。
+色違いで届いてしまってびっくりしました。欲しいのはブラックの方なので、どうしたらいいか教えてもらえますか？
+よろしくお願いします！",CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER/HUMAN_REVIEW,"author-adjudicated: Seller-error claim consistent with the record (ordered black, got white), but the customer asks how to proceed rather than requesting a remedy: ask what they want (HUMAN also defensible). Not a task: no explicit remedy request.",CREATE_SUPPLIER_TASK,V12,Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1).,,,
+2 false trigger,W044,en,kettle_warranty,normal_task,valeria044@example.test,"Hello Customer Support,
+
+My name is Valeria and I am writing about an electric kettle I purchased about 11 months ago, order number TO-90044.
+
+The water gauge has cracked and is now dripping. There is no smell, smoke or heat problem with the kettle.
+
+Could you please advise on the repair process for this item?
+
+Thank you for your help.
+
+Kind regards,
+Valeria",CREATE_SUPPLIER_TASK,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree (design differs),CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",,,
+2 false trigger,W107,es,conflict_lamp_colour,order_conflict,luis107@example.test,"¡Hola! Soy Luis, quería comentarte que con mi pedido TO-90107 creo que hubo un lío. Yo pedí la lámpara de escritorio LED blanca y me llegó la negra. ¿Me podrías enviar la blanca? Muchas gracias.",HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).,,,
+2 false trigger,W105,en,conflict_lamp_colour,order_conflict,julia105@example.test,"Hey, I think there was a mix‑up with my order TO-90105. I ordered the whte LED desk lamp but got a black one insted. Could you please send me the correct white lamp? Thanks!",HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,CREATE_SUPPLIER_TASK,V12,Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).,,,
+2 false trigger,W231,de,norm_valid_task,normalisation,paula231@example.test,"Guten Tag,
+
+ich melde mich wegen meiner LED-Schreibtischlampe mit Bestellnummer ＴＯ－９０２３１. Die Lampe ist erst ca. 150 Tage alt und lässt sich seit heute gar nicht mehr einschalten. Das ist ziemlich ärgerlich, da sie eigentlich noch neu ist.
+
+Können Sie mir bitte sagen, wie ich das Gerät zur Reparatur einsenden kann?
+
+Vielen Dank
+Paula",CREATE_SUPPLIER_TASK,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree (design differs),CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",,,
+3 v3.1 error,W007,de,exch_shoe_size,normal_task,hanna007@example.test,"Hallo,
+
+ich melde mich mal wegen meiner letzten Bestellung. Vor ca. 14 Tagen habe ich bei euch die Trail Runner Sneaker bestellt, EU Größe 41, Bestellnummer TO-90007. Die Schuhe sind heute endlich angekommen, ich habe sie gleich ausprobiert, weil das Wetter hier gerade so schön wechselhaft ist und ich eigentlich eine kleine Runde drehen wollte. Leider sitzt die Größe überhaupt nicht, sie sind mir deutlich zu groß und rutschen beim Gehen immer nach vorne, das ist ziemlich unpraktisch. 
+
+An sich finde ich die Schuhe super, die Farbe und das Design sind genau das, was ich mir vorgestellt hatte, und die Verpackung war auch sehr ordentlich. Ich habe nur leider vorher nicht mehr anprobieren können, weil ich die letzten Tage krank war und dann erst mein Sohn von der Schule abgeholt werden musste.
+
+Ich würde die Sneaker deshalb gerne gegen die gleiche Ausführung in EU Größe 40 umtauschen, falls das bei euch möglich ist.
+
+Vielen Dank schon mal für Ihre Hilfe und einen schönen Tag noch.
+
+Liebe Grüße
+Hanna",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CLARIFY_WITH_CUSTOMER,V12b,"Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",,,
+3 v3.1 error,W006,es,exch_shoe_size,normal_task,gonzalo006@example.test,"Hola, buenas tardes. Les escribo porque hace 9 días compré unas zapatillas Trail Runner en talla 42 EU y, aunque la verdad es que me gustaron mucho cuando las vi, me quedan demasiado pequeñas. Las probé en casa con unos calcetines finos, incluso les quité la plantilla para ver si así mejoraba, pero no hay manera: me aprietan en la punta y no podría usarlas para correr cómodo. Me gustaría cambiarlas por la talla 43 EU, si es posible. El número de pedido es TO-90006. Ayer justo salí a caminar por el parque y me acordé de que tenía que escribirles, pero se me pasó el día entre el trabajo y unas cosas de casa; por eso les escribo ahora. ¿Me pueden decir cómo hacer el cambio? Muchas gracias por su ayuda. Un saludo, Gonzalo.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CLARIFY_WITH_CUSTOMER,V7,2 items need separate handling (D13): ask which first.,,,
+3 v3.1 error,W009,en,seller_wrong_size,buyer_vs_seller,julia009@example.test,"Hey, I ordered the Trail Runner sneakers in size 41 but you sent size 40 (my order # is TO-90009). Can you please swap them for the right size? Thanks! 🙏",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,HUMAN_REVIEW,V3,"Customer says they have 40, the order shows 41.",,,
+3 v3.1 error,W018,ja,seller_wrong_size,buyer_vs_seller,taro018@example.test,"注文番号 TO-90018 で Trail Runner sneakers のサイズ42を注文しましたが、届いたのはサイズ43でした。注文したサイズ42のものに exchange していただけますか？よろしくお願いします。
+太郎",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,HUMAN_REVIEW,V3,"Customer says they have 43, the order shows 42.",,,
+3 v3.1 error,W017,de,seller_wrong_size,buyer_vs_seller,sofia017@example.test,"Hallo Team,
+
+ich habe meine Bestellung TO-90017 erhalten – die Trail Runner Sneaker sehen wirklich super aus, aber leider ist die Größe 45 angekommen, während ich Größe 43 bestellt habe. Könntet ihr mir bitte das richtige Paar zusenden und das falsche zurücknehmen? Vielen Dank euch! 😊",CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),HUMAN_REVIEW,V3,"Customer says they have 45, the order shows 43.",,,
+3 v3.1 error,W024,ja,seller_wrong_colour_lamp,buyer_vs_seller,akira024@example.test,すみません、注文番号TO-90024でしろいLEDデスクランプを頼んだんですが、とどいたのはくろいものでした。しろいのをおくりかえてもらえますか？たぶんまちがってるとおもうんだけど。,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),HUMAN_REVIEW,V3,Wrong-item claim that cannot be checked against the order record (received/ordered variant not stated): a human verifies.,,,
+3 v3.1 error,W022,es,seller_wrong_colour_lamp,buyer_vs_seller,yuki022@example.test,"Estimados señores:
+
+Mi nombre es Yuki. Hace 8 días realicé un pedido de una lámpara de escritorio LED de color negro. No obstante, recibí una lámpara de escritorio LED de color blanco. Les escribo para solicitar que me envíen la lámpara de color negro que pedí. Mi número de pedido es TO-90022.
+
+Quedo atenta a su respuesta. Muchas gracias.",CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,V12b,"Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",,,
+3 v3.1 error,W040,ja,reship_shoe,normal_task,rin040@example.test,"注文番号TO-90040のTrail Runnerが、7日前に注文してからまだ届きません。追跡が1週間動いていません。再送していただけますか。
+
+Rin",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,HUMAN_REVIEW,V9,No problem and no requested outcome: standard support reads it.,,,
+3 v3.1 error,W047,de,kettle_warranty,normal_task,zoe047@example.test,"Hallo,
+
+ich bin Zoe. Hab vor ca. 9 Monaten bei euch einen elektrischen Wasserkocher gekauft, Bestellnummer TO-90047. Jetzt ist der Wasserstandsanzeiger gerissen und es tropt leicht raus. Geruch, Rauch oder Heizprobleme gibt es Gott sei Dank keine.
+
+Kann ich das reparieren lassen? Wie läuft das bei euch ab?
+
+Danke schon mal!
+Zoe",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,HUMAN_REVIEW,V1,Possible safety issue (S1 hazard words Rauch): always a human first.,,,
+3 v3.1 error,W076,es,part_lamp,normal_task,emma076@example.test,"Buenos días:
+
+Me dirijo a ustedes en relación con mi pedido TO-90076. Tengo una lámpara de escritorio LED y necesito un módulo LED de repuesto de 5 W. Les agradecería que me enviaran el módulo DL-LED-5W.
+
+Quedo atenta a su respuesta. Muchas gracias.
+
+Emma",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,HUMAN_REVIEW,V9,No problem and no requested outcome: standard support reads it.,,,
+3 v3.1 error,W096,ja,buyer_wrong_colour,buyer_vs_seller,akira096@example.test,お世話になっております。注文番号 TO-90096 で白のLEDデスクランプを購入しましたが、届いた商品の色が気に入らず、ブラックに交換したいです。対応よろしくお願いいたします。,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,HUMAN_REVIEW,V3,"Customer says they ordered black, but order TO-90096 shows white: claim conflicts with the order record; a human verifies.",,,
+3 v3.1 error,W098,zh-Hant,buyer_wrong_colour,buyer_vs_seller,chiara098@example.test,Hi～我前幾天訂了白色的LED檯燈，訂單號馬是TO-90098，但收到的時候才發現我當初手殘點錯顏色了，其實我要的是黑色的。請問可以幫我換成黑色的嗎？謝謝泥～,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,HUMAN_REVIEW,V3,"Customer says they ordered black, but order TO-90098 shows white: claim conflicts with the order record; a human verifies.",,,
+3 v3.1 error,W195,de,revision_ambiguous,intent_revision,diego195@example.test,"Hallo zusammen,
+
+ich hoffe, es geht euch gut. Ich schreibe euch wegen meiner LED Schreibtischlampe, die ich bei euch gekauft habe. Bestellnummer ist TO-90195. Die Lampe ist jetzt etwa 200 Tage alt, also noch nicht so richtig alt, aber sie macht seit ein paar Tagen Probleme.
+
+Wenn ich sie einschalte, flackert sie ziemlich stark, besonders wenn ich sie auf die niedrigste Helligkeitsstufe stelle. Das ist vor allem abends störend, wenn ich am Schreibtisch sitze und versuche zu konzentrieren. Ich arbeite in letzter Zeit viel von zu Hause aus und habe den Schreibtisch gerade umgestellt, weil ich mehr Platz für meinen Kaffee-Becher gebraucht habe, und seitdem ist mir das Flackern eigentlich erst so richtig aufgefallen.
+
+Eigentlich wollte ich jetzt fragen, ob man die Lampe reparieren kann. Ich habe sie gut behandelt, steht nur auf dem Schreibtisch und wird nicht bewegt, und ich habe auch keine Haustiere, die daran rumkauen könnten. Könnte man die Lampe einsenden und prüfen lassen? Was wäre da der Ablauf?
+
+Andererseits überlege ich gerade auch, ob ich nicht lieber eine Rückerstattung möchte. Ich weiß nicht, ob es sich lohnt, sie zu reparieren, wenn das Flackern vielleicht wiederkommt. Ich bin da gerade ehrlich gesagt noch unentschlossen. Eine Reparatur wäre natürlich auch okay, ich habe nur keine große Lust auf hin- und herschicken, wenn ich am Ende doch lieber etwas Neues hätte.
+
+Könnt ihr mir bitte sagen, welche Optionen ich habe und was ihr empfehlen würdet? Ich lasse mich da gerne beraten.
+
+Vielen Dank schon mal und einen schönen Tag euch.
+
+Liebe Grüße
+Diego",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V2,Evidence quote not found in the message (item1.goal REFUND): a human reads it.,,,
+3 v3.1 error,W187,ja,revision_to_refund,intent_revision,ulla187@example.test,"お世話になっております。Ullaです。
+
+注文番号 TO-90187 で先日購入した電気ケトルなのですが、購入して間もないのに加熱しなくなりました。数回しか使っていないのにこれは正直困ります。
+
+まずは代替品のケトルを送っていただくことは可能でしょうか。
+
+すみません、送信前に考えを変えました。交換ではなく、返金でお願いします。",DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,CLARIFY_WITH_CUSTOMER,V7,2 items need separate handling (D13): ask which first.,,,
+3 v3.1 error,W201,de,complaint_only,complaint_only,julia201@example.test,"Hey Team, ich musste einfach kurz meinen Frust loswerden: Meine Trail Runner Sneaker, die ich vor rund 60 Tagen mit der Bestellnummer TO-90201 bestellt habe, lösen bereits die Sohle. Das ist echt enttäuschend, weil ich dachte, die halten länger.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V9,No problem and no requested outcome: standard support reads it.,,,
+3 v3.1 error,W207,ja,complaint_only,complaint_only,paula207@example.test,Trail Runner買って60日しかたってないのにソールが剥がれちゃってマジで萎えた。注文番号TO-90207。高いのにこんな早くダメになるなんてほんとがっかりだよ,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V3,Several products described and “Trail Runner” cannot be matched to order TO-90207: resolve the data conflict before any multi-item handling.,,,
+3 v3.1 error,W223,ja,norm_valid_refund,normalisation,hanna223@example.test,"こんにちは。ハンナと申します。
+
+先日注文させていただいたケトルが届いたのですが、開封してみると本体にへこみがありました。注文番号は TO−90223 です。
+
+実はこのケトル、引っ越し先の新しいキッチン用にずっと楽しみにしていたもので、箱を開ける時は夫と一緒に「やっと落ち着けるな」と話していたくらいだったので、正直ちょっとショックでした。箱自体は外側は綺麗だったので気づかず、家に着いてから段ボールを開けて初めて側面に目立つへこみがあるのを見つけてしまいました。使えるかどうかは分からないのですが、見た目が気になってしまって使う気になれません。
+
+写真も撮ってありますので、必要であれば送ります。できれば返金対応をお願いできますでしょうか。返送方法など教えていただけると助かります。
+
+お手数をおかけしますが、よろしくお願いいたします。
+ハンナ",DIRECT_WORKFLOW,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER/HUMAN_REVIEW,"author-adjudicated: Dented kettle, id TO−90223 (minus sign) valid per s.8; no explicit remedy requested (complaint only) -> V6b clarify.",DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+3 v3.1 error,W271,en,no_order_ref,other,hanna271@example.test,"Hello Customer Support,
+
+My name is Hanna. I purchased an LED desk lamp from you about five months ago and it has stopped working. The lamp will not turn on at all, even when connected to a different outlet.
+
+Could you please advise on how to proceed with a repair under warranty? I am happy to provide purchase details or photos if needed.
+
+Thank you for your assistance.
+
+Best regards,
+Hanna",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree (design differs),CLARIFY_WITH_CUSTOMER,V11,No order number in the message and no linked order: ask for it.,,,
+3 v3.1 error,W269,de,no_order_ref,other,fumiko269@example.test,"Hallo, ich hoffe euch geht’s gut!
+
+Ich bin Fumiko und habe vor ca. fünf Monaten eure LED Schreibtischlampe gekauft. Seit heute geht sie leider gar nicht mehr an, egal welchen Knopf ich drücke. Das ist echt ärgerlich, weil ich sie fast täglich nutze.
+
+Könnt ihr mir sagen, wie ich das zur Reparatur einschicken kann? Was muss ich dafür tun?
+
+Vielen Dank schon mal und liebe Grüße
+Fumiko",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree (design differs),CLARIFY_WITH_CUSTOMER,V11,No order number in the message and no linked order: ask for it.,,,
+3 v3.1 error,W274,de,undecided,other,kai274@example.test,"Hey, mein Wasserkochr (200 Tage alt) heit nicht mehr. Bestellnummer TO-90262. Ich weiß nicht, ob ich ihn reparieren lassen oder mein Geld zurückbekommen soll – was würdet ihr empfehln?",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V6,Information question: support answers it. No supplier task.,,,
+3 v3.1 error,W275,ja,undecided,other,luis275@example.test,"いつもお世話になっております。Luisと申します。
+
+先日購入させていただいた電気ケトルなのですが、購入から約200日ほどで突然お湯が温まらなくなってしまい、困っております。注文番号は TO-90263 です。
+
+普段は朝起きてすぐに使っているので、最近の寒さでお湯が欲しいときに空焚きみたいな音だけして全然熱くならなくて焦りました。家では猫がケトル周りをよく見ているので心配もしてしまい、ちょっとしたことですが毎朝のルーティンが崩れるのは結構ストレスです。
+
+保証期間内かどうかもよくわからない状態で、修理に出すか返金対応をお願いするか自分の中でずっと迷っています。正直どちらが手間が少ないのかもよく分かっておらず、商品自体はデザインが気に入っていたので修理もありかなとも思うのですが、200日で不具合が出るとちょっと不安にもなります。
+
+もし可能であれば、こういったケースではどちらをおすすめされますか？ご事情を踏まえてアドバイスいただけると助かります。
+
+お忙しいところ恐縮ですが、ご確認よろしくお願いいたします。
+
+Luis",CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,2 of 3 (design + one judge),HUMAN_REVIEW,V1,Possible safety issue (S4 mains-electric hazard): always a human first.,,,
+3 v3.1 error,W272,zh-Hant,undecided,other,isamu272@example.test,您好，我是 Isamu。訂單 TO-90260 的電熱水壺用了約200天，最近完全不加熱。現在在維修和退款之間猶豫，請問您會建議哪一種比較好？謝謝。,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V6,Information question: support answers it. No supplier task.,,,
+3 v3.1 error,W276,en,undecided,other,mina276@example.test,"Dear Support,
+
+I hope you are well. I am writing regarding my order TO-90264; the kettle I purchased 200 days ago has stopped heating. I am uncertain whether to arrange a repair or request a refund. Could you please advise which option you would recommend?
+
+Thank you for your assistance.
+
+Kind regards,
+Mina",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V6,Information question: support answers it. No supplier task.,,,
+3 v3.1 error,W265,de,malformed_ref,other,bea265@example.test,"Hallo Kundenservice,
+
+ich hoffe, es geht Ihnen gut. Mein Name ist Bea und ich wollte Ihnen kurz von meinem Schreibtisch erzählen, den ich vor einiger Zeit eingerichtet habe, weil ich beim Home‑Office gerne ein angenehmes Licht haben möchte. Dabei habe ich mir letztes Jahr im Herbst eine schöne LED‑Schreibtischlampe zugelegt, die eigentlich sehr hell und energiesparend sein soll – sie hat ein schlichtes Design mit einem flexiblen Hals und einer Touch‑Steuerung an der Basis, die ich jedes Morgen beim Frühstück benutze, während ich meine E-Mails checke und dabei leise Musik im Hintergrund laufen lasse. Die Lampe steht jetzt seit etwa 150 Tagen auf meinem Tisch neben meinem Laptop, einer kleinen Sukkulente, die ich leider immer wieder vergessen zu gießen, und einem Stapel von Notizbüchern, die ich für meine To‑Do‑Listen nutze.
+
+Leider funktioniert die Lampe seit einigen Tagen nicht mehr – beim Drücken des Touch‑Sensors passiert einfach nichts, das Licht bleibt komplett aus, egal ob ich sie über das Netzwerkkabel oder über den USB‑Adapter anschließe. Ich habe bereits versucht, den Stecker zu ziehen und wieder einzustecken, die Batterien (falls es welche gibt) zu überprüfen und sogar die Lampe vorsichtig zu schütteln, in der Hoffnung, dass ein loser Kontakt wiederhergestellt wird, aber leider ohne Erfolg. Da die Garantiezeit noch nicht abgelaufen sein sollte – ich glaube, sie beträgt zwei Jahre –, würde ich gerne wissen, ob eine Reparatur möglich ist oder ob Sie mir ein Ersatzteil zusenden könnten.
+
+Für die Bearbeitung wäre es hilfreich, wenn Sie meine Bestellnummer nennen könnten: WO-90253 (ich hoffe, das ist die richtige Nummer, falls nicht, bitte lassen Sie mich wissen, welche Sie benötigen). Ich würde mich sehr freuen, wenn wir das Problem schnell lösen könnten, denn ohne ausreichende Beleuchtung fällt es mir schwer, lange Texte zu lesen und meine Augen zu schonen, besonders jetzt, wo die Tage kürzer werden und es schon am Nachmittag draußen dunkelt.
+
+Vielen Dank im Voraus für Ihre Unterstützung und Ihre Zeit. Ich freue mich auf Ihre Rückmeldung.
+
+Mit freundlichen Grüßen  
+Bea",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,HUMAN_REVIEW,V2,Evidence quote not found in the message (item1.goal REPAIR): a human reads it.,,,
+3 v3.1 error,W186,de,revision_to_refund,intent_revision,taro186@example.test,"Hallo,
+
+mein vor kurzem gekaufter Wasserkocher heizt nicht mehr. Bestellnummer: TO-90186. Könntet ihr mir bitte einen Ersatz schicken?
+
+Ach nein, doch lieber nicht. Ich möchte stattdessen einfach nur mein Geld zurück.
+
+Danke, Taro",DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,CLARIFY_WITH_CUSTOMER,V4b,"The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want.",,,
+3 v3.1 error,W314,en,backpack_warranty,other,chiara314@example.test,"Hello,
+
+I hope this message finds you well. I wanted to take a moment to share a bit about my experience with the Daypack 30L I purchased from your store a little over three months ago. I chose the navy‑blue version because it matched the jacket I usually wear on weekend hikes, and I remember being particularly impressed by the lightweight feel and the number of pockets when I first unpacked it in my living room while my cat, Luna, was curiously sniffing around the box. I used it on a few trips to the nearby hills last spring, carrying a water bottle, a snack bar, and a small sketchbook for those moments when inspiration struck while looking out over the valley. The weather was mostly mild, though there was one particularly rainy afternoon when I got caught in a drizzle and the pack kept everything dry, which I appreciated a lot.
+
+Recently, however, I noticed that the zipper on the main compartment has started to give me trouble. It seems to catch halfway up when I try to close it, and after a bit of forcing it, the slider now feels loose and doesn’t stay engaged. I’ve tried lubricating it with a bit of silicone spray I had at home, but the issue persists. Considering the pack is only about 100 days old and I’ve been treating it with care—always storing it flat when not in use and avoiding overloading it beyond the recommended capacity—I was hoping that this might be something covered under warranty or that you could offer a repair service.
+
+Could you please let me know the next steps for getting the zipper fixed? I’d be happy to send the pack back if needed, or if there’s a local service point you recommend, I’d appreciate the details. For reference, my order number is TO-90302.
+
+Thank you very much for your time and assistance. I look forward to hearing from you soon.
+
+Best regards,
+Chiara",DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,HUMAN_REVIEW,judges agree (design differs),DIRECT_WORKFLOW,V12,Inside our own 365-day warranty: merchant process.,,,
+4 label adjudicated/judges vs design,W043,ja,kettle_warranty,normal_task,ulla043@example.test,"お世話になっております。Ullaです。
+
+約9か月前に注文番号TO-90043で購入した電気ケトルなのですが、水位計が割れて水が滴るようになってしまいました。匂いや煙、発熱の異常は特にありません。
+
+購入からまだそんなに経っていないので正直少し残念です。修理の対応は可能でしょうか、手続きを教えてください。",CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER/CREATE_SUPPLIER_TASK/HUMAN_REVIEW,"author-adjudicated: '修理の対応は可能でしょうか、手続きを教えてください' is a polite repair request (guide s.2); kettle ~9 months, supplier warranty 365 d, no hazard -> TASK. Clarify/human defensible (procedure question).",HUMAN_REVIEW,V1,Possible safety issue (S1 hazard words 煙): always a human first.,,,
+4 label adjudicated/judges vs design,W222,de,norm_valid_refund,normalisation,gonzalo222@example.test,"Hey, mein Wasserkocher kam mit einer Beule an, sieht total schräg aus. Meine Bestellung TO–90222. Könnt ihr das Geld zurück überweisenng? Danke!",DIRECT_WORKFLOW,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,DIRECT_WORKFLOW,DIRECT_WORKFLOW,author-adjudicated: TO–90222 (en dash) is the same id per guide s.8 (judges' record lookup did not normalise the dash); refund wish -> V8 refund flow.,DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+4 label adjudicated/judges vs design,W225,zh-Hant,norm_valid_refund,normalisation,julia225@example.test,您好，我是 Julia，訂單號 TO‑90225 的水壺到貨時發現機身有凹陷，能否請求 refund？謝謝。,DIRECT_WORKFLOW,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,DIRECT_WORKFLOW,DIRECT_WORKFLOW,author-adjudicated: TO‑90225 (non-breaking hyphen) valid per s.8; asks for a refund -> V8.,DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+4 label adjudicated/judges vs design,W226,es,norm_valid_refund,normalisation,kai226@example.test,"Hola, espero que se encuentren bien. Mi nombre es Kai y recientemente realicé una compra en su tienda online; el número de pedido es TO‐90226. La verdad es que llevo varios días intentando preparar mi té de la mañana, ya que me gusta comenzar el día con una infusión mientras escucho las noticias y reviso el correo, pero al abrir el paquete noté que la cuerpo de la tetera presenta una abolladura bastante noticeable en el lateral, cerca del asa, lo que me preocupa porque no solo afecta la estética sino que también tengo miedo de que pueda haber alguna grieta que no sea visible a simple vista y que termine provocando un derrame cuando la caliente. Además, el empaque llegó un poco aplastado en una esquina, aunque creo que el daño principal proviene de la propia fabricación o del manejo durante el envío, ya que el plástico protector estaba intacto y solo la tetera mostró el golpe. He intentado encenderla y, aunque parece funcionar, el ruido que hace al hervir el agua es un poco diferente al de mis teteras anteriores, lo que me hace dudar de su durabilidad a largo plazo. Por todo esto, me gustaría solicitar la devolución del importe total de la compra, incluyendo los gastos de envío, y indicarme el procedimiento para devolver el artículo, ya sea mediante una etiqueta de prepago o indicándome dónde debo enviarla. Agradecería mucho su ayuda para resolver esta situación lo antes posible, ya que estoy ansioso por volver a disfrutar de mi rutina matutina sin contratiempos. Quedo a la espera de sus instrucciones y agradezco de antemano su atención.
+
+Un saludo,
+Kai",DIRECT_WORKFLOW,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,DIRECT_WORKFLOW,DIRECT_WORKFLOW,author-adjudicated: TO‐90226 (U+2010) valid per s.8; requests refund of the full amount -> V8.,DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+4 label adjudicated/judges vs design,W227,de,norm_valid_refund,normalisation,luis227@example.test,"Sehr geehrte Damen und Herren,
+
+mein Wasserkocher aus der Bestellung TO–90227 ist heute bei mir eingetroffen. Leider weist das Gerät sichtbare Dellen am Gehäuse auf und ist dadurch beschädigt.
+
+Da ich das Produkt in diesem Zustand nicht behalten kann, bitte ich um eine vollständige Rückerstattung des Kaufpreises.
+
+Bitte teilen Sie mir mit, wie ich das defekte Gerät zurücksenden kann und wie die Erstattung abläuft.
+
+Mit freundlichen Grüßen
+Luis",DIRECT_WORKFLOW,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,DIRECT_WORKFLOW,DIRECT_WORKFLOW,author-adjudicated: TO–90227 valid per s.8; requests full refund -> V8.,DIRECT_WORKFLOW,V8,"Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",,,
+4 label adjudicated/judges vs design,W228,en,norm_valid_task,normalisation,mina228@example.test,"Hi, my LED desk lamp (150 days old) won’t turn on. Order TO‐90228. Could you arrange a repair? Thanks.",CREATE_SUPPLIER_TASK,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,"author-adjudicated: TO‐90228 valid per s.8; lamp 150 d, supplier warranty 730 d, repair requested, no hazard -> TASK.",CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",,,
+4 label adjudicated/judges vs design,W230,es,norm_valid_task,normalisation,oskar230@example.test,"Hola, espero que se encuentren bien. Quería comentarles que hace unos 150 días compré una lámpara de escritorio LED a través de su página, el pedido tiene el número TO−90230 y la recibí justo cuando estaba redecorando mi pequeño rincón de estudio; desde entonces la he usado prácticamente todas las noches para leer mis novelas de fantasía mientras mi gato, que se llama Luna, suele acurrucarse a mi lado y a veces juega con el cable, aunque nunca ha habido ningún incidente grave. El otro día, después de una larga jornada de trabajo y de preparar una cena un poco elaborada (intenté hacer una lasaña vegetariana que quedó bastante buena, aunque la salsa se espesó más de lo esperado), encendí la lámpara como de costumbre y, para mi sorpresa, no se encendió; probé a cambiar el enchufe a otra toma, a revisar que el interruptor estuviera en la posición correcta y incluso a desconectarla y volverla a conectar después de unos minutos, pero nada logró que la luz volviera a encenderse. La lámpara parece estar completamente inerte, no hay ningún parpadeo ni indicio de que reciba energía, y como ya lleva unos cinco meses de uso, pensé que quizá pueda ser algún problema interno del driver o del propio LED que requiera una revisión técnica. Me gustaría saber si podrían gestionar una reparación bajo garantía o, en caso de que no sea posible, indicarme los pasos a seguir para enviarla a su servicio técnico. Agradecería mucho cualquier orientación que puedan ofrecerme y quedo a la espera de sus indicaciones para proceder con el envío o la recogida, según lo que determinen. Muchas gracias por su atención y quedo a la espera de su respuesta.
+
+Un saludo,  
+Oskar.",CREATE_SUPPLIER_TASK,HUMAN_REVIEW,CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,"author-adjudicated: TO−90230 valid per s.8; lamp 150 d, repair requested -> TASK.",CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",,,
