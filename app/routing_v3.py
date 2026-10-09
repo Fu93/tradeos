@@ -26,9 +26,9 @@ import httpx
 
 from .intent import looks_like_injection
 from .routing import canonical_variant, scan_part_numbers, scan_products, scan_variants
-from .routing_data import CATALOG, HAZARD_CLASS, INVENTORY, ORDERS, PARTS, POWER_PARTS, order_with_dates
+from .routing_data import SAFETY_GATED_CLASSES, CATALOG, HAZARD_CLASS, INVENTORY, ORDERS, PARTS, POWER_PARTS, order_with_dates
 
-RULE_VERSION_V3 = "supplier-routing-rules/3.1.0 (taxonomy v3.1 experiment)"
+RULE_VERSION_V3 = "supplier-routing-rules/3.2.0 (taxonomy v3.2 experiment, Safety Gate)"
 PROMPT_VERSION_V3 = "v3-extract-1"
 
 SPEECH_ACTS = ("QUESTION", "REQUEST", "COMPLAINT_ONLY", "OTHER")
@@ -479,7 +479,7 @@ _REFUND_WORDS = re.compile(
     r"|erstatt\w*|rückerstatt\w*|geld zurück)" + _R + r"|返金|払い戻|退款|退錢|退费|退費", re.I)
 _EXPLICIT_REQ = re.compile(
     _L + r"(?:please|pls|could you|can you|would you|will you|i(?:'d| would) like|i want|i need|we want|send|ship|replace|repair|exchange|swap|refund"
-    r"|por favor|quiero|quisiera|necesito|me gustaría|me gustaria|pueden|podrían|podrian|podéis|envi\w+|mand\w+|cambi\w+|repar\w+|reemplaz\w+|reembols\w+"
+    r"|por favor|quiero|quisiera|necesito|me gustaría|me gustaria|pueden|podrían|podrian|podéis|env[ií]\w+|mand\w+|cambi\w+|repar\w+|reemplaz\w+|reembols\w+"
     r"|need|needs|brauche|brauchen|benötige|necesito|necesitamos|bitte|möchte|würde gerne|hätte gerne|könnten sie|können sie|könnt ihr|schick\w*|send\w*|tausch\w*|ersetz\w*|reparier\w*|erstatt\w*)" + _R +
     r"|ください|下さい|お願い|ほしい|欲しい|希望します|いただけ|頂け|もらえ|送って|交換|修理|返金|"
     r"必要です|要ります|請|麻煩|需要|希望|換成|可以.{0,20}[嗎吗]|想要|想換|要求|幫我|可以.{0,6}嗎|能不能|換貨|退款|維修|寄", re.I)
@@ -495,6 +495,65 @@ def _cue_positions(rx: re.Pattern, text: str) -> list[int]:
 
 def _scan_skus(text: str) -> list[str]:
     return scan_products(text or "")
+
+
+_MALF = {"DEFECT", "PART_NEED", "UNCLEAR"}
+
+
+def _malfunction_items(ex: "ExtractionV3") -> list:
+    """Items that report a malfunction, from the EXTRACTED issue type (no word lists): DEFECT / PART_NEED / UNCLEAR, or a
+    MISSING_ITEM that names a functional component or part number. The model's own safety level also counts."""
+    out = [it for it in ex.items if it.issue_type in _MALF
+           or (it.issue_type == "MISSING_ITEM" and (it.component_quote or it.part_number_quote))]
+    return out
+
+
+def safety_gate(ex: "ExtractionV3", message: str, mentioned: list[str], order: dict | None, text_skus: list[str]) -> dict:
+    malf = _malfunction_items(ex)
+    model_flag = ex.safety_level != "NONE"
+    if not malf and not model_flag:
+        return {"hit": False, "reason": "no malfunction reported: gate not applicable", "class": None}
+    order_skus = [l["sku"] for l in order["lines"]] if order else []
+    item_skus = list(dict.fromkeys(s for it in malf for s in _scan_skus(it.item_quote or "") + _scan_skus(it.component_quote or "")))
+    parts = scan_part_numbers(message)
+    part_skus = [PARTS[p]["sku"] for p in parts if p in PARTS]
+    skus = list(dict.fromkeys(item_skus or part_skus or mentioned or order_skus))
+    classes = {s: CATALOG[s].get("safety_class") for s in skus if s in CATALOG}
+    gated = {s: c for s, c in classes.items() if c in SAFETY_GATED_CLASSES}
+    unknown = [s for s in skus if s not in CATALOG or CATALOG[s].get("safety_class") is None]
+    kinds = ", ".join(sorted({it.issue_type for it in malf})) or f"model safety {ex.safety_level}"
+    if gated:
+        s, c = next(iter(gated.items()))
+        return {"hit": True, "class": c, "reason": f"Safety Gate: {CATALOG[s]['name']} is safety class {c} and a malfunction "
+                f"is reported ({kinds}): human safety review first."}
+    if not skus or unknown:
+        return {"hit": True, "class": "UNKNOWN", "reason": f"Safety Gate: a malfunction is reported ({kinds}) but the product "
+                "cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released."}
+    if model_flag:  # demote-only extra signal (the S1/S2 word and model checks below still run too)
+        return {"hit": False, "class": "NONE", "reason": f"low-risk class ({', '.join(sorted(set(classes.values())))}); model "
+                f"safety {ex.safety_level} handled by V1"}
+    return {"hit": False, "class": "NONE", "reason": f"malfunction on low-risk class product(s) {', '.join(skus)}: gate passes"}
+
+
+def variant_of(sku: str, quote: str | None, message: str) -> tuple[str | None, bool]:
+    """v3.2: map a verbatim variant quote to the catalogue key. Exact alias first, then a token scan of the quote
+    ("black one", "la negra"), then a fuzzy match ("whte"). Returns (key, fuzzy). Fuzzy results are treated as UNCERTAIN."""
+    if not quote or not quote_ok(quote, message):
+        return None, False
+    k = canonical_variant(sku, quote)
+    if k:
+        return k, False
+    found = scan_variants(sku, quote)
+    if len(found) == 1:
+        return found[0], False
+    import difflib
+    toks = re.findall(r"[^\W\d_]{3,}", nq(quote))
+    cands = {}
+    for key, al in CATALOG[sku]["variants"].items():
+        for a in [key, *al]:
+            if len(a) >= 4 and a.isascii() and difflib.get_close_matches(a.lower(), toks, n=1, cutoff=0.75):
+                cands[key] = True
+    return (next(iter(cands)), True) if len(cands) == 1 else (None, False)
 
 
 def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
@@ -535,6 +594,16 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     if looks_like_injection(message):
         return d.stop("V0", "HUMAN_REVIEW", "Instruction-like text aimed at the system: a human reads it.")
     d.step("V0", True, "no injection pattern")
+
+    # ---- SG v3.2 Safety Gate (product-category driven; runs after order/product confirmation, before EVERY workflow:
+    # refund flow, intent/action, conflicts, policy, supplier task). Hazard words are NOT needed: any reported
+    # malfunction of a catalogue safety-class product goes to human safety review. Refund intent never overrides it.
+    sg = safety_gate(ex, message, mentioned, order, text_skus)
+    d.derived["safety_gate"] = sg
+    if sg["hit"]:
+        extra = " Refund intent kept for the reviewer; no automated refund flow." if d.refund_intent else ""
+        return d.stop("SG", "HUMAN_REVIEW", sg["reason"] + " No supplier task." + extra)
+    d.step("SG", True, sg["reason"])
 
     # ---- V1 safety (most severe of S1–S4)
     s1 = s1_hits(message)
@@ -641,12 +710,13 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
                 if vkeys == ["standard"] and not only_refund:
                     return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim for a product without variants: what was shipped "
                                                         "cannot be checked against the order record, so a human verifies.")
-                got = canonical_variant(ln["sku"], it.current_variant_quote) if it.current_variant_quote and \
-                    quote_ok(it.current_variant_quote, message) else None
-                claimed = canonical_variant(ln["sku"], it.requested_variant_quote) if it.requested_variant_quote and \
-                    quote_ok(it.requested_variant_quote, message) else None
+                got, fz1 = variant_of(ln["sku"], it.current_variant_quote, message)
+                claimed, fz2 = variant_of(ln["sku"], it.requested_variant_quote, message)
                 in_text = scan_variants(ln["sku"], message)
-                if got is None:
+                if (fz1 or fz2) and not only_refund:
+                    return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim with a misspelt / uncertain variant (fuzzy match only): "
+                                                        "a human verifies against the order record.")
+                if got is None and it.current_variant_quote is None and not it.requested_variant_quote:
                     others = [v for v in in_text if v != ln["variant"]]
                     got = others[0] if len(others) == 1 else None
                 if claimed and claimed != ln["variant"]:

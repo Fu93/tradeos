@@ -69,6 +69,7 @@
           <div><span class="muted small">required_action (rules)</span><code>{{ v.decision.required_action or '—' }}</code></div>
         </div>
         <p class="small"><strong>Decided by:</strong> {{ v.decision.decided_by }}</p>
+        {% if v.decision.derived is defined and v.decision.derived and v.decision.derived.safety_gate %}<p class="small"><strong>Safety Gate:</strong> class {{ v.decision.derived.safety_gate["class"] or "n/a" }}: {{ v.decision.derived.safety_gate.reason }}</p>{% endif %}
         <dl class="kv">
           <dt>Route</dt><dd><code>{{ v.case.route }}</code>{% if v.case.proposed_route and v.case.proposed_route != v.case.route %} <span class="muted small">(rules proposed {{ v.case.proposed_route }})</span>{% endif %}</dd>
           <dt>Supplier task</dt><dd><code>{{ v.case.supplier_status }}</code> — {{ v.task_text }}</dd>

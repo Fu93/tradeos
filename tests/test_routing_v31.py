@@ -102,7 +102,7 @@ def test_multi_item_complaint_with_products_not_in_order_resolves_data_first():
     items = [it("DEFECT", "the tea towel came torn", [("REPLACE_SAME", "Please replace the towel")], quote="the tea towel"),
              it("DEFECT", "the salad bowl has a chip", [("REFUND", "refund the bowl")], quote="the salad bowl")]
     d = run(msg, x(items), KET_C)
-    assert d.action == "HUMAN_REVIEW" and d.rule == "V3" and d.suggested_task is None
+    assert d.action == "HUMAN_REVIEW" and d.rule in ("SG", "V3") and d.suggested_task is None
 
 
 def test_one_known_product_not_in_order_among_several_is_a_conflict():
@@ -129,7 +129,7 @@ def test_one_known_product_not_in_order_among_several_is_a_conflict():
 ])
 def test_electrical_hazards_go_to_human_before_any_task(msg):
     d = run(msg, x([it("DEFECT", None, [("REPLACE_SAME", None)])]), KET_C)  # model saw no hazard, no quotes
-    assert d.action == "HUMAN_REVIEW" and d.rule == "V1", d.decided_by
+    assert d.action == "HUMAN_REVIEW" and d.rule in ("SG", "V1"), d.decided_by
 
 
 @pytest.mark.parametrize("msg,ev", [
@@ -140,7 +140,7 @@ def test_electrical_hazards_go_to_human_before_any_task(msg):
 ])
 def test_gas_valve_plus_refund_goes_to_human_not_refund_flow(msg, ev):
     d = run(msg, x([it("NO_ISSUE", None, [("REFUND", ev)])]), STOVE_C)  # model missed the defect
-    assert d.action == "HUMAN_REVIEW" and d.rule == "V1" and d.refund_intent
+    assert d.action == "HUMAN_REVIEW" and d.rule in ("SG", "V1") and d.refund_intent
 
 
 def test_unicode_hyphen_and_fullwidth_order_ids_are_normalised():
@@ -160,44 +160,54 @@ def test_negated_electrical_words_do_not_fire():
     assert elec_hits("no smell at all") == []
 
 
-# ------------------------------------------------------------------ fix 4: intent revision, complaint only
+# ------------------------------------------------------------------ fix 4: intent revision, complaint only (v3.2: low-risk product)
+SH, SH_C = "TO-60207", "vic@example.test"  # MOCK: Trail Runner 43, 100 days, supplier warranty 180 d
 REV = {
-    "en": "Order TO-60202: the kettle stopped heating. I asked for a repair earlier, but actually, just refund me.",
-    "es": "Pedido TO-60202: el hervidor dejó de calentar. Antes pedí una reparación, pero mejor devuélvanme el dinero, un reembolso.",
-    "de": "Bestellung TO-60202: Der Wasserkocher heizt nicht mehr. Ich wollte eine Reparatur, aber lieber doch eine Erstattung.",
-    "ja": "注文TO-60202：ケトルが温まりません。修理をお願いしましたが、やっぱり返金でお願いします。",
-    "zh-Hant": "訂單TO-60202：熱水壺不會加熱了。之前說要維修，算了，還是直接退款吧。",
+    "en": ("Order TO-60207: the sole of my trainers came off. I asked for a repair earlier, but actually, just refund me.", "the sole of my trainers came off", "a repair", "just refund me"),
+    "es": ("Pedido TO-60207: se despegó la suela de las zapatillas. Antes pedí una reparación, pero mejor un reembolso.", "se despegó la suela", "una reparación", "un reembolso"),
+    "de": ("Bestellung TO-60207: Die Sohle der Schuhe löst sich. Ich wollte eine Reparatur, aber lieber doch eine Erstattung.", "Die Sohle der Schuhe löst sich", "eine Reparatur", "eine Erstattung"),
+    "ja": ("注文TO-60207：スニーカーの靴底がはがれました。修理をお願いしましたが、やっぱり返金でお願いします。", "靴底がはがれました", "修理をお願い", "返金でお願いします"),
+    "zh-Hant": ("訂單TO-60207：球鞋鞋底脫膠了。之前說要維修，算了，還是直接退款吧。", "球鞋鞋底脫膠了", "要維修", "直接退款"),
 }
-REV_GOALS = {"en": ("a repair", "just refund me"), "es": ("una reparación", "un reembolso"),
-             "de": ("eine Reparatur", "eine Erstattung"), "ja": ("修理をお願い", "返金でお願いします"), "zh-Hant": ("要維修", "直接退款")}
 
 
 @pytest.mark.parametrize("lang", list(REV))
 def test_revised_intent_uses_last_explicit_intent(lang):
-    rep, ref = REV_GOALS[lang]  # the model kept both goals (failure mode); code keeps the last one
-    d = run(REV[lang], x([it("DEFECT", REV[lang].split("：")[-1].split(": ")[-1][:6], [("REPAIR", rep), ("REFUND", ref)], rel="UNDECIDED")]), KET_C)
+    msg, ev, rep, ref = REV[lang]  # the model kept both goals (failure mode); code keeps the last one
+    d = run(msg, x([it("DEFECT", ev, [("REPAIR", rep), ("REFUND", ref)], rel="UNDECIDED")]), SH_C)
     assert d.action == "DIRECT_WORKFLOW" and d.rule == "V8", (lang, d.decided_by)
 
 
+@pytest.mark.parametrize("lang", list(REV))
+def test_revision_pair_without_revision_is_a_task(lang):  # minimal pair: same complaint, repair only -> supplier warranty task
+    msg, ev, rep, _ = REV[lang]
+    base = {"en": "Order TO-60207: the sole of my trainers came off. Please arrange a repair.",
+            "es": "Pedido TO-60207: se despegó la suela de las zapatillas. Quiero una reparación, por favor.",
+            "de": "Bestellung TO-60207: Die Sohle der Schuhe löst sich. Bitte eine Reparatur.",
+            "ja": "注文TO-60207：スニーカーの靴底がはがれました。修理をお願いします。",
+            "zh-Hant": "訂單TO-60207：球鞋鞋底脫膠了，請幫我安排維修。"}[lang]
+    g = {"en": "Please arrange a repair", "es": "Quiero una reparación", "de": "Bitte eine Reparatur", "ja": "修理をお願いします", "zh-Hant": "請幫我安排維修"}[lang]
+    d = run(base, x([it("DEFECT", ev, [("REPAIR", g)])]), SH_C)
+    assert d.action == "CREATE_SUPPLIER_TASK" and d.suggested_task["status"] == "SUGGESTED", (lang, d.decided_by)
+
+
 def test_revision_towards_refund_that_model_missed_clarifies():
-    msg = "Order TO-60202: the kettle stopped heating, please repair it. Actually, forget it, I'd prefer a refund."
-    d = run(msg, x([it("DEFECT", "the kettle stopped heating", [("REPAIR", "please repair it")])]), KET_C)
+    msg = "Order TO-60207: the sole came off, please repair it. Actually, forget it, I'd prefer a refund."
+    d = run(msg, x([it("DEFECT", "the sole came off", [("REPAIR", "please repair it")])]), SH_C)
     assert d.action == "CLARIFY_WITH_CUSTOMER" and d.suggested_task is None
 
 
-@pytest.mark.parametrize("msg,ev,goal_ev", [
-    ("Order TO-60202: the kettle stopped heating after four months. Really disappointing.", "the kettle stopped heating", None),
-    ("Pedido TO-60202: el hervidor ya no calienta. Qué decepción.", "el hervidor ya no calienta", None),
-    ("Bestellung TO-60202: Der Wasserkocher heizt nicht mehr. Sehr ärgerlich.", "Der Wasserkocher heizt nicht mehr", None),
-    ("注文TO-60202：ケトルがもう温まりません。がっかりです。", "ケトルがもう温まりません", None),
-    ("訂單TO-60202：熱水壺已經不會加熱了，真失望。", "熱水壺已經不會加熱了", None),
+@pytest.mark.parametrize("msg,ev", [
+    ("Order TO-60207: the sole of my trainers came off after three months. Really disappointing.", "the sole of my trainers came off"),
+    ("Pedido TO-60207: se despegó la suela a los tres meses. Qué decepción.", "se despegó la suela"),
+    ("Bestellung TO-60207: Die Sohle hat sich nach drei Monaten gelöst. Sehr ärgerlich.", "Die Sohle hat sich nach drei Monaten gelöst"),
+    ("注文TO-60207：三か月で靴底がはがれました。がっかりです。", "靴底がはがれました"),
+    ("訂單TO-60207：才三個月鞋底就脫膠了，真失望。", "鞋底就脫膠了"),
 ])
-def test_complaint_only_never_creates_a_task(msg, ev, goal_ev):
-    # model labels COMPLAINT_ONLY but invents a REPAIR goal from the complaint sentence
-    d = run(msg, x([it("DEFECT", ev, [("REPAIR", ev)])], act="COMPLAINT_ONLY", act_ev=ev), KET_C)
+def test_complaint_only_never_creates_a_task(msg, ev):
+    d = run(msg, x([it("DEFECT", ev, [("REPAIR", ev)])], act="COMPLAINT_ONLY", act_ev=ev), SH_C)
     assert d.action == "CLARIFY_WITH_CUSTOMER" and d.suggested_task is None, d.decided_by
-    # model says REQUEST, but there is no explicit request in the text: demoted before any task
-    d2 = run(msg, x([it("DEFECT", ev, [("REPAIR", ev)])], act_ev=ev), KET_C)
+    d2 = run(msg, x([it("DEFECT", ev, [("REPAIR", ev)])], act_ev=ev), SH_C)
     assert d2.action != "CREATE_SUPPLIER_TASK", d2.decided_by
 
 

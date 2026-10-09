@@ -201,7 +201,7 @@ class RoutingV3Service:
             task = d.suggested_task
             self.store.log(cid, "suggested_task", f"{task['supplier']} · {task['dedup_key']}"
                            + (f" · duplicate of {task['duplicate_of']}" if task.get("duplicate_of") else ""))
-        self.store.log(cid, "decided", f"{d.action} by {d.decided_by}")
+        self.store.log(cid, "decided", f"{d.action} by {d.decided_by} [safety gate: {(d.derived.get('safety_gate') or {}).get('class')}]")
         self._save(cid, ctx, message, lang, status, d, exd, rounds, task)
         return cid
 
