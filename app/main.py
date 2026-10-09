@@ -164,6 +164,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             pass  # recorded on the case and shown in the UI
         return back(case_id)
 
+    @app.post("/cases/{case_id}/supplier-reply")
+    def supplier_reply(request: Request, case_id: str, decision: str = Form(...)):
+        return guarded(request, case_id, lambda cid: wf.supplier_reply(cid, decision))
+
     @app.post("/cases/{case_id}/approve")
     def approve(request: Request, case_id: str):
         return guarded(request, case_id, wf.approve)
