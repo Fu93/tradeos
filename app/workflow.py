@@ -19,7 +19,7 @@ from .notes import TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
 from .policy import PolicyInput, PolicyResult, evaluate
-from .supplier import draft_supplier_message, mock_supplier_reply
+from .supplier import draft_supplier_message, mock_supplier_reply, route_for_reason, SUPPLIER_REQUIRED
 
 DEMO_PRODUCT = {
     "sku": "TRAIL-RUNNER-42",
@@ -264,7 +264,18 @@ class Workflow:
             return
 
         # Step 5: supplier draft. Case A still auto-replies so the recorded demo stays one click.
-        # Scenario S stops here: the reply is a second, labelled MOCK step.
+        # Scenario S uses the offline reason table. Only SIZE_MISMATCH waits for a MOCK reply.
+        if case["scenario"] == "S":
+            route = route_for_reason(intent.get("reason"))
+            self.db.audit(case_id, "policy", f"Route table: {route}", {"reason": intent.get("reason"), "route": route})
+            if route != SUPPLIER_REQUIRED:
+                self.db.audit(case_id, "supplier", "Supplier not contacted — reason is not a size mismatch",
+                              {"route": route})
+                self._reject(case_id, pre, extraction)
+                self.db.update_case(case_id, error="Reason is not a size mismatch. Supplier not contacted. Refund API not called.")
+                self.db.audit(case_id, "human", "Handed to a human — no approve button, refund API not called",
+                              {"route": route})
+                return
         draft = draft_supplier_message(self._case(case_id), product, intent)
         self.db.update_case(case_id, supplier_draft=draft)
         self.db.audit(case_id, "supplier", "Supplier draft generated — not sent to a real supplier", {"draft": draft, "is_mock": True})

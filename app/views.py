@@ -169,7 +169,7 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
         failed = _first_failed(case.get("policy"))
         return {**base, "kind": "bad", "icon": "✕", "title": "Refund not executed",
                 "subtitle": "The policy engine said NO. The model cannot override it.",
-                "reason": failed["detail"] if failed else "Policy rejected the case",
+                "reason": failed["detail"] if failed else (case.get("error") or "Policy rejected the case"),
                 "rows": [("Decision", "REJECTED"), ("Refund API calls", str(calls)),
                          ("Refund ID", case.get("refund_id") or "none"),
                          ("PayPal Order ID", case.get("order_id") or "—")]}
