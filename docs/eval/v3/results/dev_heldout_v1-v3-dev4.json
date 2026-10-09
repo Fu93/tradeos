@@ -1,0 +1,4495 @@
+{
+ "meta": {
+  "set": "dev_heldout_v1",
+  "pipeline": "v3",
+  "tag": "dev4",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "supplier-routing-rules/3.0.0 (taxonomy v3 experiment)",
+  "k": 5,
+  "agreement_temp": 0.6,
+  "labels": "old",
+  "usage": {
+   "calls": 62,
+   "prompt_tokens": 73879,
+   "completion_tokens": 84824
+  },
+  "retries": 0,
+  "wall_s": 309.1
+ },
+ "results": {
+  "H02": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello, I am thinking about buying the CITY-JACKET. Is the medium size running small? My sister has one and the shoulders feel a bit tight.",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 6.3,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H04": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S4 mains-electric hazard): always a human first.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "power part KL-170-BASE"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Müssen diese immer im Set mit dem Grundteil KL-170-BASE bestellt werden, oder kann ich nur das Filterteil haben?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Müssen diese immer im Set mit dem Grundteil KL-170-BASE bestellt werden, oder kann ich nur das Filterteil haben?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 6.39,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H01": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I bought the TRAIL-RUNNER-42 but they are not broken at all! Just checking if you do normal size exchanges or if I have to send them back with a fault report.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "TRAIL-RUNNER-42",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Just checking if you do normal size exchanges or if I have to send them back with a fault report.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 9.66,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H07": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60206"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60206": "CONFIRMED"
+    },
+    "order_id": "TO-60206",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I am looking for a gas valve for my camping stove, but I don't remember the exact order number, maybe it was to-60206? Do you have the CS-VALVE-2 in stock? I need it urgently for a trip next weekend.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "CS-VALVE-2",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "CS-VALVE-2",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Do you have the CS-VALVE-2 in stock?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "to-60206",
+    "order_ref_hedge_quote": "maybe",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.19,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H06": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim.",
+   "derived": {
+    "order_refs": [
+     "TO-50110"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50110": "CONFIRMED"
+    },
+    "order_id": "TO-50110",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "hey, i just got my kettle (order TO-50110) and the water tastes a bit metallic. does the limescale filter KL-170-FLT fit this model? also, is the lid sold separately or was it missing from the box?",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "the water tastes a bit metallic",
+      "issue_evidence": "the water tastes a bit metallic",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "does the limescale filter KL-170-FLT fit this model?",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "is the lid sold separately or was it missing from the box?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50110",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 25.28,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H05": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "あ、あの、DESK-LAMPの調光がうまくかないんですが、これは故障でしょうか？それとも設定の問題ですか？まだ保証期間内ですが、どうしても交換したくないんです。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "DESK-LAMP",
+      "issue_evidence": "調光がうまくかないんですが",
+      "issue_type": "UNCLEAR",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "これは故障でしょうか？それとも設定の問題ですか？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "どうしても交換したくないんです",
+      "goal": "EXCHANGE_VARIANT"
+     }
+    ],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 26.38,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H08": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V5",
+   "family": null,
+   "reason": "Model says REQUEST but the text reads as an availability question with no send/order verb: a human answers.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "我買的是 Cities 雨衣中號，但覺得袖子太短了。請問有沒有加大一點的款式，或者 M 到 L 之間的尺寸嗎？另外我想知道退貨政策，因為還沒拆吊牌。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Cities 雨衣中號",
+      "issue_evidence": "袖子太短了",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Cities 雨衣中號",
+      "requested_variant_quote": "加大一點的款式",
+      "goals": [
+       {
+        "evidence": "請問有沒有加大一點的款式，或者 M 到 L 之間的尺寸嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "另外我想知道退貨政策，因為還沒拆吊牌。",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 20.49,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H03": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-30077"
+    ],
+    "malformed_refs": [
+     "#TO-30077"
+    ],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30077": "CONFIRMED"
+    },
+    "order_id": "TO-30077",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered the BACKPACK-30L in black (order #TO-30077) and the zipper feels a bit stiff. Is this supposed to be broken out of the box or does it loosen up after first use?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "BACKPACK-30L in black",
+      "issue_evidence": "zipper feels a bit stiff",
+      "issue_type": "DEFECT",
+      "component_quote": "zipper feels a bit stiff",
+      "part_number_quote": null,
+      "current_variant_quote": "BACKPACK-30L in black",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Is this supposed to be broken out of the box or does it loosen up after first use?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-30077",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.87,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H11": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "トレイルランナーの42サイズですが、幅が狭いです。幅広のサイズアップはおすすめですか？それとも43サイズで好みが分かれるのでしょうか？確認したいです。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "トレイルランナーの42サイズ",
+      "issue_evidence": "幅が狭いです",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "42サイズ",
+      "requested_variant_quote": "43サイズ",
+      "goals": [
+       {
+        "evidence": "確認したいです",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 8.78,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H12": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (item1.goal INFORMATION): a human reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-30007"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30007": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [
+     "item1.goal INFORMATION"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "I bought a daypack in black, order to-30007. The zipper is stiff. Do you sell replacement zipper sliders or is there a way to lubaricate it? I don't want to return it if it's a simple fix.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I bought a daypack in black, order to-30007. The zipper is stiff. Do you sell replacement zipper sliders or is there a way to lubaricate it? I don't want to return it if it's a simple fix.",
+      "issue_evidence": "The zipper is stiff",
+      "issue_type": "DEFECT",
+      "component_quote": "zipper",
+      "part_number_quote": null,
+      "current_variant_quote": "black",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Do you sell replacement zipper sliders",
+        "goal": "SEND_PART"
+       },
+       {
+        "evidence": "is there a way to lubricate it",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "to-30007",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 18.25,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H09": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, acabo de pedir unas merino socks talla M y quería saber si tienen tallas intermedias como S/L por si acaso no me quedan. Además, ¿cuánto tarda la entrega usualmente a España? Vi que son final sale pero better to be safe.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "merino socks talla M",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla M",
+      "requested_variant_quote": "S/L",
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "merino socks talla M",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla M",
+      "requested_variant_quote": "S/L",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 35.45,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H14": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¿Tienen repuestos para la lámpara DESK-LAMP blanca? El clip se aflojo y creo que se puede comprar solo el DL-CLAMP-M. También, ¿hacen envíos a México? El último pedido tardó mucho, quería saber si es normal.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "lámpara DESK-LAMP blanca",
+      "issue_evidence": "El clip se aflojo y creo que se puede comprar solo el DL-CLAMP-M.",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "DL-CLAMP-M",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "se puede comprar solo el DL-CLAMP-M",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 25.88,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H13": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-60202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60202": "CONFIRMED"
+    },
+    "order_id": "TO-60202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 120,
+    "part": "KL-170-LID",
+    "warranty_basis": "120 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, ich hatte im Mai eine e-Kettle bestellt (TO-60202). Die Glaskerze ist kaputt gegangen. Hättet ihr noch Ersatzfilter oder den Deckel KL-170-LID? Ich glaube nicht, dass ich noch im Garantiezeitraum bin, aber vielleicht habe ich Glück.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "e-Kettle TO-60202",
+      "issue_evidence": "Die Glaskerze ist kaputt gegangen.",
+      "issue_type": "DEFECT",
+      "component_quote": "Glaskerze",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Hättet ihr noch Ersatzfilter oder den Deckel KL-170-LID?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "HUMAN_REVIEW/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V2: Evidence quote not found in the message (speech_act, item1.goal SEND_PART): a human reads it.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 28.63,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H16": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-20031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20031": "CONFIRMED"
+    },
+    "order_id": "TO-20031",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, the jacket is way too small, just refund me plx. TO-20031",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the jacket is way too small",
+      "issue_evidence": "the jacket is way too small",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "just refund me plx",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20031",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 11.8,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H10": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Bought 8 days ago: our 30-day return policy covers it.",
+   "derived": {
+    "order_refs": [
+     "TO-50140"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50140": "CONFIRMED"
+    },
+    "order_id": "TO-50140",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE",
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "black",
+    "qty": 1,
+    "days": 8,
+    "part": "DL-LED-5W"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, ich habe vor kurzem eine LED-Tischlampe in Schwarz gekauft (Bestellung TO-50140). Das Licht flackert ein wenig. Kenne ich da ein Ersatzteil wie den DL-LED-5W Modull, das ich selbst einsetzen kann? Oder ist das schwierig?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Hallo, ich habe vor kurzem eine LED-Tischlampe in Schwarz gekauft (Bestellung TO-50140). Das Licht flackert ein wenig. Kenne ich da ein Ersatzteil wie den DL-LED-5W Modull, das ich selbst einsetzen kann? Oder ist das schwierig?",
+      "issue_evidence": "Das Licht flackert ein wenig.",
+      "issue_type": "DEFECT",
+      "component_quote": "Das Licht flackert ein wenig.",
+      "part_number_quote": "DL-LED-5W Modull",
+      "current_variant_quote": "Schwarz",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Kenne ich da ein Ersatzteil wie den DL-LED-5W Modull, das ich selbst einsetzen kann?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50140",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 50.21,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H20": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "El paquete llegó tres semanas tarde. No quiero el paquete, solo quiero mi dinero de vuelta. Es muy frustrante.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "El paquete llegó tres semanas tarde. No quiero el paquete, solo quiero mi dinero de vuelta. Es muy frustrante.",
+      "issue_evidence": null,
+      "issue_type": "UNCLEAR",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "solo quiero mi dinero de vuelta.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.6,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H17": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "The kettle is leaking badly from the base. I never opened it. Just give me my money back please.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "The kettle is leaking badly from the base.",
+      "issue_evidence": "The kettle is leaking badly from the base.",
+      "issue_type": "DEFECT",
+      "component_quote": "leaking badly from the base",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Just give me my money back please.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 25.6,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H18": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Carrier shows IN_TRANSIT but the customer describes using the item: our data conflicts with the claim.",
+   "derived": {
+    "order_refs": [
+     "TO-50120"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50120": "CONFIRMED"
+    },
+    "order_id": "TO-50120",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered the sneakers but I made a mistake with the size. Can I just cancel and get a full refund? Order TO-50120.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "sneakers",
+      "issue_evidence": "I made a mistake with the size.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can I just cancel and get a full refund?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50120",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.35,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H21": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-30077"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30077": "CONFIRMED"
+    },
+    "order_id": "TO-30077",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, acabo de cambiar de opinión sobre la mochila. ¿Puedo hacer un reembolso completo y que recojan el artículo? Referencia TO-30077.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hola, acabo de cambiar de opinión sobre la mochila. ¿Puedo hacer un reembolso completo y que recojan el artículo? Referencia TO-30077.",
+      "issue_evidence": "acabo de cambiar de opinión sobre la mochila",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Puedo hacer un reembolso completo y que recojan el artículo?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-30077",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.83,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H15": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-60204"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60204": "CONFIRMED"
+    },
+    "order_id": "TO-60204",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号TO-60204でデスクランプを買いました。LEDモジュールを交換しようと思っていますが、DL-LED-5Wは5V用のやつですよね？使用説明書に電圧が書いてなかったのですが、確認できますか？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "デスクランプ",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "DL-LED-5W",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60204",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 44.99,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H24": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-20031 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-20031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20031": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-20031",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "這件外套尺寸不合身，我完全無法穿。請直接進行退貨退款，謝謝。訂單編號 TO-20031。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "這件外套尺寸不合身",
+      "issue_evidence": "這件外套尺寸不合身",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請直接進行退貨退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20031",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 16.3,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H22": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-50101"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50101": "CONFIRMED"
+    },
+    "order_id": "TO-50101",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、注文品が届きましたが、カラーが希望と違ったので返金を希望します。受注番号TO-50101です。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "注文品が届きましたが、カラーが希望と違ったので返金を希望します。",
+      "issue_evidence": "カラーが希望と違った",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金を希望します",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50101",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 32.3,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H25": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first. Refund intent kept for the reviewer (D2).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "瓦斯爐的閥門壞了，我已經檢查過不是我的使用問題。不想換零件，請直接退款。訂單是兩個月前下的。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "瓦斯爐的閥門壞了",
+      "issue_evidence": "瓦斯爐的閥門壞了",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請直接退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 28.38,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H23": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, the lamp arrived with a cracked shade. I don't want a replacement, just please refund me. Sorry for the trouble.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the lamp arrived with a cracked shade",
+      "issue_evidence": "cracked shade",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "just please refund me",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "I don't want a replacement",
+      "goal": "REPLACE_SAME"
+     }
+    ],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 38.25,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H26": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim.",
+   "derived": {
+    "order_refs": [
+     "TO-50110"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50110": "CONFIRMED"
+    },
+    "order_id": "TO-50110",
+    "mentioned_skus": [
+     "BREW-KETTLE",
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, my order TO-50110 is a mess. The kettle never showed up and the lamp arrived cracked. I don't know if I want a refund for the kettle or a replacement for the lamp, can you help me sort this out?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "kettle",
+      "issue_evidence": "The kettle never showed up",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "lamp",
+      "issue_evidence": "the lamp arrived cracked",
+      "issue_type": "DEFECT",
+      "component_quote": "lamp",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50110",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.02,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H19": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “WO-40005” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "WO-40005"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Ich habe die Socken gestern geöffnet. Sie fühlen sich an wie Pappe. Das ist ein Witz. Ich erwartet einen Sofort-Rückerstattung. WO-40005",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Ich habe die Socken gestern geöffnet. Sie fühlen sich an wie Pappe. Das ist ein Witz. Ich erwartet einen Sofort-Rückerstattung. WO-40005",
+      "issue_evidence": "Sie fühlen sich an wie Pappe.",
+      "issue_type": "DEFECT",
+      "component_quote": "Sie fühlen sich an wie Pappe.",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Ich erwartet einen Sofort-Rückerstattung.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "WO-40005",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 57.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H27": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "I ordered the trail runners in size 42, but they feel tight. I'm not sure if I should exchange them for size 43 or just return them, what is better for my case?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "I ordered the trail runners in size 42, but they feel tight. I'm not sure if I should exchange them for size 43 or just return them, what is better for my case?",
+      "issue_evidence": "but they feel tight",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 43",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 19.57,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H29": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (EXCHANGE, REFUND, UNDECIDED): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-30077"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30077": "CONFIRMED"
+    },
+    "order_id": "TO-30077",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "我的訂單號應該是 TO-30077，但那個背包有點刮痕，而且我其實不確定要不要退錢還是換一個深藍色的？請告知。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "那個背包",
+      "issue_evidence": "有點刮痕",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "深藍色",
+      "goals": [
+       {
+        "evidence": "退錢",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "換一個深藍色的",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-30077",
+    "order_ref_hedge_quote": "應該是",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.54,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H31": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-20031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20031": "CONFIRMED"
+    },
+    "order_id": "TO-20031",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, me llegó la chaqueta (TO-20031) pero se ve arrugada. No estoy segura si cambiarla por una L o pedir un reembolso, ¿me das alguna guía?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "la chaqueta (TO-20031)",
+      "issue_evidence": "se ve arrugada",
+      "issue_type": "DEFECT",
+      "component_quote": "se ve arrugada",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿me das alguna guía?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "(TO-20031)",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.04,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H28": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP",
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I bought the black desk lamp and it flickers. Also, the kettle I ordered at the same time has a leak. Do I have to send them back separately or can I bundle the complaints?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "black desk lamp",
+      "issue_evidence": "flickers",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "black desk lamp",
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "kettle",
+      "issue_evidence": "has a leak",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 26.76,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H36": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, the shoe I got last week is too tight. Can I exchange it?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the shoe I got last week is too tight",
+      "issue_evidence": "the shoe I got last week is too tight",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can I exchange it?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 2.72,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H32": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: the customer is unsure about TO-60201 and it does not verify. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-60201"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60201": "CONFIRMED"
+    },
+    "order_id": "TO-60201",
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¿Puedo devolver ambos a la vez?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "El termo eléctrico (creo que es TO-60201) no calienta",
+      "issue_evidence": "no calienta",
+      "issue_type": "DEFECT",
+      "component_quote": "no calienta",
+      "part_number_quote": "TO-60201",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Puedo devolver ambos a la vez?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "los calcetines de lana que pedí a la vez tienen una costura rota",
+      "issue_evidence": "costura rota",
+      "issue_type": "DEFECT",
+      "component_quote": "costura rota",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Puedo devolver ambos a la vez?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 20.92,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H35": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-50101"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50101": "CONFIRMED"
+    },
+    "order_id": "TO-50101",
+    "mentioned_skus": [
+     "DESK-LAMP",
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号 TO-50101 です。デスクライト2台とも点滅します。返金か交換か迷っています。また、注文したマグカップ（ケトル？）が届いていない可能性もありますか？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "デスクライト2台とも点滅します",
+      "issue_evidence": "点滅します",
+      "issue_type": "DEFECT",
+      "component_quote": "点滅します",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金か交換か迷っています",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "返金か交換か迷っています",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     },
+     {
+      "item_quote": "注文したマグカップ（ケトル？）が届いていない可能性もありますか？",
+      "issue_evidence": "届いていない可能性もありますか？",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": "届いていない可能性もありますか？",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "届いていない可能性もありますか？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50101",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.86,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H37": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-104211 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-104211"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-104211": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "I bought order TO-104211 but I can't find it in my account. Is that right?",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-104211",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 23.28,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H39": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "El calzado no me queda bien. Quiero devolverlo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "El calzado",
+      "issue_evidence": "El calzado no me queda bien",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Quiero devolverlo",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H30": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-40005",
+     "TO-50120"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40005": "CONFIRMED",
+     "TO-50120": "OTHER_CUSTOMER"
+    },
+    "order_id": null,
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "這兩個是一個處理還是分開？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "TO-40005",
+      "issue_evidence": "開線了",
+      "issue_type": "DEFECT",
+      "component_quote": "開線了",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "這兩個是一個處理還是分開？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "TO-50120",
+      "issue_evidence": "壞了",
+      "issue_type": "DEFECT",
+      "component_quote": "壞了",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "這兩個是一個處理還是分開？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 57.1,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H38": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "我的燈沒亮, 請幫我換一個零件。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "我的燈沒亮, 請幫我換一個零件。",
+      "issue_evidence": "我的燈沒亮",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請幫我換一個零件",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 36.94,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H40": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-300777 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-300777"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-300777": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Me llegó algo roto del pedido TO-300777. ¿Qué pasa?",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "algo roto",
+      "issue_evidence": "algo roto",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Qué pasa?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-300777",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 28.47,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H42": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-602015 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-602015"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-602015": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellnummer TO-602015, die Jacke ist kaputt.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "die Jacke ist kaputt",
+      "issue_evidence": "die Jacke ist kaputt",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-602015",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 17.51,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H34": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60206"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60206": "CONFIRMED"
+    },
+    "order_id": "TO-60206",
+    "mentioned_skus": [],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Bestellung TO-60206, der Campingofen hat ein Leck und der Ersatzventil-Code CS-VALVE-2 passt nicht. Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Bestellung TO-60206, der Campingofen hat ein Leck und der Ersatzventil-Code CS-VALVE-2 passt nicht. Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+      "issue_evidence": "der Campingofen hat ein Leck",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "Bestellung TO-60206, der Campingofen hat ein Leck und der Ersatzventil-Code CS-VALVE-2 passt nicht. Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+      "issue_evidence": "der Ersatzventil-Code CS-VALVE-2 passt nicht",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": "CS-VALVE-2",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60206",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 76.74,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H33": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-50140"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50140": "CONFIRMED"
+    },
+    "order_id": "TO-50140",
+    "mentioned_skus": [
+     "DESK-LAMP",
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE",
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, meine Bestellung TO-50140 ist schwierig zuhandhaben. Die Lampe ist schwarz, aber ich habe eigentlich weiß bestellt, UND der Wasserkocher hat einen Kratzer. Was soll ich machen, Tausch oder Rückerstattung?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Die Lampe ist schwarz, aber ich habe eigentlich weiß bestellt",
+      "issue_evidence": "Die Lampe ist schwarz, aber ich habe eigentlich weiß bestellt",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "schwarz",
+      "requested_variant_quote": "weiß",
+      "goals": [
+       {
+        "evidence": "Tausch oder Rückerstattung",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "Tausch oder Rückerstattung",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     },
+     {
+      "item_quote": "der Wasserkocher hat einen Kratzer",
+      "issue_evidence": "der Wasserkocher hat einen Kratzer",
+      "issue_type": "DEFECT",
+      "component_quote": "Kratzer",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Tausch oder Rückerstattung",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "Tausch oder Rückerstattung",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50140",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 82.27,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H45": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V10",
+   "family": null,
+   "reason": "An action is requested but no problem is described: a human decides.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "I need a refund for the socks I bought recently.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the socks I bought recently",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I need a refund for the socks I bought recently.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.36,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H41": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Mein Wasserkocher macht seltsame Geräusche. Bitte um Hilfe.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Mein Wasserkocher",
+      "issue_evidence": "seltsame Geräusche",
+      "issue_type": "DEFECT",
+      "component_quote": "seltsame Geräusche",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte um Hilfe.",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 40.05,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H43": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号は忘れましたが、靴底が剥がれました。すぐ直したいです。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "靴底が剥がれました",
+      "issue_evidence": "靴底が剥がれました",
+      "issue_type": "DEFECT",
+      "component_quote": "靴底が剥がれました",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "すぐ直したいです",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.04,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H44": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-703031 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-703031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-703031": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文したランタンの部品が届きません。注文番号は TO-703031 です。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "注文したランタンの部品が届きません",
+      "issue_evidence": "注文したランタンの部品が届きません",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-703031",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 16.51,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H48": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Bought 8 days ago: our 30-day return policy covers it.",
+   "derived": {
+    "order_refs": [
+     "TO-20031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20031": "CONFIRMED"
+    },
+    "order_id": "TO-20031",
+    "mentioned_skus": [],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "M",
+    "qty": 1,
+    "days": 8
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, mi chubasquero se me rompió la cremallera en la primera semana. ¿Pueden repararlo o reemplazarlo? Es el pedido TO-20031.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hola, mi chubasquero se me rompió la cremallera en la primera semana. ¿Pueden repararlo o reemplazarlo? Es el pedido TO-20031.",
+      "issue_evidence": "se me rompió la cremallera",
+      "issue_type": "DEFECT",
+      "component_quote": "cremallera",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Pueden repararlo o reemplazarlo?",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "¿Pueden repararlo o reemplazarlo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20031",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.93,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H47": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V9",
+   "family": null,
+   "reason": "Problem (MISSING_ITEM) but no requested outcome: ask what the customer would like.",
+   "derived": {
+    "order_refs": [
+     "TO-30077"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30077": "CONFIRMED"
+    },
+    "order_id": "TO-30077",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "我買了黑色背包，但好像少了一個防雨罩。訂單號好像是 TO-30077，請幫我確認一下。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "我買了黑色背包，但好像少了一個防雨罩。訂單號好像是 TO-30077，請幫我確認一下。",
+      "issue_evidence": "少了一個防雨罩",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色背包",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請幫我確認一下",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-30077",
+    "order_ref_hedge_quote": "好像是",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 18.34,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H52": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words quemó, S4 mains-electric hazard): always a human first.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [
+      "quemó"
+     ],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "DESK-LAMP"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, tengo una lámpara LED y necesito el módulo de 5W (DL-LED-5W) porque el original se quemó. ¿Me pueden enviar uno por separado? Mi correo es xia@example.test.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "el módulo de 5W (DL-LED-5W)",
+      "issue_evidence": "el original se quemó",
+      "issue_type": "DEFECT",
+      "component_quote": "el original se quemó",
+      "part_number_quote": "DL-LED-5W",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Me pueden enviar uno por separado?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 8.45,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H53": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Ich habe vor 4 Monaten einen Wasserkocher bestellt. Jetzt ist der Kalkfilter durch. Weißt du, ob ich den Filter (KL-170-FLT) separat kaufen kann?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Filter (KL-170-FLT)",
+      "issue_evidence": "Filter (KL-170-FLT)",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Filter (KL-170-FLT)",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 8.51,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "H49": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Ich habe die Bestellnummer nicht mehr zur Hand, aber ich brauche dringend ein neues Gasventil für meinen Campingkocher (CS-VALVE-2). Kann ich das direkt bestellen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "neues Gasventil",
+      "issue_evidence": "neues Gasventil",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "CS-VALVE-2",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Kann ich das direkt bestellen?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.47,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H46": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered the Trail Runner in size 42 but I think I made a mistake and actually need a 43. Is it possible to exchange them? Order was TO-10421.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner",
+      "issue_evidence": "I think I made a mistake and actually need a 43.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 43",
+      "goals": [
+       {
+        "evidence": "Is it possible to exchange them?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 31.95,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "H50": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim.",
+   "derived": {
+    "order_refs": [
+     "TO-50110"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50110": "CONFIRMED"
+    },
+    "order_id": "TO-50110",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、電気ケトルの蓋が壊れてしまったので、交換用の蓋(KL-170-LID)を注文したいのですが。注文番号はTO-50110だと思われます。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "KL-170-LID",
+      "issue_evidence": "電気ケトルの蓋が壊れてしまった",
+      "issue_type": "DEFECT",
+      "component_quote": "電気ケトルの蓋が壊れてしまった",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": "KL-170-LID",
+      "goals": [
+       {
+        "evidence": "交換用の蓋(KL-170-LID)を注文したい",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50110",
+    "order_ref_hedge_quote": "だと思われます",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 38.7,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H54": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-60206"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-60206": "CONFIRMED"
+    },
+    "order_id": "TO-60206",
+    "mentioned_skus": [],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になります。キャンプストーブのガスバルブを失くしてしまいました。注文番号TO-60206を購入した者ですが、部品だけ購入することは可能でしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "キャンプストーブのガスバルブを失くしてしまいました",
+      "issue_evidence": "キャンプストーブのガスバルブを失くしてしまいました",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "部品だけ購入することは可能でしょうか",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-60206",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 22.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H56": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, sorry to bother you but the trail runner I bought 10 days ago isn't broken at all, I just wanted to confirm if they arrive with a waterproof coating or if I need to add some myself?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "the trail runner I bought 10 days ago",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I just wanted to confirm if they arrive with a waterproof coating or if I need to add some myself?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 16.33,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H58": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, solo quería preguntar si la talla M de la chaqueta de ciudad es ajustada o holgada, porque la S me queda grande pero la M no la he probado aún.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "chaqueta de ciudad",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "S",
+      "requested_variant_quote": "M",
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 11.26,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H57": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "你好，我買的那台電水壺完全沒有壞掉，只是我想問一下如果以後水垢很多，那個濾網KL-170-FLT是怎麼清理的呀？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "濾網KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "濾網KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 21.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H51": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1).",
+   "derived": {
+    "order_refs": [
+     "TO-50101"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-50101": "CONFIRMED"
+    },
+    "order_id": "TO-50101",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 2,
+    "days": 7,
+    "requested_variant": "black"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there, I bought the white desk lamp but it arrived with the wrong color clamp. Can I swap it for the black one? I think the order was TO-50101.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "white desk lamp",
+      "issue_evidence": "wrong color clamp",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "white desk lamp",
+      "requested_variant_quote": "black one",
+      "goals": [
+       {
+        "evidence": "swap it for the black one",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-50101",
+    "order_ref_hedge_quote": "I think",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+    ]
+   },
+   "latency_s": 50.55,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "H59": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, mein Camp-Ofen funktioniert einwandfrei, aber ich habe mal gelesen, dass der Gasventil-Schlüssel oft verloren geht. Stimmt das, oder ist das Teil schon fest im Griff?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Gasventil-Schlüssel",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "Gasventil-Schlüssel",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 16.64,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H60": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "デスクランタンプの白いのは届いていませんが、もし届いたとして、LEDモジュールが黒いフレームと相性が悪いという噂が本当ですか？気にしすぎでしょうか。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "デスクランタンプの白い",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "白い",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "LEDモジュールが黒いフレームと相性が悪いという噂が本当ですか？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.13,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "H55": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "Exchange requested but no valid target size stated: ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-40005"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40005": "CONFIRMED"
+    },
+    "order_id": "TO-40005",
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, I need to return the merino socks because they are too tight. Sorry for the late notice but I opened them last week. Order TO-40005. Can I get a different size?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "merino socks",
+      "issue_evidence": "they are too tight",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "different size",
+      "goals": [
+       {
+        "evidence": "Can I get a different size?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40005",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 85.98,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 60,
+   "strict": 40,
+   "strict_ci": [
+    54.1,
+    77.3
+   ],
+   "lenient": 45,
+   "lenient_ci": [
+    62.8,
+    84.2
+   ],
+   "task_pred": 2,
+   "task_true": 3,
+   "task_tp": 1,
+   "task_precision": 0.5,
+   "task_recall": 0.333,
+   "false_triggers": [
+    "H13"
+   ],
+   "non_supplier_n": 57,
+   "errors": [
+    {
+     "id": "H14",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H13",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER",
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "H10",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Bought 8 days ago: our 30-day return policy covers it."
+    },
+    {
+     "id": "H18",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows IN_TRANSIT but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H24",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-20031 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "H26",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H19",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V4",
+     "reason": "Order reference uncertain: “WO-40005” is not a valid order number. Ask (never guessed)."
+    },
+    {
+     "id": "H27",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H31",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H28",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H30",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H45",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V10",
+     "reason": "An action is requested but no problem is described: a human decides."
+    },
+    {
+     "id": "H52",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V1",
+     "reason": "Possible safety issue (S1 hazard words quemó, S4 mains-electric hazard): always a human first."
+    },
+    {
+     "id": "H53",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H46",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V10",
+     "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3)."
+    }
+   ]
+  },
+  "k3": {
+   "n": 60,
+   "strict": 40,
+   "strict_ci": [
+    54.1,
+    77.3
+   ],
+   "lenient": 45,
+   "lenient_ci": [
+    62.8,
+    84.2
+   ],
+   "task_pred": 2,
+   "task_true": 3,
+   "task_tp": 1,
+   "task_precision": 0.5,
+   "task_recall": 0.333,
+   "false_triggers": [
+    "H13"
+   ],
+   "non_supplier_n": 57,
+   "errors": [
+    {
+     "id": "H14",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H13",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER",
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "H10",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Bought 8 days ago: our 30-day return policy covers it."
+    },
+    {
+     "id": "H18",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows IN_TRANSIT but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H24",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-20031 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "H26",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H19",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V4",
+     "reason": "Order reference uncertain: “WO-40005” is not a valid order number. Ask (never guessed)."
+    },
+    {
+     "id": "H27",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H31",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H28",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H30",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H45",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V10",
+     "reason": "An action is requested but no problem is described: a human decides."
+    },
+    {
+     "id": "H52",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V1",
+     "reason": "Possible safety issue (S1 hazard words quemó, S4 mains-electric hazard): always a human first."
+    },
+    {
+     "id": "H53",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H46",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V10",
+     "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3)."
+    }
+   ]
+  },
+  "k5": {
+   "n": 60,
+   "strict": 41,
+   "strict_ci": [
+    55.8,
+    78.7
+   ],
+   "lenient": 46,
+   "lenient_ci": [
+    64.6,
+    85.6
+   ],
+   "task_pred": 1,
+   "task_true": 3,
+   "task_tp": 1,
+   "task_precision": 1.0,
+   "task_recall": 0.333,
+   "false_triggers": [],
+   "non_supplier_n": 57,
+   "errors": [
+    {
+     "id": "H14",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H10",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Bought 8 days ago: our 30-day return policy covers it."
+    },
+    {
+     "id": "H18",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows IN_TRANSIT but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H24",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-20031 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "H26",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Carrier shows LOST but the customer describes using the item: our data conflicts with the claim."
+    },
+    {
+     "id": "H19",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V4",
+     "reason": "Order reference uncertain: “WO-40005” is not a valid order number. Ask (never guessed)."
+    },
+    {
+     "id": "H27",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H31",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H28",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H30",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V6",
+     "reason": "Information question: support answers it. No supplier task."
+    },
+    {
+     "id": "H45",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V10",
+     "reason": "An action is requested but no problem is described: a human decides."
+    },
+    {
+     "id": "H52",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V1",
+     "reason": "Possible safety issue (S1 hazard words quemó, S4 mains-electric hazard): always a human first."
+    },
+    {
+     "id": "H53",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "H46",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V10",
+     "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3)."
+    }
+   ]
+  }
+ }
+}

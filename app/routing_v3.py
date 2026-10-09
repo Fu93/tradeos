@@ -538,7 +538,10 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
 
     # ---- V5 availability-question cross-check (demote-only)
     act_items = [it for it in items if is_actionable(it, negated)]
-    if ex.speech_act == "REQUEST" and _AVAIL_Q.search(message or "") and not _SEND_VERB.search(message or ""):
+    goal_evs = [g["evidence"] for it in items for g in it.goals if quote_ok(g["evidence"], message)]
+    goals_are_avail_q = bool(goal_evs) and all(_AVAIL_Q.search(e) and not _SEND_VERB.search(e) for e in goal_evs)
+    if ex.speech_act == "REQUEST" and ((_AVAIL_Q.search(message or "") and not _SEND_VERB.search(message or ""))
+                                       or goals_are_avail_q):
         return d.stop("V5", "HUMAN_REVIEW", "Model says REQUEST but the text reads as an availability question with no "
                                             "send/order verb: a human answers.")
     d.step("V5", True, "no availability-question conflict")

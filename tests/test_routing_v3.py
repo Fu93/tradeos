@@ -322,3 +322,42 @@ def test_web_panel_and_endpoints(tmp_path, monkeypatch):
     j = c.get(f"/api/routing-v3/{cid}").json()
     assert j["case"]["status"] == "TASK_DRAFT_READY" and j["experimental"] is True
     assert c.post(f"/routing-v3/{cid}/reply", data={"reply": "x"}).status_code == 409
+
+
+# ---------------------------------------------------------------- dev-tuned rules (each from a dev-set miss)
+def test_availability_question_with_unrelated_order_verb_is_demoted():  # dev H13
+    msg = ("Hallo, ich hatte im Mai eine e-Kettle bestellt (TO-60202). Die Glaskerze ist kaputt gegangen. Hättet ihr noch "
+           "den Deckel KL-170-LID?")
+    x = ex(items=[item("DEFECT", "Die Glaskerze ist kaputt gegangen.", [("SEND_PART", "Hättet ihr noch den Deckel KL-170-LID?")],
+                       part="KL-170-LID")], act_ev="Hättet ihr noch den Deckel KL-170-LID?")
+    d = run(msg, x, "quinn@example.test")
+    assert d.action == "HUMAN_REVIEW" and d.rule == "V5"
+
+
+def test_two_part_numbers_in_text_ask_even_if_model_saw_one():  # dev P19
+    msg = "Bestellung TO-70309: Ich brauche die Ersatzteile DL-LED-5W und DL-CLAMP-M."
+    x = ex(items=[item("PART_NEED", "Ich brauche die Ersatzteile DL-LED-5W", [("SEND_PART", "Ich brauche die Ersatzteile DL-LED-5W")],
+                       part="DL-LED-5W")], act_ev="Ich brauche die Ersatzteile")
+    d = run(msg, x, "eli@example.test")
+    assert d.action == "CLARIFY_WITH_CUSTOMER" and d.template == "ASK_PART"
+
+
+def test_part_request_mislabelled_missing_is_part_need():  # dev P07 (guide C4)
+    msg = "Bestellung TO-70310: Bitte schicken Sie mir einen neuen Deckel, Teilenummer KL-170-LID."
+    x = ex(items=[item("MISSING_ITEM", "einen neuen Deckel", [("SEND_PART", "Bitte schicken Sie mir einen neuen Deckel")],
+                       part="KL-170-LID")], act_ev="Bitte schicken Sie mir einen neuen Deckel")
+    d = run(msg, x, "fin@example.test")
+    assert d.action == "CREATE_SUPPLIER_TASK" and d.derived.get("issue_consistency")
+    msg2 = "Order TO-70310: the lid KL-170-LID was missing from the box, please send it."
+    x2 = ex(items=[item("MISSING_ITEM", "was missing from the box", [("SEND_PART", "please send it")], part="KL-170-LID")],
+            act_ev="please send it")
+    assert run(msg2, x2, "fin@example.test").action == "HUMAN_REVIEW"  # real missing claim vs carrier DELIVERED
+
+
+def test_negated_hazard_in_japanese_and_english_is_not_safety():  # dev MP56A / MP60A
+    for msg in ("My kettle (order TO-60202) stopped heating. No smoke or smell. Can you arrange a repair?",
+                "注文番号 TO-60202 のケトルが加熱しません。煙も臭いもなく、ただ冷たいままです。修理をお願いします。"):
+        ev = "stopped heating" if msg.startswith("My") else "加熱しません"
+        g = "Can you arrange a repair?" if msg.startswith("My") else "修理をお願いします"
+        x = ex(items=[item("DEFECT", ev, [("REPAIR", g)])], act_ev=g)
+        assert run(msg, x, "quinn@example.test").action == "CREATE_SUPPLIER_TASK"

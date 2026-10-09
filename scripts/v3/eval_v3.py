@@ -101,7 +101,8 @@ def run_v3(item: dict, ext: Retrying, k: int, temp: float = 0.6) -> dict:
             dd = decide_v3(e, item["message"], ctx, TODAY)
             votes.append(f"{dd.action}/{dd.family}")
             notes.append(f"{dd.rule}: {dd.reason[:120]}")
-        rec["agreement"] = {"first": f"{d.action}/{d.family}", "extras": votes, "notes": notes}
+        rec["agreement"] = {"first": f"{d.action}/{d.family}", "extras": votes, "notes": notes,
+                            "extra_extractions": [e.raw for e in extras]}
     rec["latency_s"] = round(time.perf_counter() - t, 2)
     rec["actions"] = {f"k{kk}": gate_action(rec, kk) for kk in (1, 3, 5) if kk <= max(1, k)}
     return rec
