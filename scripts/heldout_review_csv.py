@@ -26,7 +26,7 @@ def main() -> None:
     labels = json.loads((ROOT / "docs/eval/heldout-labels.json").read_text())["cases"]
     preds: dict[str, dict] = {}
     if args.results:
-        res = json.loads(Path(args.results).read_text())
+        res = json.loads((ROOT / args.results).read_text())
         for mode, run in res["sets"]["heldout"]["runs"].items():
             for r in run["rows"]:
                 preds.setdefault(r["id"], {})[mode] = r
@@ -58,7 +58,7 @@ def main() -> None:
             if preds:
                 p = preds.get(c["id"], {})
                 l, k = p.get("llm", {}), p.get("keyword", {})
-                row += [l.get("issue_type"), l.get("customer_goal"), l.get("action"), l.get("reason"), k.get("action")]
+                row += [l.get("pred_issue"), l.get("pred_goal"), l.get("action"), l.get("decided_by"), k.get("action")]
             row += ["", "", "", "", ""]
             w.writerow(row)
     print(f"{out}: {len(labels)} rows, priority {sum(1 for c in labels if c['id'] in PRE_PRIORITY or c['id'] in extra)}")

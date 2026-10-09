@@ -40,8 +40,9 @@ from app.routing import (REQUIRED_ACTION, RULE_VERSION, CaseContext, RoutingConf
 from app.routing_extract import KeywordRoutingExtractor, LLMRoutingExtractor  # noqa: E402
 
 EVAL = ROOT / "docs" / "eval"
-OUT_JSON = EVAL / "routing-results.json"
-OUT_MD = EVAL / "routing-results.md"
+import os  # noqa: E402
+OUT_JSON = Path(os.environ.get("EVAL_OUT_JSON") or EVAL / "routing-results.json")
+OUT_MD = OUT_JSON.with_suffix(".md")
 TASK, DIRECT, CLARIFY, HUMAN = "CREATE_SUPPLIER_TASK", "DIRECT_WORKFLOW", "CLARIFY_WITH_CUSTOMER", "HUMAN_REVIEW"
 AUTOMATIC = (TASK, DIRECT)
 LANGS = ("en", "zh-Hant", "es", "de", "ja")
@@ -212,9 +213,10 @@ def score(rows: list[dict]) -> dict:
     }
 
 
-def confidence_analysis(rows: list[dict]) -> dict:
-    """Does the (uncalibrated) LLM self-report separate right from wrong at all?"""
-    rs = [r for r in rows if r["llm_confidence"] is not None]
+def confidence_analysis(rows: list[dict], field: str = "llm_confidence") -> dict:
+    """Does the (uncalibrated) LLM self-report (or the combined score after rule penalties) separate right from
+    wrong at all?"""
+    rs = [{**r, "llm_confidence": r[field]} for r in rows if r[field] is not None]
 
     def summary(vals):
         if not vals:
@@ -223,7 +225,7 @@ def confidence_analysis(rows: list[dict]) -> dict:
         return {"n": len(v), "min": v[0], "p25": v[len(v) // 4], "median": statistics.median(v), "max": v[-1],
                 "mean": round(statistics.mean(v), 3)}
 
-    out = {"n_with_confidence": len(rs)}
+    out = {"n_with_confidence": len(rs), "field": field}
     for name, wrong_fn in (("action_wrong", lambda r: r["action"] not in r["acceptable"]),
                            ("any_dimension_wrong", lambda r: r["action"] not in r["acceptable"]
                             or r["pred_issue"] != r["issue_type"] or r["pred_goal"] != r["customer_goal"])):
@@ -262,6 +264,9 @@ def markdown(res: dict) -> str:
     L = ["# Supplier routing eval — round 2 (rules `" + res["rule_version"] + "`)", "",
          "Two sets, reported **separately** (never pooled). Every rate is `correct/n (%)`; key rates carry a Wilson "
          "95% confidence interval. Extractor model: `" + res["model"] + "` (Groq). All operational data is MOCK.",
+         "**The LLM runs below used `openai/gpt-oss-120b`, NOT the production extractor `openai/gpt-oss-20b` "
+         "(Groq free-tier daily token cap for 20b was exhausted on 2026-10-09). The 20b held-out run is still to do, "
+         "with the same frozen labels. Held-out set NOT used for tuning: rules 0.2.0 unchanged since before the run.**",
          "Round-1 history: [routing-results-round1-rules011.md](routing-results-round1-rules011.md), "
          "[routing-results-run1.md](routing-results-run1.md).", ""]
     for set_name, sres in res["sets"].items():
@@ -338,13 +343,17 @@ def markdown(res: dict) -> str:
                      dim_wrong)
             if m.get("confidence"):
                 L += confidence_md(m["confidence"])
+            if m.get("confidence_combined"):
+                L += confidence_md(m["confidence_combined"])
         L.append("")
     L += ["## Reading these numbers", "", res.get("notes", "")]
     return "\n".join(L) + "\n"
 
 
 def confidence_md(c: dict) -> list[str]:
-    L = ["", f"**Confidence analysis (LLM self-report; {c['n_with_confidence']} rows with a confidence)**", ""]
+    what = "LLM self-report" if c.get("field", "llm_confidence") == "llm_confidence" else \
+        "combined score after rule penalties (what the demotion floor actually sees)"
+    L = ["", f"**Confidence analysis — {what}; {c['n_with_confidence']} rows**", ""]
     for name in ("action_wrong", "any_dimension_wrong"):
         a = c[name]
         L.append(f"* *{name.replace('_', ' ')}*: right {a['right']} · wrong {a['wrong']} · "
@@ -363,6 +372,8 @@ def finalize(res: dict) -> None:
             m["by_slice"] = breakdown(m["rows"], "slice", sorted({r["slice"] for r in m["rows"]}))
             m["by_lang"] = breakdown(m["rows"], "lang", LANGS)
             m["confidence"] = confidence_analysis(m["rows"]) if m["meta"]["mode"] == "llm" else None
+            m["confidence_combined"] = (confidence_analysis(m["rows"], "confidence") if m["meta"]["mode"] == "llm"
+                                        else None)
     res["notes"] = (EVAL / "routing-results-notes.md").read_text() if (EVAL / "routing-results-notes.md").exists() else ""
     OUT_JSON.write_text(json.dumps(res, ensure_ascii=False, indent=1))
     OUT_MD.write_text(markdown(res))

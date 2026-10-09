@@ -1,31 +1,33 @@
 # Supplier routing eval — round 2 (rules `supplier-routing-rules/0.2.0 (MVP 1 experiment, round 2)`)
 
 Two sets, reported **separately** (never pooled). Every rate is `correct/n (%)`; key rates carry a Wilson 95% confidence interval. Extractor model: `openai/gpt-oss-120b` (Groq). All operational data is MOCK.
+**The LLM runs below used `openai/gpt-oss-120b`, NOT the production extractor `openai/gpt-oss-20b` (Groq free-tier daily token cap for 20b was exhausted on 2026-10-09). The 20b held-out run is still to do, with the same frozen labels. Held-out set NOT used for tuning: rules 0.2.0 unchanged since before the run.**
 Round-1 history: [routing-results-round1-rules011.md](routing-results-round1-rules011.md), [routing-results-run1.md](routing-results-run1.md).
 
 ## Original 100 — regression set of known scenarios (author-written)
 
 * **keyword** run 2026-10-09T09:25:52+00:00 UTC · extractor `keyword-fallback` · 429 retries 0 · LLM fallbacks 0 · keys with >1 open task 0
+* **llm** run 2026-10-09T10:23:44+00:00 UTC · extractor `llm:openai/gpt-oss-120b` · 429 retries 0 · LLM fallbacks 0 · keys with >1 open task 0
 
-| Metric | keyword |
-| --- | --- |
-| issue_type accuracy (after text checks) | 73/100 (73.0%) [95% CI 63.6–80.7%] |
-| issue_type accuracy (raw AI output) | 73/100 (73.0%) |
-| customer_goal accuracy (after text checks) | 77/100 (77.0%) [95% CI 67.8–84.2%] |
-| customer_goal accuracy (raw AI output) | 77/100 (77.0%) |
-| mixed flag accuracy | 98/100 (98.0%) |
-| required_action strict | 46/100 (46.0%) [95% CI 36.6–55.7%] |
-| required_action lenient (acceptable_actions) | 49/100 (49.0%) [95% CI 39.4–58.7%] |
-| all three dimensions right (strict) | 27/100 (27.0%) |
-| supplier-task precision | n/a (0/0) |
-| supplier-task recall (automatic) | 0/36 (0.0%) [95% CI 0–9.6%] |
-| supplier-task recall incl. human-confirm proposal | 22/36 (61.1%) |
-| false trigger on non-task cases | 0/64 (0.0%) [95% CI 0–5.7%] |
-| should be human/clarify but automated | 0/52 (0.0%) [95% CI 0–6.9%] |
-| duplicate rows that created a new task | 0/8 (0.0%) |
-| task draft completeness | n/a (0/0) |
-| automatic actions demoted by confidence | 33/100 (33.0%) |
-| latency p50 per case (ms) | 13.5 |
+| Metric | keyword | llm |
+| --- | --- | --- |
+| issue_type accuracy (after text checks) | 73/100 (73.0%) [95% CI 63.6–80.7%] | 96/100 (96.0%) [95% CI 90.2–98.4%] |
+| issue_type accuracy (raw AI output) | 73/100 (73.0%) | 96/100 (96.0%) |
+| customer_goal accuracy (after text checks) | 77/100 (77.0%) [95% CI 67.8–84.2%] | 93/100 (93.0%) [95% CI 86.3–96.6%] |
+| customer_goal accuracy (raw AI output) | 77/100 (77.0%) | 93/100 (93.0%) |
+| mixed flag accuracy | 98/100 (98.0%) | 96/100 (96.0%) |
+| required_action strict | 46/100 (46.0%) [95% CI 36.6–55.7%] | 91/100 (91.0%) [95% CI 83.8–95.2%] |
+| required_action lenient (acceptable_actions) | 49/100 (49.0%) [95% CI 39.4–58.7%] | 92/100 (92.0%) [95% CI 85.0–95.9%] |
+| all three dimensions right (strict) | 27/100 (27.0%) | 85/100 (85.0%) |
+| supplier-task precision | n/a (0/0) | 30/30 (100.0%) [95% CI 88.6–100%] |
+| supplier-task recall (automatic) | 0/36 (0.0%) [95% CI 0–9.6%] | 30/36 (83.3%) [95% CI 68.1–92.1%] |
+| supplier-task recall incl. human-confirm proposal | 22/36 (61.1%) | 31/36 (86.1%) |
+| false trigger on non-task cases | 0/64 (0.0%) [95% CI 0–5.7%] | 0/64 (0.0%) [95% CI 0–5.7%] |
+| should be human/clarify but automated | 0/52 (0.0%) [95% CI 0–6.9%] | 0/52 (0.0%) [95% CI 0–6.9%] |
+| duplicate rows that created a new task | 0/8 (0.0%) | 1/8 (12.5%) |
+| task draft completeness | n/a (0/0) | 24/24 (100.0%) |
+| automatic actions demoted by confidence | 33/100 (33.0%) | 2/100 (2.0%) |
+| latency p50 per case (ms) | 13.5 | 1268.5 |
 
 ### original / keyword: breakdowns
 
@@ -167,6 +169,88 @@ none
 | P21 | es | NO_ISSUE_INQUIRY/INFORMATION → HUMAN_REVIEW | PART_NEED/INFORMATION → HUMAN_REVIEW | 0.6 | gate 1 (intent_rules): R4 customer_goal INFORMATION (issue PART_NEED): a question, not a request to act; support answers it. No supplier task. |
 | P22 | es | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | UNCLEAR/UNCLEAR → CLARIFY_WITH_CUSTOMER | 0.6 | gate 1 (intent_rules): R7 issue UNCLEAR but no requested outcome: ask what the customer wants. |
 | P24 | de | PART_NEED/BUY_PART → CLARIFY_WITH_CUSTOMER | PART_NEED/UNCLEAR → CLARIFY_WITH_CUSTOMER | 0.6 | gate 1 (intent_rules): R7 issue PART_NEED but no requested outcome: ask what the customer wants. |
+
+### original / llm: breakdowns
+
+| Slice | n | issue_type | customer_goal | action lenient | tasks created | false triggers |
+| --- | --- | --- | --- | --- | --- | --- |
+| ambiguous | 16 | 15/16 (93.8%) | 16/16 (100.0%) | 16/16 (100.0%) | 0 | 0 |
+| duplicate | 8 | 8/8 (100.0%) | 7/8 (87.5%) | 7/8 (87.5%) | 7 | 0 |
+| missing | 16 | 15/16 (93.8%) | 13/16 (81.2%) | 15/16 (93.8%) | 0 | 0 |
+| needed | 28 | 27/28 (96.4%) | 27/28 (96.4%) | 23/28 (82.1%) | 23 | 0 |
+| not_needed | 24 | 23/24 (95.8%) | 22/24 (91.7%) | 23/24 (95.8%) | 0 | 0 |
+| similar_order | 8 | 8/8 (100.0%) | 8/8 (100.0%) | 8/8 (100.0%) | 0 | 0 |
+
+| Language | n | issue_type | customer_goal | action lenient | false triggers |
+| --- | --- | --- | --- | --- | --- |
+| en | 20 | 19/20 (95.0%) | 19/20 (95.0%) | 19/20 (95.0%) | 0 |
+| zh-Hant | 20 | 17/20 (85.0%) | 19/20 (95.0%) | 19/20 (95.0%) | 0 |
+| es | 20 | 20/20 (100.0%) | 19/20 (95.0%) | 19/20 (95.0%) | 0 |
+| de | 20 | 20/20 (100.0%) | 18/20 (90.0%) | 17/20 (85.0%) | 0 |
+| ja | 20 | 20/20 (100.0%) | 18/20 (90.0%) | 18/20 (90.0%) | 0 |
+
+Confusion (label → system action): CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER: 25; CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW: 2; CREATE_SUPPLIER_TASK -> CLARIFY_WITH_CUSTOMER: 5; CREATE_SUPPLIER_TASK -> CREATE_SUPPLIER_TASK: 30; CREATE_SUPPLIER_TASK -> HUMAN_REVIEW: 1; DIRECT_WORKFLOW -> DIRECT_WORKFLOW: 11; DIRECT_WORKFLOW -> HUMAN_REVIEW: 1; HUMAN_REVIEW -> HUMAN_REVIEW: 25
+
+
+**False triggers (supplier task created, label says no task) (0)**
+
+none
+
+**Missed triggers (label says task, none created) (6)**
+
+| id | lang | label issue/goal/action | system issue/goal → action | conf | decided by |
+| --- | --- | --- | --- | --- | --- |
+| D04 | de | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/REPAIR/mixed → CLARIFY_WITH_CUSTOMER | 0.99 | gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them. |
+| D05 | ja | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/UNCLEAR/mixed → CLARIFY_WITH_CUSTOMER | 0.99 | gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them. |
+| D07 | de | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/REPAIR/mixed → CLARIFY_WITH_CUSTOMER | 0.99 | gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them. |
+| D08 | es | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | 0.97 | gate 1 (intent_rules): R7 issue DEFECT but no requested outcome: ask what the customer wants. |
+| P01 | en | PART_NEED/BUY_PART → CREATE_SUPPLIER_TASK | DEFECT/BUY_PART → HUMAN_REVIEW | 0.89 | gate 4 (confidence_and_duplicates): Supplier task proposed, but confidence 0.89 < 0.9: demoted; a human confirms or rejects the proposal. |
+| P05 | ja | PART_NEED/BUY_PART → CREATE_SUPPLIER_TASK | PART_NEED/BUY_PART/mixed → CLARIFY_WITH_CUSTOMER | 0.96 | gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them. |
+
+**Should have gone to a human / clarification but was automated (0)**
+
+none
+
+**Other required_action errors (outside acceptable_actions) (2)**
+
+| id | lang | label issue/goal/action | system issue/goal → action | conf | decided by |
+| --- | --- | --- | --- | --- | --- |
+| D18 | de | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | DEFECT/INFORMATION → HUMAN_REVIEW | 0.95 | gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task. |
+| P10 | zh-Hant | PART_NEED/BUY_PART → DIRECT_WORKFLOW | DEFECT/BUY_PART → HUMAN_REVIEW | 0.89 | gate 3 (supplier_necessary): BP-BUCKLE-25 (25 mm buckle) compatible and 30 in stock: ship it. -> demoted (confidence 0.89 < 0.9) |
+
+**Dimension misclassifications (issue_type or customer_goal ≠ label; route may still be right) (11)**
+
+| id | lang | label issue/goal/action | system issue/goal → action | conf | decided by |
+| --- | --- | --- | --- | --- | --- |
+| D05 | ja | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/UNCLEAR/mixed → CLARIFY_WITH_CUSTOMER | 0.99 | gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them. |
+| D08 | es | DEFECT/REPAIR → CREATE_SUPPLIER_TASK | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | 0.97 | gate 1 (intent_rules): R7 issue DEFECT but no requested outcome: ask what the customer wants. |
+| D12 | de | DEFECT/UNCLEAR → HUMAN_REVIEW | DEFECT/INFORMATION → HUMAN_REVIEW | 0.93 | gate 1 (intent_rules): R2 possible safety issue (fire/smoke/sparks/shock/gas/injury): always a human first. |
+| D15 | en | DEFECT/UNCLEAR → HUMAN_REVIEW | DEFECT/INFORMATION → HUMAN_REVIEW | 0.97 | gate 1 (intent_rules): R2 possible safety issue (fire/smoke/sparks/shock/gas/injury): always a human first. |
+| D17 | zh-Hant | DEFECT/REPAIR → CLARIFY_WITH_CUSTOMER | DEFECT/EXCHANGE → CLARIFY_WITH_CUSTOMER | 0.89 | gate 2 (matches_order): No order number in the message and no linked order: ask for it. |
+| D18 | de | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | DEFECT/INFORMATION → HUMAN_REVIEW | 0.95 | gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task. |
+| D19 | ja | DEFECT/REPAIR → CLARIFY_WITH_CUSTOMER | DEFECT/EXCHANGE → CLARIFY_WITH_CUSTOMER | 0.89 | gate 2 (matches_order): No order number in the message and no linked order: ask for it. |
+| D21 | zh-Hant | DEFECT/UNCLEAR → CLARIFY_WITH_CUSTOMER | UNCLEAR/UNCLEAR → CLARIFY_WITH_CUSTOMER | 0.95 | gate 1 (intent_rules): R7 issue UNCLEAR but no requested outcome: ask what the customer wants. |
+| P01 | en | PART_NEED/BUY_PART → CREATE_SUPPLIER_TASK | DEFECT/BUY_PART → HUMAN_REVIEW | 0.89 | gate 4 (confidence_and_duplicates): Supplier task proposed, but confidence 0.89 < 0.9: demoted; a human confirms or rejects the proposal. |
+| P10 | zh-Hant | PART_NEED/BUY_PART → DIRECT_WORKFLOW | DEFECT/BUY_PART → HUMAN_REVIEW | 0.89 | gate 3 (supplier_necessary): BP-BUCKLE-25 (25 mm buckle) compatible and 30 in stock: ship it. -> demoted (confidence 0.89 < 0.9) |
+| P17 | zh-Hant | PART_NEED/BUY_PART → CLARIFY_WITH_CUSTOMER | DEFECT/BUY_PART → CLARIFY_WITH_CUSTOMER | 0.98 | gate 2 (matches_order): No part number in the message: ask for it (part models are never guessed). |
+
+**Confidence analysis — LLM self-report; 100 rows**
+
+* *action wrong*: right {'n': 92, 'min': 0.9, 'p25': 0.99, 'median': 0.99, 'max': 0.99, 'mean': 0.985} · wrong {'n': 8, 'min': 0.95, 'p25': 0.97, 'median': 0.99, 'max': 0.99, 'mean': 0.979} · P(conf right > conf wrong) = 0.611 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 0/8, right 0/92; t=0.85: wrong 0/8, right 0/92; t=0.9: wrong 0/8, right 0/92; t=0.95: wrong 0/8, right 2/92; t=0.99: wrong 3/8, right 16/92
+  * right/n per bucket: [0, 0.8): 0/0; [0.8, 0.9): 0/0; [0.9, 0.95): 2/2; [0.95, 0.99): 14/17; [0.99, 1.0]: 76/81
+* *any dimension wrong*: right {'n': 86, 'min': 0.9, 'p25': 0.99, 'median': 0.99, 'max': 0.99, 'mean': 0.986} · wrong {'n': 14, 'min': 0.93, 'p25': 0.96, 'median': 0.985, 'max': 0.99, 'mean': 0.974} · P(conf right > conf wrong) = 0.69 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 0/14, right 0/86; t=0.85: wrong 0/14, right 0/86; t=0.9: wrong 0/14, right 0/86; t=0.95: wrong 1/14, right 1/86; t=0.99: wrong 7/14, right 12/86
+  * right/n per bucket: [0, 0.8): 0/0; [0.8, 0.9): 0/0; [0.9, 0.95): 1/2; [0.95, 0.99): 11/17; [0.99, 1.0]: 74/81
+
+**Confidence analysis — combined score after rule penalties (what the demotion floor actually sees); 100 rows**
+
+* *action wrong*: right {'n': 92, 'min': 0.74, 'p25': 0.99, 'median': 0.99, 'max': 0.99, 'mean': 0.98} · wrong {'n': 8, 'min': 0.89, 'p25': 0.95, 'median': 0.965, 'max': 0.99, 'mean': 0.954} · P(conf right > conf wrong) = 0.734 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 0/8, right 1/92; t=0.85: wrong 0/8, right 1/92; t=0.9: wrong 2/8, right 3/92; t=0.95: wrong 2/8, right 5/92; t=0.99: wrong 5/8, right 19/92
+  * right/n per bucket: [0, 0.8): 1/1; [0.8, 0.9): 2/4; [0.9, 0.95): 2/2; [0.95, 0.99): 14/17; [0.99, 1.0]: 73/76
+* *any dimension wrong*: right {'n': 86, 'min': 0.74, 'p25': 0.99, 'median': 0.99, 'max': 0.99, 'mean': 0.983} · wrong {'n': 14, 'min': 0.89, 'p25': 0.89, 'median': 0.955, 'max': 0.99, 'mean': 0.946} · P(conf right > conf wrong) = 0.842 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 0/14, right 1/86; t=0.85: wrong 0/14, right 1/86; t=0.9: wrong 4/14, right 1/86; t=0.95: wrong 5/14, right 2/86; t=0.99: wrong 11/14, right 13/86
+  * right/n per bucket: [0, 0.8): 1/1; [0.8, 0.9): 0/4; [0.9, 0.95): 1/2; [0.95, 0.99): 11/17; [0.99, 1.0]: 73/76
 
 ## Held-out 60 — unseen, blind-generated (qwen/qwen3.8-27b), author-labelled, pending human review
 
@@ -377,7 +461,7 @@ none
 | H54 | ja | PART_NEED/INFORMATION → HUMAN_REVIEW | PART_NEED/BUY_PART → HUMAN_REVIEW | 0.99 | gate 1 (intent_rules): R8 the text is question-form but the AI goal is BUY_PART: a human answers (no automatic action on a question). |
 | H60 | ja | NO_ISSUE_INQUIRY/INFORMATION → HUMAN_REVIEW | MISSING_ITEM/INFORMATION → HUMAN_REVIEW | 0.83 | gate 1 (intent_rules): R4 customer_goal INFORMATION (issue MISSING_ITEM): a question, not a request to act; support answers it. No supplier task. |
 
-**Confidence analysis (LLM self-report; 60 rows with a confidence)**
+**Confidence analysis — LLM self-report; 60 rows**
 
 * *action wrong*: right {'n': 51, 'min': 0.9, 'p25': 0.97, 'median': 0.99, 'max': 0.99, 'mean': 0.977} · wrong {'n': 9, 'min': 0.93, 'p25': 0.96, 'median': 0.97, 'max': 0.99, 'mean': 0.969} · P(conf right > conf wrong) = 0.687 (0.5 = no separation)
   * below threshold t → demoted: t=0.8: wrong 0/9, right 0/51; t=0.85: wrong 0/9, right 0/51; t=0.9: wrong 0/9, right 0/51; t=0.95: wrong 1/9, right 7/51; t=0.99: wrong 7/9, right 20/51
@@ -386,6 +470,34 @@ none
   * below threshold t → demoted: t=0.8: wrong 0/25, right 0/35; t=0.85: wrong 0/25, right 0/35; t=0.9: wrong 0/25, right 0/35; t=0.95: wrong 6/25, right 2/35; t=0.99: wrong 16/25, right 11/35
   * right/n per bucket: [0, 0.8): 0/0; [0.8, 0.9): 0/0; [0.9, 0.95): 2/8; [0.95, 0.99): 9/19; [0.99, 1.0]: 24/33
 
+**Confidence analysis — combined score after rule penalties (what the demotion floor actually sees); 60 rows**
+
+* *action wrong*: right {'n': 51, 'min': 0.73, 'p25': 0.97, 'median': 0.99, 'max': 0.99, 'mean': 0.962} · wrong {'n': 9, 'min': 0.64, 'p25': 0.93, 'median': 0.96, 'max': 0.99, 'mean': 0.919} · P(conf right > conf wrong) = 0.752 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 1/9, right 1/51; t=0.85: wrong 1/9, right 4/51; t=0.9: wrong 2/9, right 6/51; t=0.95: wrong 3/9, right 10/51; t=0.99: wrong 8/9, right 21/51
+  * right/n per bucket: [0, 0.8): 1/2; [0.8, 0.9): 5/6; [0.9, 0.95): 4/5; [0.95, 0.99): 11/16; [0.99, 1.0]: 30/31
+* *any dimension wrong*: right {'n': 35, 'min': 0.73, 'p25': 0.98, 'median': 0.99, 'max': 0.99, 'mean': 0.974} · wrong {'n': 25, 'min': 0.64, 'p25': 0.89, 'median': 0.96, 'max': 0.99, 'mean': 0.93} · P(conf right > conf wrong) = 0.746 (0.5 = no separation)
+  * below threshold t → demoted: t=0.8: wrong 1/25, right 1/35; t=0.85: wrong 4/25, right 1/35; t=0.9: wrong 7/25, right 1/35; t=0.95: wrong 10/25, right 3/35; t=0.99: wrong 18/25, right 11/35
+  * right/n per bucket: [0, 0.8): 1/2; [0.8, 0.9): 0/6; [0.9, 0.95): 2/5; [0.95, 0.99): 8/16; [0.99, 1.0]: 24/31
+
 ## Reading these numbers
 
+* **Two sets, two purposes.**
+  - The original 100 is a regression set of known scenarios. The author wrote it together with the rules, so a high score shows consistency, not field accuracy.
+  - The held-out 60 is the unseen set. A different model family (`qwen/qwen3.8-27b`) generated it from a prompt that contained no rules. The author labelled it before any run (commit d5752f0). Its labels are still **pending human review** (`heldout-review.csv`).
+* **Which extractor model.** The app's default extractor is `openai/gpt-oss-20b`. On 2026-10-09 the Groq free-tier daily cap for that model (200,000 tokens per day) had already been used up by the round-1 runs and an aborted round-2 start. Because of that, both round-2 LLM runs used `openai/gpt-oss-120b`, which is the same family, has a separate quota, and gets the same prompt and schema. **These are therefore not production-model numbers.** The `gpt-oss-20b` held-out run is still to do, with the same frozen labels. A 20b attempt was stopped automatically after 1 row by the daily cap. The script refuses to fall back silently to keywords on a daily-cap 429.
+* **Was the held-out set used for tuning? No.**
+  - The 0.2.0 rules were committed (a4ffee8) before any held-out run.
+  - Nothing in the rules, prompt or keyword lists changed after the held-out results were seen. The held-out numbers here are the pre-change numbers (snapshot `routing-results-heldout-prechange.json`).
+  - Caveat: the author read the 60 messages while labelling them, before writing the 0.2.0 rules. The rules follow the user's design, not specific messages, but this is a contamination risk. The next round needs a fresh held-out set no matter what.
+  - Any rule change made in response to these errors (see "Remaining weaknesses" in the roadmap) turns this set into "used for tuning".
+* **Small samples.** 60 cases is preliminary evidence, not proof:
+  - A 51/60 action accuracy has a Wilson 95% interval of roughly 74–92%.
+  - Even 60/60 would only bound the true rate at roughly ≥ 94%.
+  - The held-out set has only 3 labelled supplier-task cases, so precision and recall of task creation are essentially unmeasured on unseen data.
+  - The intervals are printed next to the key rates.
+* **Confidence.** The self-report is uncalibrated, and it is used only to demote. The confidence analysis shows whether it separates right from wrong on these rows. Because the floor (0.90) sits below almost all self-reports, it almost never fires on the LLM path.
+* **Keyword fallback.** Its confidence is capped at 0.85, below the 0.90 floor, so it can never perform an automatic action. Its action accuracy is low by design: it sends cases to people; it does not route them.
+* **Label errata**: [heldout-label-errata.md](heldout-label-errata.md). Labels are never edited; the metrics use the frozen labels.
+* **Duplicate metric, original LLM run (1/8).** The 1/8 is P08. Its twin P01 was *demoted* by confidence: the combined score was 0.89, because the keyword scan disagreed with the AI's DEFECT issue. P01 therefore never opened a task. When P08 arrived there was no open task to link to, so a first task was created, which is correct. The DB still holds 0 keys with more than one open task.
+* **"Repair or replace" read as mixed.** gpt-oss-120b flagged `mixed_goals` on "repair or replace" / 修理か交換 / reparieren oder ersetzen. This caused 4 of the 6 missed supplier tasks in the original set (D04, D05, D07, P05) and held-out H48. The miss is in the safe direction (it asks the customer). The prompt was deliberately **not** changed after seeing this, because a change would make the held-out set "used for tuning".
 
