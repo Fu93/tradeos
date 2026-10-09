@@ -51,10 +51,20 @@ def meta() -> dict:
     return m
 
 
+PRIMARY = ("B", "C")  # B = nvidia/nemotron-3-ultra (NVIDIA), C = meta/muse-glimmer-30b (Meta)
+SUPPLEMENTARY = "A"   # z-ai/glm-5.3: account rate-limited (HTTP 429) after 71 labels; reported on its subset only
+JUDGE_MODELS = {"A": "z-ai/glm-5.3", "B": "nvidia/nemotron-3-ultra-550b-a55b", "C": "meta/muse-glimmer-30b"}
+
+
+def judge_labels(j: str) -> dict:
+    f = E / f"judge-heldout_v2-{j}.json"
+    if not f.exists():
+        return {}
+    return {k: v[j] for k, v in json.loads(f.read_text())["labels"].items() if j in v}
+
+
 def both() -> tuple[dict, dict]:
-    A = json.loads((E / "judge-heldout_v2-A.json").read_text())["labels"]
-    B = json.loads((E / "judge-heldout_v2-B.json").read_text())["labels"]
-    return {k: v["A"] for k, v in A.items() if "A" in v}, {k: v["B"] for k, v in B.items() if "B" in v}
+    return judge_labels(PRIMARY[0]), judge_labels(PRIMARY[1])
 
 
 def stats() -> dict:
@@ -81,11 +91,21 @@ def stats() -> dict:
     out["required_action_by_lang"] = {g: {"n": len(v), "raw": round(sum(fa[i]["required_action"] == fb[i]["required_action"] for i in v) / len(v), 3)}
                                       for g, v in bl.items()}
     dis = [{"id": i, "lang": M[i]["lang"], "kind": M[i]["kind"], "designed": M[i]["designed"],
-            "A": A[i]["required_action"], "A_rule": A[i]["deciding_rule"], "A_reason": A[i]["reasoning"][:400],
-            "B": B[i]["required_action"], "B_rule": B[i]["deciding_rule"], "B_reason": B[i]["reasoning"][:400],
+            "B": A[i]["required_action"], "B_rule": A[i].get("deciding_rule"), "B_reason": str(A[i].get("reasoning", ""))[:400],
+            "C": B[i]["required_action"], "C_rule": B[i].get("deciding_rule"), "C_reason": str(B[i].get("reasoning", ""))[:400],
             "message": items[i]["message"], "customer": items[i]["customer"], "linked_order": items[i]["linked_order"]}
            for i in ids if A[i]["required_action"] != B[i]["required_action"]]
     out["n_action_disagreements"] = len(dis)
+    S = judge_labels(SUPPLEMENTARY)
+    out["supplementary_judge_A"] = {}
+    for name, X in (("A_vs_B", A), ("A_vs_C", B)):
+        sub = [i for i in S if i in X]
+        if sub:
+            out["supplementary_judge_A"][name] = {"n": len(sub), "required_action_kappa": kappa(
+                [S[i]["required_action"] for i in sub], [X[i]["required_action"] for i in sub]),
+                "raw": round(sum(S[i]["required_action"] == X[i]["required_action"] for i in sub) / len(sub), 3)}
+    for d_ in dis:
+        d_["A_glm"] = S.get(d_["id"], {}).get("required_action")
     out["confusion"] = Counter(f"{A[i]['required_action']}|{B[i]['required_action']}" for i in ids).most_common()
     out["agree_vs_designed"] = sum(A[i]["required_action"] == B[i]["required_action"] == M[i]["designed"] for i in ids)
     (E / "heldout-v2-disagreements.json").write_text(json.dumps(dis, ensure_ascii=False, indent=1))
@@ -98,6 +118,7 @@ def freeze() -> None:
     items = {i["id"]: i for i in load("heldout_v2")}
     M = meta()
     adj = json.loads((E / "heldout-v2-adjudication.json").read_text())
+    S = judge_labels(SUPPLEMENTARY)
     labels, csv_rows = {}, []
     for i, it in items.items():
         a, b = A.get(i), B.get(i)
@@ -114,7 +135,9 @@ def freeze() -> None:
         if req != T:
             acc.discard(T)  # guide: CREATE_SUPPLIER_TASK is never acceptable for a non-task label
         labels[i] = {"required_action": req, "acceptable_actions": sorted(acc), "source": src, "note": note,
-                     "judge_A": a["required_action"] if a else None, "judge_B": b["required_action"] if b else None,
+                     "judge_B_nemotron": a["required_action"] if a else None,
+                     "judge_C_muse": b["required_action"] if b else None,
+                     "judge_A_glm_subset": S.get(i, {}).get("required_action"),
                      "designed": M[i]["designed"], "lang": M[i]["lang"], "kind": M[i]["kind"], "generator": M[i]["generator"]}
     comp = {"n": len(labels), "by_required_action": Counter(l["required_action"] for l in labels.values()),
             "non_supplier": sum(T not in l["acceptable_actions"] for l in labels.values()),
@@ -123,7 +146,7 @@ def freeze() -> None:
             "by_source": Counter(l["source"] for l in labels.values()),
             "pairs": sum(l["kind"].startswith("pair:") for l in labels.values())}
     out = {"status": STATUS, "labelling_guide": "docs/eval/v3/labelling-guide-v3.md",
-           "judges": {"A": "z-ai/glm-5.3", "B": "nvidia/nemotron-3-ultra-550b-a55b"}, "composition": comp,
+           "judges": {"primary": {k: JUDGE_MODELS[k] for k in PRIMARY}, "supplementary_subset": {"A": JUDGE_MODELS["A"]}}, "composition": comp,
            "messages": {i: items[i] for i in items}, "labels": labels}
     (E / "heldout-v2-labels.json").write_text(json.dumps(out, ensure_ascii=False, indent=1, default=dict))
     # review CSV: all adjudicated rows + edge cases until ~40, covering every language
@@ -138,13 +161,13 @@ def freeze() -> None:
     path = E / "heldout-v2-review.csv"
     with path.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["id", "lang", "kind", "customer", "linked_order", "message", "designed", "judge_A", "judge_B",
+        w.writerow(["id", "lang", "kind", "customer", "linked_order", "message", "designed", "judge_B_nemotron", "judge_C_muse", "judge_A_glm_subset",
                     "final_required_action", "acceptable_actions", "label_source", "adjudication_note",
                     "human_verdict (agree/disagree)", "human_note"])
         for i in rows:
             l, it = labels[i], items[i]
             w.writerow([i, l["lang"], l["kind"], it["customer"], it["linked_order"] or "", it["message"], l["designed"],
-                        l["judge_A"], l["judge_B"], l["required_action"], "|".join(l["acceptable_actions"]), l["source"],
+                        l["judge_B_nemotron"], l["judge_C_muse"], l["judge_A_glm_subset"] or "", l["required_action"], "|".join(l["acceptable_actions"]), l["source"],
                         l["note"], "", ""])
     print(json.dumps(comp, indent=1, default=dict), "\nCSV rows:", len(rows), path)
 
