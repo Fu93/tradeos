@@ -48,6 +48,10 @@ AUTOMATIC = (TASK, DIRECT)
 LANGS = ("en", "zh-Hant", "es", "de", "ja")
 
 
+class LLMCallFailed(Exception):
+    """Any LLM error in an eval run: stop instead of silently scoring the keyword fallback as 'llm'."""
+
+
 class DailyQuotaExhausted(Exception):
     """Groq free tier tokens-per-day cap: stop the run instead of silently degrading to the keyword fallback."""
 
@@ -59,11 +63,25 @@ class RetryTransport(httpx.BaseTransport):
     def __init__(self) -> None:
         self.inner = httpx.HTTPTransport()
         self.retries_429 = 0
+        self.retries_network = 0  # dropped connection / timeout / 5xx: same call re-sent (max 3), never a fallback
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
         for _ in range(8):
-            resp = self.inner.handle_request(request)
-            resp.read()
+            for attempt in range(4):
+                try:
+                    resp = self.inner.handle_request(request)
+                    resp.read()
+                except httpx.TransportError:
+                    if attempt == 3:
+                        raise
+                    self.retries_network += 1
+                    time.sleep(5 * (attempt + 1))
+                    continue
+                if resp.status_code >= 500 and attempt < 3:
+                    self.retries_network += 1
+                    time.sleep(5 * (attempt + 1))
+                    continue
+                break
             if resp.status_code != 429:
                 break
             if b"per day" in resp.content:
@@ -102,7 +120,7 @@ def run(set_name: str, mode: str, cases: list[dict], delay: float, settings: Set
     if mode == "llm":
         transport = RetryTransport()
         extractor = LLMRoutingExtractor(settings.llm_api_key, settings.llm_base_url, settings.llm_model,
-                                        transport=transport)
+                                        timeout=float(os.environ.get("EVAL_LLM_TIMEOUT", "30")), transport=transport)
     else:
         extractor = KeywordRoutingExtractor()
     svc = RoutingService(store, extractor, RoutingConfig())
@@ -115,7 +133,9 @@ def run(set_name: str, mode: str, cases: list[dict], delay: float, settings: Set
         try:
             rid = svc.triage(c["message"], CaseContext(customer=c["customer"], linked_order_id=c["linked_order"]),
                              source="eval")
-        except DailyQuotaExhausted as exc:
+            if mode == "llm" and "unavailable" in ((store.get_case(rid)["extraction"] or {}).get("extractor") or ""):
+                raise LLMCallFailed((store.get_case(rid)["extraction"] or {}).get("note", "LLM call failed"))
+        except (DailyQuotaExhausted, LLMCallFailed) as exc:
             aborted = {"at_case": c["id"], "completed": i, "reason": str(exc)}
             print(f"ABORTED at {c['id']}: {exc}", flush=True)
             break
@@ -146,11 +166,16 @@ def run(set_name: str, mode: str, cases: list[dict], delay: float, settings: Set
     with store.connect() as conn:
         dup_open = conn.execute("SELECT COUNT(*) FROM (SELECT dedup_key FROM supplier_tasks WHERE status='DRAFT_READY' "
                                 "GROUP BY dedup_key HAVING COUNT(*) > 1)").fetchone()[0]
+    host = settings.llm_base_url.split("//")[-1].split("/")[0]
+    provider = {"api.groq.com": "Groq", "integrate.api.nvidia.com": "NVIDIA"}.get(host, host)
     return {"meta": {"mode": mode, "extractor": getattr(extractor, "name", mode), "aborted": aborted,
+                     "provider": provider if mode == "llm" else None,
+                     "model": settings.llm_model if mode == "llm" else None,
                      "n_planned": len(cases), "n_completed": len(rows),
                      "run_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
                      "keys_with_more_than_one_open_task": dup_open,
                      "retries_429": transport.retries_429 if transport else 0,
+                     "retries_network": transport.retries_network if transport else 0,
                      "llm_fallbacks": sum("unavailable" in (r["extractor"] or "") for r in rows),
                      "delay_s": delay if mode == "llm" else 0},
             "rows": rows}
@@ -263,10 +288,15 @@ SET_TITLE = {"original": "Original 100 — regression set of known scenarios (au
 def markdown(res: dict) -> str:
     L = ["# Supplier routing eval — round 2 (rules `" + res["rule_version"] + "`)", "",
          "Two sets, reported **separately** (never pooled). Every rate is `correct/n (%)`; key rates carry a Wilson "
-         "95% confidence interval. Extractor model: `" + res["model"] + "` (Groq). All operational data is MOCK.",
-         "**The LLM runs below used `openai/gpt-oss-120b`, NOT the production extractor `openai/gpt-oss-20b` "
-         "(Groq free-tier daily token cap for 20b was exhausted on 2026-10-09). The 20b held-out run is still to do, "
-         "with the same frozen labels. Held-out set NOT used for tuning: rules 0.2.0 unchanged since before the run.**",
+         "95% confidence interval. All operational data is MOCK. Rules and frozen labels are identical for every run.",
+         "",
+         "**Models / providers.** Production extractor is `openai/gpt-oss-20b` on **Groq**. Runs named "
+         "`llm-120b-groq` used `openai/gpt-oss-120b` on Groq (the Groq free-tier daily token cap for 20b was "
+         "exhausted on 2026-10-09). Runs named `llm-20b-nvidia` used the production model `openai/gpt-oss-20b` "
+         "served by **NVIDIA** (integrate.api.nvidia.com, eval-only key): same model weights as production, "
+         "different provider (serving stack/sampling defaults may differ slightly from Groq). "
+         "Held-out set NOT used for tuning: rules 0.2.0 unchanged since before any held-out run.",
+         "",
          "Round-1 history: [routing-results-round1-rules011.md](routing-results-round1-rules011.md), "
          "[routing-results-run1.md](routing-results-run1.md).", ""]
     for set_name, sres in res["sets"].items():
@@ -275,10 +305,11 @@ def markdown(res: dict) -> str:
             mt = m["meta"]
             if mt.get("aborted"):
                 L.append(f"* **{mode}: PARTIAL RUN** — {mt['n_completed']}/{mt['n_planned']} cases, stopped at "
-                         f"{mt['aborted']['at_case']} (Groq free-tier tokens-per-day cap). Metrics below cover only "
+                         f"{mt['aborted']['at_case']} ({mt['aborted'].get('reason', '')[:120]}). Metrics below cover only "
                          "the completed rows.")
-            L.append(f"* **{mode}** run {mt['run_at']} UTC · extractor `{mt['extractor']}` · 429 retries "
-                     f"{mt['retries_429']} · LLM fallbacks {mt['llm_fallbacks']} · keys with >1 open task "
+            L.append(f"* **{mode}** run {mt['run_at']} UTC · provider {mt.get('provider') or '—'} · model "
+                     f"`{mt.get('model') or '—'}` · extractor `{mt['extractor']}` · 429 retries "
+                     f"{mt['retries_429']} · network retries {mt.get('retries_network', 0)} · LLM fallbacks {mt['llm_fallbacks']} · keys with >1 open task "
                      f"{mt['keys_with_more_than_one_open_task']}")
         modes = list(sres["runs"])
         L += ["", "| Metric | " + " | ".join(modes) + " |", "| --- | " + " | ".join("---" for _ in modes) + " |"]

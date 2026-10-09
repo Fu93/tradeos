@@ -88,7 +88,7 @@ All three dimensions plus the deciding rule are shown in the dashboard panel and
   - `CLARIFY_WITH_CUSTOMER` and `HUMAN_REVIEW` are never changed by confidence.
   - **Nothing is ever promoted.** A case that fails a hard gate or a routing rule stays where it is at any confidence. Confidence is only read after the gates and rules. The test `test_confidence_only_demotes_never_promotes` runs the same failing cases at 0.0 / 0.5 / 0.99 / 1.0.
 * The keyword fallback is always below the floor, so it never performs an automatic action.
-* Observed (round 2, gpt-oss-120b): see the confidence analysis in [eval/routing-results.md](eval/routing-results.md).
+* Observed (round 2, both models): see the confidence analysis in [eval/routing-results.md](eval/routing-results.md). The self-report does not separate right from wrong actions: P(right > wrong) on held-out is 0.49 for 20b and 0.69 for 120b.
   - Self-reports sit at 0.90–0.99 for right and wrong answers alike.
   - P(conf right > conf wrong) is 0.61 (original) and 0.69 (held-out) on the raw self-report, and 0.73 / 0.75 on the combined score.
   - No threshold separates them: at 0.90 the raw self-report demotes 0 of 9 wrong held-out actions. At 0.99 it would demote 7/9 wrong, but also 20/51 right.
@@ -181,15 +181,12 @@ Screenshots: [all gates passed](supplier-routing-panel.png) · [gate 2 failed at
 
 ## Round 2 (rules 0.2.0): three dimensions, held-out set, demote-only confidence
 
-**Eval model caveat.** The production extractor is `openai/gpt-oss-20b`. Its Groq free-tier daily cap (200k tokens per
-day) was used up on 2026-10-09 by the round-1 runs plus an aborted round-2 start. Both round-2 LLM runs therefore used
-`openai/gpt-oss-120b`: same family, same prompt and schema, separate quota. **The production-model (20b) held-out run is
-still to do**, with the same frozen labels, when the quota resets:
+**Eval models and providers.** Production extractor: `openai/gpt-oss-20b` on Groq.
 
-```
-LLM_MODEL=openai/gpt-oss-20b EVAL_OUT_JSON=docs/eval/routing-results-heldout-20b.json \
-  python scripts/eval_routing.py --set heldout --mode llm --delay 10
-```
+* **20b via NVIDIA (production model):** both sets were run with `openai/gpt-oss-20b` served by NVIDIA (`integrate.api.nvidia.com`, an eval-only key, never used by the app or Render). This kept the Groq quota for the live app. Same model, **different provider** from production, so serving and decoding may differ slightly.
+* **120b via Groq (comparison):** the earlier runs used `openai/gpt-oss-120b`, because the Groq 20b daily cap was used up. Kept for comparison only.
+* **NVIDIA instability:** the first attempts of both 20b runs were aborted on a dropped connection (`RemoteProtocolError`; original at R14, held-out at H58). The script stops rather than score a keyword fallback as "llm". After adding a counted same-request network retry, both sets were re-run from scratch to completion (0 fallbacks).
+* Side by side: [eval/routing-model-comparison.md](eval/routing-model-comparison.md).
 
 **Held-out set.**
 
@@ -197,27 +194,44 @@ LLM_MODEL=openai/gpt-oss-20b EVAL_OUT_JSON=docs/eval/routing-results-heldout-20b
   [a prompt with no rules](eval/heldout-generation-prompt.md).
 * Labelled by the author per [the guide](eval/heldout-labelling-guide.md), frozen in d5752f0 **before** any run.
 * Status: *blind-generated, author-labelled, pending human review*. Spot-check file:
-  [eval/heldout-review.csv](eval/heldout-review.csv), with 29 rows marked `priority_review`.
+  [eval/heldout-review.csv](eval/heldout-review.csv), with 30 rows marked `priority_review` (columns for both 20b and 120b).
 * **Not used for tuning.** Rules 0.2.0 (a4ffee8) were committed before the first held-out run and have not changed since.
 * Caveat: the author read the messages while labelling, before writing 0.2.0. The next round needs a fresh held-out set anyway.
 
-Headline (full tables, per-case error lists with the deciding rule, and CIs: [eval/routing-results.md](eval/routing-results.md)):
+Headline (full tables, per-case error lists with the deciding rule, and CIs: [eval/routing-results.md](eval/routing-results.md),
+[eval/routing-model-comparison.md](eval/routing-model-comparison.md)):
 
-| | Original 100 (regression, gpt-oss-120b) | Held-out 60 (unseen, gpt-oss-120b) |
-| --- | --- | --- |
-| issue_type | 96/100 | 48/60 (80.0%, CI 68–88%) |
-| customer_goal | 93/100 | 49/60 (81.7%, CI 70–89%) |
-| required_action (lenient) | 92/100 (CI 85–96%) | 51/60 (85.0%, CI 74–92%) |
-| supplier-task precision | 30/30 (CI 89–100%) | 3/4 |
-| supplier-task recall (automatic) | 30/36 | 3/3 |
-| false trigger on non-task cases | 0/64 | **1/57 (H13)** |
-| should be human/clarify but automated | 0/52 | **2/44 (H13, H32)** |
-| keyword fallback: tasks / automatic actions | 0 / 0 | 0 / 0 |
+| | Original 100 · **20b@NVIDIA** | Original 100 · 120b@Groq | Held-out 60 · **20b@NVIDIA** | Held-out 60 · 120b@Groq |
+| --- | --- | --- | --- | --- |
+| issue_type | 88/100 (CI 80–93%) | 96/100 (CI 90–98%) | 48/60 (CI 68–88%) | 48/60 (CI 68–88%) |
+| customer_goal | 90/100 (CI 83–95%) | 93/100 (CI 86–97%) | 45/60 (CI 63–84%) | 49/60 (CI 70–89%) |
+| required_action (lenient) | 91/100 (CI 84–95%) | 92/100 (CI 85–96%) | **48/60 (80.0%, CI 68–88%)** | 51/60 (85.0%, CI 74–92%) |
+| supplier-task precision | 29/29 (CI 88–100%) | 30/30 (CI 89–100%) | 3/4 (CI 30–95%) | 3/4 |
+| supplier-task recall (automatic) | 29/36 (CI 65–90%) | 30/36 (CI 68–92%) | 3/3 (CI 44–100%) | 3/3 |
+| false trigger on non-task cases | 0/64 (CI 0–6%) | 0/64 | **1/57 (H13)** (CI 0.3–9%) | 1/57 (H13) |
+| should be human/clarify but automated | 0/52 (CI 0–7%) | 0/52 | **1/44 (H13)** (CI 0.4–12%) | 2/44 (H13, H32) |
+| keyword fallback: tasks / automatic actions | 0 / 0 | 0 / 0 | 0 / 0 | 0 / 0 |
+
+**Do the conclusions change with the production model? Not qualitatively.**
+
+* The 20b is somewhat weaker on dimensions: customer_goal 45/60 vs 49/60, and action 48/60 vs 51/60. The CIs overlap heavily, so this is not a demonstrated difference.
+* Its errors fail more toward people: 4 automatic routes were demoted by confidence vs 1. That includes H32, which 120b sent to the refund flow.
+* The safety-relevant picture is the same:
+  - the same single false supplier task (H13);
+  - no automated-but-should-be-manual case other than H13;
+  - task precision 29/29 on the original set;
+  - zero automatic actions from the keyword fallback.
+* The same weaknesses appear: "repair or replace" read as mixed (D04, D05, H48), inconsistent mixed detection, and INFORMATION chosen where the label is UNCLEAR (H27, H28, H30).
+* The new 20b-only failure modes:
+  - R7 "no requested outcome" (D03, D10);
+  - P09, gate 3, carrier-delivered conflict after the AI read MISSING_ITEM;
+  - H53, gate 2, no order.
+  All of them route to a human or to clarification.
 
 Even a perfect 60/60 would only be preliminary evidence: its lower 95% bound is about 94%, and the held-out set has only 3
 supplier-task cases. These numbers are not proof of 95% production accuracy.
 
-**Regression messages** (permanent tests; real LLM gpt-oss-120b, local, 2026-10-09):
+**Regression messages** (permanent tests; real LLM, local, 2026-10-09). With **20b via NVIDIA** through the full pipeline: "I just want my money back" → NO_ISSUE_INQUIRY/REFUND → `DIRECT_WORKFLOW` (R5), no task; "Do you sell the LED module separately?" → NO_ISSUE_INQUIRY/INFORMATION → `HUMAN_REVIEW` (R4), no task. With 120b via Groq:
 
 * "I just want my money back" → REFUND → `DIRECT_WORKFLOW` (R5), no task. Same with a linked order inside the supplier warranty.
 * "Do you sell the LED module separately?" → the LLM said PART_NEED/**BUY_PART**. Rule R8 (question-form text) stopped it → `HUMAN_REVIEW`, no task. The tests also cover an adversarial DEFECT extraction, which the text check overrides.
@@ -228,10 +242,10 @@ Screenshots: [regression: LED question](supplier-routing-panel-r2-led-question.p
 
 **Remaining weaknesses (not fixed. Fixing them would make the held-out set "used for tuning".)**
 
-1. **H13, the false trigger.** German question form "Hättet ihr noch Ersatzfilter oder den Deckel KL-170-LID?" The AI read BUY_PART, and the question markers don't cover "Hättet ihr / habt ihr …?". A supplier task was created for what the label calls a question.
+1. **H13, the false trigger (both 20b and 120b).** German question form "Hättet ihr noch Ersatzfilter oder den Deckel KL-170-LID?" The AI read BUY_PART, and the question markers don't cover "Hättet ihr / habt ihr …?". A supplier task was created for what the label calls a question.
    Possible fix: never auto-create a part task from a "?"-terminated sentence without an explicit order verb.
-2. **H32.** Two items (kettle + socks) with "can I return both?". The AI did not flag mixed, so it went to the refund flow (`DIRECT_WORKFLOW`) instead of clarification. Phase A's human approval still guards the money.
+2. **H32 (120b; 20b got it demoted to a human).** Two items (kettle + socks) with "can I return both?". The AI did not flag mixed, so it went to the refund flow (`DIRECT_WORKFLOW`) instead of clarification. Phase A's human approval still guards the money.
 3. **"Repair or replace" flagged as mixed.** This caused 4 of the 6 missed tasks on the original set and H48. It fails safe (clarification).
 4. **Mixed / two-item detection is inconsistent** in both directions: H08, H12 and H14 were over-flagged; H28 and H30 were missed.
-5. **Confidence does not separate right from wrong** (above). It stays a demote-only signal.
+5. **Confidence does not separate right from wrong** (above). On held-out 20b, P(self-report of right > wrong) = 0.49, which is no separation; the combined score gives 0.63. It stays a demote-only signal.
 6. **Small samples.** The keyword fallback only routes to people. The labels are pending human review (1 erratum: H60). Everything is MOCK data.

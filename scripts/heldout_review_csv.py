@@ -30,15 +30,17 @@ def main() -> None:
         for mode, run in res["sets"]["heldout"]["runs"].items():
             for r in run["rows"]:
                 preds.setdefault(r["id"], {})[mode] = r
-    wrong = [c["id"] for c in labels if preds.get(c["id"], {}).get("llm")
-             and preds[c["id"]]["llm"]["action"] not in c["acceptable_actions"]]
+    llm_modes = ["llm-20b-nvidia", "llm-120b-groq", "llm"]  # production model first
+    wrong = [c["id"] for c in labels if any(preds.get(c["id"], {}).get(m)
+             and preds[c["id"]][m]["action"] not in c["acceptable_actions"] for m in llm_modes)]
     extra = [w for w in wrong if w not in PRE_PRIORITY][: max(0, MAX_PRIORITY - len(PRE_PRIORITY))]
     cols = ["id", "message", "language", "category", "proposed_issue_type", "proposed_customer_goal",
             "proposed_mixed", "proposed_required_action", "acceptable_actions", "author_note",
             "priority_review", "priority_reason"]
     if preds:
-        cols += ["pipeline_llm_issue", "pipeline_llm_goal", "pipeline_llm_action", "pipeline_llm_reason",
-                 "pipeline_keyword_action"]
+        cols += ["pipeline_20b_nvidia_issue", "pipeline_20b_nvidia_goal", "pipeline_20b_nvidia_action",
+                 "pipeline_20b_nvidia_reason", "pipeline_120b_groq_issue", "pipeline_120b_groq_goal",
+                 "pipeline_120b_groq_action", "pipeline_120b_groq_reason", "pipeline_keyword_action"]
     cols += ["reviewer_agree (agree/disagree)", "reviewer_correct_issue_type", "reviewer_correct_customer_goal",
              "reviewer_correct_required_action", "reviewer_comment"]
     out = ROOT / "docs/eval/heldout-review.csv"
@@ -50,15 +52,17 @@ def main() -> None:
             if c["id"] in PRE_PRIORITY:
                 reasons.append("edge case (pre-selected before the run)")
             if c["id"] in wrong:
-                reasons.append("LLM route differs from label")
+                reasons.append("an LLM run (20b and/or 120b) routed outside acceptable_actions")
             prio = "YES" if (c["id"] in PRE_PRIORITY or c["id"] in extra) else ""
             row = [c["id"], c["message"], c["language"], c["category"], c["issue_type"], c["customer_goal"],
                    c["mixed"], c["required_action"], "|".join(c["acceptable_actions"]), c["note"], prio,
                    "; ".join(reasons)]
             if preds:
                 p = preds.get(c["id"], {})
-                l, k = p.get("llm", {}), p.get("keyword", {})
-                row += [l.get("pred_issue"), l.get("pred_goal"), l.get("action"), l.get("decided_by"), k.get("action")]
+                a, b, k = p.get("llm-20b-nvidia", {}), p.get("llm-120b-groq") or p.get("llm", {}), p.get("keyword", {})
+                for l in (a, b):
+                    row += [l.get("pred_issue"), l.get("pred_goal"), l.get("action"), l.get("decided_by")]
+                row += [k.get("action")]
             row += ["", "", "", "", ""]
             w.writerow(row)
     print(f"{out}: {len(labels)} rows, priority {sum(1 for c in labels if c['id'] in PRE_PRIORITY or c['id'] in extra)}")

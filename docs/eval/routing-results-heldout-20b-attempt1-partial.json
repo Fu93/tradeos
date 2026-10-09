@@ -1,0 +1,3309 @@
+{
+ "rule_version": "supplier-routing-rules/0.2.0 (MVP 1 experiment, round 2)",
+ "model": "openai/gpt-oss-20b",
+ "sets": {
+  "heldout": {
+   "runs": {
+    "llm": {
+     "meta": {
+      "mode": "llm",
+      "extractor": "llm:openai/gpt-oss-20b",
+      "aborted": {
+       "at_case": "H58",
+       "completed": 57,
+       "reason": "LLM call failed (RemoteProtocolError); keyword fallback used."
+      },
+      "provider": "NVIDIA",
+      "model": "openai/gpt-oss-20b",
+      "n_planned": 60,
+      "n_completed": 57,
+      "run_at": "2026-10-09T11:16:59+00:00",
+      "keys_with_more_than_one_open_task": 0,
+      "retries_429": 0,
+      "llm_fallbacks": 0,
+      "delay_s": 2.0
+     },
+     "rows": [
+      {
+       "id": "H01",
+       "lang": "en",
+       "slice": "negation",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "EXCHANGE",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R8 the text is question-form / negates a problem but the AI goal is EXCHANGE: a human answers (no automatic action on a question).",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 19167.6
+      },
+      {
+       "id": "H02",
+       "lang": "en",
+       "slice": "pre_purchase",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 9714.4
+      },
+      {
+       "id": "H03",
+       "lang": "en",
+       "slice": "inquiry_about_problem",
+       "issue_type": "DEFECT",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 10210.5
+      },
+      {
+       "id": "H04",
+       "lang": "de",
+       "slice": "part_inquiry",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 9526.4
+      },
+      {
+       "id": "H05",
+       "lang": "ja",
+       "slice": "negation",
+       "issue_type": "DEFECT",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REPAIR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REPAIR",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R8 the text is question-form but the AI goal is REPAIR: a human answers (no automatic action on a question).",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13660.6
+      },
+      {
+       "id": "H06",
+       "lang": "en",
+       "slice": "inquiry_about_problem",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW",
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.85,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 10401.1
+      },
+      {
+       "id": "H07",
+       "lang": "en",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 25750.6
+      },
+      {
+       "id": "H08",
+       "lang": "zh-Hant",
+       "slice": "inquiry_about_problem",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": true,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "EXCHANGE",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them.",
+       "confidence": 0.85,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13509.6
+      },
+      {
+       "id": "H09",
+       "lang": "es",
+       "slice": "pre_purchase",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 7540.0
+      },
+      {
+       "id": "H10",
+       "lang": "de",
+       "slice": "part_inquiry",
+       "issue_type": "DEFECT",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "BUY_PART",
+       "action": "HUMAN_REVIEW",
+       "proposed": "CREATE_SUPPLIER_TASK",
+       "demoted": true,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gate 4 (confidence_and_duplicates): Supplier task proposed, but confidence 0.7 < 0.9: demoted; a human confirms or rejects the proposal.",
+       "confidence": 0.7,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 21096.6
+      },
+      {
+       "id": "H11",
+       "lang": "ja",
+       "slice": "inquiry_about_problem",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 11796.3
+      },
+      {
+       "id": "H12",
+       "lang": "en",
+       "slice": "inquiry_about_problem",
+       "issue_type": "DEFECT",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REPAIR",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 28671.2
+      },
+      {
+       "id": "H13",
+       "lang": "de",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW",
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "BUY_PART",
+       "action": "CREATE_SUPPLIER_TASK",
+       "proposed": "CREATE_SUPPLIER_TASK",
+       "demoted": false,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gates 1-4 passed: KL-170-LID (Lid assembly) compatible but 0 in stock; Kettleworks Ltd. (MOCK supplier) supplies parts: confirm availability and lead time.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": true,
+       "duplicate_of": null,
+       "task_complete": true,
+       "latency_ms": 31687.2
+      },
+      {
+       "id": "H14",
+       "lang": "es",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "PART_NEED",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "PART_NEED",
+       "pred_goal": "BUY_PART",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R8 the text is question-form but the AI goal is BUY_PART: a human answers (no automatic action on a question).",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 23641.5
+      },
+      {
+       "id": "H15",
+       "lang": "ja",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13286.1
+      },
+      {
+       "id": "H16",
+       "lang": "en",
+       "slice": "refund_only",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 74775.8
+      },
+      {
+       "id": "H17",
+       "lang": "en",
+       "slice": "refund_only",
+       "issue_type": "DEFECT",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 9065.0
+      },
+      {
+       "id": "H18",
+       "lang": "en",
+       "slice": "refund_only",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 51310.2
+      },
+      {
+       "id": "H19",
+       "lang": "de",
+       "slice": "refund_only",
+       "issue_type": "DEFECT",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REFUND",
+       "action": "HUMAN_REVIEW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": true,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task. -> demoted (confidence 0.6 < 0.9)",
+       "confidence": 0.6,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13537.9
+      },
+      {
+       "id": "H20",
+       "lang": "es",
+       "slice": "refund_only",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "UNCLEAR",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "UNCLEAR",
+       "pred_goal": "REFUND",
+       "action": "HUMAN_REVIEW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": true,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task. -> demoted (confidence 0.8 < 0.9)",
+       "confidence": 0.8,
+       "llm_confidence": 0.8,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 12017.5
+      },
+      {
+       "id": "H21",
+       "lang": "es",
+       "slice": "refund_only",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 33224.6
+      },
+      {
+       "id": "H22",
+       "lang": "ja",
+       "slice": "refund_only",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 11188.5
+      },
+      {
+       "id": "H23",
+       "lang": "en",
+       "slice": "refund_only",
+       "issue_type": "DEFECT",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 15436.5
+      },
+      {
+       "id": "H24",
+       "lang": "zh-Hant",
+       "slice": "refund_only",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 21065.7
+      },
+      {
+       "id": "H25",
+       "lang": "zh-Hant",
+       "slice": "refund_only",
+       "issue_type": "DEFECT",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 10066.9
+      },
+      {
+       "id": "H26",
+       "lang": "en",
+       "slice": "mixed",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "MISSING_ITEM",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": true,
+       "pred_issue": "MISSING_ITEM",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them.",
+       "confidence": 0.9,
+       "llm_confidence": 0.9,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 97353.2
+      },
+      {
+       "id": "H27",
+       "lang": "en",
+       "slice": "mixed",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue SIZE_MISMATCH): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 16653.0
+      },
+      {
+       "id": "H28",
+       "lang": "en",
+       "slice": "mixed",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 47752.2
+      },
+      {
+       "id": "H29",
+       "lang": "zh-Hant",
+       "slice": "mixed",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": true,
+       "pred_issue": "DEFECT",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them.",
+       "confidence": 0.9,
+       "llm_confidence": 0.9,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 23109.5
+      },
+      {
+       "id": "H30",
+       "lang": "zh-Hant",
+       "slice": "mixed",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.9,
+       "llm_confidence": 0.9,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 34074.0
+      },
+      {
+       "id": "H31",
+       "lang": "es",
+       "slice": "mixed",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 40228.4
+      },
+      {
+       "id": "H32",
+       "lang": "es",
+       "slice": "mixed",
+       "issue_type": "DEFECT",
+       "customer_goal": "REFUND",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 30950.5
+      },
+      {
+       "id": "H33",
+       "lang": "de",
+       "slice": "mixed",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "UNCLEAR",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": true,
+       "pred_issue": "UNCLEAR",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them.",
+       "confidence": 0.8,
+       "llm_confidence": 0.8,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 62733.5
+      },
+      {
+       "id": "H34",
+       "lang": "de",
+       "slice": "mixed_safety",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue DEFECT): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.85,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 17423.7
+      },
+      {
+       "id": "H35",
+       "lang": "ja",
+       "slice": "mixed",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "UNCLEAR",
+       "mixed": true,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": true,
+       "pred_issue": "DEFECT",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R3 mixed / undecided goals or several items: ask the customer to separate them.",
+       "confidence": 0.9,
+       "llm_confidence": 0.9,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 92786.6
+      },
+      {
+       "id": "H36",
+       "lang": "en",
+       "slice": "insufficient_info",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "EXCHANGE",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "EXCHANGE",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "EXCHANGE",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 46561.2
+      },
+      {
+       "id": "H37",
+       "lang": "en",
+       "slice": "insufficient_info",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW",
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13554.7
+      },
+      {
+       "id": "H38",
+       "lang": "zh-Hant",
+       "slice": "insufficient_info",
+       "issue_type": "DEFECT",
+       "customer_goal": "REPAIR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REPAIR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REPAIR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "DEFECT",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 29855.2
+      },
+      {
+       "id": "H39",
+       "lang": "es",
+       "slice": "insufficient_info",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW",
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "REFUND",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 7713.6
+      },
+      {
+       "id": "H40",
+       "lang": "es",
+       "slice": "insufficient_info",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R7 issue DEFECT but no requested outcome: ask what the customer wants.",
+       "confidence": 0.75,
+       "llm_confidence": 0.75,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 39237.1
+      },
+      {
+       "id": "H41",
+       "lang": "de",
+       "slice": "insufficient_info",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R7 issue DEFECT but no requested outcome: ask what the customer wants.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13674.4
+      },
+      {
+       "id": "H42",
+       "lang": "de",
+       "slice": "insufficient_info",
+       "issue_type": "DEFECT",
+       "customer_goal": "UNCLEAR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "UNCLEAR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "UNCLEAR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R7 issue DEFECT but no requested outcome: ask what the customer wants.",
+       "confidence": 0.75,
+       "llm_confidence": 0.75,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 8140.2
+      },
+      {
+       "id": "H43",
+       "lang": "ja",
+       "slice": "insufficient_info",
+       "issue_type": "DEFECT",
+       "customer_goal": "REPAIR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REPAIR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REPAIR",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "DEFECT",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 41401.3
+      },
+      {
+       "id": "H44",
+       "lang": "ja",
+       "slice": "insufficient_info",
+       "issue_type": "MISSING_ITEM",
+       "customer_goal": "UNCLEAR",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "MISSING_ITEM",
+       "pred_goal_raw": "RESHIP",
+       "pred_mixed": false,
+       "pred_issue": "MISSING_ITEM",
+       "pred_goal": "RESHIP",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "RESHIP",
+       "decided_by": "gate 2 (matches_order): Order TO-703031 not found (no fuzzy matching): ask the customer to confirm it.",
+       "confidence": 0.99,
+       "llm_confidence": 0.99,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 20615.9
+      },
+      {
+       "id": "H45",
+       "lang": "en",
+       "slice": "refund_only",
+       "issue_type": "UNCLEAR",
+       "customer_goal": "REFUND",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "UNCLEAR",
+       "pred_goal_raw": "REFUND",
+       "pred_mixed": false,
+       "pred_issue": "UNCLEAR",
+       "pred_goal": "REFUND",
+       "action": "HUMAN_REVIEW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": true,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R5 customer_goal REFUND: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task. -> demoted (confidence 0.8 < 0.9)",
+       "confidence": 0.8,
+       "llm_confidence": 0.8,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 75322.3
+      },
+      {
+       "id": "H46",
+       "lang": "en",
+       "slice": "clear_request",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "EXCHANGE",
+       "mixed": false,
+       "required_action": "CREATE_SUPPLIER_TASK",
+       "acceptable": [
+        "CREATE_SUPPLIER_TASK"
+       ],
+       "expected_new_task": true,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "EXCHANGE",
+       "action": "CREATE_SUPPLIER_TASK",
+       "proposed": "CREATE_SUPPLIER_TASK",
+       "demoted": false,
+       "family": "EXCHANGE",
+       "decided_by": "gates 1-4 passed: Drop-shipped item: Stride Footwear Co. (MOCK supplier) is the source of truth for 43 stock and exchange feasibility.",
+       "confidence": 0.99,
+       "llm_confidence": 0.99,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": true,
+       "duplicate_of": null,
+       "task_complete": true,
+       "latency_ms": 13412.3
+      },
+      {
+       "id": "H47",
+       "lang": "zh-Hant",
+       "slice": "clear_request",
+       "issue_type": "MISSING_ITEM",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW",
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "MISSING_ITEM",
+       "pred_goal_raw": "RESHIP",
+       "pred_mixed": false,
+       "pred_issue": "MISSING_ITEM",
+       "pred_goal": "RESHIP",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": "RESHIP",
+       "decided_by": "gate 3 (supplier_necessary): Carrier shows the item delivered in full; the claim conflicts with our data. A human investigates before anyone reships.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 27431.3
+      },
+      {
+       "id": "H48",
+       "lang": "es",
+       "slice": "clear_request",
+       "issue_type": "DEFECT",
+       "customer_goal": "REPAIR",
+       "mixed": false,
+       "required_action": "DIRECT_WORKFLOW",
+       "acceptable": [
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "REPAIR",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "REPAIR",
+       "action": "DIRECT_WORKFLOW",
+       "proposed": "DIRECT_WORKFLOW",
+       "demoted": false,
+       "family": "DEFECT",
+       "decided_by": "gate 3 (supplier_necessary): Purchased 8 days ago: covered by the existing return/refund policy (30 days). Supplier not needed.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 36930.8
+      },
+      {
+       "id": "H49",
+       "lang": "de",
+       "slice": "clear_request",
+       "issue_type": "PART_NEED",
+       "customer_goal": "BUY_PART",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "PART_NEED",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "PART_NEED",
+       "pred_goal": "BUY_PART",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 69848.1
+      },
+      {
+       "id": "H50",
+       "lang": "ja",
+       "slice": "clear_request",
+       "issue_type": "PART_NEED",
+       "customer_goal": "BUY_PART",
+       "mixed": false,
+       "required_action": "CREATE_SUPPLIER_TASK",
+       "acceptable": [
+        "CREATE_SUPPLIER_TASK",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": true,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "BUY_PART",
+       "action": "CREATE_SUPPLIER_TASK",
+       "proposed": "CREATE_SUPPLIER_TASK",
+       "demoted": false,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gates 1-4 passed: KL-170-LID (Lid assembly) compatible but 0 in stock; Kettleworks Ltd. (MOCK supplier) supplies parts: confirm availability and lead time.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": true,
+       "duplicate_of": null,
+       "task_complete": true,
+       "latency_ms": 32313.7
+      },
+      {
+       "id": "H51",
+       "lang": "en",
+       "slice": "clear_request",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "EXCHANGE",
+       "mixed": false,
+       "required_action": "CREATE_SUPPLIER_TASK",
+       "acceptable": [
+        "CREATE_SUPPLIER_TASK",
+        "CLARIFY_WITH_CUSTOMER",
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": true,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "EXCHANGE",
+       "action": "CREATE_SUPPLIER_TASK",
+       "proposed": "CREATE_SUPPLIER_TASK",
+       "demoted": false,
+       "family": "EXCHANGE",
+       "decided_by": "gates 1-4 passed: Drop-shipped item: Lumina Lighting (MOCK supplier) is the source of truth for black stock and exchange feasibility.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": true,
+       "duplicate_of": null,
+       "task_complete": true,
+       "latency_ms": 28502.4
+      },
+      {
+       "id": "H52",
+       "lang": "es",
+       "slice": "clear_request",
+       "issue_type": "PART_NEED",
+       "customer_goal": "BUY_PART",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "DEFECT",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "DEFECT",
+       "pred_goal": "BUY_PART",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.85,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 13388.1
+      },
+      {
+       "id": "H53",
+       "lang": "de",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "PART_NEED",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "PART_NEED",
+       "pred_goal": "BUY_PART",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "PART_REPLACEMENT",
+       "decided_by": "gate 2 (matches_order): No order number in the message and no linked order: ask for it.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 15733.4
+      },
+      {
+       "id": "H54",
+       "lang": "ja",
+       "slice": "part_inquiry",
+       "issue_type": "PART_NEED",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "PART_NEED",
+       "pred_goal_raw": "BUY_PART",
+       "pred_mixed": false,
+       "pred_issue": "PART_NEED",
+       "pred_goal": "BUY_PART",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R8 the text is question-form but the AI goal is BUY_PART: a human answers (no automatic action on a question).",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 36911.0
+      },
+      {
+       "id": "H55",
+       "lang": "en",
+       "slice": "clear_request",
+       "issue_type": "SIZE_MISMATCH",
+       "customer_goal": "EXCHANGE",
+       "mixed": false,
+       "required_action": "CLARIFY_WITH_CUSTOMER",
+       "acceptable": [
+        "CLARIFY_WITH_CUSTOMER",
+        "DIRECT_WORKFLOW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "SIZE_MISMATCH",
+       "pred_goal_raw": "EXCHANGE",
+       "pred_mixed": false,
+       "pred_issue": "SIZE_MISMATCH",
+       "pred_goal": "EXCHANGE",
+       "action": "CLARIFY_WITH_CUSTOMER",
+       "proposed": "CLARIFY_WITH_CUSTOMER",
+       "demoted": false,
+       "family": "EXCHANGE",
+       "decided_by": "gate 2 (matches_order): Requested size not stated in the message: ask (never guessed).",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 26822.7
+      },
+      {
+       "id": "H56",
+       "lang": "en",
+       "slice": "negation",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 15953.1
+      },
+      {
+       "id": "H57",
+       "lang": "zh-Hant",
+       "slice": "negation",
+       "issue_type": "NO_ISSUE_INQUIRY",
+       "customer_goal": "INFORMATION",
+       "mixed": false,
+       "required_action": "HUMAN_REVIEW",
+       "acceptable": [
+        "HUMAN_REVIEW"
+       ],
+       "expected_new_task": false,
+       "pred_issue_raw": "NO_ISSUE_INQUIRY",
+       "pred_goal_raw": "INFORMATION",
+       "pred_mixed": false,
+       "pred_issue": "NO_ISSUE_INQUIRY",
+       "pred_goal": "INFORMATION",
+       "action": "HUMAN_REVIEW",
+       "proposed": "HUMAN_REVIEW",
+       "demoted": false,
+       "family": null,
+       "decided_by": "gate 1 (intent_rules): R4 customer_goal INFORMATION (issue NO_ISSUE_INQUIRY): a question, not a request to act; support answers it. No supplier task.",
+       "confidence": 0.95,
+       "llm_confidence": 0.95,
+       "extractor": "llm:openai/gpt-oss-20b",
+       "new_task": false,
+       "duplicate_of": null,
+       "task_complete": null,
+       "latency_ms": 14330.4
+      }
+     ],
+     "overall": {
+      "n": 57,
+      "issue_type": [
+       46,
+       57
+      ],
+      "issue_type_raw_ai": [
+       47,
+       57
+      ],
+      "customer_goal": [
+       42,
+       57
+      ],
+      "customer_goal_raw_ai": [
+       41,
+       57
+      ],
+      "mixed_flag": [
+       50,
+       57
+      ],
+      "action_strict": [
+       46,
+       57
+      ],
+      "action_lenient": [
+       46,
+       57
+      ],
+      "all_three_strict": [
+       29,
+       57
+      ],
+      "task_precision": [
+       3,
+       4
+      ],
+      "task_recall": [
+       3,
+       3
+      ],
+      "task_recall_incl_human_confirm": [
+       3,
+       3
+      ],
+      "false_trigger_non_task": [
+       1,
+       54
+      ],
+      "automated_but_should_be_manual": [
+       2,
+       41
+      ],
+      "duplicate_new_task": [
+       0,
+       0
+      ],
+      "completeness": [
+       4,
+       4
+      ],
+      "demoted": [
+       4,
+       57
+      ],
+      "latency_p50": 21065.7,
+      "confusion": {
+       "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 14,
+       "CLARIFY_WITH_CUSTOMER -> DIRECT_WORKFLOW": 1,
+       "CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW": 4,
+       "CREATE_SUPPLIER_TASK -> CREATE_SUPPLIER_TASK": 3,
+       "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 10,
+       "DIRECT_WORKFLOW -> HUMAN_REVIEW": 3,
+       "HUMAN_REVIEW -> CLARIFY_WITH_CUSTOMER": 2,
+       "HUMAN_REVIEW -> CREATE_SUPPLIER_TASK": 1,
+       "HUMAN_REVIEW -> HUMAN_REVIEW": 19
+      },
+      "false_triggers": [
+       "H13"
+      ],
+      "missed_triggers": [],
+      "automated_manual_ids": [
+       "H13",
+       "H32"
+      ]
+     },
+     "by_slice": {
+      "clear_request": {
+       "n": 8,
+       "issue_type": [
+        6,
+        8
+       ],
+       "issue_type_raw_ai": [
+        6,
+        8
+       ],
+       "customer_goal": [
+        7,
+        8
+       ],
+       "customer_goal_raw_ai": [
+        7,
+        8
+       ],
+       "mixed_flag": [
+        8,
+        8
+       ],
+       "action_strict": [
+        8,
+        8
+       ],
+       "action_lenient": [
+        8,
+        8
+       ],
+       "all_three_strict": [
+        5,
+        8
+       ],
+       "task_precision": [
+        3,
+        3
+       ],
+       "task_recall": [
+        3,
+        3
+       ],
+       "task_recall_incl_human_confirm": [
+        3,
+        3
+       ],
+       "false_trigger_non_task": [
+        0,
+        5
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        4
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        3,
+        3
+       ],
+       "demoted": [
+        0,
+        8
+       ],
+       "latency_p50": 27966.85,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 3,
+        "CREATE_SUPPLIER_TASK -> CREATE_SUPPLIER_TASK": 3,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 1
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "inquiry_about_problem": {
+       "n": 5,
+       "issue_type": [
+        2,
+        5
+       ],
+       "issue_type_raw_ai": [
+        3,
+        5
+       ],
+       "customer_goal": [
+        4,
+        5
+       ],
+       "customer_goal_raw_ai": [
+        3,
+        5
+       ],
+       "mixed_flag": [
+        4,
+        5
+       ],
+       "action_strict": [
+        4,
+        5
+       ],
+       "action_lenient": [
+        4,
+        5
+       ],
+       "all_three_strict": [
+        1,
+        5
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        5
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        5
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        5
+       ],
+       "latency_p50": 11796.3,
+       "confusion": {
+        "HUMAN_REVIEW -> CLARIFY_WITH_CUSTOMER": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 4
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "insufficient_info": {
+       "n": 9,
+       "issue_type": [
+        9,
+        9
+       ],
+       "issue_type_raw_ai": [
+        9,
+        9
+       ],
+       "customer_goal": [
+        8,
+        9
+       ],
+       "customer_goal_raw_ai": [
+        8,
+        9
+       ],
+       "mixed_flag": [
+        9,
+        9
+       ],
+       "action_strict": [
+        9,
+        9
+       ],
+       "action_lenient": [
+        9,
+        9
+       ],
+       "all_three_strict": [
+        8,
+        9
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        9
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        8
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        9
+       ],
+       "latency_p50": 20615.9,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 7,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 1
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "mixed": {
+       "n": 9,
+       "issue_type": [
+        6,
+        9
+       ],
+       "issue_type_raw_ai": [
+        6,
+        9
+       ],
+       "customer_goal": [
+        5,
+        9
+       ],
+       "customer_goal_raw_ai": [
+        5,
+        9
+       ],
+       "mixed_flag": [
+        4,
+        9
+       ],
+       "action_strict": [
+        4,
+        9
+       ],
+       "action_lenient": [
+        4,
+        9
+       ],
+       "all_three_strict": [
+        2,
+        9
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        9
+       ],
+       "automated_but_should_be_manual": [
+        1,
+        9
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        9
+       ],
+       "latency_p50": 40228.4,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 4,
+        "CLARIFY_WITH_CUSTOMER -> DIRECT_WORKFLOW": 1,
+        "CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW": 4
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": [
+        "H32"
+       ]
+      },
+      "mixed_safety": {
+       "n": 1,
+       "issue_type": [
+        1,
+        1
+       ],
+       "issue_type_raw_ai": [
+        1,
+        1
+       ],
+       "customer_goal": [
+        0,
+        1
+       ],
+       "customer_goal_raw_ai": [
+        0,
+        1
+       ],
+       "mixed_flag": [
+        0,
+        1
+       ],
+       "action_strict": [
+        1,
+        1
+       ],
+       "action_lenient": [
+        1,
+        1
+       ],
+       "all_three_strict": [
+        0,
+        1
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        1
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        1
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        1
+       ],
+       "latency_p50": 17423.7,
+       "confusion": {
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 1
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "negation": {
+       "n": 4,
+       "issue_type": [
+        4,
+        4
+       ],
+       "issue_type_raw_ai": [
+        4,
+        4
+       ],
+       "customer_goal": [
+        2,
+        4
+       ],
+       "customer_goal_raw_ai": [
+        2,
+        4
+       ],
+       "mixed_flag": [
+        4,
+        4
+       ],
+       "action_strict": [
+        4,
+        4
+       ],
+       "action_lenient": [
+        4,
+        4
+       ],
+       "all_three_strict": [
+        2,
+        4
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        4
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        4
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        4
+       ],
+       "latency_p50": 15141.75,
+       "confusion": {
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 4
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "part_inquiry": {
+       "n": 8,
+       "issue_type": [
+        5,
+        8
+       ],
+       "issue_type_raw_ai": [
+        5,
+        8
+       ],
+       "customer_goal": [
+        3,
+        8
+       ],
+       "customer_goal_raw_ai": [
+        3,
+        8
+       ],
+       "mixed_flag": [
+        8,
+        8
+       ],
+       "action_strict": [
+        6,
+        8
+       ],
+       "action_lenient": [
+        6,
+        8
+       ],
+       "all_three_strict": [
+        1,
+        8
+       ],
+       "task_precision": [
+        0,
+        1
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        1,
+        8
+       ],
+       "automated_but_should_be_manual": [
+        1,
+        8
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        1,
+        1
+       ],
+       "demoted": [
+        1,
+        8
+       ],
+       "latency_p50": 22369.05,
+       "confusion": {
+        "HUMAN_REVIEW -> CLARIFY_WITH_CUSTOMER": 1,
+        "HUMAN_REVIEW -> CREATE_SUPPLIER_TASK": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 6
+       },
+       "false_triggers": [
+        "H13"
+       ],
+       "missed_triggers": [],
+       "automated_manual_ids": [
+        "H13"
+       ]
+      },
+      "pre_purchase": {
+       "n": 2,
+       "issue_type": [
+        2,
+        2
+       ],
+       "issue_type_raw_ai": [
+        2,
+        2
+       ],
+       "customer_goal": [
+        2,
+        2
+       ],
+       "customer_goal_raw_ai": [
+        2,
+        2
+       ],
+       "mixed_flag": [
+        2,
+        2
+       ],
+       "action_strict": [
+        2,
+        2
+       ],
+       "action_lenient": [
+        2,
+        2
+       ],
+       "all_three_strict": [
+        2,
+        2
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        2
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        2
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        2
+       ],
+       "latency_p50": 8627.2,
+       "confusion": {
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 2
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "refund_only": {
+       "n": 11,
+       "issue_type": [
+        11,
+        11
+       ],
+       "issue_type_raw_ai": [
+        11,
+        11
+       ],
+       "customer_goal": [
+        11,
+        11
+       ],
+       "customer_goal_raw_ai": [
+        11,
+        11
+       ],
+       "mixed_flag": [
+        11,
+        11
+       ],
+       "action_strict": [
+        8,
+        11
+       ],
+       "action_lenient": [
+        8,
+        11
+       ],
+       "all_three_strict": [
+        8,
+        11
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        11
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        0
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        3,
+        11
+       ],
+       "latency_p50": 15436.5,
+       "confusion": {
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 8,
+        "DIRECT_WORKFLOW -> HUMAN_REVIEW": 3
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      }
+     },
+     "by_lang": {
+      "en": {
+       "n": 20,
+       "issue_type": [
+        16,
+        20
+       ],
+       "issue_type_raw_ai": [
+        17,
+        20
+       ],
+       "customer_goal": [
+        17,
+        20
+       ],
+       "customer_goal_raw_ai": [
+        16,
+        20
+       ],
+       "mixed_flag": [
+        18,
+        20
+       ],
+       "action_strict": [
+        17,
+        20
+       ],
+       "action_lenient": [
+        17,
+        20
+       ],
+       "all_three_strict": [
+        12,
+        20
+       ],
+       "task_precision": [
+        2,
+        2
+       ],
+       "task_recall": [
+        2,
+        2
+       ],
+       "task_recall_incl_human_confirm": [
+        2,
+        2
+       ],
+       "false_trigger_non_task": [
+        0,
+        18
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        13
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        2,
+        2
+       ],
+       "demoted": [
+        1,
+        20
+       ],
+       "latency_p50": 22459.1,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 3,
+        "CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW": 2,
+        "CREATE_SUPPLIER_TASK -> CREATE_SUPPLIER_TASK": 2,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 4,
+        "DIRECT_WORKFLOW -> HUMAN_REVIEW": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 8
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "zh-Hant": {
+       "n": 8,
+       "issue_type": [
+        8,
+        8
+       ],
+       "issue_type_raw_ai": [
+        8,
+        8
+       ],
+       "customer_goal": [
+        5,
+        8
+       ],
+       "customer_goal_raw_ai": [
+        5,
+        8
+       ],
+       "mixed_flag": [
+        6,
+        8
+       ],
+       "action_strict": [
+        6,
+        8
+       ],
+       "action_lenient": [
+        6,
+        8
+       ],
+       "all_three_strict": [
+        5,
+        8
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        8
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        6
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        0,
+        8
+       ],
+       "latency_p50": 22087.6,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 2,
+        "CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW": 1,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 2,
+        "HUMAN_REVIEW -> CLARIFY_WITH_CUSTOMER": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 2
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      },
+      "es": {
+       "n": 10,
+       "issue_type": [
+        8,
+        10
+       ],
+       "issue_type_raw_ai": [
+        8,
+        10
+       ],
+       "customer_goal": [
+        8,
+        10
+       ],
+       "customer_goal_raw_ai": [
+        8,
+        10
+       ],
+       "mixed_flag": [
+        8,
+        10
+       ],
+       "action_strict": [
+        7,
+        10
+       ],
+       "action_lenient": [
+        7,
+        10
+       ],
+       "all_three_strict": [
+        5,
+        10
+       ],
+       "task_precision": [
+        0,
+        0
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        0,
+        10
+       ],
+       "automated_but_should_be_manual": [
+        1,
+        6
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        0,
+        0
+       ],
+       "demoted": [
+        1,
+        10
+       ],
+       "latency_p50": 27296.0,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 2,
+        "CLARIFY_WITH_CUSTOMER -> DIRECT_WORKFLOW": 1,
+        "CLARIFY_WITH_CUSTOMER -> HUMAN_REVIEW": 1,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 3,
+        "DIRECT_WORKFLOW -> HUMAN_REVIEW": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 2
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": [
+        "H32"
+       ]
+      },
+      "de": {
+       "n": 10,
+       "issue_type": [
+        9,
+        10
+       ],
+       "issue_type_raw_ai": [
+        9,
+        10
+       ],
+       "customer_goal": [
+        6,
+        10
+       ],
+       "customer_goal_raw_ai": [
+        6,
+        10
+       ],
+       "mixed_flag": [
+        9,
+        10
+       ],
+       "action_strict": [
+        7,
+        10
+       ],
+       "action_lenient": [
+        7,
+        10
+       ],
+       "all_three_strict": [
+        5,
+        10
+       ],
+       "task_precision": [
+        0,
+        1
+       ],
+       "task_recall": [
+        0,
+        0
+       ],
+       "task_recall_incl_human_confirm": [
+        0,
+        0
+       ],
+       "false_trigger_non_task": [
+        1,
+        10
+       ],
+       "automated_but_should_be_manual": [
+        1,
+        9
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        1,
+        1
+       ],
+       "demoted": [
+        2,
+        10
+       ],
+       "latency_p50": 16578.55,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 4,
+        "DIRECT_WORKFLOW -> HUMAN_REVIEW": 1,
+        "HUMAN_REVIEW -> CLARIFY_WITH_CUSTOMER": 1,
+        "HUMAN_REVIEW -> CREATE_SUPPLIER_TASK": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 3
+       },
+       "false_triggers": [
+        "H13"
+       ],
+       "missed_triggers": [],
+       "automated_manual_ids": [
+        "H13"
+       ]
+      },
+      "ja": {
+       "n": 9,
+       "issue_type": [
+        5,
+        9
+       ],
+       "issue_type_raw_ai": [
+        5,
+        9
+       ],
+       "customer_goal": [
+        6,
+        9
+       ],
+       "customer_goal_raw_ai": [
+        6,
+        9
+       ],
+       "mixed_flag": [
+        9,
+        9
+       ],
+       "action_strict": [
+        9,
+        9
+       ],
+       "action_lenient": [
+        9,
+        9
+       ],
+       "all_three_strict": [
+        2,
+        9
+       ],
+       "task_precision": [
+        1,
+        1
+       ],
+       "task_recall": [
+        1,
+        1
+       ],
+       "task_recall_incl_human_confirm": [
+        1,
+        1
+       ],
+       "false_trigger_non_task": [
+        0,
+        8
+       ],
+       "automated_but_should_be_manual": [
+        0,
+        7
+       ],
+       "duplicate_new_task": [
+        0,
+        0
+       ],
+       "completeness": [
+        1,
+        1
+       ],
+       "demoted": [
+        0,
+        9
+       ],
+       "latency_p50": 20615.9,
+       "confusion": {
+        "CLARIFY_WITH_CUSTOMER -> CLARIFY_WITH_CUSTOMER": 3,
+        "CREATE_SUPPLIER_TASK -> CREATE_SUPPLIER_TASK": 1,
+        "DIRECT_WORKFLOW -> DIRECT_WORKFLOW": 1,
+        "HUMAN_REVIEW -> HUMAN_REVIEW": 4
+       },
+       "false_triggers": [],
+       "missed_triggers": [],
+       "automated_manual_ids": []
+      }
+     },
+     "confidence": {
+      "n_with_confidence": 57,
+      "field": "llm_confidence",
+      "action_wrong": {
+       "right": {
+        "n": 46,
+        "min": 0.75,
+        "p25": 0.95,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.937
+       },
+       "wrong": {
+        "n": 11,
+        "min": 0.8,
+        "p25": 0.9,
+        "median": 0.95,
+        "max": 0.95,
+        "mean": 0.918
+       },
+       "auc_right_above_wrong": 0.586,
+       "thresholds": {
+        "0.8": {
+         "wrong_below": [
+          0,
+          11
+         ],
+         "right_below": [
+          2,
+          46
+         ]
+        },
+        "0.85": {
+         "wrong_below": [
+          2,
+          11
+         ],
+         "right_below": [
+          3,
+          46
+         ]
+        },
+        "0.9": {
+         "wrong_below": [
+          2,
+          11
+         ],
+         "right_below": [
+          3,
+          46
+         ]
+        },
+        "0.95": {
+         "wrong_below": [
+          3,
+          11
+         ],
+         "right_below": [
+          6,
+          46
+         ]
+        },
+        "0.99": {
+         "wrong_below": [
+          11,
+          11
+         ],
+         "right_below": [
+          44,
+          46
+         ]
+        }
+       },
+       "buckets_right_of_n": {
+        "[0, 0.8)": [
+         2,
+         2
+        ],
+        "[0.8, 0.9)": [
+         1,
+         3
+        ],
+        "[0.9, 0.95)": [
+         3,
+         4
+        ],
+        "[0.95, 0.99)": [
+         38,
+         46
+        ],
+        "[0.99, 1.0]": [
+         2,
+         2
+        ]
+       }
+      },
+      "any_dimension_wrong": {
+       "right": {
+        "n": 29,
+        "min": 0.75,
+        "p25": 0.95,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.931
+       },
+       "wrong": {
+        "n": 28,
+        "min": 0.8,
+        "p25": 0.95,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.935
+       },
+       "auc_right_above_wrong": 0.512,
+       "thresholds": {
+        "0.8": {
+         "wrong_below": [
+          0,
+          28
+         ],
+         "right_below": [
+          2,
+          29
+         ]
+        },
+        "0.85": {
+         "wrong_below": [
+          2,
+          28
+         ],
+         "right_below": [
+          3,
+          29
+         ]
+        },
+        "0.9": {
+         "wrong_below": [
+          2,
+          28
+         ],
+         "right_below": [
+          3,
+          29
+         ]
+        },
+        "0.95": {
+         "wrong_below": [
+          5,
+          28
+         ],
+         "right_below": [
+          4,
+          29
+         ]
+        },
+        "0.99": {
+         "wrong_below": [
+          27,
+          28
+         ],
+         "right_below": [
+          28,
+          29
+         ]
+        }
+       },
+       "buckets_right_of_n": {
+        "[0, 0.8)": [
+         2,
+         2
+        ],
+        "[0.8, 0.9)": [
+         1,
+         3
+        ],
+        "[0.9, 0.95)": [
+         1,
+         4
+        ],
+        "[0.95, 0.99)": [
+         24,
+         46
+        ],
+        "[0.99, 1.0]": [
+         1,
+         2
+        ]
+       }
+      }
+     },
+     "confidence_combined": {
+      "n_with_confidence": 57,
+      "field": "confidence",
+      "action_wrong": {
+       "right": {
+        "n": 46,
+        "min": 0.7,
+        "p25": 0.95,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.925
+       },
+       "wrong": {
+        "n": 11,
+        "min": 0.6,
+        "p25": 0.8,
+        "median": 0.95,
+        "max": 0.95,
+        "mean": 0.877
+       },
+       "auc_right_above_wrong": 0.638,
+       "thresholds": {
+        "0.8": {
+         "wrong_below": [
+          1,
+          11
+         ],
+         "right_below": [
+          3,
+          46
+         ]
+        },
+        "0.85": {
+         "wrong_below": [
+          3,
+          11
+         ],
+         "right_below": [
+          4,
+          46
+         ]
+        },
+        "0.9": {
+         "wrong_below": [
+          4,
+          11
+         ],
+         "right_below": [
+          7,
+          46
+         ]
+        },
+        "0.95": {
+         "wrong_below": [
+          5,
+          11
+         ],
+         "right_below": [
+          10,
+          46
+         ]
+        },
+        "0.99": {
+         "wrong_below": [
+          11,
+          11
+         ],
+         "right_below": [
+          44,
+          46
+         ]
+        }
+       },
+       "buckets_right_of_n": {
+        "[0, 0.8)": [
+         3,
+         4
+        ],
+        "[0.8, 0.9)": [
+         4,
+         7
+        ],
+        "[0.9, 0.95)": [
+         3,
+         4
+        ],
+        "[0.95, 0.99)": [
+         34,
+         40
+        ],
+        "[0.99, 1.0]": [
+         2,
+         2
+        ]
+       }
+      },
+      "any_dimension_wrong": {
+       "right": {
+        "n": 29,
+        "min": 0.75,
+        "p25": 0.95,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.931
+       },
+       "wrong": {
+        "n": 28,
+        "min": 0.6,
+        "p25": 0.85,
+        "median": 0.95,
+        "max": 0.99,
+        "mean": 0.9
+       },
+       "auc_right_above_wrong": 0.616,
+       "thresholds": {
+        "0.8": {
+         "wrong_below": [
+          2,
+          28
+         ],
+         "right_below": [
+          2,
+          29
+         ]
+        },
+        "0.85": {
+         "wrong_below": [
+          4,
+          28
+         ],
+         "right_below": [
+          3,
+          29
+         ]
+        },
+        "0.9": {
+         "wrong_below": [
+          8,
+          28
+         ],
+         "right_below": [
+          3,
+          29
+         ]
+        },
+        "0.95": {
+         "wrong_below": [
+          11,
+          28
+         ],
+         "right_below": [
+          4,
+          29
+         ]
+        },
+        "0.99": {
+         "wrong_below": [
+          27,
+          28
+         ],
+         "right_below": [
+          28,
+          29
+         ]
+        }
+       },
+       "buckets_right_of_n": {
+        "[0, 0.8)": [
+         2,
+         4
+        ],
+        "[0.8, 0.9)": [
+         1,
+         7
+        ],
+        "[0.9, 0.95)": [
+         1,
+         4
+        ],
+        "[0.95, 0.99)": [
+         24,
+         40
+        ],
+        "[0.99, 1.0]": [
+         1,
+         2
+        ]
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "notes": "* **Two sets, two purposes.**\n  - The original 100 is a regression set of known scenarios. The author wrote it together with the rules, so a high score shows consistency, not field accuracy.\n  - The held-out 60 is the unseen set. A different model family (`qwen/qwen3.8-27b`) generated it from a prompt that contained no rules. The author labelled it before any run (commit d5752f0). Its labels are still **pending human review** (`heldout-review.csv`).\n* **Which extractor model.** The app's default extractor is `openai/gpt-oss-20b`. On 2026-10-09 the Groq free-tier daily cap for that model (200,000 tokens per day) had already been used up by the round-1 runs and an aborted round-2 start. Because of that, both round-2 LLM runs used `openai/gpt-oss-120b`, which is the same family, has a separate quota, and gets the same prompt and schema. **These are therefore not production-model numbers.** The `gpt-oss-20b` held-out run is still to do, with the same frozen labels. A 20b attempt was stopped automatically after 1 row by the daily cap. The script refuses to fall back silently to keywords on a daily-cap 429.\n* **Was the held-out set used for tuning? No.**\n  - The 0.2.0 rules were committed (a4ffee8) before any held-out run.\n  - Nothing in the rules, prompt or keyword lists changed after the held-out results were seen. The held-out numbers here are the pre-change numbers (snapshot `routing-results-heldout-prechange.json`).\n  - Caveat: the author read the 60 messages while labelling them, before writing the 0.2.0 rules. The rules follow the user's design, not specific messages, but this is a contamination risk. The next round needs a fresh held-out set no matter what.\n  - Any rule change made in response to these errors (see \"Remaining weaknesses\" in the roadmap) turns this set into \"used for tuning\".\n* **Small samples.** 60 cases is preliminary evidence, not proof:\n  - A 51/60 action accuracy has a Wilson 95% interval of roughly 74–92%.\n  - Even 60/60 would only bound the true rate at roughly ≥ 94%.\n  - The held-out set has only 3 labelled supplier-task cases, so precision and recall of task creation are essentially unmeasured on unseen data.\n  - The intervals are printed next to the key rates.\n* **Confidence.** The self-report is uncalibrated, and it is used only to demote. The confidence analysis shows whether it separates right from wrong on these rows. Because the floor (0.90) sits below almost all self-reports, it almost never fires on the LLM path.\n* **Keyword fallback.** Its confidence is capped at 0.85, below the 0.90 floor, so it can never perform an automatic action. Its action accuracy is low by design: it sends cases to people; it does not route them.\n* **Label errata**: [heldout-label-errata.md](heldout-label-errata.md). Labels are never edited; the metrics use the frozen labels.\n* **Duplicate metric, original LLM run (1/8).** The 1/8 is P08. Its twin P01 was *demoted* by confidence: the combined score was 0.89, because the keyword scan disagreed with the AI's DEFECT issue. P01 therefore never opened a task. When P08 arrived there was no open task to link to, so a first task was created, which is correct. The DB still holds 0 keys with more than one open task.\n* **\"Repair or replace\" read as mixed.** gpt-oss-120b flagged `mixed_goals` on \"repair or replace\" / 修理か交換 / reparieren oder ersetzen. This caused 4 of the 6 missed supplier tasks in the original set (D04, D05, D07, P05) and held-out H48. The miss is in the safe direction (it asks the customer). The prompt was deliberately **not** changed after seeing this, because a change would make the held-out set \"used for tuning\".\n"
+}
