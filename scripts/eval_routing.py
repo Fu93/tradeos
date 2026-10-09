@@ -250,7 +250,17 @@ def markdown(res: dict) -> str:
     return "\n".join(L) + "\n"
 
 
-NOTES = """* 100 cases is small: one case moves a per-type number by 4 points and a per-language number by 5.
+NOTES = """* **Run history.** Run 1 (rules 0.1.0, [routing-results-run1.md](routing-results-run1.md)) exposed two code bugs,
+  both in deterministic rules, not in the labels: (1) the safety-word regex matched substrings, so German
+  "brauche" (contains "rauch" = smoke) sent P04 and P19 to a human as a "safety issue"; (2) when the model picked
+  one part number, a second part number in the same message was ignored (P19). Both fixed in rules 0.1.1 with
+  regression tests; the labels were not changed. This page is the re-run on 0.1.1. Run 1 LLM headline:
+  precision 100% (35/35), auto recall 97.2% (35/36), ambiguous false-trigger 0/16, duplicates 0/8, completeness 27/27.
+* **Do not read 100% as "solved".** The re-run scored every row correctly, but run 1 (same labels, same model,
+  temperature 0) already differed on D22 (model read a vague remark as a POLICY_QUESTION: still a safe route) — the
+  model is not perfectly deterministic, and a self-written, clean dataset cannot show how often real customers
+  will be misread. It shows the gates do what they are specified to do on these 100 cases, in 5 languages.
+* 100 cases is small: one case moves a per-type number by 4 points and a per-language number by 5.
 * The dataset and the rules were written by the same person (the experiment author), so these are
   *consistency* numbers for this rule set on this MOCK data, not field accuracy. Real tickets will be messier.
 * Precision/recall measure the full pipeline (LLM extraction + rules). The rules are deterministic, so most
