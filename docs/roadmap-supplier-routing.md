@@ -126,3 +126,21 @@ Current numbers: [docs/eval/routing-results.md](eval/routing-results.md).
 * Gate 1 relies on the LLM's `request_kind`; borderline "is this a question or a request" cases are the main
   source of route errors (see the eval).
 * The dataset was written by the same author as the rules — numbers measure consistency, not field accuracy.
+
+## Local sanity check (2026-10-09, real Groq `openai/gpt-oss-20b` + PayPal Sandbox, run locally, not deployed)
+
+* Case A (sandbox order + capture) → `PENDING_APPROVAL`; "Triage selected case" → all 4 gates passed →
+  `SUPPLIER_TASK_OPEN`, task `DRAFT_READY` (drop-shipped size 43). The case row and timeline were unchanged by the
+  triage; Approve then refunded exactly once (sandbox refund `COMPLETED`, 1 refund call).
+* Case B → `REJECTED`; triage → `DIRECT_WORKFLOW` ("45 days, outside window: existing policy decides");
+  Approve / Refund still refused (HTTP 409, 0 refund calls).
+* Free-text probes: zh defect in window → `DIRECT_WORKFLOW`; ja part KL-170-LID → task; similar order number
+  (conf 0.99) → `NEEDS_HUMAN_REVIEW` at gate 2; injection → `NEEDS_HUMAN_REVIEW` (conf capped 0.5); two issues in one
+  message → `NEEDS_CLARIFICATION`; German follow-up on TO-10421 → linked to the existing task (no duplicate).
+* **Two out-of-dataset probes produced tasks a careful human might not have created:**
+  "My kettle from TO-60202 broke again, honestly I just want my money back" → supplier warranty task (the customer's
+  wish for a refund is not modelled), and "the lamp broke after 5 months, do you sell the LED module separately?" →
+  read as DEFECT → supplier warranty task (arguably a part question without a part number → clarification).
+  Both are inside the stated rules, but they show the 100/100 eval is optimistic.
+
+Screenshots: [all gates passed](supplier-routing-panel.png) · [gate 2 failed at 0.99 confidence](supplier-routing-panel-gate-fail.png).
