@@ -13,6 +13,8 @@ DESIGN = json.loads((ROOT / "docs/eval/v3/heldout-v3-design.json").read_text())
 OUT = ROOT / "docs/eval/v3/heldout-v3-raw.json"
 GENS = ["nvidia/nemotron-3-super-120b-a12b", "deepseek-ai/deepseek-v4.1-flash", "meta/muse-glimmer-30b", "google/gemma-4-31b-it"]
 SLOW = "google/gemma-4-31b-it"
+import os
+SKIP_DS = os.environ.get("SKIP_DS") == "1"
 lock = threading.Lock()
 FW = str.maketrans("TO-0123456789", "ＴＯ－０１２３４５６７８９")
 
@@ -47,6 +49,9 @@ def gen(c):
     if c["generator"] == SLOW:  # deviation (recorded): gemma-4 timed out / took >150 s per call on the shared endpoint
         order = [GENS[int(c["id"][1:]) % 3]] + [g for g in GENS[:3] if g != GENS[int(c["id"][1:]) % 3]]
         log.append("gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)")
+    if SKIP_DS:  # deviation (recorded): deepseek-v4.1-flash stopped answering (130 s read timeouts) at ~20:20
+        order = [g for g in order if g not in (SLOW, "deepseek-ai/deepseek-v4.1-flash")]
+        log.append("deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)")
     for model in order[:3]:
         for attempt in range(3):
             try:

@@ -1930,12 +1930,1053 @@
    "attempts": 1,
    "reassigned_from": null,
    "log": []
+  },
+  "W190": {
+   "id": "W190",
+   "message": "Hola, mi hervidor eléctrico (pedido TO-90190) dejó de calentar; ¿pueden enviarme uno de reemplazo? En realidad prefiero solo el reembolso, gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W170": {
+   "id": "W170",
+   "message": "Hola, mi nombre es Chiara y el pedido TO-90170 tiene la válvula de gas del camping suelta y tambaleante. No funciona correctamente. Quiero solicitar el reembolso completo. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W250": {
+   "id": "W250",
+   "message": "注文番号 TO-90245 です。ケトルの石灰フィルター KL-170-FLT と蓋を別売りで購入できますか？在庫はありますか？",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W256": {
+   "id": "W256",
+   "message": "Hi, what’s the return window and who covers return shipping?",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W222": {
+   "id": "W222",
+   "message": "Hey, mein Wasserkocher kam mit einer Beule an, sieht total schräg aus. Meine Bestellung TO–90222. Könnt ihr das Geld zurück überweisenng? Danke!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W230": {
+   "id": "W230",
+   "message": "Hola, espero que se encuentren bien. Quería comentarles que hace unos 150 días compré una lámpara de escritorio LED a través de su página, el pedido tiene el número TO−90230 y la recibí justo cuando estaba redecorando mi pequeño rincón de estudio; desde entonces la he usado prácticamente todas las noches para leer mis novelas de fantasía mientras mi gato, que se llama Luna, suele acurrucarse a mi lado y a veces juega con el cable, aunque nunca ha habido ningún incidente grave. El otro día, después de una larga jornada de trabajo y de preparar una cena un poco elaborada (intenté hacer una lasaña vegetariana que quedó bastante buena, aunque la salsa se espesó más de lo esperado), encendí la lámpara como de costumbre y, para mi sorpresa, no se encendió; probé a cambiar el enchufe a otra toma, a revisar que el interruptor estuviera en la posición correcta y incluso a desconectarla y volverla a conectar después de unos minutos, pero nada logró que la luz volviera a encenderse. La lámpara parece estar completamente inerte, no hay ningún parpadeo ni indicio de que reciba energía, y como ya lleva unos cinco meses de uso, pensé que quizá pueda ser algún problema interno del driver o del propio LED que requiera una revisión técnica. Me gustaría saber si podrían gestionar una reparación bajo garantía o, en caso de que no sea posible, indicarme los pasos a seguir para enviarla a su servicio técnico. Agradecería mucho cualquier orientación que puedan ofrecerme y quedo a la espera de sus indicaciones para proceder con el envío o la recogida, según lo que determinen. Muchas gracias por su atención y quedo a la espera de su respuesta.\n\nUn saludo,  \nOskar.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W258": {
+   "id": "W258",
+   "message": "Hola, ¿cuál es el plazo para devolver un producto y quién se hace cargo del gasto de envío de la devolución?",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W244": {
+   "id": "W244",
+   "message": "Hey, verkauft ihr den Kalkfilter KL-170-FLT für den Wasserkocher auch separt vom Deckel? Ist er gerade vorrätg? Danke!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W218": {
+   "id": "W218",
+   "message": "こんにちは、キトルがへこんで届いてたんだけど、これ返金きんしてもらえますか？注文番号たぶんTO–90718だったと思うんだけど、よく覚えてなくて…すみません、ちょっと手間かけてしまって。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W214": {
+   "id": "W214",
+   "message": "嗨，我是Yuki，訂單號TO-90214的Trail Runner鞋才買60天，底就開始脫落，超失朢的，真的好倒楣...",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W114": {
+   "id": "W114",
+   "message": "Hallo Kundenservice,\n\nich hoffe, es geht Ihnen gut. Mein Name ist Taro und ich habe vor einigen Tagen über Ihren Onlineshop ein Paar Trail Runner Sneaker bestellt. Dabei habe ich bewusst die Größe 41 ausgewählt, da ich bei meinen letzten Läufen festgestellt habe, dass meine Füße in dieser Größe am besten passen, besonders wenn ich die neuen Sohlen ausprobieren wollte, die ich mir wegen des bevorstehenden Frühlingslaufs in den Alpen zugelegt habe. Nachdem das Paket endlich eingetroffen ist – ich musste leider einen Tag länger warten, weil der Zusteller wegen des starken Regens in meiner Straße etwas verspätet war – habe ich die Schachtel geöffnet und zu meiner Überraschung festgestellt, dass innen ein Paar in Größe 42 lag. Die Schuhe sehen zwar optisch genau aus wie abgebildet, aber sie sind leider eine Nummer zu groß und drücken nicht richtig an den Stellen, die ich beim Trailrunning benötige.\n\nIch möchte darauf hinweisen, dass meine Bestellung die Nummer TO-90114 trägt. Da ich die Sneaker eigentlich für meine geplanten Wanderungen am nächsten Wochenende nutzen wollte, wäre es sehr hilfreich, wenn Sie mir das richtige Paar in Größe 41 zusenden könnten. Ich würde das falsche Paar natürlich gerne zurückschicken; bitte teilen Sie mir mit, ob Sie ein Rücksendeetikett beilegen oder wie ich den Rückversand am besten abwickeln kann.\n\nVielen Dank im Voraus für Ihre Unterstützung und Ihr Verständnis.\n\nMit freundlichen Grüßen\nTaro",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W202": {
+   "id": "W202",
+   "message": "平素よりお世話になっております。注文番号 TO-90202 の 1.7 L 電気ケトル（購入から約150日経過）が突然加熱しなくなり、大変残念に思っています。使用頻度はそれほど高くなく、故障に至った理由が分からず、落胆しております。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W208": {
+   "id": "W208",
+   "message": "Hey there,\n\nI’m Rin, and I just wanted to share how I’ve been feeling about my Trail Runner sneakers that I picked up about 150 days ago—order number TO-90208, if that helps you locate the purchase in your system. I’ve been wearing them pretty regularly on my morning jogs around the river trail, usually after I grab a latte from that little café on 5th Street that always has the best oat milk foam. The weather’s been a bit unpredictable lately—one day it’s sunny and warm, the next it’s drizzling and I end up with soggy socks—so I’ve been relying on these shoes to keep up with my routine, especially when I’m trying to hit those extra miles before work.\n\nLately, though, I’ve noticed the sole starting to peel away from the upper near the toe box, and it’s gotten worse after a few runs on the gravel path near the park. It’s kind of disappointing because I was really excited when they arrived; the color matched my favorite running jacket perfectly, and I even took a couple of photos to post on my fitness Instagram, which got a few likes from my friends. Now, every time I lace them up, I hear that faint flapping sound and feel a bit of instability, which makes me second‑guess whether I should push through the rest of my workout or just call it a day.\n\nI’ve tried to ignore it, thinking maybe it’s just a temporary thing, but it’s been noticeable for a couple of weeks now, and I can’t help but feel let down, especially since I’ve been pretty diligent about cleaning them after each run and storing them in the shoe rack by the door. I guess I just needed to vent a bit about how things aren’t turning out as I hoped, even though I’ve been looking forward to those weekend trail runs with my buddy Jake, who always teases me about my shoe choices.\n\nAnyway, thanks for letting me share my thoughts.\n\nRin",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W266": {
+   "id": "W266",
+   "message": "Hi there,\n\nI hope you’re doing well. I’m writing because I’ve run into an issue with the LED desk lamp I purchased a while back – it’s been about five months now, and it’s just stopped turning on. I’ve tried everything I can think of: checking the power outlet (the one near my bookshelf where I usually keep my coffee mug), making sure the plug is fully inserted, even swapping the cord with another one I have for my phone charger, but nothing seems to work. The lamp itself looks fine – no visible damage, the shade is still the same soft white I liked when I first set it up on my desk next to my little succulent that’s been doing surprisingly well despite my occasional forgetfulness to water it. I also noticed that the little indicator light on the base doesn’t glow at all when I flip the switch, which makes me think it might be an internal problem rather than just a blown fuse or something.\n\nI’ve been using the lamp mostly for late‑night reading and occasional sketching, and it’s really become a part of my routine, especially during those quiet evenings when I listen to vinyl records and try to unwind after work. Not having it working is throwing off my little evening ritual, and I’d love to get it fixed if possible rather than having to replace it outright, especially since it’s still relatively new and I’m fond of the design.\n\nCould you let me know what the next steps are for sending it in for repair? Do I need to fill out a form, or should I just ship it back to you with a note? Any information about estimated turnaround time, costs (if any), or what I should include with the package would be greatly appreciated.\n\nThanks so much for your help.\n\nBest regards,\nChiara",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W238": {
+   "id": "W238",
+   "message": "I received my Trail Runner sneakers (order TO-90238) and the zip is already broken. This is unacceptable; please process a full refund.  \n\nThanks,  \nYuki",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W226": {
+   "id": "W226",
+   "message": "Hola, espero que se encuentren bien. Mi nombre es Kai y recientemente realicé una compra en su tienda online; el número de pedido es TO‐90226. La verdad es que llevo varios días intentando preparar mi té de la mañana, ya que me gusta comenzar el día con una infusión mientras escucho las noticias y reviso el correo, pero al abrir el paquete noté que la cuerpo de la tetera presenta una abolladura bastante noticeable en el lateral, cerca del asa, lo que me preocupa porque no solo afecta la estética sino que también tengo miedo de que pueda haber alguna grieta que no sea visible a simple vista y que termine provocando un derrame cuando la caliente. Además, el empaque llegó un poco aplastado en una esquina, aunque creo que el daño principal proviene de la propia fabricación o del manejo durante el envío, ya que el plástico protector estaba intacto y solo la tetera mostró el golpe. He intentado encenderla y, aunque parece funcionar, el ruido que hace al hervir el agua es un poco diferente al de mis teteras anteriores, lo que me hace dudar de su durabilidad a largo plazo. Por todo esto, me gustaría solicitar la devolución del importe total de la compra, incluyendo los gastos de envío, y indicarme el procedimiento para devolver el artículo, ya sea mediante una etiqueta de prepago o indicándome dónde debo enviarla. Agradecería mucho su ayuda para resolver esta situación lo antes posible, ya que estoy ansioso por volver a disfrutar de mi rutina matutina sin contratiempos. Quedo a la espera de sus instrucciones y agradezco de antemano su atención.\n\nUn saludo,\nKai",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W264": {
+   "id": "W264",
+   "message": "Hola, soy Akira. Mi lámpara de escritorio LED, que tiene unos 150 días, ya no enciende. ¿Podrían ayudarme a repararla? Mi número de pedido es T0-90252. ¡Gracias!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W259": {
+   "id": "W259",
+   "message": "Guten Tag,\n\nmein Name ist Ulla. Ich hätte eine kurze Frage zu Ihren Rückgabebedingungen: Wie lange beträgt die Rückgabefrist nach Erhalt der Ware, und wer übernimmt die Kosten für den Rückversand?\n\nVielen Dank im Voraus für Ihre Auskunft.\n\nMit freundlichen Grüßen\nUlla",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W271": {
+   "id": "W271",
+   "message": "Hello Customer Support,\n\nMy name is Hanna. I purchased an LED desk lamp from you about five months ago and it has stopped working. The lamp will not turn on at all, even when connected to a different outlet.\n\nCould you please advise on how to proceed with a repair under warranty? I am happy to provide purchase details or photos if needed.\n\nThank you for your assistance.\n\nBest regards,\nHanna",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W263": {
+   "id": "W263",
+   "message": "您好：\n\n我是客戶 Zoe，訂單編號 #A90251 購買的 LED 桌燈，約購買 150 天。\n\n近日使用時發現燈具完全無法開啟，已確認電源插座及插頭皆正常，但燈仍無反應。\n\n想請問是否可以協助安排維修，或是提供後續處理方式，謝謝。\n\n敬祝 平安\nZoe",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W267": {
+   "id": "W267",
+   "message": "您好，客服您好：\n\n我是 Diego。我的 LED 桌燈大約使用五個月，最近突然無法開機，按下開關都沒有任何反應。\n\n想請問是否可以申請維修？需要準備哪些資料或後續流程，還請您告知，謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W255": {
+   "id": "W255",
+   "message": "こんにちは。いつもサイトを拝見していて、商品の写真がとてもきれいで気になっていたPaulaです。\n\n先日、実家の母と久しぶりに電話で話した時に、母が最近新しいカーディガンを探していると言うので、もしやこのお店かもと思って色々見て回っていたところです。私は普段オンラインショップで買うときは、まず返品の条件を確認する癖があって、結局今まで買っていなかったのですが、今回はかなり欲しいものが見つかったのでついに勇気を出して問い合わせしてみました。\n\nすみません、ちょっと話がそれました。質問なのですが、もし購入後にサイズ感が微妙だった場合の返品窓口は購入日から何日まで大丈夫なのでしょうか？あと、返送する際の送料はお客様負担になるのか、店舗側で負担してくださるのかも教えていただけると助かります。\n\nお忙しいところ恐れ入りますが、よろしくお願いいたします。\nPaula",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W272": {
+   "id": "W272",
+   "message": "您好，我是 Isamu。訂單 TO-90260 的電熱水壺用了約200天，最近完全不加熱。現在在維修和退款之間猶豫，請問您會建議哪一種比較好？謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W260": {
+   "id": "W260",
+   "message": "Hallo,\n\nich bin Valeria, Bestellnummer T0-90248. Die LED Schreibtischlampe ist erst etwa 150 Tage alt und lässt sich seit heute einfach nicht mehr einschalten. Gar keine Reaktion, kein Licht.\n\nDas ist schon ärgerlich für ein so neues Gerät. Ich würde die Lampe gerne reparieren lassen. Bitte sagen Sie mir, wie ich das machen kann und an wen ich mich wenden muss.\n\nDanke\nValeria",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W270": {
+   "id": "W270",
+   "message": "こんにちは、ゴンサロです。約5か月前に購入したLEDデスクランプがつかなくなりました。修理をお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W281": {
+   "id": "W281",
+   "message": "Sehr geehrtes Kundenservice-Team,\n\nvor etwa zwei Wochen habe ich bei Ihnen den Wasserkocher mit der Bestellnummer TO-90269 gekauft. Jetzt ist der Deckelscharnier abgebrochen. Bitte senden Sie mir einen Ersatz oder kümmern Sie sich um eine Reparatur. Ich erwarte eine zeitnahe Rückmeldung.\n\nMit freundlichen Grüßen\nSofia",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W280": {
+   "id": "W280",
+   "message": "Estimado equipo de atención al cliente,\n\nSoy Rin y mi pedido TO-90268 corresponde a una tetera adquirida hace aproximadamente dos semanas. Lamento informarle que el interruptor de encendido/apagado no se mantiene presionado, impidiendo el funcionamiento normal del aparato. Le agradecería si pudieran gestionar el envío de una unidad de reemplazo a la mayor brevedad posible.\n\nQuedo a la espera de sus indicaciones y agradezco de antemano su atención.\n\nUn cordial saludo,\nRin",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W282": {
+   "id": "W282",
+   "message": "平素よりお世話になっております。太郎です。先日ご注文番号TO-90270にて購入いたしました電気ケトルの蓋のヒンジが折れてしまいました。交換対応をお願いできますでしょうか。よろしくお願いいたします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W273": {
+   "id": "W273",
+   "message": "Hola, soy Julia. Mi hervidor de 200 días dejó de calentar. No sé si arreglarlo o pedir el reembolso; ¿qué me recomiendan? Número de pedido: TO-90261.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W278": {
+   "id": "W278",
+   "message": "Hello,\n\nI hope you’re doing well. I wanted to reach out about a kettle I purchased from your store a couple of weeks ago. It arrived on a rainy Thursday afternoon, and I was quite excited because I had been looking for a sleek stainless‑steel model that would match the new mugs I just bought for my morning tea routine. I unpacked it carefully, admired the polished finish, and placed it on the counter next to my toaster, which I’ve had for years and still works perfectly despite its occasional sputter.\n\nSince then, I’ve been using it almost every day to make tea, sometimes even twice when I’m feeling particularly indulgent and want a second cup after lunch. I’ve also tried using it to heat water for instant oatmeal and occasionally for blanching vegetables when I’m experimenting with quick stir‑fry dishes. The kettle has been a reliable companion until yesterday, when I noticed that despite filling it to the maximum line and setting it to the highest temperature, the water remained lukewarm after the usual boiling time. I checked the power cord, made sure the outlet was functioning (I even plugged in my phone charger to confirm), and tried resetting the unit by unplugging it for a few minutes, but nothing changed.\n\nGiven that the kettle is barely two weeks old and I’ve followed the user manual’s care instructions to the letter, I suspect there might be a defect with the heating element. I would greatly appreciate it if we could arrange for a replacement unit to be sent out at your earliest convenience. My order number is TO-90266, and I have the original receipt and packaging ready if needed.\n\nThank you for taking the time to look into this matter. I’ve always been pleased with the quality of your products and your customer service, and I’m confident we can resolve this quickly.\n\nWarm regards,\n\nOskar",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W274": {
+   "id": "W274",
+   "message": "Hey, mein Wasserkochr (200 Tage alt) heit nicht mehr. Bestellnummer TO-90262. Ich weiß nicht, ob ich ihn reparieren lassen oder mein Geld zurückbekommen soll – was würdet ihr empfehln?",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W285": {
+   "id": "W285",
+   "message": "Hallo Kundenservice,\n\nmein City Rain Jacket in Größe S aus Bestellung TO-90273 ist mir zu klein. Bitte tauscht es gegen Größe M um. Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W275": {
+   "id": "W275",
+   "message": "いつもお世話になっております。Luisと申します。\n\n先日購入させていただいた電気ケトルなのですが、購入から約200日ほどで突然お湯が温まらなくなってしまい、困っております。注文番号は TO-90263 です。\n\n普段は朝起きてすぐに使っているので、最近の寒さでお湯が欲しいときに空焚きみたいな音だけして全然熱くならなくて焦りました。家では猫がケトル周りをよく見ているので心配もしてしまい、ちょっとしたことですが毎朝のルーティンが崩れるのは結構ストレスです。\n\n保証期間内かどうかもよくわからない状態で、修理に出すか返金対応をお願いするか自分の中でずっと迷っています。正直どちらが手間が少ないのかもよく分かっておらず、商品自体はデザインが気に入っていたので修理もありかなとも思うのですが、200日で不具合が出るとちょっと不安にもなります。\n\nもし可能であれば、こういったケースではどちらをおすすめされますか？ご事情を踏まえてアドバイスいただけると助かります。\n\nお忙しいところ恐縮ですが、ご確認よろしくお願いいたします。\n\nLuis",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W288": {
+   "id": "W288",
+   "message": "您好，我是 Akira。訂單編號 TO-90276 的 City 雨衣（S 尺寸）稍嫌緊繃，想請問能否安排換貨為 M 尺寸？如需我提供其他資料或依照何種流程操作，敬請告知。感謝您的協助。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W286": {
+   "id": "W286",
+   "message": "こんにちは、いつもお世話になっております。先月の中頃、ちょうど雨が続く週末にオンラインショップでシティレインジャケットをサイズSで購入させていただきました（注文番号：TO-90274）。その時はデザインが気に入って即決したのですが、届いてみると袖丈が少し短く感じられ、実際に通勤時に着てみたところ、肩周りが窮屈で動かしにくいと感じました。特に自転車で坂道を上がる際に腕を上げづらく、少し不便だったため、サイズMへの交換をお願いしたく思います。\n\n実は先週末、友人と一緒に近郊のハイキングコースへ出かけた際、天気予報では曇りだったのに途中で突然のスコールに見舞われ、ジャケットが本当に役立ったのですが、サイズが合っていないとやはり快適さが半減してしまいます。そのため、なるべく早めにサイズ交換の手続きを進めていただければ幸いです。交換に伴う送料や手続きの方法についても、ご案内いただけると助かります。\n\nお手数をおかけしますが、よろしくお願いいたします。\n\n Yuki",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W290": {
+   "id": "W290",
+   "message": "Estimado/a equipo de atención al cliente, mi nombre es Chiara, realicé el pedido TO-90278 hace dos meses y recibí unas zapatillas Trail Runner talla 41. Al probarlas ahora me doy cuenta de que me quedan pequeñas. ¿Podrían gestionar un cambio a talla 42? Quedo a la espera de sus indicaciones. Muchas gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W284": {
+   "id": "W284",
+   "message": "Hola, soy Valeria. El pedido TO-90272, la chaqueta City talla S me queda pequeña. ¿Podrían cambiarla por talla M? Gracias.",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W293": {
+   "id": "W293",
+   "message": "Hi, I bought merino socks on final sale in size M (order TO-90281) but they’re too big. Could I please exchange them for a size S? Thanks.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W276": {
+   "id": "W276",
+   "message": "Dear Support,\n\nI hope you are well. I am writing regarding my order TO-90264; the kettle I purchased 200 days ago has stopped heating. I am uncertain whether to arrange a repair or request a refund. Could you please advise which option you would recommend?\n\nThank you for your assistance.\n\nKind regards,\nMina",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W289": {
+   "id": "W289",
+   "message": "嗨～我是 Bea，之前訂購了 Trail Runner 運動鞋（訂單號 TO-90277），是 41 號的，結果才剛穿覺得有點小，想問能不能幫我換成 42 號的？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W292": {
+   "id": "W292",
+   "message": "こんにちは、Emmaです。注文番号TO-90280で2ヶ月前にトレイルランナーシューズ（サイズ41）を購入しましたが、今試したら小さかったです。サイズ42に交換できますか？",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W283": {
+   "id": "W283",
+   "message": "Hi, I'm Ulla. I bought a kettle a couple of weeks ago, order TO-90271, and the on/off switch won't stay down. Can I please get a replacement? Thanks",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W297": {
+   "id": "W297",
+   "message": "ジュリアです。3日前に注文したスニーカーがまだ届きません。注文番号TO-90285です。再送をお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W287": {
+   "id": "W287",
+   "message": "Hi, I'm Zoe. Order TO-90275. The City rain jacket in size S is too small. Can I exchange it for size M please? Thanks",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W279": {
+   "id": "W279",
+   "message": "嗨嗨你好～我是 Paula，前幾週在你們這裡買的電水壺，訂單編號是 TO-90267。\n\n最近發現開關按下去不會維持在下壓的狀態，放開就會彈回來，感覺不太正常，想請問可以幫我換一台新的嗎？\n\n麻煩你了，謝謝！",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W294": {
+   "id": "W294",
+   "message": "嗨，我叫 Gonzalo，訂單號 TO-90282 買了最終特價的美利奴襪子 M 碼，結果太大，可以換成的 S 碼嗎？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W298": {
+   "id": "W298",
+   "message": "Heey, I ordered sneakers (order TO-90286) three days ago and they still haven't showed up. Can you please resnd them? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W300": {
+   "id": "W300",
+   "message": "Hola, soy Mina. Mi pedido TO-90288 de hace 3 días aún no ha llegado. ¿Podrían enviarlo de nuevo? Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W182": {
+   "id": "W182",
+   "message": "Hola, soy Oskar. El agua entró en la base de mi lámpara LED de escritorio y ahora hace un zumbido constante. Mi número de pedido es TO-90182. Por favor, indíquenme cómo proceder para una reparación o envío de repuesto. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W210": {
+   "id": "W210",
+   "message": "Hola, soy Taro. Compré unas zapatillas Trail Runner hace 60 días (pedido TO-90210) y ya noto que la suela se está despegan­do. Me siento muy decepcionado con la calidad del producto.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W196": {
+   "id": "W196",
+   "message": "こんにちは、エマです。注文番号 TO-90196 の LED デスクランプ（購入から約200日）が最近ちらつきます。まずは repair をお願いしたいのですが、ひょっとしたら refund も考え始めていて、まだどちらにするか決めかねています。よろしくお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W166": {
+   "id": "W166",
+   "message": "Hey, ich hab meinen Campinggaskoche mit der Bestellnummer TO-90166 bekommen, aber das Ventill ist lose und wackelt. Könntest du mir bitte das Geld zurücküberweisn schicken? Danke!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W160": {
+   "id": "W160",
+   "message": "Hola, soy Rin. Compré la lámpara de escritorio LED hace unos 200 días y cada vez que la enciendo se dispara el fusible o se va el interruptor. El número de pedido es TO-90160. ¿Podrían enviarme una unidad de reemplazo, por favor? Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W154": {
+   "id": "W154",
+   "message": "Hola, espero que estén bien. Soy Kai y les escribo porque hace unos 80 días compré una tetera eléctrica en su tienda, con el número de pedido TO-90154, y desde entonces la he estado usando casi todas las mañanas para preparar mi té mientras escucho las noticias y reviso el correo. La verdad es que me ha resultado muy práctica, sobre todo porque su diseño encaja bien en mi encimera de cocina, que últimamente he redecorado con algunos adhesivos de estilo vintage que compré en un mercadillo del barrio el pasado sábado, cuando fui a comprar fruta y terminé charlando con el vendedor de quesos durante más de media hora. \n\nEl problema que tengo ahora es que la base de alimentación de la tetera ha dejado de funcionar: al colocar la tetera sobre ella no se enciende nada, ni siquiera el indicador luminoso, y he probado con diferentes enchufes y cables sin éxito. Después de revisar el manual y comprobar que no se trata de un simple falso contacto, creo que la pieza defectuosa es precisamente la base de poder, cuyo número de pieza según el etiquetado es KL-170-BASE. \n\nPor lo que les pido amablemente si podrían enviarme una nueva base de poder KL-170-BASE como reemplazo, bajo garantía, ya que el producto aún está dentro del período de dos meses desde la compra. Agradecería mucho que me indicaran los pasos a seguir para la devolución de la pieza defectuosa, si fuera necesario, y el tiempo estimado de envío. \n\nAprovecho también para comentar que el clima aquí ha sido bastante variable últimamente, con lluvias inesperadas y luego sol brillante, lo que me ha hecho pensar en comprar una sombrilla nueva para el balcón, aunque todavía no me he decidido. \n\nQuedo a la espera de su respuesta y les agradezco de antemano su atención.\n\nUn cordial saludo,\nKai",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W234": {
+   "id": "W234",
+   "message": "親愛的客服人員，\n\n您好！我是 Taro，上個月在貴店購買了一雙 Trail Runner 跑鞋，訂單編號是 TO-90234。那天剛好天氣很好，陽光明媚，我帶著這雙鞋去了附近的河濱公園慢跑，途中經過了一些小石子路和泥土小徑，雖然路面有些不平，但我很享受跑步的感覺。不過，回家後我發現左腳鞋身內側的縫線竟然出現了撕裂，縫合處有一段約兩厘米長的線頭鬆脫，看起來很不牢固。我曾經嘗試用膠帶暫時固定，但跑步時還是會感覺到不適，且擔心會因此影響腳踝的穩定性。我在使用過程中沒有做過任何劇烈的運動或外力衝擊，只是一般的慢跑和散步，因此我相信這應該是製造上的問題。基於以上原因，我想依照貴店的退貨政策申請全額退款，請問需要我提供哪些資料或照片來協助處理？謝謝您花時間閱讀我的冗長說明，期待您的回覆。\n\n此致敬禮\n\nTaro",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W277": {
+   "id": "W277",
+   "message": "您好，\n\n我叫 Noah，去年十月在貴網站購買了一台電熱水壺，訂單號碼是 TO-90265。那時候我特別挑了白色不鏽鋼外殼、容量 1.7 公升的型號，因為平常喜歡在早上沖泡咖啡或泡茶時使用，覺得這樣的容量剛好夠一家人早上的需求。使用起來很順手，按鈕反應靈敏，保溫效果也不錯，前幾個月還曾經用來煮速食麵和燉湯，都沒有什麼問題。\n\n可是最近大約兩百天左右，也就是大約從去年十一月開始，這台水壺在加熱時突然不再產生熱水，按下開關只有指示燈亮起來，但水溫完全沒有上升，即使長時間放著也不會有任何溫度變化。我嘗試過換不同的插座、檢查電源線是否鬆脫、甚至把水壺倒乾再重新加水，但情況仍然沒有改變。因為它剛剛過了保固期間不久，我有點猶豫是該送維修還是直接申請退款，不太清楚哪個方式對我來說比較合適又不會太麻煩。\n\n貴客服團隊平時回覆都很耐心，想請問您們根據這種情況，會比較建議我先送維修还是直接辦理退費？如果需要維修，大約需要多久時間以及可能會產生什麼費用；如果選擇退款，則需要準備哪些文件或是要怎麼把商品寄回。另外，我也不知道維修後是否會延長保固，或是退款後是否會扣除任何手續費，還煩請您們詳細說明一下。\n\n在此先行感謝您們的耐心解答，期待您的回覆。\n\n此致  \n敬禮  \n\nNoah",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W301": {
+   "id": "W301",
+   "message": "平素よりお世話になっております。Noah と申します。注文番号 TO-90289 のデスクランプが未だに届いておりません。恐れ入りますが、再度ご発送いただけますでしょうか。ご対応のほどよろしくお願いいたします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W302": {
+   "id": "W302",
+   "message": "Hey, it's Oskar. I ordered a desk lamp (order TO-90290) but I never recieved it. Could you sent it again? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W299": {
+   "id": "W299",
+   "message": "您好，我是 Luis。訂單 TO-90287 的球鞋三天前下單至今未收到，請幫我重新寄送，謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W303": {
+   "id": "W303",
+   "message": "您好，我是 Paula。訂單 TO-90291 的桌燈至今都沒收到，請幫忙重新寄送，謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W295": {
+   "id": "W295",
+   "message": "Hola, soy Hanna. Con el pedido TO-90283 compré unas calcetas de merino en talla M en final sale y me quedan muy grandes. ¿Se puede hacer un exchange por talla S? Gracias.",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W291": {
+   "id": "W291",
+   "message": "Hallo, ich bin Diego.\n\nIch hab vor ca. zwei Monaten die Trail Runner in Größe 41 bestellt, Bestellnummer TO-90279. Hab sie jetzt erst anprobiert und leider ist die Größe zu klein, sitzen echt nicht.\n\nKann ich die gegen Größe 42 tauschen? Sag mir gern wie das läuft.\n\nDanke!\nDiego",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W311": {
+   "id": "W311",
+   "message": "Hi, I'm Zoe. My kettle's limescale filter is used up. Can you please send a new part KL-170-FLT? Order number TO-90299. Thanks",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W316": {
+   "id": "W316",
+   "message": "¡Hola! Soy Emma, la cremallera de mi mochila Daypack 30L (tiene 100 días) se ha roto. Mi número de pedido es TO-90304. ¿Podrían ayudarme a arreglarla? ¡Muchas gracias!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W296": {
+   "id": "W296",
+   "message": "Hallo,\n\nmeine Bestellung TO-90284 ist heute angekommen. Die Merino-Socken in Größe M sitzen leider viel zu groß, das hätte ich so nicht erwartet.\n\nIch habe sie zwar im Final Sale gekauft, aber die Größe passt einfach nicht. Könnte ich die Socken gegen Größe S tauschen? Bitte sagen Sie mir, wie das ablaufen würde.\n\nDanke und Gruß\nIsamu",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W321": {
+   "id": "W321",
+   "message": "Hallo, ich bin Noah. Mein Wasserkocher, den ich vor etwa 500 Tagen gekauft habe (Bestellnummer TO-90309), heizt nicht mehr. Könnt ihr bitte eine Reparatur veranlassen? Danke.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W322": {
+   "id": "W322",
+   "message": "オスカーです。注文番号TO-90310のポットが500日で加熱しなくなりました。修理をお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W317": {
+   "id": "W317",
+   "message": "您好，我是 Fumiko，訂單號 TO-90305 的 LED 桌燈出現閃爍，請問能否安排維修？謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W308": {
+   "id": "W308",
+   "message": "Hola, soy Valeria. El filtro antical de mi hervidor se ha usado. ¿Me pueden enviar un repuesto parte KL-170-FLT? Pedido TO-90296. Gracias.",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W307": {
+   "id": "W307",
+   "message": "Hi, it's Ulla here. I ordered a desk lamp, order number TO-90295, and it never arived. Can you please send it again? Thanks!",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W304": {
+   "id": "W304",
+   "message": "Estimado/a equipo de atención al cliente,\n\nSoy Rin y mi lámpara de escritorio correspondiente al pedido TO-90292 no ha llegado. Le agradecería que pudieran enviarla nuevamente.\n\nAtentamente,\nRin",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W305": {
+   "id": "W305",
+   "message": "Sehr geehrte Damen und Herren,\n\nmeine Bestellung TO-90293 beinhaltete eine Schreibtischlampe, die bisher noch nicht zugestellt wurde. Bitte senden Sie das Produkt umgehend nach oder informieren Sie mich über die nächsten Schritte.\n\nMit freundlichen Grüßen  \nSofia",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W220": {
+   "id": "W220",
+   "message": "您好，我的電熱水壺到貨時有凹痕，想申請退款。訂單號好像是 ＴＯ－９０７２０，但我不太確定，麻煩幫忙查一下。謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 2,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: cited code missing"
+   ]
+  },
+  "W306": {
+   "id": "W306",
+   "message": "TO-90294のデスクランプが届きません。再送お願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W326": {
+   "id": "W326",
+   "message": "Hola! La lampaa llegó super rapido y me encanta, graciias!!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W325": {
+   "id": "W325",
+   "message": "親愛的客服團隊，\n\n您好！我想先說謝謝，因為昨天下午收到了那盞燈，真的超快的，讓我驚喜！燈的設計很特別，光線柔和剛好適合我讀書時使用，而且底座的木紋跟我客廳的沙發很搭。另外，今天天氣不錯，我喝了一杯熱拿鐵，還看了隔壁新開的書店，順便把這盞燈擺在書桌上，感覺整個空間都亮起來了。真的很感謝你們的 efficient 服務，下次如果還需要其他家飾，一定會再考慮貴店。祝大家工作順心，生活愉快！\n\nSofia",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W309": {
+   "id": "W309",
+   "message": "Sehr geehrte Damen und Herren,\n\nbei meiner Bestellung TO-90297 ist der Entkalkungsfilter meines Wasserkochers aufgebraucht. Könnten Sie mir bitte einen Ersatzfilter mit der Artikelnummer KL-170-FLT zusenden?\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüßen  \nWen",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W324": {
+   "id": "W324",
+   "message": "嗨，我是Rin，我剛剛剛注意到我在貴店買的電熱水壺（訂單號TO-90312）已經用了大約500天，最近完全不會加熱了，能幫我看看能不能維修修嗎？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W318": {
+   "id": "W318",
+   "message": "Hola, soy Hanna. Mi lámpara de escritorio LED (pedido TO-90306) parpadea constantemente desde hace unos días. He intentado cambiar la bombilla y revisar la conexión, pero sigue igual. Necesito que me indiquen cómo proceder para la reparación o sustitución. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 2,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: order missing"
+   ]
+  },
+  "W310": {
+   "id": "W310",
+   "message": "お世話になっております。注文番号 TO-90298 で購入しました電気ケトルの石灰フィルター（部品番号 KL-170-FLT）が使い切れたため、新しいものを送っていただけますでしょうか。よろしくお願いいたします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W313": {
+   "id": "W313",
+   "message": "こんにちは、Beaです。注文番号TO-90301で購入したDaypack 30L（購入から100日経過）のジッパーが壊れました。修理対応をお願いいたします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W323": {
+   "id": "W323",
+   "message": "Hi, it's Paula. My kettle from order TO-90311 bought 500 days ago stopped heating. Can you arrange a repair?",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W315": {
+   "id": "W315",
+   "message": "您好，我是 Diego，訂單編號 TO-90303 買的 Daypack 30L 用了大概100天，今天拉鍊 zip 突然壞掉拉不動了，想請問可以幫忙 repair 嗎？麻煩您了，謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W314": {
+   "id": "W314",
+   "message": "Hello,\n\nI hope this message finds you well. I wanted to take a moment to share a bit about my experience with the Daypack 30L I purchased from your store a little over three months ago. I chose the navy‑blue version because it matched the jacket I usually wear on weekend hikes, and I remember being particularly impressed by the lightweight feel and the number of pockets when I first unpacked it in my living room while my cat, Luna, was curiously sniffing around the box. I used it on a few trips to the nearby hills last spring, carrying a water bottle, a snack bar, and a small sketchbook for those moments when inspiration struck while looking out over the valley. The weather was mostly mild, though there was one particularly rainy afternoon when I got caught in a drizzle and the pack kept everything dry, which I appreciated a lot.\n\nRecently, however, I noticed that the zipper on the main compartment has started to give me trouble. It seems to catch halfway up when I try to close it, and after a bit of forcing it, the slider now feels loose and doesn’t stay engaged. I’ve tried lubricating it with a bit of silicone spray I had at home, but the issue persists. Considering the pack is only about 100 days old and I’ve been treating it with care—always storing it flat when not in use and avoiding overloading it beyond the recommended capacity—I was hoping that this might be something covered under warranty or that you could offer a repair service.\n\nCould you please let me know the next steps for getting the zipper fixed? I’d be happy to send the pack back if needed, or if there’s a local service point you recommend, I’d appreciate the details. For reference, my order number is TO-90302.\n\nThank you very much for your time and assistance. I look forward to hearing from you soon.\n\nBest regards,\nChiara",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W312": {
+   "id": "W312",
+   "message": "您好，\n\n我是 Akira，之前在貴店購買了電熱水壺（訂單號碼 TO-90300），使用已經快半年了。最近早上沖泡綠茶時發現水壺裡的水垢濾網似乎已經用盡，水流變得不如以前順暢，而且煮水時會有一點白色沉澱浮在水面上，讓我有些擔心會影響茶的口感。我查看了說明書，發現該濾網的型號是 KL-170-FLT，想請問貴公司是否能幫我寄送一個新的替換濾網？如果方便的話，也順便問一下運費是否需要另外收取，或是否可以合併到下次購物時一起寄出。另外，最近天氣變得較為潮濕，我常常在下午三點左右泡一杯乌龙茶來提神，希望新濾網能夠早日到手，以免影響我的茶時光。\n\n期待您的回覆，謝謝！\n\n此致\n\nAkira 敬上",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W320": {
+   "id": "W320",
+   "message": "注文番号 TO-90308 で購入したLEDデスクランプなのですが、使い始めてから点灯がちらつくようになりました。購入したばかりなので正直がっかりしています。修理対応をお願いできますか？手続きを教えてください。\n\nLuis",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W254": {
+   "id": "W254",
+   "message": "Hallo, ich wollte kurz nachfragen, wie lange das return window gilt und wer die shipping Kosten für die Rücksendung übernimmt?",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W242": {
+   "id": "W242",
+   "message": "TO-90242のCityレインジャケットのファスナーが壊れています。返金をお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W246": {
+   "id": "W246",
+   "message": "Dear Sir/Madam,\n\nCould you please let me know if you sell the kettle limescale filter KL-170-FLT / lid separately and whether it is currently in stock?\n\nThank you for your assistance.\n\nKind regards,\nGonzalo",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W206": {
+   "id": "W206",
+   "message": "Hey, ich wollte kurz mein Frust loswerden: Meine LED Schreibtischlampe, die ich vor etwa 150 Tagen bestellt habe (Bestellnummer TO-90206), flackert ständig und nervt mich wirklich. Schade, weil ich mir eigentlich etwas zuverlässiges vorgestellt hatte. Vielleicht liegt es ja an einem schlechten Tag, aber ich dachte, ich teile das einfach mal.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W198": {
+   "id": "W198",
+   "message": "您好，我是 Gonzalo，訂單號 TO-90198 的 LED 桌燈已使用 200 天，最近開始閃爍，影響正常使用。我想先詢問是否可以安排維修？不過我也在考慮是否該申請退費，目前仍未決定要走維修還是退貨的方向，麻煩您提供相關說明讓我參考。謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W174": {
+   "id": "W174",
+   "message": "Hi, I'm Gonzalo. The ignition on my camping gas stove clicks but won't light. Order number TO-90174. Could you please arrange a repair? Thanks.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 2,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: order missing"
+   ]
+  },
+  "W327": {
+   "id": "W327",
+   "message": "Hallo liebes Team,\n\nvielen Dank für die super schnelle Lieferung! Die Lampe ist heute angekommen und ich liebe sie einfach – sie ist genau so schön wie auf den Bildern und macht mein Wohnzimmer gleich viel gemütlicher.\n\nLiebe Grüße\nUlla",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W262": {
+   "id": "W262",
+   "message": "Hello,\n\nMy LED desk lamp, which is about 150 days old, won’t turn on at all. I’ve tried changing the outlet and checking the plug, but it’s completely dead. Could you please arrange a repair for it?  \n\nMy order number is T0-90250.\n\nThank you,  \nYuki",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W265": {
+   "id": "W265",
+   "message": "Hallo Kundenservice,\n\nich hoffe, es geht Ihnen gut. Mein Name ist Bea und ich wollte Ihnen kurz von meinem Schreibtisch erzählen, den ich vor einiger Zeit eingerichtet habe, weil ich beim Home‑Office gerne ein angenehmes Licht haben möchte. Dabei habe ich mir letztes Jahr im Herbst eine schöne LED‑Schreibtischlampe zugelegt, die eigentlich sehr hell und energiesparend sein soll – sie hat ein schlichtes Design mit einem flexiblen Hals und einer Touch‑Steuerung an der Basis, die ich jedes Morgen beim Frühstück benutze, während ich meine E-Mails checke und dabei leise Musik im Hintergrund laufen lasse. Die Lampe steht jetzt seit etwa 150 Tagen auf meinem Tisch neben meinem Laptop, einer kleinen Sukkulente, die ich leider immer wieder vergessen zu gießen, und einem Stapel von Notizbüchern, die ich für meine To‑Do‑Listen nutze.\n\nLeider funktioniert die Lampe seit einigen Tagen nicht mehr – beim Drücken des Touch‑Sensors passiert einfach nichts, das Licht bleibt komplett aus, egal ob ich sie über das Netzwerkkabel oder über den USB‑Adapter anschließe. Ich habe bereits versucht, den Stecker zu ziehen und wieder einzustecken, die Batterien (falls es welche gibt) zu überprüfen und sogar die Lampe vorsichtig zu schütteln, in der Hoffnung, dass ein loser Kontakt wiederhergestellt wird, aber leider ohne Erfolg. Da die Garantiezeit noch nicht abgelaufen sein sollte – ich glaube, sie beträgt zwei Jahre –, würde ich gerne wissen, ob eine Reparatur möglich ist oder ob Sie mir ein Ersatzteil zusenden könnten.\n\nFür die Bearbeitung wäre es hilfreich, wenn Sie meine Bestellnummer nennen könnten: WO-90253 (ich hoffe, das ist die richtige Nummer, falls nicht, bitte lassen Sie mich wissen, welche Sie benötigen). Ich würde mich sehr freuen, wenn wir das Problem schnell lösen könnten, denn ohne ausreichende Beleuchtung fällt es mir schwer, lange Texte zu lesen und meine Augen zu schonen, besonders jetzt, wo die Tage kürzer werden und es schon am Nachmittag draußen dunkelt.\n\nVielen Dank im Voraus für Ihre Unterstützung und Ihre Zeit. Ich freue mich auf Ihre Rückmeldung.\n\nMit freundlichen Grüßen  \nBea",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W268": {
+   "id": "W268",
+   "message": "Hola, espero que se encuentren bien. Quería comentarles que hace aproximadamente cinco meses compré una lámpara de escritorio LED en su tienda online, la modelo LumiDesk‑3000, que elegí porque me pareció muy moderna y con una luz regulable que me ayudaba a trabajar en mis proyectos de diseño gráfico durante la noche. Desde que la recibí la he colocado en mi escritorio, justo al lado de mi monitor y de una pequeña planta suculenta que le puse para darle un toque de verde al espacio; la verdad es que la lámpara ha quedado muy bonita y combina bien con el resto de la decoración de mi habitación, que tiene paredes en tono gris claro y una alfombra de pelo corto beige. \n\nÚltimamente, sin embargo, he notado que al intentar encenderla no responde; he revisado que el enchufe esté bien conectado, que el interruptor de la pared funcione (probé con otro dispositivo y sí tiene corriente) y incluso cambié el cable de alimentación por uno de repuesto que tenía por si acaso, pero la lámpara sigue sin encenderse, ni siquiera se ilumina el indicador LED que suele mostrarse cuando está en modo de espera. He intentado restablecerla siguiendo el manual de instrucciones, desconectándola durante unos minutos y volviéndola a enchufar, pero nada cambia. Dado que la lámpara apenas tiene cinco meses de uso y la he tratado con cuidado – la limpio periódicamente con un paño seco y nunca la he expuesto a humedad ni a golpes – sospecho que podría tratarse de un fallo interno del driver o del propio módulo LED.\n\nMe gustaría saber si ofrecen servicio de reparación bajo garantía o si podrían indicarme los pasos a seguir para enviarla a revisión, incluyendo cualquier formulario o dirección de envío que necesite. Agradecería mucho su ayuda, ya que la lámpara se ha convertido en una parte esencial de mi rutina de trabajo y extraño tener esa luz suave y regulable mientras diseño. \n\nQuedo a la espera de sus indicaciones y les agradezco de antemano por su atención.\n\nUn cordial saludo,\nEmma",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W319": {
+   "id": "W319",
+   "message": "Hallo Kundenservice,\n\nich melde mich heute mal wegen meiner LED Schreibtischlampe, die ich bei euch bestellt habe. Die Bestellung ist die TO-90307, falls ihr das so braucht. Ich weiß gar nicht mehr genau wann das war, ich glaube es war im letzten Herbst, kurz bevor es richtig kalt wurde und ich mir dann so einen schönen dicken Wollschal gekauft habe. Auf jeden Fall habe ich die Lampe seitdem täglich benutzt zum Arbeiten am Schreibtisch und sie hat eigentlich immer super funktioniert.\n\nSeit ein paar Tagen fängt sie jetzt aber an zu flackern, also nicht dauerhaft an, sondern so in unregelmäßigen Abständen. Manchmal geht es ein paar Stunden gut und dann fängt es plötzlich an, besonders abends wenn ich gerade mit einer Tasse Tee sitze. Das ist ziemlich störend für die Augen, gerade weil ich gerade viel am Computer sitze. Mein Kater schaut immer ganz verwundert hin wenn es flackert, der sitzt sonst immer auf dem Schreibtisch.\n\nIch habe schon mal das Kabel bewegt und den Stecker neu reingesteckt, aber das hat nichts gebracht. Könntet ihr mir bitte sagen wie ich das reparieren lassen kann? Am besten würde ich das gerne reparieren lassen und nicht gleich eine neue kaufen.\n\nVielen Dank schon mal im Voraus für eure Hilfe.\n\nLiebe Grüße\nJulia",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "W232": {
+   "id": "W232",
+   "message": "お世話になっております。Rinです。\n\n注文番号 TO-90232 で購入した Trail Runner スニーカーのファスナーが破損しておりました。\n返金をお願いいたします。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "google/gemma-4-31b-it",
+   "log": [
+    "gemma-4-31b-it skipped: endpoint too slow (recorded reassignment)",
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "W194": {
+   "id": "W194",
+   "message": "Hola, soy Chiara. La lámpara de escritorio LED del pedido TO-90194 tiene 200 días y ahora parpadea. ¿Se puede reparar en garantía? O quizá me conviene más un reembolso. No sé qué opción elegir.",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "W269": {
+   "id": "W269",
+   "message": "Hallo, ich hoffe euch geht’s gut!\n\nIch bin Fumiko und habe vor ca. fünf Monaten eure LED Schreibtischlampe gekauft. Seit heute geht sie leider gar nicht mehr an, egal welchen Knopf ich drücke. Das ist echt ärgerlich, weil ich sie fast täglich nutze.\n\nKönnt ihr mir sagen, wie ich das zur Reparatur einschicken kann? Was muss ich dafür tun?\n\nVielen Dank schon mal und liebe Grüße\nFumiko",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "nvidia/nemotron-3-super-120b-a12b",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "W158": {
+   "id": "W158",
+   "message": "Hi support team,\n\nMy name is Oskar and I'm writing about the LED desk lamp I bought from you about 90 days ago. Order number is TO-90158.\n\nI have the lamp set up in my home office which I only just finished sorting out after a small kitchen repaint that took way longer than expected, and I finally got around to actually using the desk properly last week. The lamp itself looks great and the colour temperature is exactly what I wanted for late night reading.\n\nThe problem is that every time I switch it on, the fuse blows / the breaker trips. I first thought it was a fluke because I had just plugged in a new phone charger the same day, so I unplugged everything else and tried again, same thing. It's happened consistently now for about three days, every single time I flip the switch.\n\nI haven't tried opening it or anything, I just want a working lamp. Could you please arrange a replacement for me under warranty?\n\nThanks a lot for your help.\n\nBest regards,\nOskar",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek/gemma skipped: endpoint unresponsive (recorded reassignment)",
+    "nvidia/nemotron-3-super-120b-a12b: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
   }
  },
  "stats": {
-  "calls": 147,
-  "retries": 18,
-  "prompt_tokens": 25020,
-  "completion_tokens": 78682
+  "calls": 104,
+  "retries": 114,
+  "prompt_tokens": 16561,
+  "completion_tokens": 45415
  }
 }
