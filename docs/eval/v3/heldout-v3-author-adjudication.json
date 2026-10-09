@@ -1,0 +1,11 @@
+{
+ "W019": {"required_action": "CLARIFY_WITH_CUSTOMER", "acceptable_actions": ["HUMAN_REVIEW"], "reason": "Seller-error claim consistent with the record (ordered black, got white), but the customer asks how to proceed rather than requesting a remedy: ask what they want (HUMAN also defensible). Not a task: no explicit remedy request."},
+ "W043": {"required_action": "CREATE_SUPPLIER_TASK", "acceptable_actions": ["HUMAN_REVIEW", "CLARIFY_WITH_CUSTOMER"], "reason": "'修理の対応は可能でしょうか、手続きを教えてください' is a polite repair request (guide s.2); kettle ~9 months, supplier warranty 365 d, no hazard -> TASK. Clarify/human defensible (procedure question)."},
+ "W222": {"required_action": "DIRECT_WORKFLOW", "acceptable_actions": [], "reason": "TO–90222 (en dash) is the same id per guide s.8 (judges' record lookup did not normalise the dash); refund wish -> V8 refund flow."},
+ "W223": {"required_action": "CLARIFY_WITH_CUSTOMER", "acceptable_actions": ["HUMAN_REVIEW"], "reason": "Dented kettle, id TO−90223 (minus sign) valid per s.8; no explicit remedy requested (complaint only) -> V6b clarify."},
+ "W225": {"required_action": "DIRECT_WORKFLOW", "acceptable_actions": [], "reason": "TO‑90225 (non-breaking hyphen) valid per s.8; asks for a refund -> V8."},
+ "W226": {"required_action": "DIRECT_WORKFLOW", "acceptable_actions": [], "reason": "TO‐90226 (U+2010) valid per s.8; requests refund of the full amount -> V8."},
+ "W227": {"required_action": "DIRECT_WORKFLOW", "acceptable_actions": [], "reason": "TO–90227 valid per s.8; requests full refund -> V8."},
+ "W228": {"required_action": "CREATE_SUPPLIER_TASK", "acceptable_actions": [], "reason": "TO‐90228 valid per s.8; lamp 150 d, supplier warranty 730 d, repair requested, no hazard -> TASK."},
+ "W230": {"required_action": "CREATE_SUPPLIER_TASK", "acceptable_actions": [], "reason": "TO−90230 valid per s.8; lamp 150 d, repair requested -> TASK."}
+}

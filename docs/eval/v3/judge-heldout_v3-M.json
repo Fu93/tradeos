@@ -9282,12 +9282,103 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 108.66
+  },
+  "W314": {
+   "speech_act_evidence": "Could you please let me know the next steps for getting the zipper fixed?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BACKPACK-30L",
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "I noticed that the zipper on the main compartment has started to give me trouble. It seems to catch halfway up when I try to close it, and after a bit of forcing it, the slider now feels loose and doesn’t stay engaged.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "I was hoping that this might be something covered under warranty or that you could offer a repair service."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-90302",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests repair for BACKPACK-30L zipper defect. Order TO-90302 belongs to customer and contains BACKPACK-30L variant black bought 100 days ago, delivered. Customer describes the pack as navy-blue version. Variant claim conflicts with order record, a data conflict per C1/V3. Safety not triggered. V3 precedes workflow routing, so human review is required.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 170.79
+  },
+  "W312": {
+   "speech_act_evidence": "想請問貴公司是否能幫我寄送一個新的替換濾網？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "PART_NEED",
+     "issue_type_evidence": "水壺裡的水垢濾網似乎已經用盡",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "想請問貴公司是否能幫我寄送一個新的替換濾網？"
+      },
+      {
+       "goal": "INFORMATION",
+       "evidence": "運費是否需要另外收取，或是否可以合併到下次購物時一起寄出"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-90300",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-FLT"
+   ],
+   "reasoning": "Order TO-90300 belongs to the customer and contains BREW-KETTLE. The customer reports the limescale filter is used up and provides part KL-170-FLT, requesting a replacement and asking about shipping cost. Part KL-170-FLT is known for BREW-KETTLE and stock is 12. SEND_PART on PART_NEED with part in stock → DIRECT_WORKFLOW per responsibility table V12.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 45.14
+  },
+  "W321": {
+   "speech_act_evidence": "Könnt ihr bitte eine Reparatur veranlassen?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "heizt nicht mehr",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "Könnt ihr bitte eine Reparatur veranlassen?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-90309",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-90309 belongs to the customer and contains BREW-KETTLE variant standard delivered 500 days ago, consistent with the claim. The kettle does not heat = DEFECT, request is REPAIR. Purchase is 500 days old >30-day return window and > supplier warranty 365d for BREW-KETTLE. No safety hazard words or S4/S5 conditions are present. Responsibility table for WARRANTY_REMEDY on DEFECT with expired return and expired supplier warranty leads to HUMAN_REVIEW.",
+   "deciding_rule": "V12",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 59.65
   }
  },
  "stats": {
-  "calls": 230,
-  "retries": 7,
-  "prompt_tokens": 1279603,
-  "completion_tokens": 432328
+  "calls": 2,
+  "retries": 0,
+  "prompt_tokens": 11227,
+  "completion_tokens": 4545
  }
 }
