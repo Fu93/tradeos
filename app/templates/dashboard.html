@@ -15,6 +15,7 @@
   <div class="buttons">
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible exchange</button></form>
     <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
+    <form method="post" action="/demo/run/S" class="js-busy"><button class="btn" title="Stops after the Chinese supplier draft. A MOCK reply is a second step and cannot refund.">▶ Supplier round trip (MOCK)</button></form>
     <form method="post" action="/demo/reset" class="js-busy"><button class="btn ghost">Reset demo</button></form>
   </div>
 </section>
@@ -64,7 +65,14 @@
           <div class="seeded">Purchase date {{ current.purchase_date_seeded }} — <strong>seeded demo data</strong>
             (sandbox captures are always dated today; this merchant order record simulates an older purchase).</div>
         {% endif %}
-        {% if current.status == "PENDING_APPROVAL" %}
+        {% if current.status == "AWAITING_SUPPLIER" %}
+          <pre class="seeded">{{ current.supplier_draft }}</pre>
+          <div class="row gap actions">
+            <form method="post" action="/cases/{{ current.id }}/supplier-reply" class="js-busy"><input type="hidden" name="decision" value="approve"><button class="btn">MOCK: supplier agrees</button></form>
+            <form method="post" action="/cases/{{ current.id }}/supplier-reply" class="js-busy"><input type="hidden" name="decision" value="decline"><button class="btn ghost">MOCK: supplier declines</button></form>
+          </div>
+          <p class="muted small">MOCK — not a real supplier. Decline removes the approve button. Agree still needs a human, then PayPal.</p>
+        {% elif current.status == "PENDING_APPROVAL" %}
           <div class="row gap actions">
             {% if current.scenario == "D" %}
               <form method="post" action="/cases/{{ current.id }}/approve-twice" class="js-busy"><button class="btn primary">Approve twice (simulated double-click)</button></form>
