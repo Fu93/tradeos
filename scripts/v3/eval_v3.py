@@ -44,6 +44,9 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 
 def load_labels(set_name: str, spec: str) -> dict:
+    if set_name == "dev_v31_regress":
+        return {c["id"]: {"required_action": c["label"], "acceptable_actions": [c["label"]]}
+                for c in json.loads((E / "dev-v31-regression.json").read_text())["cases"]}
     if spec == "designed":
         design = json.loads((E / "heldout-v2-design.json").read_text())
         out = {}

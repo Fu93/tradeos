@@ -88,6 +88,12 @@ def records(message: str, customer: str | None, linked: str | None) -> str:
 
 def load(set_name: str) -> list[dict]:
     E = ROOT / "docs/eval/v3"
+    if set_name == "dev_v31_regress":
+        return [{k: c[k] for k in ("id", "message", "customer", "linked_order")}
+                for c in json.loads((E / "dev-v31-regression.json").read_text())["cases"]]
+    if set_name == "heldout_v3":
+        return [{k: c[k] for k in ("id", "message", "customer", "linked_order")}
+                for c in json.loads((E / "heldout-v3-messages.json").read_text())["messages"]]
     if set_name in ("heldout_v2", "dev_pairs"):
         design = json.loads((E / "heldout-v2-design.json").read_text())
         raw = json.loads((E / "heldout-v2-raw.json").read_text())

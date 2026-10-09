@@ -478,7 +478,11 @@ _EXPLICIT_REQ = re.compile(
     r"|por favor|quiero|quisiera|necesito|me gustaría|me gustaria|pueden|podrían|podrian|podéis|envi\w+|mand\w+|cambi\w+|repar\w+|reemplaz\w+|reembols\w+"
     r"|need|needs|brauche|brauchen|benötige|necesito|necesitamos|bitte|möchte|würde gerne|hätte gerne|könnten sie|können sie|könnt ihr|schick\w*|send\w*|tausch\w*|ersetz\w*|reparier\w*|erstatt\w*)" + _R +
     r"|ください|下さい|お願い|ほしい|欲しい|希望します|いただけ|頂け|もらえ|送って|交換|修理|返金|"
-    r"必要です|要ります|請|麻煩|需要|希望|想要|想換|要求|幫我|可以.{0,6}嗎|能不能|換貨|退款|維修|寄", re.I)
+    r"必要です|要ります|請|麻煩|需要|希望|換成|可以.{0,20}[嗎吗]|想要|想換|要求|幫我|可以.{0,6}嗎|能不能|換貨|退款|維修|寄", re.I)
+
+
+_UNSURE = re.compile(_L + r"(?:not sure|unsure|undecided|whether|no s[ée]|no estoy segur\w*|wei(?:ß|ss) (?:noch )?nicht|unsicher)" + _R +
+                     r"|不確定|不知道|要不要|迷って|迷い|わかりません|分かりません|決められ|どちらが", re.I)
 
 
 def _cue_positions(rx: re.Pattern, text: str) -> list[int]:
@@ -603,7 +607,9 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
                                                 f"which is not in order {oid}.")
         # v3.1 fix 1: ANY described product that is not in the cited order is a data conflict, resolved before any
         # multi-item handling (never a task from a multi-item complaint whose products do not match the order).
-        extra = [s for s in mentioned if s not in order_skus]
+        act_quotes = [it.item_quote for it in items if is_actionable(it, negated) and it.item_quote
+                      and quote_ok(it.item_quote, message)]
+        extra = list(dict.fromkeys(s for q in act_quotes for s in _scan_skus(q) if s not in order_skus))
         if extra and not hedged:
             return d.stop("V3", "HUMAN_REVIEW", f"The message describes {', '.join(CATALOG[s]['name'] for s in extra)}, which "
                                                 f"is not in order {oid}: resolve the data conflict first.")
@@ -611,7 +617,8 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         if len(act_now) >= 2 and not hedged:
             unmatched = [it.item_quote for it in act_now if it.item_quote and quote_ok(it.item_quote, message)
                          and not set(_scan_skus(it.item_quote)) & set(order_skus)]
-            if unmatched:
+            if unmatched and len(unmatched) == len(act_now) and not set(text_skus) & set(order_skus):
+                # none of the described products is in the order, and no ordered product is named anywhere
                 return d.stop("V3", "HUMAN_REVIEW", f"Several products described and “{unmatched[0][:40]}” cannot be matched to "
                                                     f"order {oid}: resolve the data conflict before any multi-item handling.")
         lines = [l for l in order["lines"] if not mentioned or l["sku"] in mentioned]
@@ -623,10 +630,11 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         # it is only eligible when it is CONSISTENT with the order record (the variant the customer says they ordered is
         # the recorded one, and the variant they say they received is a different, known one).
         for it in items:
+            only_refund = bool(it.goals) and all(g["goal"] in ("REFUND", "INFORMATION") for g in it.goals)
             if it.issue_type == "WRONG_ITEM_OR_VARIANT" and len(lines) == 1:
                 ln = lines[0]
                 vkeys = list(CATALOG[ln["sku"]]["variants"])
-                if vkeys == ["standard"]:
+                if vkeys == ["standard"] and not only_refund:
                     return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim for a product without variants: what was shipped "
                                                         "cannot be checked against the order record, so a human verifies.")
                 got = canonical_variant(ln["sku"], it.current_variant_quote) if it.current_variant_quote and \
@@ -643,7 +651,7 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
                 if got == ln["variant"]:
                     return d.stop("V3", "HUMAN_REVIEW", f"Customer says the wrong variant arrived, but what they describe "
                                                         f"receiving ({got}) is what order {oid} shows: a human verifies.")
-                if got is None or ln["variant"] not in in_text and claimed is None:
+                if (got is None or ln["variant"] not in in_text and claimed is None) and not only_refund:
                     return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim that cannot be checked against the order record "
                                                         "(received/ordered variant not stated): a human verifies.")
                 d.derived["wrong_item_consistent"] = f"ordered {ln['variant']} (record), received {got}"
@@ -674,6 +682,9 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     rev = _cue_positions(_REVISION, message)
     if rev:
         tail = message[rev[-1]:]
+        if _UNSURE.search(message):
+            return d.stop("V4b", "CLARIFY_WITH_CUSTOMER", "The customer revises their request but is still unsure: ask "
+                          "which outcome they want.", "ASK_GOAL", ["goal"])
         refund_after = bool(_REFUND_WORDS.search(tail)) and not _NEG_BEFORE.search(tail[:(_REFUND_WORDS.search(tail).start())])
         gl = [(message.casefold().rfind(nq(g["evidence"])[:40]), g["goal"], it) for it in items for g in it.goals
               if g["goal"] not in negated and g["goal"] != "INFORMATION" and quote_ok(g["evidence"], message)]
