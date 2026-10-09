@@ -79,3 +79,23 @@ Cases where the two models chose a different action: 8/100 (D03, D07, D08, D10, 
 
 Cases where the two models chose a different action: 6/60 (H20, H27, H32, H40, H41, H53). Wrong for both models: H08, H12, H13, H14, H19, H28, H30, H32, H48.
 
+
+## Round 3 (taxonomy v3), held-out v2 (300 messages, frozen c65eb83). Single run per pipeline, same model and provider
+
+| | rules 0.2.0 · gpt-oss-20b@NVIDIA | **v3 k1** · gpt-oss-20b@NVIDIA | v3 k3 | v3 k5 |
+|---|---|---|---|---|
+| required_action lenient | 206/300 (63.2–73.7%) | **282/300 (90.7–96.2%)** | 277/300 (88.8–94.8%) | 271/300 (86.5–93.2%) |
+| strict | 194/300 (59.1–69.9%) | 274/300 (87.6–94.0%) | 268/300 | 261/300 |
+| supplier tasks correct / predicted / required | 55 / 63 / 106 | 103 / 108 / 106 | 97 / 99 / 106 | 89 / 90 / 106 |
+| false triggers (of 194) | 8 | 5 | 2 | 1 |
+| median latency | 9.8 s | 46.5 s (p90 130.6 s, NVIDIA queueing) | same samples | same samples |
+
+v3 cost at Groq list prices (production provider), including agreement samples: about $0.001 per message (412k input +
+847k output tokens for 300 messages). Production on Groq would need k separate requests for k>1, because Groq requires
+n=1. Latency was measured on NVIDIA's shared endpoint under heavy load; earlier rounds measured Groq at about 1–3 s per
+call.
+
+Judge models used for labelling (NVIDIA; not used by the app):
+- `nvidia/nemotron-3-ultra-550b-a55b`: median about 85 s per label.
+- `z-ai/glm-5.3`: about 88 s per label, then account-throttled (HTTP 429).
+- `meta/muse-glimmer-30b`: about 157 s per label; schema not enforced server-side, so outputs are validated in code.
