@@ -153,8 +153,8 @@ def main():
                 errors += 1; print("ERR", str(e)[:200], flush=True); continue
             with lock:
                 res["labels"].setdefault(iid, {})[k] = r
-                if i % 10 == 0:
-                    res["stats"] = dict(STATS); out.write_text(json.dumps(res, ensure_ascii=False, indent=1))
+                res["stats"] = dict(STATS)
+                tmp = out.with_suffix(".tmp"); tmp.write_text(json.dumps(res, ensure_ascii=False, indent=1)); tmp.replace(out)
             print(iid, k, r["required_action"], flush=True)
     res["stats"] = dict(STATS); out.write_text(json.dumps(res, ensure_ascii=False, indent=1))
     print("done; errors", errors, STATS, flush=True)

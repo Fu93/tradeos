@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import json
 from pathlib import Path
 
@@ -22,6 +24,9 @@ from .ratelimit import RateLimiter, client_key
 from . import routing_web  # supplier routing EXPERIMENT (additive)
 from .routing import RoutingConfig, RoutingService, RoutingStore
 from .routing_extract import build_routing_extractor
+from . import routing_v3_web  # routing taxonomy v3 EXPERIMENT (additive)
+from .routing_v3 import LLMExtractorV3
+from .routing_v3_service import RoutingV3Service, RoutingV3Store
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, CaseNotFound, RefundNotAllowed,
@@ -36,7 +41,7 @@ WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED"}
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
-               today=None, note_writer=None, routing_extractor=None) -> FastAPI:
+               today=None, note_writer=None, routing_extractor=None, routing_v3_extractor=None) -> FastAPI:
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
@@ -56,17 +61,24 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     routing = RoutingService(RoutingStore(settings.db_path), routing_extractor or build_routing_extractor(settings),
                              RoutingConfig.from_env(), **kwargs)
     routing.store.init(reset=settings.reset_on_start)
+    # Routing taxonomy v3 EXPERIMENT: own tables; same production extractor model; nothing is ever sent.
+    v3_ext = routing_v3_extractor or (LLMExtractorV3(settings.llm_api_key, settings.llm_base_url, settings.llm_model)
+                                      if settings.llm_configured else None)
+    routing_v3 = RoutingV3Service(RoutingV3Store(settings.db_path), v3_ext, today=today,
+                                  agreement_k=int(os.environ.get("ROUTING_V3_AGREEMENT_K", "1") or 1))
+    routing_v3.store.init(reset=settings.reset_on_start)
 
     app = FastAPI(title="TradeOS", docs_url="/api/docs", redoc_url=None)
     app.state.workflow = wf
     app.state.routing = routing
+    app.state.routing_v3 = routing_v3
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
                          status_code: int = 200, draft: str = "", draft_late: bool = False,
-                         rcase: str | None = None) -> HTMLResponse:
+                         rcase: str | None = None, v3case: str | None = None) -> HTMLResponse:
         cases = db.list_cases()
         current = db.get_case(selected) if selected else None
         if current is None and cases:
@@ -101,6 +113,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "exchange_copy": EXCHANGE_COPY,
             "flash": flash,
             "routing": routing_web.panel(routing, current, rcase),
+            "routing_v3": routing_v3_web.panel_v3(routing_v3, v3case),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 
@@ -114,10 +127,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return None
 
     routing_web.register(app, routing, db, limited)
+    routing_v3_web.register_v3(app, routing_v3, limited)
 
     @app.get("/", response_class=HTMLResponse)
-    def dashboard(request: Request, case: str | None = None, rcase: str | None = None):
-        return render_dashboard(request, case, rcase=rcase)
+    def dashboard(request: Request, case: str | None = None, rcase: str | None = None, v3case: str | None = None):
+        return render_dashboard(request, case, rcase=rcase, v3case=v3case)
 
     @app.get("/healthz")
     def healthz():

@@ -1,0 +1,101 @@
+{# Supplier routing — taxonomy v3 EXPERIMENT. Additive; independent of refunds; nothing is ever sent. #}
+{% set Q = routing_v3 %}
+<section class="block routing" id="routing-v3">
+  <h2>Supplier routing v3 <span class="chip mock">EXPERIMENTAL · taxonomy v3</span>
+    <span class="muted small">· {{ Q.rule_version }}</span></h2>
+  <p class="rt-banner"><strong>Experimental.</strong> {{ Q.mock_label }} · the AI only extracts (speech act, items, goals,
+    each with a verbatim quote that code verifies) · rules V0–V12 decide, safety first · supplier tasks are
+    <strong>suggestions a human confirms</strong> into internal drafts · clarifying questions and customer replies are
+    <strong>simulated here, never sent</strong> · refunds go to the existing refund flow unchanged.</p>
+  <div class="rt-grid">
+    <div>
+      <form method="post" action="/routing-v3/triage" class="js-busy" id="v3-form">
+        <div class="chips">
+          {% for p in Q.presets %}<button type="button" class="rt-chip v3-chip" data-message="{{ p.message }}" data-customer="{{ p.customer }}">{{ p.chip }}</button>{% endfor %}
+        </div>
+        <label class="small muted" for="v3-message">Complaint (any language)</label>
+        <textarea id="v3-message" name="message" rows="2" maxlength="800" required placeholder="e.g. Order TO-60201: the kettle leaks, please repair it."></textarea>
+        <div class="row gap">
+          <label class="small">Customer account <span class="chip mock">MOCK</span>
+            <select name="customer" id="v3-customer">
+              {% for c in Q.customers[:40] %}<option value="{{ c.email }}">{{ c.email }} ({{ c.orders | join(', ') }})</option>{% endfor %}
+            </select></label>
+          <label class="small">Linked order
+            <select name="linked_order"><option value="">none — read it from the message</option>
+              {% for o in Q.orders[:60] %}<option value="{{ o.id }}">{{ o.label }}</option>{% endfor %}
+            </select></label>
+        </div>
+        <div class="row gap actions"><button class="btn primary">Triage with v3</button></div>
+        <p class="muted small">Extractor: {{ Q.extractor }} · structured output (strict JSON schema) · demote-only:
+          rules and checks can only make a result more cautious{% if Q.k > 1 %} · agreement gate k={{ Q.k }} on suggested
+          tasks{% endif %} · max {{ Q.max_rounds }} clarifying rounds, then a human.</p>
+      </form>
+      {% if Q.recent %}
+      <h3 class="small-h">Recent v3 cases</h3>
+      <ul class="pending-list">
+        {% for c in Q.recent %}<li><a href="/?v3case={{ c.id }}#routing-v3">{{ c.id }}</a>
+          <span class="chip {{ Q.chips.get(c.status, 'neutral') }}">{{ c.status | replace('_', ' ') }}</span>
+          <span class="muted small">{{ c.message[:60] }}{{ '…' if c.message | length > 60 }}</span></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+    <div>
+    {% if Q.view %}{% set v = Q.view %}{% set d = v.decision %}
+      <article class="rt-card" id="v3-card">
+        <div class="row between"><strong>{{ v.case.id }}</strong>
+          <span class="chip {{ v.chip }}">{{ v.case.status | replace('_', ' ') }}</span></div>
+        <p class="small">{{ v.status_text }}</p>
+        <blockquote class="small">{{ v.case.message }}</blockquote>
+        <p class="small"><strong>Decided by {{ d.rule }}</strong> — {{ d.reason }}</p>
+        {% if d.refund_intent and d.action != 'DIRECT_WORKFLOW' %}<p class="small"><span class="chip warn">refund intent</span> shown to the reviewer; the refund flow is unchanged.</p>{% endif %}
+        {% if v.evidence %}
+        <table class="small rt-table"><tr><th>field</th><th>label</th><th>verbatim quote</th><th>in text</th></tr>
+          {% for e in v.evidence %}<tr><td>{{ e.field }}</td><td><code>{{ e.label }}</code></td><td>“{{ e.quote or '' }}”</td>
+            <td>{{ '✔' if e.ok else '✘' }}</td></tr>{% endfor %}</table>
+        {% endif %}
+        {% if d.agreement %}<p class="small muted">Agreement gate: {{ d.agreement.votes | join(' · ') }} → {{ 'agree' if d.agreement.agree else 'disagree → human' }}</p>{% endif %}
+
+        {% for r in v.rounds %}
+        <div class="rt-clarify">
+          <p class="small"><span class="chip warn">clarifying question {{ r.round }} · simulated, not sent</span>
+            <code>{{ r.template }}</code> · {{ r.translation }}</p>
+          <p>{{ r.question }}</p>
+          {% if r.lang != 'en' %}<p class="small muted">Canonical: {{ r.canonical }}</p>{% endif %}
+          {% if r.reply %}<p class="small"><strong>Simulated customer reply:</strong> {{ r.reply }}</p>{% endif %}
+        </div>
+        {% endfor %}
+        {% if v.awaiting %}
+        <form method="post" action="/routing-v3/{{ v.case.id }}/reply" class="js-busy">
+          <label class="small muted" for="v3-reply">Simulate the customer's reply (nothing was sent)</label>
+          <textarea id="v3-reply" name="reply" rows="2" maxlength="500" required></textarea>
+          <button class="btn">Re-gate with simulated reply</button>
+        </form>
+        {% endif %}
+
+        {% if v.task %}{% set t = v.task %}
+        <div class="rt-task">
+          <p class="small"><span class="chip mock">{{ 'suggested supplier task' if v.case.status == 'SUGGESTED_TASK' else 'internal draft · NOT sent' }}</span>
+            {{ t.supplier }} · {{ t.order_id }} · {{ t.product }} · {{ t.family }}{% if t.part %} · part {{ t.part }}{% endif %}{% if t.requested_variant %} · {{ t.requested_variant }}{% endif %}</p>
+          <p class="small">{{ t.why_supplier }}</p>
+          {% if t.duplicate_of %}<p class="small"><span class="chip warn">possible duplicate of {{ t.duplicate_of }}</span></p>{% endif %}
+          {% if v.case.status == 'SUGGESTED_TASK' %}
+          <form method="post" class="row gap">
+            <button class="btn primary" formaction="/routing-v3/{{ v.case.id }}/confirm-task">Confirm → create internal draft</button>
+            <button class="btn" formaction="/routing-v3/{{ v.case.id }}/dismiss-task">Not a supplier task</button>
+          </form>
+          {% elif t.draft %}<pre class="small">{{ t.draft }}</pre>{% endif %}
+        </div>
+        {% endif %}
+        <details class="small"><summary>Rule trace</summary><ol>{% for s in d.trace %}<li><code>{{ s.rule }}</code> {{ '■' if s.matched else '□' }} {{ s.note }}</li>{% endfor %}</ol></details>
+        <details class="small"><summary>Log</summary><ul>{% for e in v.events %}<li>{{ e.at }} · {{ e.event }} · {{ e.detail }}</li>{% endfor %}</ul></details>
+      </article>
+    {% else %}<p class="muted small">No v3 case yet: pick a preset and triage it.</p>{% endif %}
+    </div>
+  </div>
+  <script>
+    document.querySelectorAll('.v3-chip').forEach(b => b.addEventListener('click', () => {
+      document.getElementById('v3-message').value = b.dataset.message;
+      const s = document.getElementById('v3-customer'); if (s) s.value = b.dataset.customer;
+    }));
+  </script>
+</section>
