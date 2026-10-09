@@ -452,3 +452,17 @@ def test_eval_dataset_shape():
         assert c["expected_route"] in c["acceptable_routes"]
         if c["tags"] == ["ambiguous"]:
             assert SUPPLIER_REQUIRED not in c["acceptable_routes"]
+
+
+# ------------------------------------------------------------------ regressions found by eval run 1
+def test_safety_words_need_word_boundaries():
+    from app.routing_extract import _SAFETY
+    assert not _SAFETY.search("Ich brauche eine neue Tischklemme")   # 'brauche' contains 'rauch'
+    assert not _SAFETY.search("Der Kocher funktioniert nicht")
+    assert _SAFETY.search("Es kommt Rauch aus dem Kocher") and _SAFETY.search("煙が出ました")
+
+
+def test_second_part_number_in_text_is_not_hidden_by_ai_pick():
+    d = run("Bestellung TO-70309: Ich brauche die Ersatzteile DL-LED-5W und DL-CLAMP-M.", "eli@example.test",
+            complaint_type="PART_REPLACEMENT", part_model="DL-LED-5W")
+    assert d.final_route == NEEDS_CLARIFICATION and "Several part numbers" in d.gates[-1].reason

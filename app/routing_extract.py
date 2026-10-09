@@ -122,9 +122,11 @@ _TYPE_PATTERNS = {
         r"|交換用", re.I),
 }
 _SAFETY = re.compile(
-    r"fire|smoke|smoking|spark|burn(t|ed|ing)?\b|electric shock|shocked me|gas (leak|smell)|smell(s)? of gas|injur"
-    r"|火|冒煙|燒焦|觸電|漏氣|瓦斯味|fuego|humo|chispa|quem|descarga|olor a gas|feuer|rauch|funken|verbrannt"
-    r"|stromschlag|gasgeruch|riech\w* (nach )?gas|huele a gas|発火|煙|焦げ|感電|ガス漏れ|ガスの臭い", re.I)
+    # Latin-script words need word boundaries (run 1 bug: German "brauche" contains "rauch" = smoke).
+    r"\b(?:fire|smoke|smoking|sparks?|sparking|burn(?:t|ed|ing|s)?|electric(?:al)? shock|shocked me|gas leak"
+    r"|gas smell|smells? of gas|injur\w*|fuego|humo|chispas?|quemad\w*|descarga eléctrica|olor a gas|huele a gas"
+    r"|feuer|rauch|funken|verbrannt|stromschlag|gasgeruch|riech\w* (?:nach )?gas)\b"
+    r"|起火|著火|火花|冒煙|燒焦|觸電|漏氣|瓦斯味|発火|煙が|焦げ|感電|ガス漏れ|ガスの臭い", re.I)
 _POLICY_Q = re.compile(
     r"what is your|what'?s your|do you (offer|allow|accept)|is it possible in general|policy|how long do i have"
     r"|規定|政策|請問.{0,8}(可以|能)嗎.{0,4}一般|política|politica|en general|richtlinie|grundsätzlich"

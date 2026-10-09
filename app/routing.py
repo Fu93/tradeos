@@ -38,7 +38,7 @@ from typing import Callable, Iterator
 from .routing_data import CATALOG, INVENTORY, MOCK_LABEL, PARTS, order_with_dates
 from .routing_extract import SUPPORTED_TYPES, RoutingExtraction, RoutingExtractor, _SAFETY
 
-RULE_VERSION = "supplier-routing-rules/0.1.0 (MVP 1 experiment)"
+RULE_VERSION = "supplier-routing-rules/0.1.1 (MVP 1 experiment)"
 
 # ----------------------------------------------------------------------------- statuses
 CASE_RECEIVED = "CASE_RECEIVED"
@@ -405,7 +405,10 @@ def decide(ex: RoutingExtraction, message: str, ctx: CaseContext, cfg: RoutingCo
     mentioned = scan_products(message)
     order_skus = [l["sku"] for l in lines]
     # AI part number (verified in text) or, if the AI gave none, the deterministic text scan.
-    part_candidates = ([ai_part] if ai_part else scan_part_numbers(message)) if ctype == "PART_REPLACEMENT" else []
+    text_parts = scan_part_numbers(message) if ctype == "PART_REPLACEMENT" else []
+    part_candidates = ([ai_part] if ai_part else text_parts) if ctype == "PART_REPLACEMENT" else []
+    if len(set(text_parts)) > 1:  # run 1 bug: the AI's single pick hid a second part number in the text
+        part_candidates = text_parts
     if ctype == "PART_REPLACEMENT" and len(set(part_candidates)) > 1:
         return finish(d.stop(2, "matches_order", NEEDS_CLARIFICATION,
                              f"Several part numbers ({', '.join(part_candidates)}): ask which one."))
