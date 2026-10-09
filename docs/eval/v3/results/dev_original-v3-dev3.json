@@ -1,0 +1,1018 @@
+{
+ "meta": {},
+ "results": {
+  "E04": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-40011"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40011": "CONFIRMED"
+    },
+    "order_id": "TO-40011",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Kann ich sie umtauschen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Schreibtischlampe",
+      "issue_evidence": "Ich hätte die Schreibtischlampe lieber in Schwarz statt Weiß",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Weiß",
+      "requested_variant_quote": "Schwarz",
+      "goals": [
+       {
+        "evidence": "Kann ich sie umtauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40011",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 6.53,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "E07": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-40012"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40012": "CONFIRMED"
+    },
+    "order_id": "TO-40012",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-40012: compré la lámpara negra pero quiero cambiarla por la blanca, ¿es posible?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "lámpara negra",
+      "issue_evidence": "compré la lámpara negra",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "negra",
+      "requested_variant_quote": "blanca",
+      "goals": [
+       {
+        "evidence": "quiero cambiarla por la blanca",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40012",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 6.01,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "E03": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+   "derived": {
+    "order_refs": [
+     "TO-10434"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10434": "CONFIRMED"
+    },
+    "order_id": "TO-10434",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "45",
+    "qty": 1,
+    "days": 20,
+    "requested_variant": "44"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, pedido TO-10434: las zapatillas me quedan grandes. ¿Puedo cambiar la talla 45 por la 44?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "las zapatillas",
+      "issue_evidence": "las zapatillas me quedan grandes",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 45",
+      "requested_variant_quote": "talla 44",
+      "goals": [
+       {
+        "evidence": "¿Puedo cambiar la talla 45 por la 44?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10434",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44."
+    ]
+   },
+   "latency_s": 42.57,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E08": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 10,
+    "requested_variant": "43"
+   },
+   "extraction": {
+    "speech_act_evidence": "我剛剛已經寫信了：訂單 TO-10421 的鞋子 42 號太小，想換 43 號，麻煩盡快處理。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "鞋子 42 號太小",
+      "issue_evidence": "鞋子 42 號太小",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "42 號",
+      "requested_variant_quote": "43 號",
+      "goals": [
+       {
+        "evidence": "想換 43 號",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43."
+    ]
+   },
+   "latency_s": 40.14,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E09": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-10433"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10433": "CONFIRMED"
+    },
+    "order_id": "TO-10433",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Nochmal wegen Bestellung TO-10433: Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+      "issue_evidence": "Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Größe 39",
+      "requested_variant_quote": "Größe 38",
+      "goals": [
+       {
+        "evidence": "Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10433",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.42,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "E05": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+   "derived": {
+    "order_refs": [
+     "TO-20031"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20031": "CONFIRMED"
+    },
+    "order_id": "TO-20031",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "M",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "L"
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号TO-20031のジャケット、Mサイズが小さかったのでLサイズに交換できますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ジャケット",
+      "issue_evidence": "Mサイズが小さかった",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Mサイズ",
+      "requested_variant_quote": "Lサイズ",
+      "goals": [
+       {
+        "evidence": "Lサイズに交換できますか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20031",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA."
+    ]
+   },
+   "latency_s": 82.67,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E06": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+   "derived": {
+    "order_refs": [
+     "TO-20032"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20032": "CONFIRMED"
+    },
+    "order_id": "TO-20032",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 3,
+    "requested_variant": "L"
+   },
+   "extraction": {
+    "speech_act_evidence": "Order TO-20032: the rain jacket in S is too tight. Please exchange it for size L.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "rain jacket",
+      "issue_evidence": "the rain jacket in S is too tight.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "S",
+      "requested_variant_quote": "L",
+      "goals": [
+       {
+        "evidence": "Please exchange it for size L.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20032",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA.",
+     "V12: L out of stock; Northwind Apparel (MOCK supplier) restocks on request: ask ETA."
+    ]
+   },
+   "latency_s": 86.66,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E02": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38.",
+   "derived": {
+    "order_refs": [
+     "TO-10433"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10433": "CONFIRMED"
+    },
+    "order_id": "TO-10433",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "39",
+    "qty": 1,
+    "days": 15,
+    "requested_variant": "38"
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，訂單 TO-10433 的鞋子太大了，可以把 39 號換成 38 號嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "鞋子太大了",
+      "issue_evidence": "鞋子太大了",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "39 號",
+      "requested_variant_quote": "38 號",
+      "goals": [
+       {
+        "evidence": "可以把 39 號換成 38 號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10433",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38."
+    ]
+   },
+   "latency_s": 90.32,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E11": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "green out of stock and the supplier has no restock responsibility.",
+   "derived": {
+    "order_refs": [
+     "TO-30077"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-30077": "CONFIRMED"
+    },
+    "order_id": "TO-30077",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 5,
+    "requested_variant": "green"
+   },
+   "extraction": {
+    "speech_act_evidence": "注文TO-30077のリュック、黒ではなく緑に交換したいです。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "注文TO-30077のリュック",
+      "issue_evidence": "黒ではなく緑に交換したいです。",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黒",
+      "requested_variant_quote": "緑",
+      "goals": [
+       {
+        "evidence": "緑に交換したいです。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-30077",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.65,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "E01": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+   "derived": {
+    "order_refs": [
+     "TO-10421"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10421": "CONFIRMED"
+    },
+    "order_id": "TO-10421",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 10,
+    "requested_variant": "43"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, order TO-10421 — the Trail Runners are too small. Could I exchange my size 42 for a 43?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the Trail Runners",
+      "issue_evidence": "the Trail Runners are too small.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 43",
+      "goals": [
+       {
+        "evidence": "Could I exchange my size 42 for a 43?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10421",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43."
+    ]
+   },
+   "latency_s": 92.2,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "E10": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "3 × S in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-20033"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-20033": "CONFIRMED"
+    },
+    "order_id": "TO-20033",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "XL",
+    "qty": 1,
+    "days": 12,
+    "requested_variant": "S"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, order TO-20033 — the XL jacket is too big. Can I swap it for an S?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the XL jacket is too big",
+      "issue_evidence": "the XL jacket is too big",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "XL",
+      "requested_variant_quote": "S",
+      "goals": [
+       {
+        "evidence": "Can I swap it for an S?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-20033",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 45.63,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "E13": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Final-sale item: the existing policy decides (no exchange); supplier not needed.",
+   "derived": {
+    "order_refs": [
+     "TO-40005"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-40005": "CONFIRMED"
+    },
+    "order_id": "TO-40005",
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "L"
+   },
+   "extraction": {
+    "speech_act_evidence": "訂單 TO-40005 的襪子 M 號太小，可以換成 L 號嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "襪子",
+      "issue_evidence": "M 號太小",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M",
+      "requested_variant_quote": "L",
+      "goals": [
+       {
+        "evidence": "換成 L 號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-40005",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.48,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "E14": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Bought 40 days ago, outside the 30-day window: policy decides.",
+   "derived": {
+    "order_refs": [
+     "TO-10431"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-10431": "CONFIRMED"
+    },
+    "order_id": "TO-10431",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "44",
+    "qty": 1,
+    "days": 40,
+    "requested_variant": "45"
+   },
+   "extraction": {
+    "speech_act_evidence": "Pedido TO-10431: las zapatillas talla 44 me quedan pequeñas, ¿puedo cambiarlas por la 45?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "las zapatillas talla 44",
+      "issue_evidence": "las zapatillas talla 44 me quedan pequeñas",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 44",
+      "requested_variant_quote": "45",
+      "goals": [
+       {
+        "evidence": "¿puedo cambiarlas por la 45?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-10431",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.12,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  }
+ }
+}

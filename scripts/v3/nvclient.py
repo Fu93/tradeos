@@ -4,7 +4,7 @@ BASE = "https://integrate.api.nvidia.com/v1"
 _client = httpx.Client(timeout=httpx.Timeout(900, connect=20))
 STATS = {"calls": 0, "retries": 0, "prompt_tokens": 0, "completion_tokens": 0}
 
-def chat(model, messages, retries=4, **kw):
+def chat(model, messages, retries=8, **kw):
     body = {"model": model, "messages": messages, **kw}
     last = None
     for a in range(retries + 1):

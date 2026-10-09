@@ -93,7 +93,7 @@ speech_act (whole message, by meaning not by punctuation):
 - OTHER: thanks, spam, unrelated.
 If any sentence is a real request -> REQUEST.
 
-items: one per product+problem that needs separate handling (two different products with problems = two items;
+items: at least one item whenever any product or problem is mentioned; one per product+problem that needs separate handling (two different products with problems = two items;
 several symptoms of one problem = one item; a product only mentioned in passing is not an item).
 issue_type per item:
 - SIZE_MISMATCH: got what was ordered, it does not fit.
@@ -101,10 +101,12 @@ issue_type per item:
 - CUSTOMER_ORDERED_WRONG: the customer chose wrong or changed their mind ("by mistake", "me equivoqué", "prefer black").
 - DEFECT: broken / faulty / poor quality / damaged — a broken COMPONENT is DEFECT (quote it in component_quote).
 - MISSING_ITEM: the customer SAYS (part of) the order never arrived or was missing from the box.
-- PART_NEED: asks for / needs a spare part with no defect claim and no claim it was missing (lost, worn out,
-  consumable used up, wants a spare, or simply "please send me part X").
+- PART_NEED: asks for / needs a spare part with no defect claim and no claim it was missing from the delivery
+  (the customer lost it — "I lost it", "なくした", "perdí", "verloren", "弄丟了" —, worn out, consumable used up, wants a
+  spare, or simply "please send me part X").
 - NO_ISSUE: nothing wrong (pre-sale/policy question, praise, "it's not broken").
 - UNCLEAR: some problem implied but not classifiable (incl. delivery delay).
+issue_evidence (verbatim) is required for every item whose issue_type is not NO_ISSUE / UNCLEAR.
 goals per item (ranked, each with a verbatim evidence quote; may be empty):
 REFUND (money back; "return it" with no other outcome), EXCHANGE_VARIANT (different size/colour, or the variant
 actually ordered), REPLACE_SAME (new unit of the same item), REPAIR, RESHIP (send again what did not arrive),
@@ -147,7 +149,8 @@ _TO_RX = re.compile(r"(?<![A-Z0-9])TO[-\s]?(\d{4,6})(?!\d)")
 _NEAR_RX = re.compile(r"(?<![A-Z0-9#])#?[A-Z][A-Z0-9]{0,2}[-\s]?\d{4,7}(?!\d)|#\d{4,7}(?!\d)")
 _HEDGE_RX = re.compile(
     r"\b(?:i think|i believe|i guess|maybe|probably|not sure|if i remember|should be|creo que|creo|quizás|quizá|"
-    r"igual|me parece|puede que|glaube|vielleicht|wenn ich mich|müsste|dürfte|ich meine)\b|と思います|と思われ|"
+    r"igual|me parece|puede que|si no me equivoco|supongo|pienso que|glaub(?:e)?|denke|vielleicht|wenn ich mich|müsste|"
+    r"dürfte|ich meine|meine ich|i'm not 100%|if i'm not mistaken|might be|could be)\b|と思います|と思われ|"
     r"だと思|たぶん|かもしれ|多分|可能是|好像|應該是|大概|也許", re.I)
 
 
@@ -185,7 +188,7 @@ _S1 = re.compile(
     r"|起火|著火|火花|冒煙|燒焦|燒壞|燒掉|融化|觸電|漏氣|瓦斯味|発火|煙|焦げ|焼け|溶け|感電|ガス漏れ|ガスの臭い|火傷|やけど", re.I)
 _NEG_BEFORE = re.compile(r"(?:\bno\b|\bnot\b|\bwithout\b|\bnever\b|\bkein\w*|\bohne\b|\bsin\b|\bni\b|\bnada de\b|沒有|没有|無|未)"
                          r"[^.!?。！？]{0,14}$", re.I)
-_NEG_AFTER_JA = re.compile(r"^[^。！？]{0,8}(?:ない|ません|なし)")
+_NEG_AFTER_JA = re.compile(r"^[^。！？]{0,8}(?:ない|ません|なし|なく|無く|ず|沒有|没有)")
 _S4_WORDS = re.compile(
     r"\b(?:burn\w*|scorch\w*|melt\w*|overheat\w*|very hot|too hot|spark\w*|smok\w*|short circuit|trips? the (?:fuse|breaker)"
     r"|fuse|water (?:got )?in(?:to|side)? the (?:base|plug|socket)|quem\w*|derriti\w*|sobrecalent\w*|chisp\w*|cortocircuito"
@@ -193,15 +196,19 @@ _S4_WORDS = re.compile(
     r"|燒|焦|融化|過熱|短路|跳電|焼け|焦げ|溶け|過熱|ショート|ブレーカー", re.I)
 
 
-def s1_hits(message: str) -> list[str]:
+def _unnegated(rx: re.Pattern, message: str) -> list[str]:
     text = message or ""
     hits = []
-    for m in _S1.finditer(text):
+    for m in rx.finditer(text):
         before, after = text[:m.start()], text[m.end():]
         if _NEG_BEFORE.search(before) or _NEG_AFTER_JA.match(after):
-            continue  # clearly negated ("no smoke", "kein Rauch", "沒有冒煙", "煙は出ていない") — C6
+            continue  # clearly negated ("no smoke", "kein Rauch", "沒有冒煙", "煙も臭いもなく") — C6
         hits.append(m.group(0))
     return hits
+
+
+def s1_hits(message: str) -> list[str]:
+    return _unnegated(_S1, message)
 
 
 # ----------------------------------------------------------------------------- extraction container
@@ -348,8 +355,19 @@ class DecisionV3:
                                                "rule_version")} | {"decided_by": self.decided_by}
 
 
+def norm_goal(issue: str, goal: str) -> str:
+    """Goal normalisation by issue type (guide C1 + responsibility table): 'send the right one' for a wrong item is an
+    exchange to the ordered variant; 'send it (again)' for a missing item is a reship."""
+    if issue == "WRONG_ITEM_OR_VARIANT" and goal in ("REPLACE_SAME", "RESHIP"):
+        return "EXCHANGE_VARIANT"
+    if issue == "MISSING_ITEM" and goal == "REPLACE_SAME":
+        return "RESHIP"
+    return goal
+
+
 def action_goals(item: ItemX, negated: set[str]) -> list[str]:
-    return [g["goal"] for g in item.goals if g["goal"] != "INFORMATION" and g["goal"] not in negated]
+    out = [norm_goal(item.issue_type, g["goal"]) for g in item.goals if g["goal"] != "INFORMATION" and g["goal"] not in negated]
+    return list(dict.fromkeys(out))
 
 
 def families(item: ItemX, negated: set[str]) -> set[str]:
@@ -422,7 +440,7 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     parts_in_text = scan_part_numbers(message)
     s4 = []
     if issues_present & {"DEFECT", "PART_NEED"} and any(HAZARD_CLASS.get(s) == "MAINS_ELECTRIC" for s in skus_for_safety):
-        if _S4_WORDS.search(message or "") or set(parts_in_text) & POWER_PARTS:
+        if _unnegated(_S4_WORDS, message) or set(parts_in_text) & POWER_PARTS:
             s4 = [s for s in skus_for_safety if HAZARD_CLASS.get(s) == "MAINS_ELECTRIC"]
     if set(parts_in_text) & POWER_PARTS and not s4:
         s4 = ["power part " + ", ".join(sorted(set(parts_in_text) & POWER_PARTS))]
@@ -441,8 +459,10 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
             not (ex.speech_act == "REQUEST" and goal_quotes_ok):  # a verified goal quote evidences a request
         bad.append("speech_act")
     for i, it in enumerate(items):
-        if it.issue_type not in ("NO_ISSUE", "UNCLEAR") and not quote_ok(it.issue_evidence, message) and \
-                not quote_ok(it.component_quote, message):  # a verified component quote evidences the issue
+        alt = [it.issue_evidence, it.component_quote, it.current_variant_quote] + \
+            ([it.part_number_quote] if it.issue_type == "PART_NEED" else [])
+        if it.issue_type not in ("NO_ISSUE", "UNCLEAR") and not any(quote_ok(q, message) for q in alt):
+            # the issue must be evidenced by at least one verified verbatim quote (issue / component / variant / part)
             bad.append(f"item{i + 1}.issue")
         for g in it.goals:
             if not quote_ok(g["evidence"], message):
@@ -503,7 +523,12 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         return d.stop("V6", "HUMAN_REVIEW", "No request and no problem to route: standard support reads it.")
     d.step("V6", True, "not an information-only question")
 
-    # ---- V7 mixed (computed)
+    # ---- V7 mixed (computed by code, D13)
+    one_product = len(set(text_skus)) <= 1 and (not order_skus or len(order_skus) == 1)
+    if len(act_items) >= 2 and one_product and len({frozenset(families(it, negated)) for it in act_items}) == 1:
+        # one product, several symptoms / sentences, one remedy family: not separate handling
+        d.step("V7", True, f"{len(act_items)} extracted items refer to one product with one remedy family: merged")
+        act_items = act_items[:1]
     fams_per_item = [families(it, negated) for it in act_items]
     floor_multi = len({s for s in text_skus}) >= 2 and len(act_items) == 1 and len(items) >= 2
     if len(act_items) >= 2 or floor_multi:

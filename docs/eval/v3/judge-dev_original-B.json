@@ -1,0 +1,661 @@
+{
+ "judge": {
+  "B": "nvidia/nemotron-3-ultra-550b-a55b"
+ },
+ "labels": {
+  "E04": {
+   "B": {
+    "speech_act_evidence": "Kann ich sie umtauschen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "Ich hätte die Schreibtischlampe lieber in Schwarz statt Weiß.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Kann ich sie umtauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-40011",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer wants to exchange the desk lamp from white to black (change of mind). Issue type is CUSTOMER_ORDERED_WRONG. Speech act is REQUEST. Order reference TO-40011 is valid, belongs to customer, contains the product. No safety concerns. Decision table: V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW). Responsibility table not needed as C2 applies. Required action is DIRECT_WORKFLOW.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 84.44
+   }
+  },
+  "E03": {
+   "B": {
+    "speech_act_evidence": "¿Puedo cambiar la talla 45 por la 44?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "las zapatillas me quedan grandes",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿Puedo cambiar la talla 45 por la 44?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10434",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of size 45 to 44 for sneakers in order TO-10434 (supplier-dropshipped, returnable, within 30 days). Issue is SIZE_MISMATCH, goal EXCHANGE_VARIANT. Responsibility table (V12) for supplier-dropshipped product with supplier confirms stock → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 91.02
+   }
+  },
+  "E02": {
+   "B": {
+    "speech_act_evidence": "可以把 39 號換成 38 號嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "鞋子太大了",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可以把 39 號換成 38 號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10433",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of size 39 to 38 for TRAIL-RUNNER-42 (supplier-dropshipped) due to size mismatch. Order TO-10433 verified, within 30 days, supplier confirms stock. Per responsibility table (V12), supplier-dropshipped product with supplier stock → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 108.83
+   }
+  },
+  "E07": {
+   "B": {
+    "speech_act_evidence": "quiero cambiarla por la blanca, ¿es posible?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "compré la lámpara negra pero quiero cambiarla por la blanca",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "quiero cambiarla por la blanca",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-40012",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer wants to exchange the black desk lamp for the white variant (change of mind). This is CUSTOMER_ORDERED_WRONG with a single EXCHANGE_VARIANT goal. Decision table V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW). Safety NONE. Order reference valid and verified.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 71.06
+   }
+  },
+  "E05": {
+   "B": {
+    "speech_act_evidence": "Lサイズに交換できますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "Mサイズが小さかった",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Lサイズに交換できますか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-20031",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of CITY-JACKET size M to L due to size mismatch. Order TO-20031 verified (belongs to customer, contains CITY-JACKET M, delivered 8 days ago). Product is merchant-warehouse, returnable, within 30 days. Target variant L is out of stock (merchant inventory 0), but supplier restocks on request (true). Per responsibility table (V12), this triggers CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 78.65
+   }
+  },
+  "E08": {
+   "B": {
+    "speech_act_evidence": "想換 43 號，麻煩盡快處理",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "鞋子 42 號太小",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想換 43 號",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10421",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of size 42 shoes for size 43 due to size mismatch (SIZE_MISMATCH). Order TO-10421 exists, belongs to customer, contains TRAIL-RUNNER-42 variant 42, delivered 10 days ago. Product is supplier-dropshipped with supplier confirming stock. Per responsibility table (V12), EXCHANGE for supplier-dropshipped product with supplier stock → CREATE_SUPPLIER_TASK. No safety concerns, no data conflicts, single actionable item with single goal.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 129.78
+   }
+  },
+  "E06": {
+   "B": {
+    "speech_act_evidence": "Please exchange it for size L.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "the rain jacket in S is too tight",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Please exchange it for size L",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-20032",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for larger size (L) due to size mismatch. Order TO-20032 exists, contains CITY-JACKET variant S, delivered 3 days ago. Product is merchant-warehouse, returnable, within 30 days. Target variant L is out of stock (merchant inventory 0), but supplier restocks on request. Per responsibility table (V12), this triggers a supplier task.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 161.65
+   }
+  },
+  "E10": {
+   "B": {
+    "speech_act_evidence": "Can I swap it for an S?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "the XL jacket is too big",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Can I swap it for an S?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-20033",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is a request to exchange for a different size. Issue is SIZE_MISMATCH (jacket too big). Goal is EXCHANGE_VARIANT to size S. Order TO-20033 verified, belongs to customer, contains CITY-JACKET XL. Product is merchant warehouse, target variant S in stock (3 units). No safety concerns. Decision table reaches V12, responsibility table for EXCHANGE with SIZE_MISMATCH on merchant warehouse product with target in stock → DIRECT_WORKFLOW.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 67.91
+   }
+  },
+  "E09": {
+   "B": {
+    "speech_act_evidence": "Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "von Größe 39 auf 38",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10433",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of Trail Runner sneakers from size 39 to 38. Order TO-10433 verified (belongs to customer, contains variant 39, delivered 15 days ago). Product is supplier-dropshipped with supplier confirming stock. Issue is SIZE_MISMATCH (received ordered size but wants different size). Goal is EXCHANGE_VARIANT. Decision table V12 applies: supplier-dropshipped product with supplier stock → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 105.34
+   }
+  },
+  "E13": {
+   "B": {
+    "speech_act_evidence": "可以換成 L 號嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "SALE-SOCKS (Merino socks (final sale))",
+      "issue_evidence": "襪子 M 號太小",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可以換成 L 號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-40005",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of size M socks to size L due to size mismatch. Order TO-40005 verified, contains SALE-SOCKS variant M. Product is final sale (returnable=False), so per responsibility table (V12) exchange for SIZE_MISMATCH on non-returnable product goes to DIRECT_WORKFLOW (policy decides). No safety concerns, no data conflicts, single actionable item with single goal.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 95.26
+   }
+  },
+  "E11": {
+   "B": {
+    "speech_act_evidence": "緑に交換したいです",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L (Daypack 30L)",
+      "issue_evidence": "黒ではなく緑に交換したいです",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "緑に交換したいです",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "注文TO-30077のリュック、黒ではなく緑に交換したいです。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-30077",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer wants to exchange black backpack for green, which is a change of mind (CUSTOMER_ORDERED_WRONG). Order TO-30077 verified, contains black variant. No safety concerns. Per C2 and decision table V10, this goes to DIRECT_WORKFLOW (standard return/exchange policy).",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [
+     "DIRECT_WORKFLOW"
+    ],
+    "_latency": 117.63
+   }
+  },
+  "E12": {
+   "B": {
+    "speech_act_evidence": "kann ich sie gegen M umtauschen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "zu groß",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "gegen M umtauschen",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-20013",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of CITY-JACKET size L for M due to size mismatch (too big). Order TO-20013 exists, belongs to customer, contains CITY-JACKET L, delivered 50 days ago (outside 30-day return window). Responsibility table: SIZE_MISMATCH older than 30 days → DIRECT_WORKFLOW (policy decides). No safety concerns, no data conflicts, single actionable item with single goal. Decision table reaches V12.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 133.99
+   }
+  },
+  "E15": {
+   "B": {
+    "speech_act_evidence": "我想把海軍藍的背包換成黑色的，可以嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BACKPACK-30L",
+      "issue_evidence": "我想把海軍藍的背包換成黑色的",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "換成黑色的",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-50130",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer wants to exchange navy backpack for black (change of mind). Order TO-50130 verified, product returnable, within 30 days, target variant black in stock at merchant warehouse. CUSTOMER_ORDERED_WRONG triggers DIRECT_WORKFLOW per C2 and V10.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 108.16
+   }
+  },
+  "E14": {
+   "B": {
+    "speech_act_evidence": "¿puedo cambiarlas por la 45?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "las zapatillas talla 44 me quedan pequeñas",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "¿puedo cambiarlas por la 45?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10431",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for larger size (45) due to SIZE_MISMATCH on order TO-10431 (TRAIL-RUNNER-42 variant 44). Order is 40 days old (>30-day return window). Product is returnable and supplier-dropshipped. Responsibility table: SIZE_MISMATCH older than 30 days → DIRECT_WORKFLOW (policy decides). No safety concerns, order reference valid, target size 45 exists in variants. No other rules match.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 162.03
+   }
+  },
+  "E18": {
+   "B": {
+    "speech_act_evidence": "Ich möchte die Schuhe umtauschen, bitte.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "Ich möchte die Schuhe umtauschen, bitte.",
+      "issue_type": "UNCLEAR",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich möchte die Schuhe umtauschen, bitte.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10412",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange of shoes from order TO-10412 but does not state a reason (size mismatch, defect, wrong item, etc.). Issue type is UNCLEAR with an action goal (EXCHANGE_VARIANT). Decision table rule V10 matches: issue UNCLEAR + action goal → CLARIFY_WITH_CUSTOMER (ask for problem description and target variant).",
+    "deciding_rule": "V10",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 49.78
+   }
+  },
+  "E17": {
+   "B": {
+    "speech_act_evidence": "もっと大きいサイズに交換してください",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "靴が小さい",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "もっと大きいサイズに交換してください",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10435",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests exchange for a larger size (EXCHANGE_VARIANT) due to SIZE_MISMATCH on order TO-10435 (valid, belongs to customer, contains TRAIL-RUNNER-42 variant 40). No safety concern. However, the target size is not specified ('larger size' only), so V11 triggers CLARIFY_WITH_CUSTOMER to ask which variant they want.",
+    "deciding_rule": "V11",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [
+     "HUMAN_REVIEW"
+    ],
+    "_latency": 79.85
+   }
+  },
+  "E19": {
+   "B": {
+    "speech_act_evidence": "quiero cambiar la talla 45 por la 52.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "quiero cambiar la talla 45 por la 52.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "quiero cambiar la talla 45 por la 52.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10434",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer wants to exchange size 45 for 52 on order TO-10434 (TRAIL-RUNNER-42). This is a change of mind (CUSTOMER_ORDERED_WRONG). Speech act is REQUEST. No safety concerns. Order reference valid and verified. Decision table: V10 matches (CUSTOMER_ORDERED_WRONG → DIRECT_WORKFLOW). Target size 52 is not a valid variant, but V10 triggers before V11.",
+    "deciding_rule": "V10",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "_latency": 166.05
+   }
+  },
+  "E24": {
+   "B": {
+    "speech_act_evidence": "please exchange size 42 for 43",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42",
+      "issue_evidence": "shoes too small",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "please exchange size 42 for 43",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-10412",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer references order TO-10412, which according to MOCK records belongs to a different customer (data conflict). This triggers rule V3 (data conflict: cited order belongs to another customer) → required_action HUMAN_REVIEW.",
+    "deciding_rule": "V3",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 43.99
+   }
+  },
+  "R07": {
+   "B": {
+    "speech_act_evidence": "Necesito que me lo reenvíen, por favor.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP",
+      "issue_evidence": "se perdió en el envío según el transportista",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Necesito que me lo reenvíen, por favor",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "se perdió en el envío según el transportista",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-50183",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer requests a reshipment for order TO-50183 (DESK-LAMP black) which the carrier shows as LOST. The product is supplier-dropshipped and the supplier reships on LOST status, so a supplier task is required per responsibility table (V12).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 61.67
+   }
+  },
+  "R11": {
+   "B": {
+    "speech_act_evidence": "可以重寄嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "訂單 TO-50150 的外套一直沒收到，物流顯示遺失",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可以重寄嗎？",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-50150",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer requests reship of a missing item (CITY-JACKET variant S) from order TO-50150, which is confirmed lost per logistics. The product is merchant-warehouse fulfilled and in stock (CITY-JACKET/S=3), so per responsibility table (FULFILMENT, LOST, merchant warehouse with stock) the action is DIRECT_WORKFLOW. No safety concerns, no data conflicts, order reference valid and verified. Decision rule V12 applies.",
+    "deciding_rule": "V12",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 46.83
+   }
+  }
+ },
+ "stats": {
+  "calls": 20,
+  "retries": 102,
+  "prompt_tokens": 103942,
+  "completion_tokens": 53713
+ }
+}

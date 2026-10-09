@@ -1,0 +1,4464 @@
+{
+ "meta": {
+  "set": "dev_pairs",
+  "pipeline": "v3",
+  "tag": "dev2",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "supplier-routing-rules/3.0.0 (taxonomy v3 experiment)",
+  "k": 5,
+  "agreement_temp": 0.6,
+  "labels": "designed",
+  "usage": {
+   "calls": 77,
+   "prompt_tokens": 89833,
+   "completion_tokens": 144935
+  },
+  "retries": 3,
+  "wall_s": 553.0
+ },
+ "results": {
+  "MP03A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80199"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80199": "CONFIRMED"
+    },
+    "order_id": "TO-80199",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, mi pedido es TO-80199. ¿Tienen disponible la tapa de tetera KL-170-LID? Gracias, Lucia",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80199",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.07,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP05A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80201": "CONFIRMED"
+    },
+    "order_id": "TO-80201",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちわ！ 注文番号 TO-80201 の件ですが、ケトルのフタ KL-170-LID が在庫ありますか？ よろしくおねがいします。",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.98,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP03B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+   "derived": {
+    "order_refs": [
+     "TO-80199"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80199": "CONFIRMED"
+    },
+    "order_id": "TO-80199",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "part": "KL-170-LID"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, mi pedido es TO-80199. Por favor envíenme la tapa de tetera KL-170-LID. Gracias, Lucia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la tapa de tetera KL-170-LID",
+      "issue_evidence": "la tapa de tetera KL-170-LID",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "la tapa de tetera KL-170-LID",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80199",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    ]
+   },
+   "latency_s": 26.53,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP09B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80205"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "SEND_PART"
+    ],
+    "order_status": {
+     "TO-80205": "CONFIRMED"
+    },
+    "order_id": "TO-80205",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich schreibe Ihnen bezüglich meiner Bestellung mit der Auftragsnummer TO-80205. Ich habe den Wasserkocher letzte Woche erhalten und war eigentlich sehr zufrieden, bis ich bemerkt habe, dass der Deckel beim ersten Gebrauch einen Riss hat. Das ist etwas ärgerlich, weil ich gerade erst ein neues Küchenhandtuch gekauft habe und nun das Wasser überall ist. Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden? Eigentlich möchte ich lieber eine Rückerstattung des gesamten Kaufpreises statt eines Ersatzteils. Vielen Dank für Ihre Mühe.\n\nMit freundlichen Grüßen\nRosa",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_evidence": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_type": "DEFECT",
+      "component_quote": "Deckel",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": "KL-170-LID",
+      "goals": [
+       {
+        "evidence": "Eigentlich möchte ich lieber eine Rückerstattung des gesamten Kaufpreises statt eines Ersatzteils",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden?",
+      "goal": "SEND_PART"
+     }
+    ],
+    "order_ref_quote": "TO-80205",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 21.24,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP05B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+   "derived": {
+    "order_refs": [
+     "TO-80201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80201": "CONFIRMED"
+    },
+    "order_id": "TO-80201",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "part": "KL-170-LID"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちわ！ 注文番号 TO-80201 の件ですが、ケトルのフタ KL-170-LID をお願いします。 よろしくおねがいします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ケトルのフタ KL-170-LID をお願いします",
+      "issue_evidence": "ケトルのフタ KL-170-LID をお願いします",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ケトルのフタ KL-170-LID をお願いします",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "HUMAN_REVIEW/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V10: An action is requested but no problem is described: a human decides.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    ]
+   },
+   "latency_s": 61.8,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP12B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80208"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80208": "CONFIRMED"
+    },
+    "order_id": "TO-80208",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，客服您好： 我是Ugo，上禮拜才搬到新竹租屋，目前還在慢慢整理。想跟您反應我三個月前在官網購買的桌燈狀況，訂單編號 TO-80208。昨天晚上我在書桌前開燈看資料時，發現燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常，真的有點困擾。燈是黑色的金屬款，包裝盒我還放在陽台的收納箱裡沒丟。麻煩您幫我修理或更換都可以。 謝謝您撥冗回覆，祝工作順利 Ugo",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常",
+      "issue_evidence": "燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的金屬款",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "麻煩您幫我修理或更換都可以",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "麻煩您幫我修理或更換都可以",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80208",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 30.69,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP14A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80210"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80210": "CONFIRMED"
+    },
+    "order_id": "TO-80210",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo,\ndie Schreibtischlampe meiner Bestellung TO-80210 flackert. Bitte reparieren Sie sie.\nViele Grüße,\nWei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "die Schreibtischlampe meiner Bestellung TO-80210 flackert",
+      "issue_evidence": "die Schreibtischlampe meiner Bestellung TO-80210 flackert",
+      "issue_type": "DEFECT",
+      "component_quote": "flackert",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte reparieren Sie sie",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80210",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "HUMAN_REVIEW/None"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V2: Evidence quote not found in the message (item1.issue): a human reads it."
+    ]
+   },
+   "latency_s": 21.89,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP06A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80202": "CONFIRMED"
+    },
+    "order_id": "TO-80202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 120,
+    "part": "KL-170-LID",
+    "warranty_basis": "120 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi team, I just recieved my order TO-80202 and the kettle lid is cracked. Can you please send a new lid KL-170-LID? Thanks so much. Best, Olga",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the kettle lid is cracked",
+      "issue_evidence": "the kettle lid is cracked",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "send a new lid KL-170-LID",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 90.24,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP12A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80208"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80208": "CONFIRMED"
+    },
+    "order_id": "TO-80208",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，客服您好： 我是Ugo，上禮拜才搬到新竹租屋，目前還在慢慢整理。想跟您反應我三個月前在官網購買的桌燈狀況，訂單編號 TO-80208。昨天晚上我在書桌前開燈看資料時，發現燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常，真的有點困擾。燈是黑色的金屬款，包裝盒我還放在陽台的收納箱裡沒丟。麻煩您幫我修理它。 謝謝您撥冗回覆，祝工作順利 Ugo",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "桌燈",
+      "issue_evidence": "燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的金屬款",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "麻煩您幫我修理它",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80208",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 69.84,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP09A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80205"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80205": "CONFIRMED"
+    },
+    "order_id": "TO-80205",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 120,
+    "part": "KL-170-LID",
+    "warranty_basis": "120 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_evidence": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": "KL-170-LID",
+      "goals": [
+       {
+        "evidence": "Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80205",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 104.6,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP16B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-80212"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80212": "CONFIRMED"
+    },
+    "order_id": "TO-80212",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi,\n\nI ordered a desk lamp from you (order TO-80212) and it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring. Can you repair it or refund me? I'm not sure which, I just want this sorted.\n\nThanks,\nYusuf",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I ordered a desk lamp from you (order TO-80212) and it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring.",
+      "issue_evidence": "it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you repair it or refund me?",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Can you repair it or refund me?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     },
+     {
+      "item_quote": "I ordered a desk lamp from you (order TO-80212) and it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring.",
+      "issue_evidence": "it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you repair it or refund me?",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Can you repair it or refund me?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80212",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.96,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP14B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80210"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80210": "CONFIRMED"
+    },
+    "order_id": "TO-80210",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, die Schreibtischlampe meiner Bestellung TO-80210 flackert. Bitte reparieren oder ersetzen Sie sie, entweder ist in Ordnung. Viele Grüße, Wei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Schreibtischlampe",
+      "issue_evidence": "flackert",
+      "issue_type": "DEFECT",
+      "component_quote": "Schreibtischlampe",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte reparieren oder ersetzen Sie sie, entweder ist in Ordnung",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Bitte reparieren oder ersetzen Sie sie, entweder ist in Ordnung",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80210",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 60.09,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP21A": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80217"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80217": "CONFIRMED"
+    },
+    "order_id": "TO-80217",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L",
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "I would like to request a refund",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "backpack buckle",
+      "issue_evidence": "the backpack buckle broke shortly after use",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I would like to request a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80217",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 8.18,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP21B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first. Refund intent kept for the reviewer (D2).",
+   "derived": {
+    "order_refs": [
+     "TO-80217"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80217": "CONFIRMED"
+    },
+    "order_id": "TO-80217",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "BACKPACK-30L",
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Support,\n\nI am writing regarding my order number TO-80217. Unfortunately, the camping gas stove valve broke shortly after use and I would like to request a refund. Please let me know the next steps.\n\nKind regards,\nDmitri",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "camping gas stove valve",
+      "issue_evidence": "camping gas stove valve broke",
+      "issue_type": "DEFECT",
+      "component_quote": "camping gas stove valve broke",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "request a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80217",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.77,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP16A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80212"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80212": "CONFIRMED"
+    },
+    "order_id": "TO-80212",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi,\n\nI ordered a desk lamp from you (order TO-80212) and it's started flickering. It does it constantly, whatever outlet I plug it into, so it's definitely the lamp and not my wiring. Can you repair it or send me a replacement? Either is fine, I just want this sorted.\n\nThanks,\nYusuf",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "desk lamp",
+      "issue_evidence": "started flickering",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you repair it or send me a replacement? Either is fine",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Can you repair it or send me a replacement? Either is fine",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80212",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CLARIFY_WITH_CUSTOMER/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V7: 2 items need separate handling (D13): ask which first.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 61.92,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP18B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, EITHER_ACCEPTABLE): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-80214"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80214": "CONFIRMED"
+    },
+    "order_id": "TO-80214",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola,\n\nLes escribo porque la lámpara de escritorio del pedido TO-80214 parpadea todo el tiempo y no se puede usar así. Me gustaría que la repair it or refund me, I'm not sure which.\n\nGracias y quedo atenta.\n\nSaludos,\nAiko",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la lámpara de escritorio del pedido TO-80214",
+      "issue_evidence": "parpadea todo el tiempo y no se puede usar",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "repair it",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "refund me",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80214",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 33.39,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP26A": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80222"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80222": "CONFIRMED"
+    },
+    "order_id": "TO-80222",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE",
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Support Team,\n\nI am writing regarding my order TO-80222. The kettle does not heat properly and I would like to return it for a refund. Please advise on the next steps.\n\nThank you,\nInes",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the kettle",
+      "issue_evidence": "The kettle does not heat properly",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I would like to return it for a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80222",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 7.89,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP18A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80214"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80214": "CONFIRMED"
+    },
+    "order_id": "TO-80214",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola,\n\nLes escribo porque la lámpara de escritorio del pedido TO-80214 parpadea todo el tiempo y no se puede usar así. Me gustaría que la repair or replace, either is fine.\n\nGracias y quedo atenta.\n\nSaludos,\nAiko",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la lámpara de escritorio del pedido TO-80214",
+      "issue_evidence": "parpadea todo el tiempo y no se puede usar así",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "repair or replace, either is fine",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "repair or replace, either is fine",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80214",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 59.26,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP24B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first. Refund intent kept for the reviewer (D2).",
+   "derived": {
+    "order_refs": [
+     "TO-80220"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80220": "CONFIRMED"
+    },
+    "order_id": "TO-80220",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "BACKPACK-30L",
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnt ihr mir bitte einen refund erstatten?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "das Ventil am Camping-Gaskocher gebrochen",
+      "issue_evidence": "das Ventil am Camping-Gaskocher gebrochen",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir bitte einen refund erstatten?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80220",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.06,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP24A": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80220"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80220": "CONFIRMED"
+    },
+    "order_id": "TO-80220",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L",
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo Team,\n\nich melde mich wegen meiner Bestellung mit der Ordernummer TO-80220. Leider ist bei mir die Schnalle am Rucksack gebrochen und das Teil ist nicht nutzbar. Könnt ihr mir bitte einen refund erstatten? Danke im Voraus.\n\nViele Grüße\nGreta",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "die Schnalle am Rucksack gebrochen",
+      "issue_evidence": "die Schnalle am Rucksack gebrochen",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir bitte einen refund erstatten?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80220",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.51,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP30A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V9",
+   "family": null,
+   "reason": "No problem and no requested outcome: standard support reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-80226"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80226": "CONFIRMED"
+    },
+    "order_id": "TO-80226",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE",
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号 TO-80226 の件でご連絡します。届いたケトルが全く熱くなりません。返品して refund をお願いします。よろしくお願いします。Mei",
+    "speech_act": "REQUEST",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80226",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 10.55,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP30B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-80226"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80226": "CONFIRMED"
+    },
+    "order_id": "TO-80226",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE",
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号 TO-80226 の件でご連絡します。届いたケトルが全く熱くなりません。ソックスにも穴が空いていて返品したいです。返品して refund をお願いします。よろしくお願いします。Mei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "届いたケトルが全く熱くなりません",
+      "issue_evidence": "全く熱くなりません",
+      "issue_type": "DEFECT",
+      "component_quote": "全く熱くなりません",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返品して refund をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "ソックスにも穴が空いていて",
+      "issue_evidence": "ソックスにも穴が空いていて",
+      "issue_type": "DEFECT",
+      "component_quote": "ソックスにも穴が空いていて",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返品して refund をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80226",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.35,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP26B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-80222"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80222": "CONFIRMED"
+    },
+    "order_id": "TO-80222",
+    "mentioned_skus": [
+     "BREW-KETTLE",
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "BREW-KETTLE",
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Support Team,\n\nI am writing regarding my order TO-80222. The kettle does not heat properly and I would like to return it for a refund. The socks also have a hole and I would like to return them as well. Please advise on the next steps.\n\nThank you,\nInes",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "The kettle does not heat properly",
+      "issue_evidence": "does not heat properly",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "would like to return it for a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": "The socks also have a hole",
+      "issue_evidence": "have a hole",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "would like to return them as well",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80222",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 18.02,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP35A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (speech_act): a human reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-80235"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80235": "CONFIRMED"
+    },
+    "order_id": "TO-80235",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [
+     "speech_act"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。ご注文TO-80235の商品が黒色で届きましたが、白色を注文していたため、白色のものに交換していただけますでしょうか。よろしくお願いいたします。",
+    "speech_act": "REQUEST",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80235",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 6.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP35B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-80236"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80236": "CONFIRMED"
+    },
+    "order_id": "TO-80236",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。ご注文TO-80236の商品を黒色で注文してしまいましたが、実際は白色が欲しかったため、白色に変更していただけますでしょうか。よろしくお願いいたします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "TO-80236",
+      "issue_evidence": "黒色で注文してしまいましたが、実際は白色が欲しかったため",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黒色",
+      "requested_variant_quote": "白色",
+      "goals": [
+       {
+        "evidence": "白色に変更していただけますでしょうか",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80236",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 19.74,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP38B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: order TO-802390 does not exist. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-802390"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-802390": "NOT_FOUND"
+    },
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, la lámpara nunca llegó, por favor envíenla con el número de pedido TO-802390. Gracias, Ugo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la lámpara nunca llegó",
+      "issue_evidence": "la lámpara nunca llegó",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "por favor envíenla con el número de pedido TO-802390",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-802390",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 24.1,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP06B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "SEND_PART"
+    ],
+    "order_status": {
+     "TO-80202": "CONFIRMED"
+    },
+    "order_id": "TO-80202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi team, I just recieved my order TO-80202 and the kettle lid is cracked. Can you please send a new lid KL-170-LID? Actually I just want my money back instead. Thanks so much. Best, Olga",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the kettle lid is cracked",
+      "issue_evidence": "the kettle lid is cracked",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Actually I just want my money back instead.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Actually I just want my money back instead.",
+      "goal": "SEND_PART"
+     }
+    ],
+    "order_ref_quote": "TO-80202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 195.93,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP44A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80245"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80245": "CONFIRMED"
+    },
+    "order_id": "TO-80245",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe den Wasserkocher mit der Bestellnummer TO-80245 erhalten. Das Gerät ist nicht defekt, ich möchte lediglich wissen, wie ich es entkalken kann.\n\nMit freundlichen Grüßen\nAiko",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80245",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 17.76,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP31B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-80228"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80228": "CONFIRMED"
+    },
+    "order_id": "TO-80228",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Support,\n\nI am writing to you regarding order TO-80228. Unfortunately, the lamp that arrived is black, because I ordered the black one by mistake. I would like to receive the white version, and I would be grateful if you could let me know how to arrange an exchange.\n\nThank you very much for your assistance.\n\nKind regards,\nNils",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the lamp that arrived is black, because I ordered the black one by mistake",
+      "issue_evidence": "the lamp that arrived is black, because I ordered the black one by mistake",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "black",
+      "requested_variant_quote": "white",
+      "goals": [
+       {
+        "evidence": "I would like to receive the white version",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80228",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 58.19,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP44B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80245"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80245": "CONFIRMED"
+    },
+    "order_id": "TO-80245",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe den Wasserkocher mit der Bestellnummer TO-80245 erhalten. Das Gerät funktioniert einwandfrei, ich interessiere mich lediglich dafür, wie ich es entkalken soll.\n\nMit freundlichen Grüßen\nAiko",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80245",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 7.23,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP38A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+   "derived": {
+    "order_refs": [
+     "TO-80239"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80239": "CONFIRMED"
+    },
+    "order_id": "TO-80239",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "black",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, la lámpara nunca llegó, por favor envíenla con el número de pedido TO-80239. Gracias, Ugo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la lámpara nunca llegó",
+      "issue_evidence": "la lámpara nunca llegó",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "por favor envíenla",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80239",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/FULFILMENT",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT"
+    ],
+    "notes": [
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship."
+    ]
+   },
+   "latency_s": 55.3,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP31A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+   "derived": {
+    "order_refs": [
+     "TO-80227"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80227": "CONFIRMED"
+    },
+    "order_id": "TO-80227",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "white"
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Support,\n\nI am writing to you regarding order TO-80227. Unfortunately, the lamp that arrived is black, although I ordered the white one. I would like to receive the white version, and I would be grateful if you could let me know how to arrange an exchange.\n\nThank you very much for your assistance.\n\nKind regards,\nNils",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the lamp that arrived is black, although I ordered the white one.",
+      "issue_evidence": "the lamp that arrived is black, although I ordered the white one.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "black",
+      "requested_variant_quote": "white",
+      "goals": [
+       {
+        "evidence": "I would like to receive the white version, and I would be grateful if you could let me know how to arrange an exchange.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80227",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+     "V12: Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+    ]
+   },
+   "latency_s": 72.01,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP40B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “T0-80241” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "T0-80241"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になります。先日注文したlampがまだ届いていないので、ご連絡しました。Order番号はT0-80241です。お手数ですが、確認のうえ商品を送っていただけますでしょうか。よろしくお願いいたします。Wei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "lamp",
+      "issue_evidence": "lampがまだ届いていない",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "商品を送っていただけますでしょうか",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "T0-80241",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 36.48,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP49A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80250"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80250": "CONFIRMED"
+    },
+    "order_id": "TO-80250",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 150,
+    "warranty_basis": "150 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnt ihr mir da bitte einen Ersatz schicken?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Wasserkocher",
+      "issue_evidence": "der heizt jetzt auf einmal nicht mehr.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir da bitte einen Ersatz schicken?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80250",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 15.42,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP46B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: the customer is unsure about TO-80254 and it does not verify. Ask (never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-80254"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPAIR"
+    ],
+    "order_status": {
+     "TO-80254": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-80254",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "So my kettle has stopped heating up. It switches on fine, the light comes on, but the water just stays cold no matter how long I leave it.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "kettle",
+      "issue_evidence": "So my kettle has stopped heating up. It switches on fine, the light comes on, but the water just stays cold no matter how long I leave it.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Id like a replacement rather than a repair if thats ok.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Id like a replacement rather than a repair if thats ok.",
+      "goal": "REPAIR"
+     }
+    ],
+    "order_ref_quote": "TO-80254",
+    "order_ref_hedge_quote": "I think",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.91,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP49B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-80257 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-80257"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80257": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-80257",
+    "mentioned_skus": [
+     "BREW-KETTLE",
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo,\n\nich hab bei euch nen Wasserkocher bestelt und der heizt jetzt auf einmal nicht mehr. Die Lampe geht zwar an, aber das Wasser bleibt einfach kalt, egal wie lange ich ihn laufen lass. Hab schon andere Steckdosen probiert, bringt nichts.\n\nKönnt ihr mir da bitte einen Ersatz schicken? Die Bestellnummer ist glaub ich TO-80257.\n\nDanke schonmal und liebe Grüsse\nFarid",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "der heizt jetzt auf einmal nicht mehr",
+      "issue_evidence": "der heizt jetzt auf einmal nicht mehr",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir da bitte einen Ersatz schicken?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80257",
+    "order_ref_hedge_quote": "glaube ich",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.8,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP40A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+   "derived": {
+    "order_refs": [
+     "TO-80241"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80241": "CONFIRMED"
+    },
+    "order_id": "TO-80241",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "black",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になります。先日注文したlampがまだ届いていないので、ご連絡しました。Order番号はTO-80241です。お手数ですが、確認のうえ商品を送っていただけますでしょうか。よろしくお願いいたします。Wei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "lamp",
+      "issue_evidence": "lampがまだ届いていない",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "送っていただけますでしょうか",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80241",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/FULFILMENT",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT",
+     "CREATE_SUPPLIER_TASK/FULFILMENT"
+    ],
+    "notes": [
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship.",
+     "V12: LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship."
+    ]
+   },
+   "latency_s": 92.55,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP51A": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V9",
+   "family": null,
+   "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like.",
+   "derived": {
+    "order_refs": [
+     "TO-80252"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80252": "CONFIRMED"
+    },
+    "order_id": "TO-80252",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42",
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello Support Team, I am writing about my recent purchase, order number TO-80252. I received the sneakers last week and I have been meaning to wear them for my morning walks by the park where I usually see the same dog every day at 7am. Unfortunately the sole came off after only a few uses, which is very annoying. I had been looking forward to them because the color matches my jacket. I also noticed the box was a bit dented on arrival but that is not a big deal. Thank you for your time. Best regards, Hiro",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "the sole came off after only a few uses",
+      "issue_evidence": "sole came off after only a few uses",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80252",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.52,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP53A": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V9",
+   "family": null,
+   "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like.",
+   "derived": {
+    "order_refs": [
+     "TO-80254"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80254": "CONFIRMED"
+    },
+    "order_id": "TO-80254",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola,\nSoy Jonas. Mi pedido TO-80254 llegó y la suela de las zapatillas se ha desprendido, muy molesto.\nSaludos,\nJonas",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "la suela de las zapatillas se ha desprendido",
+      "issue_evidence": "la suela de las zapatillas se ha desprendido",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80254",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 5.77,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP46A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80247"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80247": "CONFIRMED"
+    },
+    "order_id": "TO-80247",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 150,
+    "warranty_basis": "150 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there,\n\nSo my kettle has stopped heating up. It switches on fine, the light comes on, but the water just stays cold no matter how long I leave it. Ive only had it a few weeks so pretty annoyed to be honest.\n\nId like a replacement rather than a repair if thats ok. My order number is TO-80247.\n\nThanks!\nCarla",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "my kettle",
+      "issue_evidence": "So my kettle has stopped heating up. It switches on fine, the light comes on, but the water just stays cold no matter how long I leave it.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Id like a replacement rather than a repair if thats ok.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80247",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CLARIFY_WITH_CUSTOMER/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CLARIFY_WITH_CUSTOMER/None"
+    ],
+    "notes": [
+     "V7: 2 items need separate handling (D13): ask which first.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V7: 3 items need separate handling (D13): ask which first."
+    ]
+   },
+   "latency_s": 68.68,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP51B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80252"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80252": "CONFIRMED"
+    },
+    "order_id": "TO-80252",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 90,
+    "warranty_basis": "90 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello Support Team, I am writing about my recent purchase, order number TO-80252. I received the sneakers last week and I have been meaning to wear them for my morning walks by the park where I usually see the same dog every day at 7am. Unfortunately the sole came off after only a few uses, which is very annoying. Please send a replacement pair. I had been looking forward to them because the color matches my jacket. I also noticed the box was a bit dented on arrival but that is not a big deal. Thank you for your time. Best regards, Hiro",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "sneakers",
+      "issue_evidence": "sole came off after only a few uses",
+      "issue_type": "DEFECT",
+      "component_quote": "sole",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Please send a replacement pair",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80252",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 32.13,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP56A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80257"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80257": "CONFIRMED"
+    },
+    "order_id": "TO-80257",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "warranty_basis": "200 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Helo,\n\nMy kettle (order TO-80257) stopped heating and just stays cold. No smoke or smell. Can you arrange a repair? thanx,\n\nMei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "My kettle (order TO-80257) stopped heating and just stays cold",
+      "issue_evidence": "stopped heating and just stays cold",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you arrange a repair?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80257",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CLARIFY_WITH_CUSTOMER/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V7: 2 items need separate handling (D13): ask which first.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 29.63,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP56B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words smoke/burning, S2 model EXPLICIT, S4 mains-electric hazard): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-80257"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80257": "CONFIRMED"
+    },
+    "order_id": "TO-80257",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [
+      "smoke",
+      "burning"
+     ],
+     "S2_model": "EXPLICIT",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Helo,\n\nMy kettle (order TO-80257) stopped heating and just stays cold. There WAS smoke and a burning smell from the base. Can you arrange a repair? thanx,\n\nMei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "My kettle (order TO-80257) stopped heating and just stays cold. There WAS smoke and a burning smell from the base.",
+      "issue_evidence": "There WAS smoke and a burning smell from the base.",
+      "issue_type": "DEFECT",
+      "component_quote": "stopped heating and just stays cold",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you arrange a repair?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80257",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "There WAS smoke and a burning smell from the base.",
+    "safety_level": "EXPLICIT",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 32.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP53B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80254"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80254": "CONFIRMED"
+    },
+    "order_id": "TO-80254",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 90,
+    "warranty_basis": "90 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, Soy Jonas. Mi pedido TO-80254 llegó y la suela de las zapatillas se ha desprendido, muy molesto. Por favor envíenme un par de reemplazo. Saludos, Jonas",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la suela de las zapatillas se ha desprendido",
+      "issue_evidence": "la suela de las zapatillas se ha desprendido",
+      "issue_type": "DEFECT",
+      "component_quote": "la suela",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "envíenme un par de reemplazo",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80254",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 52.52,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP62A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Carrier shows delivered in full; a missing component needs a human check.",
+   "derived": {
+    "order_refs": [
+     "TO-80263"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80263": "CONFIRMED"
+    },
+    "order_id": "TO-80263",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 100,
+    "part": "DL-CLAMP-M"
+   },
+   "extraction": {
+    "speech_act_evidence": "親愛的客服團隊您好：\n\n關於訂單 TO-80263，\n請寄送桌夾 DL-CLAMP-M，因為貴公司遺失了該零件。\n\n此致敬禮，\nSven",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "請寄送桌夾 DL-CLAMP-M，因為貴公司遺失了該零件",
+      "issue_evidence": "貴公司遺失了該零件",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": "DL-CLAMP-M",
+      "current_variant_quote": null,
+      "requested_variant_quote": "DL-CLAMP-M",
+      "goals": [
+       {
+        "evidence": "請寄送桌夾 DL-CLAMP-M，因為貴公司遺失了該零件",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80263",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.12,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP62B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (speech_act): a human reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-80263"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80263": "CONFIRMED"
+    },
+    "order_id": "TO-80263",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [
+     "speech_act"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "親愛的客服團隊您好：關於訂單 TO-80263，請問貴公司是否有單獨販售桌夾 DL-CLAMP-M？此致敬禮，Sven",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80263",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1
+   },
+   "agreement": null,
+   "latency_s": 20.86,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP65B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80266"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80266": "CONFIRMED"
+    },
+    "order_id": "TO-80266",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちわ, 注文番号 TO-80266 の件で、デスククランプ DL-CLAMP-M を別売りしてますか？ よろしくおねがいします",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80266",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 14.88,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP65A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Carrier shows delivered in full; a missing component needs a human check.",
+   "derived": {
+    "order_refs": [
+     "TO-80266"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80266": "CONFIRMED"
+    },
+    "order_id": "TO-80266",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号 TO-80266 の件で、デスククランプ DL-CLAMP-M を送ってください、なくしちゃったんだ。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "デスククランプ DL-CLAMP-M",
+      "issue_evidence": "なくしちゃったんだ",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": "DL-CLAMP-M",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "送ってください",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80266",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 46.62,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP60B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words 煙/焦げ, S2 model POSSIBLE, S4 mains-electric hazard): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-80261"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80261": "CONFIRMED"
+    },
+    "order_id": "TO-80261",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [
+      "煙",
+      "焦げ"
+     ],
+     "S2_model": "POSSIBLE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号 TO-80261 のケトルが加熱しません。底から煙が出て焦げ臭いです。修理をお願いします。Qing",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ケトル",
+      "issue_evidence": "底から煙が出て焦げ臭いです。",
+      "issue_type": "DEFECT",
+      "component_quote": "底",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いします。",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80261",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "底から煙が出て焦げ臭いです。",
+    "safety_level": "POSSIBLE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 91.83,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP45B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80246"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80246": "CONFIRMED"
+    },
+    "order_id": "TO-80246",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。Bramです。注文番号 TO-80246 のケトルについてご連絡いたします。ケトルは全く問題ありません。脱スケールの方法を知りたいだけです。ご確認よろしくお願いいたします。",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80246",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 202.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP45A": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80246"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80246": "CONFIRMED"
+    },
+    "order_id": "TO-80246",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。Bramです。注文番号 TO-80246 のケトルについてご連絡いたします。ケトルは全く壊れていません。脱スケールの方法を知りたいだけです。ご確認よろしくお願いいたします。",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80246",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.99
+   },
+   "agreement": null,
+   "latency_s": 210.87,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "MP66B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I got the shoes but they are too small for me. I would like size 44 instead. Could you help me exchange them? Thank you. Wei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "shoes",
+      "issue_evidence": "they are too small for me",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "size 44",
+      "goals": [
+       {
+        "evidence": "I would like size 44 instead. Could you help me exchange them?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 36.08,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP66A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+   "derived": {
+    "order_refs": [
+     "TO-80267"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80267": "CONFIRMED"
+    },
+    "order_id": "TO-80267",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "44"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I got the shoes but they are too small for me. I would like size 44 instead. My order number is TO-80267. Could you help me exchange them? Thank you. Wei",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "shoes",
+      "issue_evidence": "too small for me",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "size 44",
+      "goals": [
+       {
+        "evidence": "I would like size 44 instead.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80267",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44."
+    ]
+   },
+   "latency_s": 102.19,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP70B": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。靴ですが、サイズが小さくて履けませんでした。44に交換できますか?よろしくお願いします。Aiko",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "靴",
+      "issue_evidence": "サイズが小さくて履けませんでした",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "44",
+      "goals": [
+       {
+        "evidence": "44に交換できますか?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 53.11,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "MP70A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+   "derived": {
+    "order_refs": [
+     "TO-80271"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80271": "CONFIRMED"
+    },
+    "order_id": "TO-80271",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "44"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号TO-80271の靴ですが、サイズが小さくて履けませんでした。44に交換できますか?よろしくお願いします。Aiko",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "靴",
+      "issue_evidence": "サイズが小さくて履けませんでした",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "44",
+      "goals": [
+       {
+        "evidence": "44に交換できますか?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80271",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 44."
+    ]
+   },
+   "latency_s": 87.82,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK",
+    "k5": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP60A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80261"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80261": "CONFIRMED"
+    },
+    "order_id": "TO-80261",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "warranty_basis": "200 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号 TO-80261 のケトルが加熱しません。煙も臭いもなく、ただ冷たいままです。修理をお願いします。Qing",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ケトル",
+      "issue_evidence": "加熱しません",
+      "issue_type": "DEFECT",
+      "component_quote": "加熱しません",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いします",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80261",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CLARIFY_WITH_CUSTOMER/None",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V7: 2 items need separate handling (D13): ask which first.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 241.74,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 56,
+   "strict": 51,
+   "strict_ci": [
+    80.7,
+    96.1
+   ],
+   "lenient": 51,
+   "lenient_ci": [
+    80.7,
+    96.1
+   ],
+   "task_pred": 21,
+   "task_true": 24,
+   "task_tp": 21,
+   "task_precision": 1.0,
+   "task_recall": 0.875,
+   "false_triggers": [],
+   "non_supplier_n": 32,
+   "errors": [
+    {
+     "id": "MP30A",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "MP35A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act): a human reads it."
+    },
+    {
+     "id": "MP49B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-80257 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "MP62A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    },
+    {
+     "id": "MP65A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    }
+   ]
+  },
+  "k3": {
+   "n": 56,
+   "strict": 47,
+   "strict_ci": [
+    72.2,
+    91.3
+   ],
+   "lenient": 47,
+   "lenient_ci": [
+    72.2,
+    91.3
+   ],
+   "task_pred": 17,
+   "task_true": 24,
+   "task_tp": 17,
+   "task_precision": 1.0,
+   "task_recall": 0.708,
+   "false_triggers": [],
+   "non_supplier_n": 32,
+   "errors": [
+    {
+     "id": "MP05B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    },
+    {
+     "id": "MP30A",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "MP35A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act): a human reads it."
+    },
+    {
+     "id": "MP49B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-80257 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "MP46A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "MP56A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "MP62A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    },
+    {
+     "id": "MP65A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    },
+    {
+     "id": "MP60A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    }
+   ]
+  },
+  "k5": {
+   "n": 56,
+   "strict": 45,
+   "strict_ci": [
+    68.2,
+    88.7
+   ],
+   "lenient": 45,
+   "lenient_ci": [
+    68.2,
+    88.7
+   ],
+   "task_pred": 15,
+   "task_true": 24,
+   "task_tp": 15,
+   "task_precision": 1.0,
+   "task_recall": 0.625,
+   "false_triggers": [],
+   "non_supplier_n": 32,
+   "errors": [
+    {
+     "id": "MP05B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    },
+    {
+     "id": "MP14A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "MP16A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "MP30A",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "MP35A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act): a human reads it."
+    },
+    {
+     "id": "MP49B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V3",
+     "reason": "Order TO-80257 belongs to a different customer (never auto-corrected)."
+    },
+    {
+     "id": "MP46A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "MP56A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "MP62A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    },
+    {
+     "id": "MP65A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Carrier shows delivered in full; a missing component needs a human check."
+    },
+    {
+     "id": "MP60A",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    }
+   ]
+  }
+ }
+}

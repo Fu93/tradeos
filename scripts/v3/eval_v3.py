@@ -53,6 +53,11 @@ def load_labels(set_name: str, spec: str) -> dict:
             for i, s in enumerate("AB"):
                 out[f"{p['pair_id']}{s}"] = {"required_action": p["designed"][i], "acceptable_actions": [p["designed"][i]]}
         return out
+    if spec == "old":  # round-2 labels (pre-v3 taxonomy): DEV ONLY, approximate
+        import eval_routing as ev
+        src = "original" if set_name == "dev_original" else "heldout"
+        return {c["id"]: {"required_action": c["required_action"],
+                          "acceptable_actions": sorted(set(c["acceptable"]) | {c["required_action"]})} for c in ev.load_set(src)}
     path = E / f"judge-{set_name}-B.json" if spec == "judgeB" else Path(spec)
     j = json.loads(path.read_text())
     labels = j.get("labels", j)
@@ -82,7 +87,7 @@ class Retrying:
         raise last
 
 
-def run_v3(item: dict, ext: Retrying, k: int) -> dict:
+def run_v3(item: dict, ext: Retrying, k: int, temp: float = 0.6) -> dict:
     ctx = ContextV3(item["customer"], item["linked_order"])
     t = time.perf_counter()
     first = ext.sample(item["message"], 1, 0.0)[0]
@@ -90,7 +95,7 @@ def run_v3(item: dict, ext: Retrying, k: int) -> dict:
     rec = {"action1": d.action, "rule1": d.rule, "family": d.family, "reason": d.reason, "derived": d.derived,
            "extraction": first.raw, "agreement": None}
     if d.action == "CREATE_SUPPLIER_TASK" and k > 1:
-        extras = ext.sample(item["message"], k - 1, 1.0)
+        extras = ext.sample(item["message"], k - 1, temp)
         votes, notes = [], []
         for e in extras:
             dd = decide_v3(e, item["message"], ctx, TODAY)
@@ -157,6 +162,7 @@ def main():
     ap.add_argument("--tag", default="dev")
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--only", default="")
+    ap.add_argument("--temp", type=float, default=0.6, help="temperature of the k-1 agreement samples")
     a = ap.parse_args()
     if a.set == "heldout_v2" and not (a.tag == "final" or a.tag.startswith("tuned")):
         sys.exit("held-out v2 runs must be tagged 'final' (once) or 'tuned-*'")
@@ -191,7 +197,7 @@ def main():
         _tl = threading.local()
     else:
         def worker(item):
-            return run_v3(item, ext, a.k)
+            return run_v3(item, ext, a.k, a.temp)
     t0 = time.time()
     with ThreadPoolExecutor(a.workers) as pool:
         futs = {pool.submit(worker, it): it for it in todo}
@@ -211,7 +217,7 @@ def main():
             lab = labels.get(it["id"], {}).get("required_action", "?")
             print(f"{it['id']} {r['action1']} label={lab}", flush=True)
     res["meta"] = {"set": a.set, "pipeline": a.pipeline, "tag": a.tag, "model": MODEL, "provider": "NVIDIA",
-                   "rules": RULE_VERSION_V3 if a.pipeline == "v3" else "0.2.0", "k": a.k, "labels": a.labels,
+                   "rules": RULE_VERSION_V3 if a.pipeline == "v3" else "0.2.0", "k": a.k, "agreement_temp": a.temp, "labels": a.labels,
                    "usage": llm.usage, "retries": ext.retries, "wall_s": round(time.time() - t0, 1)}
     res["score"] = {kk: score(res["results"], labels, kk) for kk in ("k1", "k3", "k5")
                     if all(kk in r["actions"] for r in res["results"].values())}

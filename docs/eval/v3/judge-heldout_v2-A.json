@@ -1,0 +1,2195 @@
+{
+ "judge": {
+  "A": "z-ai/glm-5.3"
+ },
+ "labels": {
+  "V005": {
+   "A": {
+    "speech_act_evidence": "can i exchange them for a size 41?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, size 42)",
+      "issue_evidence": "i got the trail runner sneakers (order TO-80005) 4 days ago in size 42 but they feel too large",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "can i exchange them for a size 41?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "they feel too large",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80005",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer received exactly what was ordered (size 42, confirmed by TO-80005 lines) but it 'feels too large' with no claim it differs from the order, so this is SIZE_MISMATCH, not WRONG_ITEM_OR_VARIANT. 'Can I exchange them for a size 41?' is a remedy request on the customer's own order (D9) → speech_act REQUEST, goal EXCHANGE_VARIANT, relation SINGLE. Order ref TO-80005 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42/42, bought 4 days ago). No hazard words and hazard class NONE → safety NONE. V0–V10 do not apply: no injection, no safety, no data conflict (order matches), valid ref, REQUEST not QUESTION, not mixed (one item, one goal, one family), not REFUND-only, goals present, issue is SIZE_MISMATCH. V11 slots are satisfied: order reference present and found; target size 41 is a valid variant of TRAIL-RUNNER-42 and differs from the ordered 42; no part numbers; single unit (no C7). Falls to V12 responsibility table: EXCHANGE on SIZE_MISMATCH — product is returnable, within 30 days, and fulfilment is SUPPLIER_DROPSHIP with supplier confirms stock=True → CREATE_SUPPLIER_TASK (supplier confirms stock and ships the right size). No other action is defensible under the table, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 55.07
+   }
+  },
+  "V020": {
+   "A": {
+    "speech_act_evidence": "9日経ちますので、再送をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, order TO-80020)",
+      "issue_evidence": "注文番号TO-80020のランプがまだ届いていません。",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "9日経ちますので、再送をお願いします。",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "注文番号TO-80020のランプがまだ届いていません。 (no hazard words; non-arrival of a MAINS_ELECTRIC product triggers neither S3 (gas only) nor S4 (defect/part-need only))",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80020",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer asks us to resend a lamp that never arrived: MISSING_ITEM with goal RESHIP (FULFILMENT family), speech act REQUEST ('再送をお願いします'). Order TO-80020 is well-formed, unhedged, and verifies (belongs to this customer, contains DESK-LAMP, bought 9 days ago); carrier status LOST is consistent with the claim of non-arrival, so no V3 data conflict. Safety NONE (S3 covers only GAS_APPLIANCE; S4 covers only DEFECT/PART_NEED on mains-electric items). V0/V1/V3/V4/V6/V7/V8/V9/V10/V11 all fail: single item, single action goal, valid verified order reference, no EXCHANGE/SEND_PART slots. V12 FULFILMENT row: carrier LOST + product fulfilment SUPPLIER_DROPSHIP with supplier reships=True → CREATE_SUPPLIER_TASK (internal draft reship request for human confirmation). No other action is defensible under the table.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 106.52
+   }
+  },
+  "V021": {
+   "A": {
+    "speech_act_evidence": "Can you send the missing lamp please?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (white LED desk lamp), qty 2 ordered",
+      "issue_evidence": "for 2 white desk lamps, only 1 arrived",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Can you send the missing lamp please?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "only 1 arrived — a missing unit with no hazard words; DESK-LAMP is MAINS_ELECTRIC but S4 triggers only on DEFECT/PART_NEED, not MISSING_ITEM",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80021",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80021 verifies: belongs to this customer, contains DESK-LAMP white qty 2, bought 9 days ago, logistics DELIVERED_PARTIAL with delivered_qty 1 — exactly matching the claim 'only 1 arrived', so no V3 data conflict. Speech act is REQUEST (polite 'Can you send… please?'). One item, MISSING_ITEM, single goal RESHIP (FULFILMENT family). Safety NONE: a missing whole unit is not a DEFECT/PART_NEED, so the MAINS_ELECTRIC rule S4 does not apply, and no hazard words appear. V0–V11 do not match: no injection (V0), no safety (V1), no conflict (V3), reference well-formed and unhedged and verifies (V4), not a QUESTION (V6), single item with a single goal family so not mixed (V7), family is FULFILMENT not REFUND (V8), a goal is present (V9), issue is MISSING_ITEM not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10), order reference present and valid, RESHIP needs no part number, and C7 does not apply because the missing second unit is unambiguous (V11). V12 responsibility table, FULFILMENT row: carrier DELIVERED_PARTIAL, product fulfilment SUPPLIER_DROPSHIP, supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for human confirmation). No other action is defensible: the merchant has no DESK-LAMP inventory record, so a DIRECT reship is not possible, and the 'otherwise HUMAN' branch does not apply.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 117.87
+   }
+  },
+  "V015": {
+   "A": {
+    "speech_act_evidence": "サイズLに交換してもらえませんか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET (City rain jacket), variant M",
+      "issue_evidence": "肩回りがきつすい着られないので困ってます",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "サイズLに交換してもらえませんか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "肩回りがきつすい着られないので困ってます — no hazard words; CITY-JACKET hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80015",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request for a remedy on the customer's own order (D9) → REQUEST. One item: CITY-JACKET M was received as ordered but the shoulders are too tight to wear → SIZE_MISMATCH (no claim it differs from the order, so V3/C1 not triggered). Single goal EXCHANGE_VARIANT to L, stated explicitly. Order ref TO-80015 is well-formed, unhedged, and verifies (this customer, contains CITY-JACKET M, bought 18 days ago, DELIVERED). Safety NONE. V0–V11 do not match: no injection, no safety escalation, no data conflict, ref verifies, REQUEST (not QUESTION), one item with one goal (not mixed), not REFUND-only, goal present, issue not UNCLEAR, and slots are complete (target size L is stated, is a valid CITY-JACKET variant, and differs from ordered M). Falls to V12, EXCHANGE row: merchant-warehouse product, returnable, within 30 days, but target variant L has 0 stock and the supplier restocks on request → CREATE_SUPPLIER_TASK (restock/arrange exchange).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 121.28
+   }
+  },
+  "V016": {
+   "A": {
+    "speech_act_evidence": "Could I exchange it for a size L?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET (City rain jacket, size M)",
+      "issue_evidence": "it's too tight across the shoulders",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could I exchange it for a size L?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "it's too tight across the shoulders",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80016",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the customer received exactly what was ordered (CITY-JACKET M on TO-80016) but it does not fit ('too tight across the shoulders') → SIZE_MISMATCH, not a wrong-item claim. Single goal EXCHANGE_VARIANT to size L (D9 polite request → REQUEST). Order TO-80016 is well-formed, unhedged, and verifies: belongs to this customer, contains CITY-JACKET M, bought 10 days ago (inside the 30-day window), returnable=True. No safety signals (hazard class NONE, no hazard words). V0–V11 do not match: no injection, no safety, no data conflict, valid order ref, REQUEST not QUESTION, single item/goal (not mixed), not REFUND-only, goal present, issue not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG, target size L is stated, valid for the product (variants S/M/L/XL) and differs from the ordered M. V12 EXCHANGE row: CITY-JACKET is MERCHANT_WAREHOUSE; target variant CITY-JACKET/L has 0 in stock, and the supplier restocks on request=True → CREATE_SUPPLIER_TASK. DIRECT is not defensible because the target variant is out of stock, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 69.15
+   }
+  },
+  "V024": {
+   "A": {
+    "speech_act_evidence": "Bitte nachsenden.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, \"die Lampe\")",
+      "issue_evidence": "die Lampe ist nach 6 Tagen noch nicht angekommen",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Bitte nachsenden.",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "die Lampe ist nach 6 Tagen noch nicht angekommen",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80024",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item: the lamp from TO-80024 never arrived (MISSING_ITEM) and the customer explicitly asks for a reship (\"Bitte nachsenden.\"), so speech_act=REQUEST with goal RESHIP. Order reference TO-80024 is well-formed, unhedged, exists, belongs to this customer and contains DESK-LAMP, so V4 does not fire. Carrier shows LOST, which is consistent with the customer's claim (they do not describe using the item), so no V3 data conflict. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but S4 only escalates DEFECT/PART_NEED with power-part or burning-type faults; a missing item is neither, and the S3 gas rule does not apply. No earlier rule matches (not mixed, not refund-only, goals present, issue not UNCLEAR, all slots valid), so V12 applies: FULFILMENT row, carrier LOST, product is SUPPLIER_DROPSHIP and the supplier reships (True) → CREATE_SUPPLIER_TASK. DIRECT is not defensible (no merchant inventory record for DESK-LAMP; carrier is not IN_TRANSIT), and HUMAN is not defensible since the dropship+reship condition is met, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 80.99
+   }
+  },
+  "V026": {
+   "A": {
+    "speech_act_evidence": "Could you please resend them?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, variant 42)",
+      "issue_evidence": "they still haven't arrived; tracking hasn't updated for a week",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Could you please resend them?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "they still haven't arrived; tracking hasn't updated for a week",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80026",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The message asks us to resend the sneakers, so speech_act is REQUEST. The problem is non-arrival of the whole order line, so issue_type is MISSING_ITEM with goal RESHIP (FULFILMENT family). Safety is NONE: no hazard words and the product's hazard class is NONE. The order reference TO-80026 is well-formed, unhedged, and verifies (exists, belongs to this customer, contains TRAIL-RUNNER-42), so V4 does not fire. No V3 conflict: carrier status LOST is consistent with the customer's claim, and the customer does not describe using the item. Not mixed (one item, one goal), not REFUND-only, goals exist, issue is not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG, and no slot problems (valid order ref; RESHIP needs no target variant or part number). Reaching V12, the FULFILMENT row applies: carrier shows LOST, the product is supplier-dropshipped (SUPPLIER_DROPSHIP) and the supplier reships (supplier reships=True), so the required action is CREATE_SUPPLIER_TASK. No other action is defensible: the merchant has no inventory record for this product, so DIRECT is not possible, and the table does not call for HUMAN_REVIEW here.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 50.1
+   }
+  },
+  "V008": {
+   "A": {
+    "speech_act_evidence": "Please send the correct size.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers)",
+      "issue_evidence": "I ordered Trail Runner sneakers size 44 (order TO-80008) but received size 43.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Please send the correct size.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "received size 43",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80008",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item, single problem: seller sent size 43 instead of the ordered 44 → WRONG_ITEM_OR_VARIANT (C1: 'what I have differs from the order' is the claim itself, not a data conflict). Order TO-80008 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42 variant 44, bought 6 days ago, DELIVERED), so V3/V4 do not fire. Speech act is REQUEST with one goal, EXCHANGE_VARIANT (send the actually-ordered variant 44); target is stated, valid for the product, and per C1 exchanging to the ordered variant is the correct remedy, so V11's 'equal to the ordered one' clause does not apply. No safety issue (hazard class NONE, no hazard words). Not mixed (one item, one family), not refund-only, goal present, issue is not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG, all slots present. Falls through to V12: EXCHANGE on a supplier-dropshipped product with supplier confirms stock=True → CREATE_SUPPLIER_TASK (supplier confirms what was sent and ships size 44).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 250.7
+   }
+  },
+  "V011": {
+   "A": {
+    "speech_act_evidence": "Please send the correct white lamp.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "I ordered the white LED desk lamp (order TO-80011) 15 days ago but received a black one.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Please send the correct white lamp.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "received a black one",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80011",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "V0 no (no instructions to the system). V1 no: safety NONE — DESK-LAMP is MAINS_ELECTRIC, but S4 only triggers on a DEFECT/PART_NEED involving burning/heat/power parts; a wrong colour variant is neither, and no hazard words appear. V3 no: TO-80011 verifies (belongs to this customer, contains DESK-LAMP white, DELIVERED 15 days ago), and per C1 'I ordered white but received black' is the wrong-item claim itself, not a data conflict. V4 no: reference well-formed (TO- + 5 digits), unhedged, verifies. V6 no: REQUEST, not QUESTION. V7 no: one item, one goal, one family (EXCHANGE) — not mixed. V8 no: family is EXCHANGE, not REFUND. V9/V10 no: goal present, issue is WRONG_ITEM_OR_VARIANT (not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG). V11 no: order reference present and found; exchange target (white) is stated, valid for the product, and is the ordered-variant remedy prescribed by C1 for wrong items, so the 'equal to the ordered one' clause does not apply. V12 matches: responsibility table EXCHANGE row — DESK-LAMP is SUPPLIER_DROPSHIP and supplier confirms stock=True → CREATE_SUPPLIER_TASK (confirm what was sent, send the white one), consistent with C1. No other action is defensible under the table.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 102.94
+   }
+  },
+  "V003": {
+   "A": {
+    "speech_act_evidence": "Ich möchte sie gerne gegen die gleiche Ausführung in Größe 38 umtauschen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42), EU size 39",
+      "issue_evidence": "Leider sitzen sie mir zu groß.",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Ich möchte sie gerne gegen die gleiche Ausführung in Größe 38 umtauschen.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Leider sitzen sie mir zu groß.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80003",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Speech act is REQUEST (exchange request outranks the process question 'Bitte lassen Sie mich wissen, wie ich dabei vorgehen soll', which is instrumental to the exchange, not a separate goal). One item: customer ordered and received size 39 (order TO-80003 verifies: belongs to this customer, contains TRAIL-RUNNER-42 variant 39, bought 21 days ago, DELIVERED); 'zu groß' with no claim of a wrong delivery → SIZE_MISMATCH, not WRONG_ITEM_OR_VARIANT. Goal: EXCHANGE_VARIANT to size 38 — stated, a valid variant of the product, and different from the ordered 39. Safety NONE (hazard class NONE, no hazard words). Decision table: V0 no, V1 no, V3 no conflict (order verifies and matches), V4 no (valid unhedged TO-80003), V6 no (REQUEST, not QUESTION), V7 not mixed (one item, one action family EXCHANGE), V8 no (not REFUND), V9/V10 no (goal stated, issue is SIZE_MISMATCH), V11 no (order found; exchange target stated, valid, not equal to ordered; no part numbers; single order). V12 responsibility table, EXCHANGE row for SIZE_MISMATCH: product returnable=True, 21 days (< 30), fulfilment=SUPPLIER_DROPSHIP with supplier confirms stock=True → CREATE_SUPPLIER_TASK. No other action is defensible: DIRECT would require merchant-warehouse stock (no inventory record for this product), and nothing needs clarification or human review.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 173.32
+   }
+  },
+  "V035": {
+   "A": {
+    "speech_act_evidence": "請協助更換新燈",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED桌燈)",
+      "issue_evidence": "已使用600天，現在無法開啟",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "請協助更換新燈",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "現在無法開啟",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80035",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer asks for a replacement of the LED desk lamp that no longer switches on → REQUEST, DEFECT, goal REPLACE_SAME (single). Order TO-80035 is well-formed, unhedged, and verifies: belongs to this customer, contains DESK-LAMP, DELIVERED; the stated 600 days of use matches the record, so no V3 conflict. Safety: DESK-LAMP is MAINS_ELECTRIC, but S4 explicitly excludes 'doesn't switch on' faults → NONE, so V1 does not fire. Not mixed (one item, one warranty goal), not REFUND-only, goal present, issue is DEFECT, order reference valid → falls to V12. Warranty table: purchase 600 days ago exceeds the 30-day return window, but DESK-LAMP carries a SUPPLIER 730-day warranty and 600 ≤ 730 → CREATE_SUPPLIER_TASK. No other action is defensible (merchant return policy expired; warranty clearly in supplier window).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 55.26
+   }
+  },
+  "V032": {
+   "A": {
+    "speech_act_evidence": "Can you send a replacemet?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "my electric kettle from about 9 months ago stopped heatin the water",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Can you send a replacemet?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "stopped heatin the water",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80032",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item: the kettle no longer heats, a fault with no claim of wrong delivery, so DEFECT. 'Can you send a replacemet?' is a polite request for a new unit of the same item → REPLACE_SAME (SINGLE). Safety: BREW-KETTLE is MAINS_ELECTRIC, but S4 explicitly lists 'doesn't heat' as a non-escalating fault, so NONE. Order TO-80032 is well-formed, unhedged, exists, belongs to this customer and contains the kettle; 'about 9 months ago' matches the 280-day record, so no V3 conflict. V0/V1/V4/V6/V7/V8–V11 do not match (one actionable item, one goal, valid order reference, no exchange target or part number needed). V12 WARRANTY_REMEDY on DEFECT: purchase is 280 days old (>30 days, so not our return policy), but within the SUPPLIER 365d warranty → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 54.45
+   }
+  },
+  "V028": {
+   "A": {
+    "speech_act_evidence": "Les agradecería que me enviaran de nuevo el producto, ya que sigo interesada en recibirlo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, variant 42)",
+      "issue_evidence": "Hace 13 días compré unas zapatillas Trail Runner y, a día de hoy, todavía no las he recibido.",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Les agradecería que me enviaran de nuevo el producto, ya que sigo interesada en recibirlo.",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "todavía no las he recibido — no hazard words anywhere in the message; product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80028",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80028 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42, bought 13 days ago). The customer states the sneakers never arrived and asks for a reship — one item, MISSING_ITEM, single goal RESHIP (FULFILMENT family), so V0–V11 do not match: no injection, no safety, no data conflict (carrier LOST is consistent with 'todavía no las he recibido'; she does not describe using the item), not a QUESTION, not mixed, not REFUND-only, goal present, issue not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG, and all slots are satisfied. V12 responsibility table, FULFILMENT row: carrier status is LOST, product is SUPPLIER_DROPSHIP and supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for a human to confirm).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 81.61
+   }
+  },
+  "V030": {
+   "A": {
+    "speech_act_evidence": "möchte ich Sie bitten, mir einen Ersatz zuzusenden",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "Leider heizt das Gerät seit kurzem kein Wasser mehr auf. Es schaltet sich zwar ein, bleibt aber kalt.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "möchte ich Sie bitten, mir einen Ersatz zuzusenden",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Es schaltet sich zwar ein, bleibt aber kalt.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80030",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the kettle from TO-80030 (valid format, unhedged, exists, belongs to this customer, contains BREW-KETTLE, DELIVERED 140 days ago — consistent with 'vor etwa vier Monaten', so no V3 conflict). Fault 'heizt kein Wasser mehr auf … bleibt aber kalt' = unit switches on but doesn't heat → DEFECT. Safety: MAINS_ELECTRIC product, but S4 explicitly lists 'doesn't heat' as not escalating and there are no hazard words → NONE, so V1 does not fire. Explicit ask for a replacement unit → REPLACE_SAME, SINGLE (not mixed, not refund-only, goal present, issue not UNCLEAR, order reference present and found, no exchange/part slots) → V0–V11 all miss. V12 WARRANTY_REMEDY on DEFECT: purchase is 140 days old (>30-day return window), catalogue warranty is SUPPLIER 365d and 140 < 365 → within supplier warranty → CREATE_SUPPLIER_TASK. DIRECT is not defensible (return window lapsed, no merchant warranty) and the supplier-warranty row matches cleanly, so no acceptable alternatives.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 81.96
+   }
+  },
+  "V036": {
+   "A": {
+    "speech_act_evidence": "Quisiera un reemplazo si se puede.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, variant white, qty 1 on TO-80036)",
+      "issue_evidence": "el dimmer táctil dejó de responder, no hace nada cuando la toco",
+      "issue_type": "DEFECT",
+      "component": "touch dimmer",
+      "goals": [
+       {
+        "evidence": "Quisiera un reemplazo si se puede",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "el dimmer táctil dejó de responder, no hace nada cuando la toco",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80036",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item: DESK-LAMP with a defective touch dimmer (DEFECT), goal REPLACE_SAME (WARRANTY_REMEDY family). Safety: DESK-LAMP is MAINS_ELECTRIC, but S4 requires a burning/heat/sparks/water fault or a power base/cable/plug/battery part; an unresponsive touch dimmer is a 'doesn't switch on'-type fault and the dimmer is not a listed power part, so safety NONE (V1 not triggered). Order TO-80036 is well-formed, unhedged, belongs to this customer, contains the lamp, bought 70 days ago, DELIVERED — no data conflict (V3 no), no malformed/hedged ref (V4 no). Speech act is REQUEST, not a pure question (V6 no). One item, one action goal in one family — not mixed (V7 no); not REFUND-only (V8 no); goals exist (V9 no); issue is DEFECT, not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10 no); order ref present and found, no exchange target / part number / C7 issues (V11 no). V12 warranty table: purchase is 70 days ago, so the ≤30-day merchant return policy does not apply; DESK-LAMP carries a SUPPLIER 730d warranty and day 70 is within it → CREATE_SUPPLIER_TASK (supplier-dropshipped product, supplier task is an internal draft for human confirmation). No other action is defensible: DIRECT would misapply the expired 30-day window, and nothing warrants HUMAN_REVIEW or CLARIFY.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 72.51
+   }
+  },
+  "V040": {
+   "A": {
+    "speech_act_evidence": "Would it be possible to get a replacement pair?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, variant 43, qty 1)",
+      "issue_evidence": "the seam above the toe split open",
+      "issue_type": "DEFECT",
+      "component": "seam above the toe",
+      "goals": [
+       {
+        "evidence": "Would it be possible to get a replacement pair?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "the seam above the toe split open — no hazard words (no fire/smoke/sparks/shock/injury); product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80040",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item, one problem: the sneaker seam split open, which the customer explicitly frames as not normal wear ('it really doesn't feel like normal wear and tear') → DEFECT. She asks for a new pair of the same item → REPLACE_SAME, SINGLE. Table walk: V0 no injection; V1 safety NONE (no hazard words, hazard class NONE); V3 no conflict — TO-80040 exists, belongs to this customer, contains TRAIL-RUNNER-42, 'about 100 days old' matches the 100-day record, and DELIVERED is consistent with 'he's been living in them'; V4 reference is well-formed (TO-80040) and verifies, not hedged; V6 speech act is REQUEST, not QUESTION; V7 not mixed (one item, one goal, one family WARRANTY_REMEDY); V8 not REFUND-only; V9 goal present; V10 issue is DEFECT, not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG; V11 order reference present and found, no exchange-target or part-number slot issues, qty 1 so C7 does not apply; V12 responsibility table, WARRANTY_REMEDY on DEFECT: purchase is 100 days old, so the ≤30-day returnable branch does not apply, but the catalogue shows warranty = SUPPLIER 180d and 100 ≤ 180, so the supplier warranty branch fires → CREATE_SUPPLIER_TASK (internal draft for a human to confirm; nothing sent to the supplier). DIRECT_WORKFLOW is not defensible (outside the 30-day window, no merchant warranty on this product), so no acceptable alternatives.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 83.51
+   }
+  },
+  "V029": {
+   "A": {
+    "speech_act_evidence": "Necesito que me la reemplacen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (tetera eléctrica, variant standard, TO-80029)",
+      "issue_evidence": "el interruptor de encendido/apagado ya no se mantiene presionado",
+      "issue_type": "DEFECT",
+      "component": "interruptor de encendido/apagado (on/off switch)",
+      "goals": [
+       {
+        "evidence": "Necesito que me la reemplacen.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "el interruptor de encendido/apagado ya no se mantiene presionado",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80029",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item: the kettle's on/off switch no longer stays pressed = broken component → DEFECT; the only outcome asked is a replacement of the same kettle → REPLACE_SAME, SINGLE. Safety: BREW-KETTLE is MAINS_ELECTRIC, but S4 is not triggered — the fault is a mechanical switch failure (no burning, heat, sparks, water in the power part) and the switch is not the power base / cable / plug / battery → NONE. Order ref TO-80029 is well-formed, unhedged, and verifies (belongs to this customer, contains BREW-KETTLE standard, bought 60 days ago, DELIVERED — consistent with 'hace unos 2 meses'), so V3/V4 don't fire. Not a QUESTION (V6), not mixed (one item, one WARRANTY_REMEDY goal, V7), not REFUND-only (V8), goals exist (V9), issue is DEFECT (V10), order ref present and found, no slot problems (V11). V12 warranty row: purchase is 60 days old, so the ≤30-day merchant return path does not apply; supplier warranty SUPPLIER 365d covers day 60 → CREATE_SUPPLIER_TASK (internal draft for a human to confirm). No other action is defensible: the 30-day return window has passed and the supplier warranty clearly applies.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 87.57
+   }
+  },
+  "V041": {
+   "A": {
+    "speech_act_evidence": "請問能否幫我換一雙新的",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42, variant 44, order TO-80041)",
+      "issue_evidence": "鞋頭上方的縫線已經開裂",
+      "issue_type": "DEFECT",
+      "component": "stitching above the toe (鞋頭上方的縫線)",
+      "goals": [
+       {
+        "evidence": "請問能否幫我換一雙新的",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "鞋頭上方的縫線已經開裂 — mechanical seam split only; no hazard words (no fire/smoke/shock/injury), product hazard class NONE, not a gas or mains-electric product",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80041",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the Trail Runner sneakers from TO-80041 have split stitching above the toe → DEFECT. '換一雙新的' asks for a new pair of the same shoes → REPLACE_SAME (SINGLE). Order ref TO-80041 is well-formed, unhedged, exists, belongs to this customer and contains the product; bought 70 days ago, DELIVERED — no data conflict (V3 clear). Safety NONE (no hazard words; hazard class NONE). V0/V1/V3/V4/V6/V7/V8/V9/V10/V11 all fail: no injection, no safety, no conflict, valid order ref, REQUEST not QUESTION, single item with one warranty-remedy goal, not refund-only, goal present, issue is DEFECT, no slot problems (REPLACE_SAME needs no target variant; qty 1 so C7 n/a). V12 warranty row: purchase is 70 days old, so outside the 30-day return window; TRAIL-RUNNER-42 carries a SUPPLIER 180-day warranty and 70 ≤ 180 → CREATE_SUPPLIER_TASK. No other action is defensible (merchant return policy expired, supplier warranty clearly applies), so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 88.09
+   }
+  },
+  "V031": {
+   "A": {
+    "speech_act_evidence": "新しいものとの交換をお願いしたいのですが、対応可能でしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "蓋のヒンジが壊れてしまい、蓋が閉まらなくなりました。",
+      "issue_type": "DEFECT",
+      "component": "蓋のヒンジ (lid hinge)",
+      "goals": [
+       {
+        "evidence": "新しいものとの交換をお願いしたいのですが、対応可能でしょうか。",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "蓋のヒンジが壊れてしまい、蓋が閉まらなくなりました。 — mechanical lid-hinge fault; no hazard words (no burning/smoke/sparks/heat) and the part is not the power base/cable/plug, so S4 does not fire despite MAINS_ELECTRIC class.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80031",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports the lid hinge of their electric kettle broke and the lid no longer closes (DEFECT, broken component) and asks for a new unit, i.e. REPLACE_SAME (same item again because it broke; the kettle has only one variant), phrased as a polite request → REQUEST. Order TO-80031 is well-formed, unhedged, and verifies: belongs to this customer, contains BREW-KETTLE standard, DELIVERED, bought 60 days ago (consistent with '2ヶ月ほど前'). Safety NONE: MAINS_ELECTRIC product, but the fault is a mechanical lid hinge with no burning/heat/sparks and not a power part (S4 not met). Decision table: V0 no, V1 no, V3 no conflict (order verifies, DELIVERED matches usage), V4 no (valid, unhedged, verifies), V6 no (REQUEST, not QUESTION), V7 no (single item, single goal, one family), V8 no (WARRANTY_REMEDY, not REFUND), V9/V10 no (goal present, issue DEFECT), V11 no (valid order ref; REPLACE_SAME needs no target variant; no part number requested). V12 warranty table for DEFECT + REPLACE_SAME: purchase is 60 days old, so the ≤30-day returnable → DIRECT branch does not apply; BREW-KETTLE carries a SUPPLIER 365d warranty and day 60 is within it → CREATE_SUPPLIER_TASK (suggested internal draft, human confirms).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 147.41
+   }
+  },
+  "V039": {
+   "A": {
+    "speech_act_evidence": "I would like to have it repaired.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, black)",
+      "issue_evidence": "The lamp is now flickering constantly and is not working properly.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I would like to have it repaired.",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "The lamp is now flickering constantly and is not working properly.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80039",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks for a repair of a flickering LED desk lamp. 'Flickering constantly and is not working properly' is a DEFECT (single item, single goal REPAIR, so no V7 mix). Safety: DESK-LAMP is MAINS_ELECTRIC, but S4 explicitly excludes 'flickers' and there are no hazard words, so safety NONE and V1 does not fire. Order reference TO-80039 is well-formed, unhedged, exists, belongs to this customer and contains the DESK-LAMP (bought 400 days ago, DELIVERED) — no V3 conflict, no V4 problem, no V11 slot problem (no exchange target or part number needed for REPAIR). V12 responsibility table, WARRANTY_REMEDY on DEFECT: purchase is 400 days old, so the ≤30-day return-policy branch does not apply; DESK-LAMP carries a SUPPLIER 730-day warranty and 400 ≤ 730, so the repair routes to CREATE_SUPPLIER_TASK (a suggested internal draft for human confirmation). No other action is defensible: DIRECT is barred by the expired 30-day window and the absence of a merchant warranty, and the data is clean enough that HUMAN_REVIEW is not warranted.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 137.66
+   }
+  },
+  "V044": {
+   "A": {
+    "speech_act_evidence": "交換用のreplacementをお願いできますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, variant 41)",
+      "issue_evidence": "アイレットが一つ取れてアッパーが破れました",
+      "issue_type": "DEFECT",
+      "component": "eyelet / upper",
+      "goals": [
+       {
+        "evidence": "交換用のreplacementをお願いできますか？可能であれば、sizeは同じでお願いします。",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "アイレットが一つ取れてアッパーが破れました (no hazard words; TRAIL-RUNNER-42 hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80044",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the Trail Runner sneakers with a detached eyelet and torn upper — several symptoms of one structural failure → DEFECT. The customer asks for a replacement in the same size (\"sizeは同じで\") → REPLACE_SAME, SINGLE; not EXCHANGE_VARIANT, so no target-variant slot check. Order TO-80044 is well-formed, unhedged, exists, belongs to this customer, and contains the product; logistics DELIVERED matches the customer using the item, and the stated ~70 days matches the record → no V3 conflict, no V4 issue. Safety NONE (hazard class NONE, no hazard words) → V1 no. REQUEST with a non-INFO goal → V6/V7/V8/V9/V10 no; order reference present and valid, same-size replacement needs no slot clarification → V11 no. V12 warranty row: bought 70 days ago, so outside the 30-day direct-return window, but the product carries a SUPPLIER 180-day warranty and 70 ≤ 180 → CREATE_SUPPLIER_TASK (internal draft for a human to confirm).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 169.99
+   }
+  },
+  "V045": {
+   "A": {
+    "speech_act_evidence": "Ich wäre mit einer Reparatur oder einem Ersatz völlig happy, nehmt einfach das, was für euch leichter ist.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner Sneaker)",
+      "issue_evidence": "Leider löst sich jetzt die Sohle an einer Stelle ab, das ist schon ziemlich störend beim Laufen.",
+      "issue_type": "DEFECT",
+      "component": "Sohle (sole)",
+      "goals": [
+       {
+        "evidence": "einer Reparatur",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "einem Ersatz",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Leider löst sich jetzt die Sohle an einer Stelle ab (no hazard words; TRAIL-RUNNER-42 hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80045",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Sole detaching is a DEFECT of the TRAIL-RUNNER-42 on order TO-80045 (valid format, exists, belongs to this customer, contains the product, bought 140 days ago as the customer states, DELIVERED — no V3 data conflict; V4 not triggered). Speech act is REQUEST (repair or replacement, either is fine → D1: [REPAIR, REPLACE_SAME], EITHER_ACCEPTABLE). Both goals are in the WARRANTY_REMEDY family, so V7 (mixed) does not fire. Safety NONE (footwear, no hazard words, hazard class NONE). V12 responsibility table, WARRANTY_REMEDY on DEFECT row: purchase is 140 days ago, so the '≤30 days and returnable → DIRECT' clause does not apply; the product carries a SUPPLIER 180d warranty and 140 ≤ 180, so the remedy is within the supplier warranty → CREATE_SUPPLIER_TASK (internal draft for a human to confirm). No other action is defensible: the 30-day return window has passed and the supplier warranty clearly applies, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 222.72
+   }
+  },
+  "V042": {
+   "A": {
+    "speech_act_evidence": "me gustaría mucho que me pudieran enviar un par de reemplazo si es posible",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42, variant 44, order TO-80042)",
+      "issue_evidence": "la suela se está despegando en la parte delantera derecha, se nota bastante al caminar",
+      "issue_type": "DEFECT",
+      "component": "sole (front right)",
+      "goals": [
+       {
+        "evidence": "me gustaría mucho que me pudieran enviar un par de reemplazo si es posible",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "la suela se está despegando en la parte delantera derecha (mechanical fault only; no hazard words, hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80042",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item, one problem: the sole is detaching (DEFECT) on the Trail Runner sneakers; the customer asks for a replacement pair (REPLACE_SAME, WARRANTY_REMEDY family, SINGLE). Order reference TO-80042 is well-formed, stated without hedging, and verifies: it belongs to this customer, contains TRAIL-RUNNER-42 variant 44, logistics DELIVERED 170 days ago — consistent with the customer's account of having used the shoes, so no V3 data conflict. Safety NONE (hazard class NONE, no hazard words; 'me da miedo que se rompa del todo' is fear of further mechanical failure, not a hazard). V0/V1 skip; V4 skips (valid, unhedged, verifies); V6 skips (REQUEST, not QUESTION); V7 skips (single item, single action family); V8 skips (not REFUND); V9/V10 skip (goal present, issue is DEFECT); V11 skips (order found, REPLACE_SAME needs no target variant, no part number involved, qty 1 so no C7). V12 responsibility table, WARRANTY_REMEDY on DEFECT: purchase is 170 days old, so the 30-day merchant return window has passed, but the supplier warranty is 180 days and 170 ≤ 180, so the case is within the supplier warranty → CREATE_SUPPLIER_TASK (supplier reships=True).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 259.96
+   }
+  },
+  "V056": {
+   "A": {
+    "speech_act_evidence": "請寄送DL-CLAMP-M零件，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "LED desk lamp (DESK-LAMP, order TO-80056, variant white)",
+      "issue_evidence": "訂單TO-80056的LED桌燈遺失了夾座",
+      "issue_type": "PART_NEED",
+      "component": "desk clamp (夾座)",
+      "goals": [
+       {
+        "evidence": "請寄送DL-CLAMP-M零件",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "LED桌燈遺失了夾座 — no hazard words; the lost part is a mechanical desk clamp (DL-CLAMP-M), not the power base/cable/plug/battery, so S4 does not trigger",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80056",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-CLAMP-M"
+    ],
+    "reasoning": "Customer asks us to send the DL-CLAMP-M clamp for the DESK-LAMP on TO-80056 → REQUEST, one item, PART_NEED (clamp lost, no defect claimed), single goal SEND_PART. Order ref TO-80056 is well-formed, unhedged, and verifies (belongs to this customer, contains DESK-LAMP, DELIVERED), so V3/V4 do not fire. Safety NONE: MAINS_ELECTRIC product, but the fault is a lost mechanical clamp, not a power-part or burning fault (S4 excludes it). V6/V7/V8/V9/V10 do not match (not a question; single item, single goal in one family; not REFUND-only; goal present; issue is PART_NEED). V11 slots are satisfied: order found, exactly one part number (DL-CLAMP-M), qty 1 so no C7 ambiguity, and the DL- prefix belongs to DESK-LAMP (no C8). Falls to V12, SEND_PART on PART_NEED row: part is known (DL-CLAMP-M, Desk clamp (M) for DESK-LAMP) with 0 in stock, and the DESK-LAMP supplier supplies parts=True → CREATE_SUPPLIER_TASK. No other action is defensible under the table.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 239.39
+   }
+  },
+  "V048": {
+   "A": {
+    "speech_act_evidence": "可以維修或換新都可以，請看哪個方便，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "最近一直閃爍",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "可以維修",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "或換新",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "最近一直閃爍 — flickering only; S4 explicitly lists \"flickers\" as non-escalating for MAINS_ELECTRIC",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80048",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80048 verifies: belongs to this customer, contains DESK-LAMP, bought 500 days ago — consistent with the customer's \"約500天\" (the hedge is on the elapsed time, not the order number). One item: the LED desk lamp keeps flickering → DEFECT. Customer accepts repair or replacement, whichever is convenient → goals [REPAIR, REPLACE_SAME] with EITHER_ACCEPTABLE (D1); both goals are in the WARRANTY_REMEDY family, so V7 (mixed) does not fire. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but S4 explicitly excludes \"flickers\" (no burning/heat/sparks, no power-base/cable/plug part named). No earlier rule matches: no injection (V0), no safety (V1), no data conflict (V3), valid unhedged order ref (V4), REQUEST not QUESTION (V6), not REFUND-only (V8), goals present (V9), issue is DEFECT not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10), no slot problems (V11). V12 warranty row: 500 days is outside the 30-day return window, but DESK-LAMP carries a SUPPLIER 730d warranty and 500 ≤ 730 → CREATE_SUPPLIER_TASK (supplier to repair or replace; the either/both choice is left to the supplier workflow, human confirms the draft).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 138.2
+   }
+  },
+  "V047": {
+   "A": {
+    "speech_act_evidence": "I would be grateful if you could advise on the next steps for either a repair or a replacement, whichever is more convenient for you.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, black)",
+      "issue_evidence": "my LED desk lamp (order number TO-80047) purchased 120 days ago, which has started to flicker intermittently",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "either a repair or a replacement, whichever is more convenient for you",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "either a repair or a replacement, whichever is more convenient for you",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "has started to flicker intermittently",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80047",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Single item: the DESK-LAMP flickers intermittently, a DEFECT ('flickers' is a listed DEFECT signal). Speech act is REQUEST: the customer asks us to carry out a repair or replacement ('advise on the next steps for either a repair or a replacement'), matching the 'Can you repair or replace it?' boundary case. Goals are REPAIR and REPLACE_SAME with EITHER_ACCEPTABLE (D1: 'repair or replace (either is fine)'). Safety: DESK-LAMP is MAINS_ELECTRIC, but S4 explicitly excludes 'flickers' (no burning/heat/sparks, no power base/cable/plug/battery involvement), so safety = NONE and V1 does not fire. Order TO-80047 is well-formed, unhedged, and verifies (belongs to this customer, contains DESK-LAMP, bought 120 days ago, matching the customer's own statement), so V3/V4 do not fire. Not mixed under V7: one item whose goals (REPAIR, REPLACE_SAME) all sit in the single WARRANTY_REMEDY family. V8 (REFUND only), V9 (no goals), V10 (UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG) and V11 (order found; no exchange target or part number involved) do not match. V12 warranty row: purchase was 120 days ago, beyond the 30-day return window, but within the supplier warranty of 730 days (DESK-LAMP, SUPPLIER 730d) → CREATE_SUPPLIER_TASK. No other action is defensible: the merchant return policy no longer applies and the supplier warranty clearly covers it, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 154.01
+   }
+  },
+  "V050": {
+   "A": {
+    "speech_act_evidence": "Könnt ihr das bitte repariren oder mir ein neues zusenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "jetzt heizt er nich mehr",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr das bitte repariren",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "oder mir ein neues zusenden",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "heizt er nich mehr",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80050",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request to repair or send a new one → REQUEST (boundary rule: 'Könnt ihr…' is a request, not a question). One item: the 1.7 L kettle no longer heats → DEFECT ('heizt er nich mehr'), no claim it differs from the order. Goals REPAIR + REPLACE_SAME, D1 'repair or replace' → EITHER_ACCEPTABLE; both goals are in the WARRANTY_REMEDY family, so V7 (mixed) does not trigger. Safety NONE: BREW-KETTLE is MAINS_ELECTRIC, but S4 explicitly lists 'doesn't heat' as non-escalating (no burning/heat/base/cable involvement). Order ref TO-80050 is well-formed, unhedged, and verifies (belongs to this customer, contains BREW-KETTLE standard, bought 80 days ago, DELIVERED — matching the customer's 'vor etwa 80 Tagen'), so V3/V4 do not fire. V8 (REFUND-only), V9, V10, V11 do not apply. V12 warranty table for WARRANTY_REMEDY on DEFECT: purchase is 80 days ago, outside the 30-day return window, but the supplier warranty is SUPPLIER 365d and day 80 is within it → CREATE_SUPPLIER_TASK (internal draft, human confirms). No other action is defensible: DIRECT is barred by the expired return window and absence of a merchant warranty, and nothing warrants human review.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 139.8
+   }
+  },
+  "V051": {
+   "A": {
+    "speech_act_evidence": "Könnten Sie mir bitte einen Ersatzdeckel mit Teilenummer KL-170-LID zusenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "Beim Fallen ist der Deckel zerbrochen.",
+      "issue_type": "DEFECT",
+      "component": "Deckel (lid, part KL-170-LID)",
+      "goals": [
+       {
+        "evidence": "Könnten Sie mir bitte einen Ersatzdeckel mit Teilenummer KL-170-LID zusenden?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Beim Fallen ist der Deckel zerbrochen.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80051",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL-170-LID"
+    ],
+    "reasoning": "Polite request to send a replacement lid → REQUEST. The lid broke when the kettle fell: a broken component → DEFECT, with goal SEND_PART and exactly one part number written by the customer, KL-170-LID, whose KL-170- prefix matches BREW-KETTLE, the product in the order (no C8). Order TO-80051 is well-formed, unhedged, and verifies: exists, belongs to this customer, contains BREW-KETTLE, bought 250 days ago exactly as the customer states → no V3/V4 issue. Safety: product is MAINS_ELECTRIC, but the fault is a broken lid from a fall — S4 explicitly lists 'lid broke' as non-escalating and the part is not the power base/cable/plug, no burning/heat words → NONE. V0–V11 do not match: no injection, no safety, no data conflict, valid order ref, not a pure INFORMATION question, single item with a single WARRANTY_REMEDY goal (not mixed), not refund-only, a goal is stated, issue is not UNCLEAR, and all slots are complete (valid order ref, exactly one part number, no C7 ambiguity with qty 1). V12 responsibility table: DEFECT + SEND_PART of a broken component follows the warranty row (C4). 250 days is outside the 30-day return window, but BREW-KETTLE carries a SUPPLIER 365d warranty and 250 ≤ 365 → CREATE_SUPPLIER_TASK. This is consistent with the parts data: KL-170-LID is 0 in merchant stock and the supplier supplies parts.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 142.43
+   }
+  },
+  "V038": {
+   "A": {
+    "speech_act_evidence": "修理をお願いできますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, variant black, order TO-80038)",
+      "issue_evidence": "タッチディマーが反応しなくなりました",
+      "issue_type": "DEFECT",
+      "component": "タッチディマー (touch dimmer)",
+      "goals": [
+       {
+        "evidence": "修理をお願いできますか？",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "タッチディマーが反応しなくなりました — functional fault only; no hazard words, no burning/heat/sparks/water, and the touch dimmer is not the power base / cable / plug / battery",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80038",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request to repair ('修理をお願いできますか？') → REQUEST. One item: the LED desk lamp from TO-80038 whose touch dimmer stopped responding — a broken component → DEFECT; single goal REPAIR (WARRANTY_REMEDY family), so not mixed (V7 no). Order reference TO-80038 is well-formed, unhedged, exists, belongs to this customer, and contains DESK-LAMP; the stated ~150 days matches the record and logistics is DELIVERED while the customer uses the item, so no V3 data conflict (the 'received as a gift' remark triggers no rule since the order verifies against this customer). Safety: DESK-LAMP is MAINS_ELECTRIC, but a non-responsive touch dimmer is like 'doesn't switch on' — not burning/scorching/melting/abnormal heat/sparks/water in the power part, and the dimmer is not the power base/cable/plug/battery → NONE (S4 'no' case), so V1 does not fire. No malformed/hedged reference (V4 no), not an information-only question (V6 no), not REFUND-only (V8 no), goals exist (V9 no), issue is DEFECT not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10 no), order reference present and valid and REPAIR needs no part-number slot (V11 no). V12 warranty row: bought 150 days ago, so outside the 30-day merchant return window, but DESK-LAMP carries a SUPPLIER 730-day warranty and 150 ≤ 730 → CREATE_SUPPLIER_TASK (internal draft for a human to confirm).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 191.89
+   }
+  },
+  "V012": {
+   "A": {
+    "speech_act_evidence": "請幫我換成白色，謝謝",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "四天前收到的LED桌燈是黑色的，我訂的是白色",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "請幫我換成白色",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "是黑色的，我訂的是白色",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80012",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80012 verifies: belongs to this customer, contains DESK-LAMP variant white, bought 4 days ago, DELIVERED. Customer states the received lamp is black while white was ordered → WRONG_ITEM_OR_VARIANT; per C1, 'what I have differs from the order' is the claim itself, not a data conflict, so V3 does not fire. Remedy per C1 is exchange to the ordered variant (white), which the customer explicitly requests → EXCHANGE_VARIANT, SINGLE. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but S4 only escalates DEFECT/PART_NEED with power-part or burning-type faults; a colour mismatch with no hazard words does not escalate. One item, one goal, one family → V7 not mixed. V8 (refund-only) no; V9/V10 no; V11 no: order reference present and valid, target colour 'white' is stated, valid for the product (variants ['white','black']) and equals the ordered variant — which in a wrong-item case is exactly the correct remedy per C1, not a no-op exchange. V12 EXCHANGE row: DESK-LAMP fulfilment is SUPPLIER_DROPSHIP and supplier confirms stock=True → CREATE_SUPPLIER_TASK (confirm what was sent, send the white one). No other action is defensible: there is no merchant inventory record for DESK-LAMP, so DIRECT exchange is not possible, and nothing points to HUMAN_REVIEW.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 177.92
+   }
+  },
+  "V059": {
+   "A": {
+    "speech_act_evidence": "品番DL-LED-5Wをおくってもらえますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "スペアの5W LEDモジュールが欲しいです",
+      "issue_type": "PART_NEED",
+      "component": "5W LED module (DL-LED-5W)",
+      "goals": [
+       {
+        "evidence": "品番DL-LED-5Wをおくってもらえますか？",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "スペアの5W LEDモジュールが欲しいです",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80059",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-LED-5W"
+    ],
+    "reasoning": "Polite request to send a spare part ('おくってもらえますか？') → REQUEST. One item: the DESK-LAMP needs a spare 5W LED module with no defect claimed ('スペアの…が欲しいです') → PART_NEED, goal SEND_PART, relation SINGLE. Order TO-80059 is well-formed, unhedged, and verifies (belongs to this customer, contains DESK-LAMP white, DELIVERED), so V3/V4 do not fire. Exactly one part number is written (DL-LED-5W) and its DL- prefix matches the ordered product, so V11 slots are complete (C7 inapplicable, qty 1; C8 inapplicable). Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but the requested LED module is not the power base/cable/plug/battery and no burning/heat/spark fault is described (S4 does not apply). V0/V1/V6/V7/V8/V9/V10 do not match. V12, SEND_PART on PART_NEED: part known (DL-LED-5W in parts table), stock 0, and DESK-LAMP's supplier supplies parts=True → CREATE_SUPPLIER_TASK. No other action is defensible: DIRECT is impossible (0 stock), nothing needs clarifying, and no rule points to HUMAN_REVIEW.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 243.18
+   }
+  },
+  "V033": {
+   "A": {
+    "speech_act_evidence": "請問可以幫我安排換一台新的嗎？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "水位視窗現在裂開了，從裂縫的地方會滴水",
+      "issue_type": "DEFECT",
+      "component": "水位視窗",
+      "goals": [
+       {
+        "evidence": "請問可以幫我安排換一台新的嗎？",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "水位視窗現在裂開了，從裂縫的地方會滴水",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80033",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80033 verifies: belongs to this customer, contains BREW-KETTLE, bought 95 days ago, DELIVERED — consistent with '大約三個月前', so no V3 conflict and no V4 issue (well-formed, unhedged, verifies). One item: the kettle's water-level window cracked and drips → DEFECT (broken component); '換一台新的' → REPLACE_SAME, SINGLE. Safety NONE: product is MAINS_ELECTRIC, but the fault is a cracked window leaking water — not burning/heat/sparks and not the power base/cable/plug, so S4 does not fire. V0 no, V1 no, V3/V4 no, V6 no (REQUEST, not QUESTION), V7 no (single item, single goal, single family), V8 no (WARRANTY_REMEDY, not REFUND), V9/V10 no (goal present, issue DEFECT), V11 no (valid order ref present; REPLACE_SAME needs no target variant; no part numbers; qty 1 so no C7). V12 warranty row: purchase 95 days ago (> 30-day return window), supplier warranty SUPPLIER 365d and 95 ≤ 365 → CREATE_SUPPLIER_TASK. No merchant warranty and the return window has lapsed, so DIRECT is not defensible; the supplier task is already a human-confirmed draft, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 232.4
+   }
+  },
+  "V006": {
+   "A": {
+    "speech_act_evidence": "想請問能否更換為同款 EU 39 號？麻煩告知需要怎麼處理",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42), EU 40",
+      "issue_evidence": "21 天前購買的 Trail Runner 慢跑鞋 EU 40 號，實際穿起來明顯太大",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想請問能否更換為同款 EU 39 號？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80006",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer received exactly what was ordered (TO-80006 verifies: her order, TRAIL-RUNNER-42 variant 40, delivered 21 days ago) but the EU 40s are clearly too big when worn — no claim the item differs from the order, so SIZE_MISMATCH, not WRONG_ITEM_OR_VARIANT. '能否更換為同款 EU 39 號' is a remedy request on her own order (D9) → REQUEST with the single goal EXCHANGE_VARIANT; target EU 39 is a valid variant and differs from the ordered 40, so V11's exchange-slot check passes. No hazard words and hazard class NONE → safety NONE. No data conflict (V3), reference valid and unhedged (V4), not a pure information question (V6), one item with one action goal so not mixed (V7), not refund-only (V8), goal present (V9), issue is SIZE_MISMATCH not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10). Falls to V12 responsibility table, EXCHANGE row: within the 30-day window (21 days) and returnable, product fulfilment is SUPPLIER_DROPSHIP and supplier confirms stock=True → CREATE_SUPPLIER_TASK (supplier handles the size swap). No other action is defensible: there is no merchant inventory record for TRAIL-RUNNER-42, so DIRECT_WORKFLOW is not supported.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 224.2
+   }
+  },
+  "V049": {
+   "A": {
+    "speech_act_evidence": "Me serviría igualmente una reparación o un reemplazo del producto, así que les dejo a ustedes la elección de la opción que les resulte más sencilla.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, variant black, qty 1 on TO-80049)",
+      "issue_evidence": "Desde hace un tiempo la lámpara no deja de parpadea, y el problema persiste, por lo que resulta prácticamente imposible usarla con normalidad.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Me serviría igualmente una reparación",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "o un reemplazo del producto",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "la lámpara no deja de parpadea",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80049",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the LED desk lamp flickers persistently → DEFECT. The customer asks for a repair or a replacement, either acceptable (D1 pattern: 'Me serviría igualmente una reparación o un reemplazo… les dejo a ustedes la elección') → REQUEST with [REPAIR, REPLACE_SAME], EITHER_ACCEPTABLE; both goals are in the single WARRANTY_REMEDY family, so V7 (mixed) does not fire. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but S4 explicitly lists 'flickers' as a non-trigger and no hazard words appear. Order ref TO-80049 is well-formed, unhedged, exists, belongs to this customer, contains the lamp, logistics DELIVERED — no V3/V4 conflict ('alrededor de año y medio' ≈ 500 days is an approximation, not a conflict). V6 (QUESTION), V8 (REFUND-only), V9 (no goals), V10 (UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG) and V11 (slots: valid ref, no exchange target needed, no SEND_PART, qty 1 so no C7) do not match. V12 responsibility table, WARRANTY_REMEDY on DEFECT: purchase was 500 days ago, past the 30-day return window, but DESK-LAMP carries a SUPPLIER 730d warranty and 500 ≤ 730, so it is within the supplier warranty → CREATE_SUPPLIER_TASK (internal draft for repair-or-replace, human confirms). No other action is defensible: the merchant return window has lapsed and there is no merchant warranty on this product, so DIRECT_WORKFLOW has no basis, and no rule points to HUMAN_REVIEW or CLARIFY.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 219.14
+   }
+  },
+  "V043": {
+   "A": {
+    "speech_act_evidence": "Ich würde gerne ein Ersatzpaar bekommen – nach so kurzer Zeit finde ich das nur fair.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, variant 44, qty 1)",
+      "issue_evidence": "Jetzt ist eine Öse rausgefallen und das Obermaterial hat sich direkt daneben gerissen.",
+      "issue_type": "DEFECT",
+      "component": "Öse (eyelet) and upper material",
+      "goals": [
+       {
+        "evidence": "Ich würde gerne ein Ersatzpaar bekommen",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "Wie läuft das bei euch ab? Muss ich die kaputten Schuhe zurückschicken?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Jetzt ist eine Öse rausgefallen und das Obermaterial hat sich direkt daneben gerissen. (purely mechanical damage, no hazard words; TRAIL-RUNNER-42 hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80043",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the Trail Runner sneakers from TO-80043 with a single DEFECT (eyelet fell out, upper tore right beside it — several symptoms of one failure; the customer explicitly denies misuse: 'Ich trage die Schuhe ganz normal'). Speech act is REQUEST because 'Ich würde gerne ein Ersatzpaar bekommen' asks for an action; the two process questions only add INFORMATION, so goals are [REPLACE_SAME, INFORMATION] with relation SINGLE — not mixed under V7 (one item, one action family WARRANTY_REMEDY; information plus one action is not mixed). Safety NONE: no hazard words and hazard class NONE. Order ref TO-80043 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42, 70 days matches MOCK), so V3 and V4 do not fire; V6 no (REQUEST, not QUESTION); V8 no (WARRANTY_REMEDY, not REFUND); V9/V10 no (goal present, issue is DEFECT); V11 no (valid order ref, REPLACE_SAME needs no target variant, no part number required, qty 1 so C7 n/a). V12 warranty row: purchase was 70 days ago, outside the 30-day return window, but the supplier warranty (SUPPLIER 180d) covers day 70 → CREATE_SUPPLIER_TASK. The draft is confirmed by a human, who also answers the return-process questions.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 265.29
+   }
+  },
+  "V064": {
+   "A": {
+    "speech_act_evidence": "Quería pedir un reemplazo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (hervidor eléctrico)",
+      "issue_evidence": "ya no calienta",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Quería pedir un reemplazo.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ya no calienta",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80064",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks for a replacement of an electric kettle that stopped heating: one item, DEFECT, single goal REPLACE_SAME (WARRANTY_REMEDY). Safety: MAINS_ELECTRIC product, but S4 explicitly lists 'doesn't heat' as non-escalating and no hazard words appear, so NONE (V1 skipped). The order reference is hedged ('Creo que… no estoy completamente segura') but verifies per the MOCK records (exists, belongs to this customer, contains BREW-KETTLE), so C5 applies and V4 does not fire. No data conflict (V3): 160 days ≈ 'hace unos 5 meses', logistics DELIVERED, product matches. Not mixed (V7), not refund-only (V8), goal present (V9/V10 n/a), order found and no slot gaps (V11 n/a). V12 warranty row: purchase 160 days ago is outside the 30-day return window, but BREW-KETTLE carries a SUPPLIER 365d warranty and 160 < 365, so the remedy is a supplier warranty task.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 89.67
+   }
+  },
+  "V061": {
+   "A": {
+    "speech_act_evidence": "Would it be possible for you to obtain this part and send it to me?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, order TO-80061)",
+      "issue_evidence": "It turns out that I need a part for it",
+      "issue_type": "PART_NEED",
+      "component": "DL-ARM-2 (arm)",
+      "goals": [
+       {
+        "evidence": "Would it be possible for you to obtain this part and send it to me?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "a friend of mine who is familiar with these lamps told me that the part number is DL-ARM-2",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80061",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-ARM-2"
+    ],
+    "reasoning": "Polite request to obtain and send a part → REQUEST (the message explicitly asks us to send it, so the availability-question carve-out does not apply). One item: the DESK-LAMP from TO-80061; the customer wants a spare part with no defect claim ('It turns out that I need a part for it') → PART_NEED, goal SEND_PART, relation SINGLE. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but the requested part is an arm, not a power base/cable/plug/battery, and there are no hazard words (S4 not met). Order TO-80061 is well-formed, unhedged, exists, belongs to this customer and contains the DESK-LAMP → V3/V4 do not fire. Not mixed (V7): one item, one goal, one family. V11 slots satisfied: valid order reference present; exactly one part number written (DL-ARM-2); its prefix DL- belongs to the ordered product, so C8 does not apply; order has qty 1, so C7 does not apply. Falls through to V12, SEND_PART on PART_NEED row: DL-ARM-2 is not in the parts table (unknown part), but it carries the product's prefix and the DESK-LAMP supplier answers compatibility=True → CREATE_SUPPLIER_TASK (internal draft for a human to confirm; the customer's offer to pay is handled by rules, not the label).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 150.2
+   }
+  },
+  "V066": {
+   "A": {
+    "speech_act_evidence": "交換をお願いできればと思います。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "約5か月前に購入した電気ケトルが、最近全く加熱しなくなりました。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "交換をお願いできればと思います。",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "最近全く加熱しなくなりました。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80066",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the kettle stopped heating entirely → DEFECT. The customer asks for an exchange of a defective, single-variant product, i.e. a new unit of the same item → REPLACE_SAME (WARRANTY_REMEDY), relation SINGLE. Safety: MAINS_ELECTRIC, but 'doesn't heat' is explicitly a non-escalating fault under S4 → NONE, so V1 does not fire. The order reference is hedged ('ではないかと思いますが、正確に覚えておらず') but TO-80066 exists, belongs to this customer, and contains BREW-KETTLE bought 160 days ago (matches '約5か月前') → C5: treat as a normal order reference, so V4 does not fire; no data conflict (V3). REQUEST with a non-INFORMATION goal → V6 no; single item, single family → V7 no; not REFUND-only → V8 no; goal present → V9 no; issue is DEFECT, not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG → V10 no; slots fine (reference present and verified, no exchange target needed for REPLACE_SAME, no part number needed) → V11 no. V12 warranty row on DEFECT: 160 days > 30-day return window, but supplier warranty SUPPLIER 365d covers 160 days → CREATE_SUPPLIER_TASK. No other action is defensible: DIRECT is barred by the expired 30-day window, CLARIFY by C5 (hedged ref verifies), HUMAN by the applicable supplier warranty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 123.8
+   }
+  },
+  "V068": {
+   "A": {
+    "speech_act_evidence": "Le agradecería mucho que pudiera enviarme una reposición a la mayor brevedad posible.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (lámpara de escritorio)",
+      "issue_evidence": "la lámpara de escritorio que solicité aún no ha llegado",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Le agradecería mucho que pudiera enviarme una reposición a la mayor brevedad posible.",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "aún no ha llegado — pure non-arrival; no hazard words, no defect or part fault (S4 covers DEFECT/PART_NEED on mains-electric items only, not MISSING_ITEM)",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks us to send a replacement for a desk lamp that never arrived → REQUEST, MISSING_ITEM, goal RESHIP (FULFILMENT family), SINGLE. No order number is written, but the case has linked order TO-80068, which exists, belongs to this customer and contains DESK-LAMP, so V11's 'no order reference' slot does not fire. No data conflict (V3): logistics status LOST is consistent with 'aún no ha llegado'; the customer does not describe using the item. Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but S4 only escalates DEFECT/PART_NEED with burning/power-part faults; a missing item is not covered. Not mixed (V7): one item, one goal, one family. Not REFUND-only (V8), goals exist (V9), issue is not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10). Falls through to V12 responsibility table, FULFILMENT row: carrier LOST + product SUPPLIER_DROPSHIP + supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for a human to confirm). No other action is defensible under the table (DIRECT is reserved for IN_TRANSIT or merchant-warehouse-with-stock).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 95.73
+   }
+  },
+  "V067": {
+   "A": {
+    "speech_act_evidence": "麻煩你們直接幫我補寄一個新的過來，我不要退款，就是要把檯燈拿到手。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (檯燈 / LED desk lamp, linked order TO-80067)",
+      "issue_evidence": "我在你們網站訂購的檯燈到現在都還沒收到，已經等了快三個星期了，追蹤頁面也一直沒有更新",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "麻煩你們直接幫我補寄一個新的過來",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "REFUND"
+    ],
+    "safety_evidence": "每天回家還要摸黑開電腦 — inconvenience only; no hazard words (no fire/smoke/sparks/shock/burning), and S4 does not apply because there is no DEFECT or PART_NEED on the mains-electric lamp, only a parcel that never arrived",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the ordered desk lamp never arrived (MISSING_ITEM) with a single goal RESHIP; REFUND is explicitly negated (\"我不要退款\"). Safety NONE (S4 requires a DEFECT/PART_NEED on the mains product; this is a lost parcel, and \"摸黑\" is inconvenience, not a hazard). No order number is written, but the linked TO-80067 verifies (this customer, contains DESK-LAMP), so V4/V11 do not fire; carrier status LOST is consistent with the customer's claim (they do not describe using the item, so no V3 conflict; the \"three weeks\" vs 8 days is not a listed conflict). Not QUESTION (V6), not mixed (V7), not REFUND-only (V8), goal present (V9), issue not UNCLEAR (V10). V12 responsibility table, FULFILMENT row: carrier LOST + DESK-LAMP is SUPPLIER_DROPSHIP with supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for human confirmation; nothing sent to supplier). No other row of the FULFILMENT rule applies, so no alternative action is defensible.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 170.1
+   }
+  },
+  "V053": {
+   "A": {
+    "speech_act_evidence": "Please arrange to send it to me as soon as possible.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L) — lid assembly",
+      "issue_evidence": "After extended use the lid’s seal is now worn out, and I need a replacement lid (part number KL‑170‑LID).",
+      "issue_type": "PART_NEED",
+      "component": "lid seal / lid assembly",
+      "goals": [
+       {
+        "evidence": "I need a replacement lid (part number KL‑170‑LID). Please arrange to send it to me as soon as possible.",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "After extended use the lid’s seal is now worn out",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80053",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "KL‑170‑LID"
+    ],
+    "reasoning": "The customer asks us to send a part, so speech_act is REQUEST. The seal is 'worn out' explicitly 'after extended use' — normal wear with no defect claim — so issue_type is PART_NEED (not DEFECT), with goal SEND_PART and exactly one part number written (KL‑170‑LID). Safety NONE: no hazard words, and although BREW-KETTLE is MAINS_ELECTRIC, the part is the lid, not the power base/cable/plug, and the fault is not burning/heat/sparks/water-in-power-part (S4 not met). Order TO-80053 is well-formed, unhedged, exists, belongs to this customer and contains the kettle, so V3/V4 do not fire; V6–V10 do not apply (REQUEST, one item, one goal, issue not UNCLEAR); V11 slots are satisfied (order given, exactly one part number, KL‑170‑LID is a BREW-KETTLE part, qty 1 so C7 does not apply). V12 responsibility table, SEND_PART on PART_NEED row: part is known (KL‑170‑LID, lid assembly for BREW-KETTLE) with 0 in stock, and the catalogue says the supplier supplies parts for BREW-KETTLE → CREATE_SUPPLIER_TASK. DIRECT is not defensible (part out of stock), and no other row applies, so no acceptable alternatives.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 109.71
+   }
+  },
+  "V001": {
+   "A": {
+    "speech_act_evidence": "想換成EU 41號，請問換貨要怎麼處理？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers, EU 42)",
+      "issue_evidence": "鞋子穿起來太大",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想換成EU 41號",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "鞋子穿起來太大 (only a fit problem; no hazard words, product hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80001",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer received exactly what was ordered (EU 42) but it is too big → SIZE_MISMATCH, with an explicit exchange request to EU 41 → REQUEST, goals [EXCHANGE_VARIANT], SINGLE. Order TO-80001 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42 variant 42, bought 9 days ago, DELIVERED), so V3/V4 do not fire. No safety issue (V1). Not mixed (V7): one item, one action family (EXCHANGE). Not REFUND-only (V8), goals exist (V9), issue is not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10). V11 slots are satisfied: order found, target size 41 is a valid variant of TRAIL-RUNNER-42 and differs from the ordered 42, no part numbers, qty 1 (no C7). Falls to V12 EXCHANGE row: product is returnable, within 30 days (9 days), fulfilment is SUPPLIER_DROPSHIP and the supplier confirms stock → CREATE_SUPPLIER_TASK (supplier confirms stock and ships the EU 41 exchange). No other action is defensible under the table, so acceptable_actions is empty.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 92.47
+   }
+  },
+  "V004": {
+   "A": {
+    "speech_act_evidence": "同商品のサイズ40への交換をお願いしたくご連絡いたしました。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42), EU size 41",
+      "issue_evidence": "明らかに大きすぎてサイズが合いません。",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "同商品のサイズ40への交換をお願いしたくご連絡いたしました。",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "交換の手続き方法、および送料の扱いについてご案内いただけますでしょうか。",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "明らかに大きすぎてサイズが合いません。 (fit problem only; no hazard words, hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80004",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer explicitly asks for an exchange to size 40, so speech_act=REQUEST (precedence over the procedural questions). One item: Trail Runner sneakers EU 41 — the order line (TO-80004, this customer, 14 days ago, DELIVERED) confirms variant 41 was delivered as ordered, and the customer only says the shoes are too big, so SIZE_MISMATCH; she does not claim the size differs from the order, so no V3 conflict. Goals: EXCHANGE_VARIANT (size 40) plus INFORMATION (procedure/shipping costs); information plus one action is not mixed, so V7 does not fire. Safety NONE. Order ref TO-80004 is well-formed, unhedged, and verifies (exists, belongs to this customer, contains the product), so V4 does not fire; V6 does not apply (REQUEST). V11 slots are filled: order found, target size 40 is a valid variant and differs from the ordered 41. First matching rule is V12: EXCHANGE row — product returnable, within 30 days (14 days), fulfilment=SUPPLIER_DROPSHIP with supplier confirms stock=True → CREATE_SUPPLIER_TASK (supplier confirms stock and ships the size-40 replacement; the human confirming the draft can also answer the procedure/shipping questions). The table row is unambiguous for this configuration, so no other action is genuinely defensible.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 188.51
+   }
+  },
+  "V046": {
+   "A": {
+    "speech_act_evidence": "つきましては、この靴について修理か交換のどちらかでご対応いただけますとありがたいです。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "TRAIL-RUNNER-42 (Trail Runner sneakers)",
+      "issue_evidence": "ソールの先端部分が剥がれかかっていることに気づきました。…よく見ると明らかに接着が外れてきているようで、指で軽く押すとめくれあがってしまいます。…もしかすると個体の接着不良かもしれません。",
+      "issue_type": "DEFECT",
+      "component": "sole (toe area, adhesive delaminating)",
+      "goals": [
+       {
+        "evidence": "修理か交換のどちらかでご対応いただけますとありがたいです。…修理でお時間がかかる場合でも問題ありませんし",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "交換の場合も在庫の都合などがあれば、それに合わせて待ちます",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ソールの先端部分が剥がれかかっている — purely mechanical adhesive failure; no hazard words (fire/smoke/shock/injury etc.), product hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80046",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: Trail Runner sneakers with the sole peeling off at the toe — DEFECT (customer suspects '個体の接着不良'). Goals REPAIR or REPLACE_SAME, explicitly either acceptable (D1); both belong to the WARRANTY_REMEDY family, so V7 (mixed) does not apply. Order TO-80046 is well-formed, unhedged, and verifies (belongs to this customer, contains TRAIL-RUNNER-42, DELIVERED, 60 days matches the customer's statement), so V3/V4 do not apply. No safety triggers (hazard class NONE, no hazard vocabulary), so V1 does not apply. Speech act is REQUEST, so V6 does not apply; not refund-only (V8); goals exist (V9); issue is DEFECT, not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10); slots are fine — order found, REPLACE_SAME needs no target variant, qty is 1, no part numbers (V11). V12 warranty row: purchase was 60 days ago, outside the 30-day merchant return window, but the supplier warranty is 180 days and the claim is within it → CREATE_SUPPLIER_TASK (suggested internal draft, human confirms). No other action is defensible: DIRECT is barred by the expired 30-day window, and nothing needs clarification since the customer delegated the repair-vs-replace choice.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 193.89
+   }
+  },
+  "V079": {
+   "A": {
+    "speech_act_evidence": "do you ship to Mexico? If so, roughly how long does delivery take?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "unspecified (pre-sale shipping inquiry)",
+      "issue_evidence": "Quick question before I order",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "do you ship to Mexico?",
+        "goal": "INFORMATION"
+       },
+       {
+        "evidence": "roughly how long does delivery take?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pre-sale shipping-policy question ('Quick question before I order'): the customer asks whether we ship to Mexico and how long delivery takes. No product problem (NO_ISSUE), no order reference written or linked, no part numbers, no hazard words or hazardous product involved (safety NONE). Speech act is QUESTION (availability/process questions, not requests to send or order anything), and the only goals are INFORMATION. Decision table: V0 no, V1 no, V3 no (no order cited), V4 no (no order reference written at all, so nothing malformed or hedged to verify), then V6 matches: speech_act QUESTION with every goal INFORMATION -> HUMAN_REVIEW (support answers; no task). No other action is defensible: there is nothing to clarify with the customer (the question is complete), no workflow to run, and CREATE_SUPPLIER_TASK is never acceptable here.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 103.84
+   }
+  },
+  "V063": {
+   "A": {
+    "speech_act_evidence": "想請問是否可以幫我更換一台新的呢？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "最近發現它突然不加熱了，按開關也沒有反應。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想請問是否可以幫我更換一台新的呢？",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "最近發現它突然不加熱了，按開關也沒有反應。 — fault is \"doesn't heat / doesn't switch on\" on a MAINS_ELECTRIC product, which S4 explicitly lists as not escalating; no hazard words, no power base/cable/plug/battery involvement claimed.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80063",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request for a new unit of the defective kettle → REQUEST, one item, DEFECT, goal REPLACE_SAME (SINGLE). Safety NONE (S4: \"doesn't heat\"/\"doesn't switch on\" → no). Order ref TO-80063 is hedged (\"好像是…不太確定是不是這個號碼\") but verifies per MOCK: exists, belongs to this customer, contains BREW-KETTLE → C5 treats it as a normal order reference, so V4 does not fire. V0–V11 do not match: no injection, no safety, no data conflict (order is the customer's, DELIVERED, contains the product; ~5 months matches 160 days), not a pure INFORMATION question, not mixed (one item, one goal in one family), not REFUND-only, goal present, issue is DEFECT (not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG), order ref present and found, no exchange target needed (single 'standard' variant), no part number required. Falls to V12: WARRANTY_REMEDY on DEFECT — bought 160 days ago (>30-day return window, so not DIRECT via return policy); supplier warranty SUPPLIER 365d and 160 < 365, so within supplier warranty → CREATE_SUPPLIER_TASK.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 218.2
+   }
+  },
+  "V065": {
+   "A": {
+    "speech_act_evidence": "Da das Gerät noch innerhalb der Garantiezeit sein sollte, bitte ich um einen Austausch oder eine Reparatur.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "BREW-KETTLE",
+      "issue_evidence": "mein Wasserkocher, den ich vor etwa fünf Monaten bei Ihnen gekauft habe, heizt seit einigen Tagen nicht mehr. Ich habe versucht, das Gerät zu reinigen und neu zu starten, jedoch ohne Erfolg.",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "bitte ich um einen Austausch",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "oder eine Reparatur",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "heizt seit einigen Tagen nicht mehr",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80065",
+    "order_ref_hedged": true,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks for an exchange or a repair of a kettle that stopped heating: REQUEST with DEFECT, goals [REPLACE_SAME, REPAIR] in the 'either is fine' pattern of D1 (EITHER_ACCEPTABLE). Safety: BREW-KETTLE is MAINS_ELECTRIC, but S4 explicitly lists 'doesn't heat' as a non-escalating fault and no hazard words appear, so NONE. Order reference TO-80065 is hedged ('wahrscheinlich … bin mir jedoch nicht völlig sicher') but verifies per C5 (exists, belongs to this customer, contains BREW-KETTLE, bought 160 days ago, matching the stated ~5 months), so V4 does not fire and it is treated as a normal order reference; no V3 conflict (logistics DELIVERED, customer used the item). Not mixed under V7: both goals are in the single WARRANTY_REMEDY family. V8/V9/V10/V11 do not apply (no refund, goals stated, issue is DEFECT, valid order ref, no part number needed). First match is V12, warranty row on DEFECT: purchase is 160 days, so the ≤30-day return-policy DIRECT branch does not apply; BREW-KETTLE carries a SUPPLIER 365d warranty and 160 ≤ 365, so the remedy goes to the supplier as an internal draft task.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 241.91
+   }
+  },
+  "V080": {
+   "A": {
+    "speech_act_evidence": "想先問一下，貴公司有 ship 到墨西哥嗎？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "none (general shipping policy enquiry)",
+      "issue_evidence": "想先問一下，貴公司有 ship 到墨西哥嗎？謝謝！",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "想先問一下，貴公司有 ship 到墨西哥嗎？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "您好，想先問一下，貴公司有 ship 到墨西哥嗎？謝謝！ — no hazard words, no product defect or hazardous product mentioned",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pre-sale shipping-availability question ('貴公司有 ship 到墨西哥嗎？' = 'do you ship to Mexico?'). It asks whether the company ships to a destination; it does not ask us to send, order, refund, or exchange anything, so per section 2 (availability/policy question) speech_act = QUESTION. No product problem is described, so the single item is NO_ISSUE with the only goal INFORMATION (the customer wants an answer). No order reference is written or linked, no part numbers, and no hazard content, so safety = NONE. Decision table: V0 (no instructions to the system), V1 (no safety), V3 (no data conflict — no order cited), V4 (no malformed/hedged reference) do not match. V6 matches first: speech_act QUESTION and every goal is INFORMATION → HUMAN_REVIEW (support answers; no task). V11's 'no order reference' slot rule is never reached, and no order reference is needed for a pre-sale question. No other action is defensible: there is nothing to clarify with the customer (the question is complete), no direct workflow exists for a shipping-destination enquiry, and CREATE_SUPPLIER_TASK is never acceptable on a non-supplier-task message.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 236.99
+   }
+  },
+  "V082": {
+   "A": {
+    "speech_act_evidence": "Kurz eine Frage, bevor ich die Jacke bestelle: fällt sie eher klein aus?",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "CITY-JACKET (\"die Jacke\" — the only jacket in the catalogue)",
+      "issue_evidence": "Kurz eine Frage, bevor ich die Jacke bestelle: fällt sie eher klein aus?",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "fällt sie eher klein aus?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pre-sale sizing question in German: the customer has not ordered yet (\"bevor ich die Jacke bestelle\") and only asks whether the jacket runs small. No sentence asks us to do anything, and a question is present, so speech_act = QUESTION. The jacket is mentioned with no problem (pre-sale advice), so one NO_ISSUE item; the only goal is INFORMATION (sizing answer), goal_relation SINGLE. No hazard words and no defect/gas/mains issue, so safety NONE. No order reference is written or linked (none exists yet), so V3/V4 do not apply; V6 is the first matching row: QUESTION with every goal INFORMATION → HUMAN_REVIEW (support answers; no task). No other action is defensible: there is nothing to clarify (the question is complete and answerable by support), no workflow applies to a pre-sale information question, and a supplier task is never acceptable here.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 107.92
+   }
+  },
+  "V060": {
+   "A": {
+    "speech_act_evidence": "当該部品を1点ご用意いただけますでしょうか。可能であれば発送をお願いいたします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, order TO-80060)",
+      "issue_evidence": "アーム部分の交換用として当該部品を1点ご用意いただけますでしょうか。",
+      "issue_type": "PART_NEED",
+      "component": "arm (DL-ARM-2)",
+      "goals": [
+       {
+        "evidence": "当該部品を1点ご用意いただけますでしょうか。可能であれば発送をお願いいたします。",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "アーム部分の交換用 — the requested part is the arm, not a power base/cable/plug/battery, and no hazard words or defect are mentioned (S4 not met for MAINS_ELECTRIC).",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80060",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-ARM-2"
+    ],
+    "reasoning": "Order TO-80060 is well-formed, unhedged, and verifies (belongs to this customer, contains the DESK-LAMP). The customer asks us to send one arm part DL-ARM-2; no defect is claimed, so this is PART_NEED with the single goal SEND_PART (speech act REQUEST). Safety NONE: DESK-LAMP is MAINS_ELECTRIC, but the part is the arm (not power base/cable/plug/battery) and no burning/heat/sparks fault is described (S4 not triggered). V0–V11 do not match: no injection, no safety, no data conflict, valid order, actionable request, single item/goal, not REFUND-only, goal present, issue is PART_NEED, and SEND_PART has exactly one written part number whose DL- prefix matches the ordered product (C8/C7 not triggered). V12 responsibility table, SEND_PART on PART_NEED row: DL-ARM-2 is not in the parts table (unknown part), but it carries the product's DL- prefix and the DESK-LAMP supplier answers compatibility=True → CREATE_SUPPLIER_TASK (supplier confirms the part/compatibility; nothing is sent without human confirmation).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 143.68
+   }
+  },
+  "V083": {
+   "A": {
+    "speech_act_evidence": "メキシコへの発送は可能ですか？",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "「メキシコへの発送は可能ですか？」 is a pure shipping-policy question ('Is shipping to Mexico possible?'). No product, no problem, no order reference, no hazard words, so safety=NONE and items is empty (pure policy question with nothing described). Speech act is QUESTION (asks about possibility/process, not asking us to send or do anything), and the only intent is informational (no action goals at all). First matching rule: V6 (speech_act QUESTION and every goal is INFORMATION, or there are none) → HUMAN_REVIEW: support answers the question, no task is created. V11's 'no order reference' clause does not apply because V6 fires first. Nothing to clarify with the customer, no workflow to run, and CREATE_SUPPLIER_TASK is excluded, so acceptable_actions is empty.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 135.33
+   }
+  },
+  "V084": {
+   "A": {
+    "speech_act_evidence": "Solo quiero saber cómo descalcificarla y qué filtro debo usar.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE (\"la tetera\")",
+      "issue_evidence": "La tetera no está rota, funciona bien.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Solo quiero saber cómo descalcificarla y qué filtro debo usar.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "La tetera no está rota, funciona bien.",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer explicitly states the kettle works fine (\"La tetera no está rota, funciona bien\") and only asks how to descale it and which filter to use — a process/compatibility question, so speech_act=QUESTION with a single INFORMATION goal and issue NO_ISSUE. \"Qué filtro debo usar\" asks which filter, not for one to be sent, so it stays INFORMATION (like \"do you sell the lid separately?\"), not SEND_PART. Safety NONE: no hazard words, and S4 (MAINS_ELECTRIC) requires a DEFECT/PART_NEED, which is explicitly negated here. No order reference or part number is written, but the decision table matches earlier: V6 (QUESTION with only INFORMATION goals) fires before V11's no-order-reference slot, so required_action=HUMAN_REVIEW (support answers; no task). No other action is defensible: nothing to clarify (the question is complete), no workflow applies, and a supplier task is excluded.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 75.88
+   }
+  },
+  "V087": {
+   "A": {
+    "speech_act_evidence": "Just need to know how to descale it and which filter to use.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+      "issue_evidence": "Kettle is not broken, works fine.",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Just need to know how to descale it and which filter to use.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Kettle is not broken, works fine.",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80079",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer explicitly states the kettle has no problem (\"Kettle is not broken, works fine\") and only asks how to descale it and which filter to use — a pure information request, so speech_act is QUESTION with a single INFORMATION goal on a NO_ISSUE item. 'Which filter to use' is an information question, not a SEND_PART request (no part number written, nothing asked to be sent). Safety NONE: no hazard words and no DEFECT/PART_NEED on the MAINS_ELECTRIC kettle, so S4 does not trigger. Order reference TO-80079 is well-formed, unhedged, exists, belongs to this customer and contains the kettle, so V3/V4 do not fire. First matching rule is V6: QUESTION with every goal INFORMATION → HUMAN_REVIEW (support answers; no task). No other action is defensible: nothing to clarify (order verified, no slots missing) and CREATE_SUPPLIER_TASK is excluded since required_action is not a supplier task.",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 60.63
+   }
+  },
+  "V070": {
+   "A": {
+    "speech_act_evidence": "もう一回送ってもらえますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp)",
+      "issue_evidence": "もうだいぶ経つのにまだ届いてません",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "もう一回送ってもらえますか？",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "どっかでなくなっちゃってる気がするので — item lost in transit, no hazard words; DESK-LAMP is MAINS_ELECTRIC but S4 covers only DEFECT/PART_NEED, and S3 covers only GAS_APPLIANCE",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request to resend ('もう一回送ってもらえますか？') → REQUEST. One item: the ordered desk lamp never arrived ('まだ届いてません') → MISSING_ITEM, goal RESHIP (FULFILMENT family), SINGLE. No order number is written, but the case-linked order TO-80070 exists, belongs to this customer, and contains DESK-LAMP black qty 1, so V11's 'none written, none linked' slot does not fire. Carrier status LOST matches the customer's claim (they do not describe using the item), so no V3 data conflict. Safety NONE (missing item, no hazard words; MAINS_ELECTRIC S4 applies only to DEFECT/PART_NEED). Not mixed (one item, one family), not REFUND-only, goals exist, issue is not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG. First matching row is V12: FULFILMENT row — carrier LOST, product is SUPPLIER_DROPSHIP and supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for a human to confirm). No other action is defensible on this data.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 127.33
+   }
+  },
+  "V090": {
+   "A": {
+    "speech_act_evidence": "請協助辦理退款",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "City rain jacket (CITY-JACKET, variant M, order TO-80082)",
+      "issue_evidence": "經過考慮後，我決定不需要此商品",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "請協助辦理退款",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "我僅希望退回已付款項",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety_evidence": "經過考慮後，我決定不需要此商品",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80082",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer states she bought the City rain jacket on TO-80082 and, after consideration, no longer needs it — a change of mind, which per C3 counts as CUSTOMER_ORDERED_WRONG. She makes a single explicit refund request (請協助辦理退款 / 我僅希望退回已付款項) and explicitly rules out an exchange (不需要換貨或其他處理), so goals = [REFUND], relation SINGLE, negated EXCHANGE_VARIANT. Order ref TO-80082 is well-formed, unhedged, and verifies against MOCK data (belongs to this customer, contains CITY-JACKET M, bought 25 days ago, DELIVERED) — no V3 conflict, no V4 problem. No hazard words, product hazard class NONE → safety NONE. Not mixed (one item, one action family). First matching rule is V8: the only action family is REFUND → DIRECT_WORKFLOW via the existing refund flow; the product is returnable and 25 days is within the 30-day window. C2 (customer ordered wrong → never a supplier task) independently confirms DIRECT_WORKFLOW. No other action is genuinely defensible.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 99.75
+   }
+  },
+  "V081": {
+   "A": {
+    "speech_act_evidence": "queria saber cuanto tiempo tengo para hacer una devolucion si no me convence",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "product": "unspecified (pre-sale browsing)",
+      "issue_evidence": "Estaba viendo unos productos para comprar y antes de hacerlo queria saber cuanto tiempo tengo para hacer una devolucion si no me convence",
+      "issue_type": "NO_ISSUE",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "cuanto tiempo tengo para hacer una devolucion si no me convence",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": null,
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Pre-sale policy question: the customer asks how long the return window is before buying ('Estaba viendo unos productos para comprar y antes de hacerlo queria saber cuanto tiempo tengo para hacer una devolucion si no me convence'). No product problem, no order reference, no part numbers, no hazard words, so safety NONE and no data conflict (V0/V1/V3 do not apply). No order-like code is written, so V4 does not apply either. Speech act is QUESTION (indirect question 'queria saber…', a process/policy question, not a request to act) and the only goal is INFORMATION, so V6 is the first matching row: support answers the policy question, no task is created. V11's 'no order reference' slot rule is never reached, and asking for an order number would be wrong anyway since this is pre-sale. No other action is defensible (nothing to clarify, no workflow to run, and CREATE_SUPPLIER_TASK is never acceptable here).",
+    "deciding_rule": "V6",
+    "required_action": "HUMAN_REVIEW",
+    "acceptable_actions": [],
+    "_latency": 118.56
+   }
+  },
+  "V089": {
+   "A": {
+    "speech_act_evidence": "I only want a full refund—please return my money, no replacement or other compensation.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, variant white, order TO-80081)",
+      "issue_evidence": "I'm disappointed with the quality",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I only want a full refund—please return my money, no replacement or other compensation.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "safety_evidence": "I'm disappointed with the quality",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80081",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80081 verifies: exists, belongs to this customer, contains DESK-LAMP, bought 12 days ago, logistics DELIVERED — no data conflict, so V3 is clear. Reference is well-formed and unhedged (V4 clear). Speech act is REQUEST, not QUESTION (V6 clear). One item only: a quality complaint ('disappointed with the quality' = poor quality → DEFECT) with a single goal, REFUND, so goals span one family and V7 (mixed) does not apply. Safety: DESK-LAMP is MAINS_ELECTRIC, but S4 requires a burning/scorching/melting/abnormal-heat/spark/water-in-power-part fault or a power base/cable/plug/battery part; the customer names no specific fault and uses no hazard words, so safety = NONE (V1 clear). First matching row is V8: the only action family is REFUND → existing refund flow. Product is returnable and within the 30-day window, so the refund flow applies directly; the supplier dropship/warranty data is irrelevant because no warranty remedy (repair/replace/part) is requested.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 138.24
+   }
+  },
+  "V069": {
+   "A": {
+    "speech_act_evidence": "Können Sie bitte prüfen, was passiert ist, und mir die Lampe noch einmal zusenden?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (Schreibtischlampe / LED desk lamp, linked order TO-80069)",
+      "issue_evidence": "ich habe bei Ihnen eine Schreibtischlampe bestellt und die ist bis heute nicht angekommen. Es kam keine Zustellung, keine Benachrichtigung, gar nichts.",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "mir die Lampe noch einmal zusenden",
+        "goal": "RESHIP"
+       },
+       {
+        "evidence": "Können Sie bitte prüfen, was passiert ist",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "Es kam keine Zustellung, keine Benachrichtigung, gar nichts.",
+    "safety": "NONE",
+    "order_ref_as_written": null,
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Polite request to investigate and reship (REQUEST). One item: the desk lamp never arrived (MISSING_ITEM). The linked order TO-80069 verifies (belongs to this customer, contains DESK-LAMP black, bought 8 days ago) and carrier shows LOST, which is consistent with the customer's claim, so no V3 data conflict. No order number is written, but one is linked, so V11's no-reference clause does not fire. Safety NONE: pure non-arrival, no hazard words; DESK-LAMP is MAINS_ELECTRIC but S4 covers only DEFECT/PART_NEED, not missing items. Not mixed (V7): one item, one action family (FULFILMENT/RESHIP; the 'check what happened' is auxiliary INFORMATION, and info + one action is explicitly not mixed). Not REFUND-only (V8), goals exist (V9), issue is MISSING_ITEM (V10). V12 FULFILMENT row: carrier LOST + product is SUPPLIER_DROPSHIP + supplier reships=True → CREATE_SUPPLIER_TASK (internal draft for a human to confirm).",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 175.06
+   }
+  },
+  "V027": {
+   "A": {
+    "speech_act_evidence": "麻煩盡快幫我重新寄送，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Trail Runner sneakers (TRAIL-RUNNER-42, variant 42)",
+      "issue_evidence": "13 天前訂購的 Trail Runner 慢跑鞋到現在都沒收到，物流追蹤也已經一週沒更新了",
+      "issue_type": "MISSING_ITEM",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "麻煩盡快幫我重新寄送",
+        "goal": "RESHIP"
+       },
+       {
+        "evidence": "請問是寄丟了嗎？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "到現在都沒收到，物流追蹤也已經一週沒更新了 — no hazard words; TRAIL-RUNNER-42 hazard class NONE",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80027",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "TO-80027 exists, belongs to this customer, and contains TRAIL-RUNNER-42; carrier status LOST matches the customer's report (never received, tracking stalled for a week), so V3 does not fire. Speech act is REQUEST (asks us to reship), so V6 does not apply despite the embedded question. One item: MISSING_ITEM with goals RESHIP + INFORMATION; the only action family is FULFILMENT, so V7 (mixed) does not fire. Safety NONE (V1 no). Reference is well-formed, unhedged, and verifies (V4 no). Not refund-only (V8 no), goals present (V9 no), issue is MISSING_ITEM not UNCLEAR/NO_ISSUE/CUSTOMER_ORDERED_WRONG (V10 no), order reference present and found, no exchange/send-part slots (V11 no). V12 FULFILMENT row: carrier LOST, product is SUPPLIER_DROPSHIP and supplier reships=True → CREATE_SUPPLIER_TASK (supplier reships the lost sneakers; the 'is it lost?' question is answered for the human confirming the task). No other action is defensible: merchant holds no stock record for this product, so DIRECT is not available, and the table row is unambiguous, so HUMAN_REVIEW is not warranted.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 163.72
+   }
+  },
+  "V094": {
+   "A": {
+    "speech_act_evidence": "I just want my money back. Please let me know how to send it back and get the refund.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET (City rain jacket, variant M)",
+      "issue_evidence": "I ordered the City rain jacket from you about 25 days ago (order number TO-80086) and it doesn't fit me. I've only tried it on inside, tags still on it.",
+      "issue_type": "SIZE_MISMATCH",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "I just want my money back. Please let me know how to send it back and get the refund.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety_evidence": "No hazard words anywhere in the message; the product is a rain jacket (hazard class NONE) and the only problem is fit (\"it doesn't fit me\").",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80086",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80086 is well-formed and verifies against MOCK data: it belongs to this customer, contains CITY-JACKET variant M, was bought 25 days ago, and shows DELIVERED — no data conflict (V3 clear; the customer claims a fit problem, not that what arrived differs from the order, so C1 does not apply). No safety words and a NONE hazard-class product (V1 clear). Speech act is REQUEST (explicit refund ask), so V6 does not apply. One item, one problem: jacket received as ordered but doesn't fit → SIZE_MISMATCH. The customer explicitly rejects a different size and store credit and asks only for money back, so goals = [REFUND], relation SINGLE — a single action family, so V7 (mixed) does not apply. First matching rule is V8: the only action family is REFUND → DIRECT_WORKFLOW via the existing refund flow (product is returnable and 25 days is within the 30-day window, so the flow proceeds normally). Nothing to clarify (order verified, outcome unambiguous) and no supplier involvement, so no other action is defensible.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 174.09
+   }
+  },
+  "V057": {
+   "A": {
+    "speech_act_evidence": "¿Me pueden enviar uno y cómo pago el envío?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "DESK-LAMP (LED desk lamp, order TO-80057, variant white)",
+      "issue_evidence": "Quiero un módulo de repuesto de 5 W, parte DL-LED-5W, para tenerlo de reserva.",
+      "issue_type": "PART_NEED",
+      "component": "DL-LED-5W (5 W LED module)",
+      "goals": [
+       {
+        "evidence": "¿Me pueden enviar uno",
+        "goal": "SEND_PART"
+       },
+       {
+        "evidence": "cómo pago el envío?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "para tenerlo de reserva",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80057",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [
+     "DL-LED-5W"
+    ],
+    "reasoning": "REQUEST ('¿Me pueden enviar uno?') for a spare 5 W LED module, explicitly as a reserve ('para tenerlo de reserva') with no defect claimed → PART_NEED, not DEFECT. Goals: SEND_PART plus an INFORMATION side question about paying shipping; per section 5, information plus one action is not mixed, so V7 does not apply and goal_relation is SINGLE. Order TO-80057 is well-formed, unhedged, and verifies (belongs to this customer, contains DESK-LAMP), so V3/V4 do not match. Safety NONE: no hazard words, and the LED module is not the power base/cable/plug/battery, so S4 does not trigger. V6 does not match (speech act is REQUEST, not QUESTION). V11 slots are satisfied: exactly one part number, DL-LED-5W, whose DL- prefix matches the DESK-LAMP in the order. Falls to V12, SEND_PART on PART_NEED row: part is known in the parts table, stock 0, and DESK-LAMP's supplier supplies parts=True → CREATE_SUPPLIER_TASK (internal draft to obtain the part; the shipping-payment question is answered by the confirming human). No other action is defensible: the part cannot be sent directly (0 stock) and no ambiguity requires clarification or human review.",
+    "deciding_rule": "V12",
+    "required_action": "CREATE_SUPPLIER_TASK",
+    "acceptable_actions": [],
+    "_latency": 229.85
+   }
+  },
+  "V096": {
+   "A": {
+    "speech_act_evidence": "Por eso les pido que gestionen la devolución y el reembolso completo del pedido.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "Daypack 30L backpack (BACKPACK-30L, variant green, order TO-80088)",
+      "issue_evidence": "me di cuenta de que simplemente no es para mí y no lo voy a usar ... es solo que no me termina de convencer y no quiero tenerlo guardado",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "les pido que gestionen la devolución y el reembolso completo del pedido ... solo quiero mi dinero de vuelta",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety_evidence": "No es cosa del color ni de un defecto, está perfecto",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80088",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Order TO-80088 is well-formed, unhedged, exists, belongs to this customer, contains the Daypack 30L, and was bought/delivered 5 days ago — fully consistent with the story, so no V3/V4 conflict. No hazard words and BACKPACK-30L hazard class NONE, so V1 does not apply. Speech act is REQUEST (explicit ask to process return/refund), so V6 does not apply. One item, one goal: the customer changed his mind about a perfect product (C3 → CUSTOMER_ORDERED_WRONG) and wants only money back; he explicitly refuses an exchange, credit note, or alternative product, so goals = [REFUND], relation SINGLE, not mixed (V7 no). First matching row is V8: the only action family is REFUND → DIRECT_WORKFLOW via the existing refund flow. This is also consistent with C2 (customer ordered wrong / changed mind is never a supplier task) and with the responsibility data: the product is returnable and within the 30-day window (bought 5 days ago), so the standard refund flow applies unchanged. Nothing needs clarification and no human judgment is required.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 209.5
+   }
+  },
+  "V101": {
+   "A": {
+    "speech_act_evidence": "返金をお願いします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "レインジャケット (rain jacket; catalogue match CITY-JACKET)",
+      "issue_evidence": "レインジャケットのジッパーが一週間で壊れました",
+      "issue_type": "DEFECT",
+      "component": "ジッパー (zipper)",
+      "goals": [
+       {
+        "evidence": "返金をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "ジッパーが一週間で壊れました (mechanical break of a zipper; no hazard words, product hazard class NONE)",
+    "safety": "NONE",
+    "order_ref_as_written": "#A80093",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "The customer asks for a refund (REQUEST) for a rain jacket whose zipper broke after one week — a broken component, so DEFECT, with the single goal REFUND. No hazard words and the jacket's hazard class is NONE, so safety is NONE and V1 does not fire. The order reference '#A80093' is an order-like code that is not in the TO-##### format, i.e. malformed (never corrected, never guessed), so V4 is the first matching rule: CLARIFY_WITH_CUSTOMER to ask for the order number. Per D8 this applies to refund requests as well, so V8 (refund-only → DIRECT_WORKFLOW) is not reached; no supplier task is acceptable here.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 167.06
+   }
+  },
+  "V099": {
+   "A": {
+    "speech_act_evidence": "Quiero un reembolso, por favor.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "chaqueta de lluvia (rain jacket; catalogue match CITY-JACKET)",
+      "issue_evidence": "La cremallera de la chaqueta de lluvia que compré se rompió después de una semana.",
+      "issue_type": "DEFECT",
+      "component": "cremallera (zipper)",
+      "goals": [
+       {
+        "evidence": "Quiero un reembolso, por favor.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "safety_evidence": "No hazard words in the message (only \"se rompió\" = broke); rain jacket hazard class is NONE.",
+    "safety": "NONE",
+    "order_ref_as_written": "#A80091",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "One item: the rain jacket's zipper broke after a week — a broken component, so issue_type DEFECT. Sole goal is REFUND (\"Quiero un reembolso, por favor.\"), relation SINGLE. Safety NONE: no hazard words and the jacket's hazard class is NONE. The only order reference written is \"#A80091\", which is malformed (not TO-##### format, never corrected or guessed), stated without hedging, and no order is linked on the case. Walking the decision table: V0 no, V1 no (safety NONE), V3 no (no verifiable order to conflict with), V4 matches — malformed order reference → CLARIFY_WITH_CUSTOMER (ask for the order number), and per D8 this applies to refund requests too. V8 (refund-only → DIRECT_WORKFLOW) would only be reached with a usable order reference, so it is not defensible here; CREATE_SUPPLIER_TASK is never acceptable on a non-task message. Hence required_action = CLARIFY_WITH_CUSTOMER, deciding rule V4, no acceptable alternatives.",
+    "deciding_rule": "V4",
+    "required_action": "CLARIFY_WITH_CUSTOMER",
+    "acceptable_actions": [],
+    "_latency": 233.79
+   }
+  },
+  "V093": {
+   "A": {
+    "speech_act_evidence": "返金だけお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET",
+      "issue_evidence": "5日前くらいに買ったばかりのCity rain jacketがもう壊れちゃいました。",
+      "issue_type": "DEFECT",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "返金だけお願いします。",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety_evidence": "5日前くらいに買ったばかりのCity rain jacketがもう壊れちゃいました。",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80085",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer reports the City rain jacket broke and explicitly requests a refund only → REQUEST, one item (CITY-JACKET, DEFECT), single goal REFUND; exchange explicitly declined (交換とかは要らないので). Order ref TO-80085 is well-formed, unhedged, and verifies against MOCK data (belongs to this customer, contains CITY-JACKET M, bought 5 days ago, DELIVERED), so V3/V4 do not apply. No hazard words and CITY-JACKET hazard class is NONE → safety NONE, V1 skipped. Not a question (V6) and not mixed — one item, one goal in one family (V7 skipped). V8 matches first: the only action family is REFUND → DIRECT_WORKFLOW via the existing refund flow. This is also consistent with the V12 warranty table (≤30 days, returnable → DIRECT), but V8 decides. No other action is defensible: the order verifies, the product is returnable, and the request is a plain in-window refund.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 116.24
+   }
+  },
+  "V091": {
+   "A": {
+    "speech_act_evidence": "Quiero que me devuelvan el dinero, nada más.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "product": "CITY-JACKET (City rain jacket), variant M",
+      "issue_evidence": "sencillamente no la quiero. No tiene ningún defecto, es que ya no me interesa quedármela.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component": null,
+      "goals": [
+       {
+        "evidence": "Quiero que me devuelvan el dinero, nada más.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "safety_evidence": "No tiene ningún defecto",
+    "safety": "NONE",
+    "order_ref_as_written": "TO-80083",
+    "order_ref_hedged": false,
+    "part_numbers_as_written": [],
+    "reasoning": "Customer demands only a refund for the City rain jacket (TO-80083, bought 12 days ago, DELIVERED, returnable=True, within the 30-day window). Changed mind counts as CUSTOMER_ORDERED_WRONG (C3); single goal REFUND, relation SINGLE; exchange/other size explicitly negated ('No me sirve un vale, ni un cambio, ni otra talla'). The process question ('Indíquenme qué tengo que hacer para devolverla y cuánto tarda el reembolso') is instrumental to the refund, not a separate INFORMATION goal. No safety issue (no hazard words, product hazard class NONE, no defect claimed). No data conflict: TO-80083 is well-formed, unhedged, exists, belongs to this customer and contains CITY-JACKET M. Not mixed (one item, one action family). V0/V1/V3/V4/V6/V7 do not match; first match is V8: the only action family is REFUND → DIRECT_WORKFLOW (existing refund flow). C2 (customer ordered wrong → always DIRECT_WORKFLOW, never a supplier task) agrees.",
+    "deciding_rule": "V8",
+    "required_action": "DIRECT_WORKFLOW",
+    "acceptable_actions": [],
+    "_latency": 200.2
+   }
+  }
+ },
+ "stats": {
+  "calls": 119,
+  "retries": 186,
+  "prompt_tokens": 574953,
+  "completion_tokens": 557551
+ }
+}
