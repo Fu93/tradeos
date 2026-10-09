@@ -64,14 +64,7 @@
           <div class="seeded">Purchase date {{ current.purchase_date_seeded }} — <strong>seeded demo data</strong>
             (sandbox captures are always dated today; this merchant order record simulates an older purchase).</div>
         {% endif %}
-        {% if current.status == "AWAITING_SUPPLIER" %}
-          <pre class="seeded">{{ current.supplier_draft }}</pre>
-          <div class="row gap actions">
-            <form method="post" action="/cases/{{ current.id }}/supplier-reply" class="js-busy"><input type="hidden" name="decision" value="approve"><button class="btn">MOCK: supplier agrees</button></form>
-            <form method="post" action="/cases/{{ current.id }}/supplier-reply" class="js-busy"><input type="hidden" name="decision" value="decline"><button class="btn ghost">MOCK: supplier declines</button></form>
-          </div>
-          <p class="muted small">MOCK — not a real supplier. Decline removes the approve button. Agree still needs a human, then PayPal.</p>
-        {% elif current.status == "PENDING_APPROVAL" %}
+        {% if current.status == "PENDING_APPROVAL" %}
           <div class="row gap actions">
             {% if current.scenario == "D" %}
               <form method="post" action="/cases/{{ current.id }}/approve-twice" class="js-busy"><button class="btn primary">Approve twice (simulated double-click)</button></form>

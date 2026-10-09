@@ -105,12 +105,7 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
         if intent:
             understood = intent.get("intent") != "UNKNOWN"
             st["intent"] = ("done" if understood else "blocked", _human(intent.get("intent")))
-        if status == "AWAITING_SUPPLIER":
-            st["policy"] = ("done", "pre-check passed")
-            st["supplier"] = ("waiting", "draft ready · MOCK reply not in")
-            st["human"] = ("todo", "no approve button yet")
-            st["paypal"] = ("todo", "not reached")
-        elif case.get("decision") == "REJECTED":
+        if case.get("decision") == "REJECTED":
             failed = _first_failed(policy)
             st["policy"] = ("blocked", f"REJECTED · {failed['name'].replace('_', ' ')}" if failed else "REJECTED")
             st["supplier"] = ("skipped", "not contacted") if not case.get("supplier_reply") else \
@@ -169,7 +164,7 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
         failed = _first_failed(case.get("policy"))
         return {**base, "kind": "bad", "icon": "✕", "title": "Refund not executed",
                 "subtitle": "The policy engine said NO. The model cannot override it.",
-                "reason": failed["detail"] if failed else (case.get("error") or "Policy rejected the case"),
+                "reason": failed["detail"] if failed else "Policy rejected the case",
                 "rows": [("Decision", "REJECTED"), ("Refund API calls", str(calls)),
                          ("Refund ID", case.get("refund_id") or "none"),
                          ("PayPal Order ID", case.get("order_id") or "—")]}
@@ -185,12 +180,6 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "reason": reason,
                 "rows": [("Refund ID", case.get("refund_id") or "none"), ("Refund API calls", str(calls)),
                          ("Capture ID", case.get("capture_id"))]}
-    if status == "AWAITING_SUPPLIER":
-        return {**base, "kind": "warn", "icon": "✉", "title": "Waiting for a MOCK supplier reply",
-                "subtitle": "Draft only. Nothing was sent to a real supplier. No approve button until the mock replies.",
-                "reason": "Supplier agreement is not permission to refund.",
-                "rows": [("Draft", "Chinese replacement request, not sent"),
-                         ("Refund API calls", str(calls)), ("Refund ID", "none")]}
     if status == "PENDING_APPROVAL":
         policy = case.get("policy") or {}
         checks = policy.get("checks", [])
