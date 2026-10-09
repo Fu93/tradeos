@@ -199,3 +199,9 @@ def test_complaint_only_never_creates_a_task(msg, ev, goal_ev):
     # model says REQUEST, but there is no explicit request in the text: demoted before any task
     d2 = run(msg, x([it("DEFECT", ev, [("REPAIR", ev)])], act_ev=ev), KET_C)
     assert d2.action != "CREATE_SUPPLIER_TASK", d2.decided_by
+
+
+def test_changed_mind_refund_without_problem_goes_to_refund_flow():
+    msg = "ＴＯ－１０４２１ですが、気が変わったので返金でお願いします。"
+    d = run(msg, x([it("NO_ISSUE", None, [("REFUND", "返金でお願いします")])]), SHOE_C)
+    assert d.action == "DIRECT_WORKFLOW" and d.rule == "V8"

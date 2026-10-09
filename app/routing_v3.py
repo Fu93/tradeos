@@ -415,7 +415,11 @@ def families(item: ItemX, negated: set[str]) -> set[str]:
 
 
 def is_actionable(item: ItemX, negated: set[str]) -> bool:
-    return item.issue_type != "NO_ISSUE" and (bool(action_goals(item, negated)) or not item.goals)
+    # v3.1: a refund wish is actionable even when no problem is extracted ("changed my mind, refund please"): the
+    # existing refund flow owns the policy checks (guide V8).
+    if item.issue_type == "NO_ISSUE":
+        return action_goals(item, negated) == ["REFUND"]
+    return bool(action_goals(item, negated)) or not item.goals
 
 
 _MISSING_WORDS = re.compile(
