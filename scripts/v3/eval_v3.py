@@ -44,6 +44,9 @@ def wilson(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
 
 
 def load_labels(set_name: str, spec: str) -> dict:
+    if set_name == "heldout_v4":
+        L = json.loads((E / "heldout-v4-labels.json").read_text())["labels"]
+        return {k: {"required_action": v["required_action"], "acceptable_actions": v["acceptable_actions"]} for k, v in L.items()}
     if set_name == "heldout_v3":
         L = json.loads((E / "heldout-v3-labels.json").read_text())["labels"]
         return {k: {"required_action": v["required_action"], "acceptable_actions": v["acceptable_actions"]} for k, v in L.items()}
@@ -171,7 +174,7 @@ def main():
     ap.add_argument("--only", default="")
     ap.add_argument("--temp", type=float, default=0.6, help="temperature of the k-1 agreement samples")
     a = ap.parse_args()
-    if a.set in ("heldout_v2", "heldout_v3") and not (a.tag == "final" or a.tag.startswith("tuned")):
+    if a.set in ("heldout_v2", "heldout_v3", "heldout_v4") and not (a.tag == "final" or a.tag.startswith("tuned")):
         sys.exit("held-out v2 runs must be tagged 'final' (once) or 'tuned-*'")
     items = load(a.set)
     if a.only:

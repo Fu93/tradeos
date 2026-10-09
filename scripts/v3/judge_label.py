@@ -79,7 +79,7 @@ def records(message: str, customer: str | None, linked: str | None) -> str:
         f"{k}: {v['name']}, returnable={v['returnable']}, fulfilment={v['fulfilment']}, supplier confirms stock={v['confirms_stock']}, "
         f"restocks on request={v['restocks_on_request']}, supplier reships={v['reships']}, warranty={v['warranty_by']} {v['warranty_days']}d, "
         f"supplier supplies parts={v['supplies_parts']}, answers compatibility={v['answers_compatibility']}, part prefix {v['part_prefix']}, "
-        f"hazard class {HAZARD_CLASS[k]}, variants {list(v['variants'])}" for k, v in CATALOG.items()))
+        f"hazard class {HAZARD_CLASS[k]}, safety_class {v.get('safety_class')}, variants {list(v['variants'])}" for k, v in CATALOG.items()))
     L.append("Merchant inventory (MOCK; missing = no record): " + ", ".join(f"{s}/{v}={n}" for (s, v), n in INVENTORY.items()))
     L.append("Parts table (MOCK; part numbers not listed are unknown): " + ", ".join(
         f"{p} {i['name']} for {i['sku']} stock {i['stock']}" for p, i in PARTS.items()))
@@ -91,6 +91,9 @@ def load(set_name: str) -> list[dict]:
     if set_name == "dev_v31_regress":
         return [{k: c[k] for k in ("id", "message", "customer", "linked_order")}
                 for c in json.loads((E / "dev-v31-regression.json").read_text())["cases"]]
+    if set_name == "heldout_v4":
+        return [{k: c[k] for k in ("id", "message", "customer", "linked_order")}
+                for c in json.loads((E / "heldout-v4-messages.json").read_text())["messages"]]
     if set_name == "heldout_v3":
         return [{k: c[k] for k in ("id", "message", "customer", "linked_order")}
                 for c in json.loads((E / "heldout-v3-messages.json").read_text())["messages"]]
