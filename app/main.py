@@ -19,6 +19,9 @@ from .notes import build_note_writer
 from .paypal_client import PayPalError
 from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import RateLimiter, client_key
+from . import routing_web  # supplier routing EXPERIMENT (additive)
+from .routing import RoutingConfig, RoutingService, RoutingStore
+from .routing_extract import build_routing_extractor
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, CaseNotFound, RefundNotAllowed,
@@ -33,7 +36,7 @@ WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED"}
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
-               today=None, note_writer=None) -> FastAPI:
+               today=None, note_writer=None, routing_extractor=None) -> FastAPI:
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
@@ -49,15 +52,21 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     db.init(reset=settings.reset_on_start)
     if not db.list_cases():
         wf.seed_demo()
+    # Supplier routing EXPERIMENT: own tables, own service; never touches the refund columns.
+    routing = RoutingService(RoutingStore(settings.db_path), routing_extractor or build_routing_extractor(settings),
+                             RoutingConfig.from_env(), **kwargs)
+    routing.store.init(reset=settings.reset_on_start)
 
     app = FastAPI(title="TradeOS", docs_url="/api/docs", redoc_url=None)
     app.state.workflow = wf
+    app.state.routing = routing
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
-                         status_code: int = 200, draft: str = "", draft_late: bool = False) -> HTMLResponse:
+                         status_code: int = 200, draft: str = "", draft_late: bool = False,
+                         rcase: str | None = None) -> HTMLResponse:
         cases = db.list_cases()
         current = db.get_case(selected) if selected else None
         if current is None and cases:
@@ -91,6 +100,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
             "flash": flash,
+            "routing": routing_web.panel(routing, current, rcase),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 
@@ -103,9 +113,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
+    routing_web.register(app, routing, db, limited)
+
     @app.get("/", response_class=HTMLResponse)
-    def dashboard(request: Request, case: str | None = None):
-        return render_dashboard(request, case)
+    def dashboard(request: Request, case: str | None = None, rcase: str | None = None):
+        return render_dashboard(request, case, rcase=rcase)
 
     @app.get("/healthz")
     def healthz():
@@ -150,6 +162,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/demo/reset")
     def reset_demo():
         db.init(reset=True)
+        routing.store.init(reset=True)
         wf.seed_demo()
         return RedirectResponse("/", status_code=303)
 
