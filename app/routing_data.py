@@ -252,4 +252,6 @@ ORDERS.update({o["order_id"]: o for o in ORDERS_RAW})
 from app.routing_data_v3 import ORDERS_V3_RAW  # noqa: E402
 
 ORDERS_RAW.extend(_o(o["order_id"], o["customer"], o["days_ago"], o["lines"]) for o in ORDERS_V3_RAW)
+from app.routing_data_v4 import ORDERS_V4_RAW  # noqa: E402  (held-out v4 MOCK orders, v3.2 round)
+ORDERS_RAW.extend(_o(o["order_id"], o["customer"], o["days_ago"], o["lines"]) for o in ORDERS_V4_RAW)
 ORDERS.update({o["order_id"]: o for o in ORDERS_RAW})
