@@ -28,7 +28,7 @@ from .intent import looks_like_injection
 from .routing import canonical_variant, scan_part_numbers, scan_products, scan_variants
 from .routing_data import CATALOG, HAZARD_CLASS, INVENTORY, ORDERS, PARTS, POWER_PARTS, order_with_dates
 
-RULE_VERSION_V3 = "supplier-routing-rules/3.0.0 (taxonomy v3 experiment)"
+RULE_VERSION_V3 = "supplier-routing-rules/3.1.0 (taxonomy v3.1 experiment)"
 PROMPT_VERSION_V3 = "v3-extract-1"
 
 SPEECH_ACTS = ("QUESTION", "REQUEST", "COMPLAINT_ONLY", "OTHER")
@@ -130,8 +130,21 @@ _QUOTES = str.maketrans({"“": '"', "”": '"', "„": '"', "‘": "'", "’": 
                          "«": '"', "»": '"'})
 
 
+# v3.1 fix 3: Unicode hyphen / minus variants (U+2010–U+2015, U+2212, U+FE58, U+FE63, U+FF0D, U+00AD) -> "-"
+_HYPHENS = str.maketrans({c: "-" for c in "\u2010\u2011\u2012\u2013\u2014\u2015\u2212\ufe58\ufe63\uff0d\u30fc\u2043"})
+_HYPHENS_SAFE = str.maketrans({c: "-" for c in "\u2010\u2011\u2012\u2013\u2014\u2015\u2212\ufe58\ufe63\uff0d\u2043"})
+
+
+def norm_text(s: str | None) -> str:
+    """v3.1: canonical text BEFORE any matching: NFKC (full-width -> ASCII), hyphen variants -> '-', zero-width and
+    NBSP-like spaces -> ' '. (The katakana long-vowel mark is NOT touched in running text.)"""
+    s = unicodedata.normalize("NFKC", s or "").translate(_HYPHENS_SAFE)
+    s = re.sub(r"[\u200b\u200c\u200d\u2060\ufeff]", "", s)
+    return re.sub(r"[\u00a0\u2007\u202f\u3000]", " ", s)
+
+
 def nq(s: str | None) -> str:
-    s = unicodedata.normalize("NFKC", s or "").translate(_QUOTES).casefold()
+    s = norm_text(s).translate(_QUOTES).casefold()
     return re.sub(r"\s+", " ", s).strip()
 
 
@@ -157,7 +170,7 @@ _HEDGE_RX = re.compile(
 
 def scan_order_codes(message: str) -> tuple[list[str], list[str]]:
     """(valid TO-##### refs normalised, malformed order-like codes as written)."""
-    up = unicodedata.normalize("NFKC", message or "").upper()
+    up = norm_text(message).upper()
     valid = list(dict.fromkeys(f"TO-{m.group(1)}" for m in _TO_RX.finditer(up)))
     spans = [m.span() for m in _TO_RX.finditer(up)]
     bad = []
@@ -172,7 +185,7 @@ def scan_order_codes(message: str) -> tuple[list[str], list[str]]:
 
 
 def hedged_near(message: str, code: str) -> bool:
-    up = unicodedata.normalize("NFKC", message or "")
+    up = norm_text(message)
     i = up.upper().find(code.upper()[:6])
     if i < 0:
         return False
@@ -181,35 +194,61 @@ def hedged_near(message: str, code: str) -> bool:
 
 
 # ----------------------------------------------------------------------------- safety (S1–S4; escalate only)
+_L, _R = r"(?<![A-Za-zÀ-ÿ])", r"(?![A-Za-zÀ-ÿ])"  # v3.1: latin-letter boundaries (\b fails before が/を/は)
 _S1 = re.compile(
-    r"\b(?:fire|flames?|smoke|smoking|smoked|sparks?|sparked|sparking|burn(?:t|ed|ing)?|burning smell|melt(?:ed|ing)?"
+    _L + r"(?:fire|flames?|smoke|smoking|smoked|sparks?|sparked|sparking|burn(?:t|ed|ing)?|burning smell|melt(?:ed|ing)?"
     r"|electric(?:al)? shock|shocked me|gas leak|gas smell|smells? of gas|injur\w*|"
     r"fuego|humo|chispas?|chispazo|quem\w*|derriti\w*|descarga eléctrica|olor a gas|huele a gas|"
-    r"feuer|rauch|funken|verbrannt|durchgebrannt|geschmolzen|schmor\w*|stromschlag|gasgeruch|riech\w* (?:nach )?gas)\b"
+    r"feuer|rauch|funken|verbrannt|durchgebrannt|geschmolzen|schmor\w*|stromschlag|gasgeruch|riech\w* (?:nach )?gas)" + _R +
     r"|起火|著火|火花|冒煙|燒焦|燒壞|燒掉|融化|觸電|漏氣|瓦斯味|発火|煙|焦げ|焼け|溶け|感電|ガス漏れ|ガスの臭い|火傷|やけど", re.I)
 _NEG_BEFORE = re.compile(r"(?:\bno\b|\bnot\b|\bwithout\b|\bnever\b|\bkein\w*|\bohne\b|\bsin\b|\bni\b|\bnada de\b|沒有|没有|無|未)"
                          r"[^.!?。！？]{0,14}$", re.I)
 _NEG_AFTER_JA = re.compile(r"^[^。！？]{0,8}(?:ない|ません|なし|なく|無く|ず|沒有|没有)")
 _S4_WORDS = re.compile(
-    r"\b(?:burn\w*|scorch\w*|melt\w*|overheat\w*|very hot|too hot|spark\w*|smok\w*|short circuit|trips? the (?:fuse|breaker)"
+    _L + r"(?:burn\w*|scorch\w*|melt\w*|overheat\w*|very hot|too hot|spark\w*|smok\w*|short circuit|trips? the (?:fuse|breaker)"
     r"|fuse|water (?:got )?in(?:to|side)? the (?:base|plug|socket)|quem\w*|derriti\w*|sobrecalent\w*|chisp\w*|cortocircuito"
-    r"|schmor\w*|geschmolzen|überhitz\w*|durchgebrannt|kurzschluss|sicherung|verbrannt)\b"
-    r"|燒|焦|融化|過熱|短路|跳電|焼け|焦げ|溶け|過熱|ショート|ブレーカー", re.I)
+    r"|schmor\w*|geschmolzen|überhitz\w*|durchgebrannt|kurzschluss|sicherung|verbrannt|agua en la base|wasser im sockel)" + _R +
+    r"|燒|焦|融化|過熱|短路|跳電|焼け|焦げ|溶け|過熱|ショート|ブレーカー|(?:ベース|台座|底座|土台)(?:部分)?(?:に|の中に|內|裡|里)?(?:水|浸水)", re.I)
+
+# v3.1 fix 3: electrical hazards that ALWAYS go to a human, whatever the issue type / product detection:
+#   burnt or melted plastic smell, power / electrical base fault, blown fuse / tripped breaker (all 5 languages).
+_ELEC = re.compile(
+    _L + r"(?:(?:burn(?:t|ed|ing)?|melt(?:ed|ing)?|hot) plastic|plastic(?:ky)? (?:smell|odou?r)|smell\w* (?:of |like )?(?:burn\w*|plastic|melt\w*)"
+    r"|(?:power|electrical|electric|heating|charging) base|fuses?|breaker|(?:fusible|diferencial|plomos)|"
+    r"olor a (?:quemado|plástico|plastico)|huele a (?:quemado|plástico|plastico)|base (?:eléctrica|electrica|de (?:alimentación|alimentacion|carga))|"
+    r"sicherung\w*|fi-schalter|plastikgeruch|riech\w* (?:nach )?(?:verbrannt\w*|verschmort\w*|(?:geschmolzenem |verbranntem )?plastik)|"
+    r"(?:strom|heiz|netz|anschluss)sockel\w*)" + _R +
+    r"|燒焦味|焦味|塑膠味|塑料味|保險絲|保险丝|跳電|電源底座|底座.{0,6}(?:壞|故障|不通電|沒電|失靈|問題)|"
+    r"焦げ(?:臭|く|た(?:ような)?(?:臭|匂|にお))|プラスチック(?:の|が)?(?:溶け|焦げ|臭|匂|にお)|ヒューズ|ブレーカー|電源(?:ベース|台|プレート)|"
+    r"(?:電源ベース|電源部).{0,8}(?:故障|壊れ|通電し|反応し|動かな)", re.I)
+# gas appliance part words (valve, knob, ignition, hose, regulator)
+_GAS_PART = re.compile(_L + r"(?:valves?|knob|ignit\w*|hose|regulator|válvula|valvula|perilla|mando|encendido|manguera|"
+                       r"ventil\w*|regler|drehknopf|zündung|schlauch)" + _R + r"|バルブ|弁|つまみ|点火|ホース|閥|開關|旋鈕|點火|管子", re.I)
 
 
-def _unnegated(rx: re.Pattern, message: str) -> list[str]:
+_NEG_AFTER_JA_TIGHT = re.compile(r"^(?:は|も|が)?(?:ない|ありません|なし|なく|無く|沒有|没有|正常|問題(?:は)?(?:ない|ありません))")
+
+
+def _unnegated(rx: re.Pattern, message: str, tight: bool = False) -> list[str]:
+    """tight=True (v3.1 electrical / gas lexicons): only an IMMEDIATE Japanese negation counts, because a fault phrase
+    is itself often negative ("通電しません", "回りません")."""
     text = message or ""
     hits = []
+    after_rx = _NEG_AFTER_JA_TIGHT if tight else _NEG_AFTER_JA
     for m in rx.finditer(text):
         before, after = text[:m.start()], text[m.end():]
-        if _NEG_BEFORE.search(before) or _NEG_AFTER_JA.match(after):
+        if _NEG_BEFORE.search(before) or after_rx.match(after):
             continue  # clearly negated ("no smoke", "kein Rauch", "沒有冒煙", "煙も臭いもなく") — C6
         hits.append(m.group(0))
     return hits
 
 
 def s1_hits(message: str) -> list[str]:
-    return _unnegated(_S1, message)
+    return _unnegated(_S1, norm_text(message))
+
+
+def elec_hits(message: str) -> list[str]:
+    return _unnegated(_ELEC, norm_text(message), tight=True)
 
 
 # ----------------------------------------------------------------------------- extraction container
@@ -410,6 +449,42 @@ _SEND_VERB = re.compile(
     r"寄給我|寄送|寄一個|補寄|幫我換|換貨|退款|維修|修理", re.I)
 
 
+# v3.1 fix 2: buyer error (customer ordered wrong / changed mind) vs seller error. Demote-only cross-check.
+_BUYER_ERR = re.compile(
+    _L + r"(?:by mistake|my (?:own )?(?:mistake|fault|bad)|i (?:accidentally |mistakenly )?(?:ordered|picked|chose|selected|clicked) the wrong"
+    r"|i (?:ordered|picked|chose|selected) (?:the )?wrong|accidentally (?:ordered|picked|chose|selected|clicked)|mistakenly"
+    r"|changed my mind|(?:would|i'd) (?:rather|prefer)|wrong one myself|i messed up"
+    r"|me equivoqu\w*|me confund\w*|por error|por equivocación|por equivocacion|error mío|error mio|culpa mía|culpa mia|sin querer"
+    r"|cambié de opinión|cambie de opinion|cambiado de opinión|cambiado de opinion|prefiero"
+    r"|aus versehen|versehentlich|falsch bestellt|mein fehler|habe mich (?:vertan|verklickt)|verklickt|anders überlegt|lieber (?:die|den|das|in)"
+    r")" + _R +
+    r"|間違えて.{0,12}(?:注文|購入|選|買|頼)|注文を間違え|選び間違え|私の(?:ミス|間違い)|自分の(?:ミス|間違い)|うっかり|気が変わ|やっぱり.{0,10}(?:色|サイズ)が(?:いい|良い)"
+    r"|我(?:自己)?(?:訂|點|選|買|下單)錯|不小心(?:訂|點|選|買|下)|是我的錯|我的失誤|改變主意|改变主意|後來比較喜歡", re.I)
+_SELLER_ERR = re.compile(
+    _L + r"(?:you (?:sent|shipped|delivered|gave)|was sent|were sent|i (?:got|received) (?:the )?wrong|not what i ordered|instead of"
+    r"|me (?:enviaron|mandaron|llegó|llego)|en lugar de|en vez de|ihr habt .{0,20}geschickt|geliefert wurde|statt|anstatt"
+    r"|geschickt|kam (?:ein|eine|in))" + _R + r"|届いたのは|送られてきた|が届きました|寄來的|收到的是|寄錯|送錯|発送ミス", re.I)
+# v3.1 fix 4: intent revision cues and explicit remedy-request cues
+_REVISION = re.compile(
+    _L + r"(?:actually|on second thought|thinking about it|instead|forget (?:the|about|it|that)|never ?mind|scratch that|rather just|changed my mind"
+    r"|mejor|pensándolo bien|pensandolo bien|en realidad|olvid\w+|ya no quiero|al final"
+    r"|lieber doch|doch lieber|stattdessen|vergessen sie|vergiss|eigentlich|doch nicht|nach reiflicher)" + _R +
+    r"|やっぱり|やはり|それより|撤回|取り消|やめて|還是|算了|不用了|改成|改為|改为|其實", re.I)
+_REFUND_WORDS = re.compile(
+    _L + r"(?:refund\w*|money back|reimburse\w*|reembols\w*|devolución del dinero|devuelvan el dinero|mi dinero"
+    r"|erstatt\w*|rückerstatt\w*|geld zurück)" + _R + r"|返金|払い戻|退款|退錢|退费|退費", re.I)
+_EXPLICIT_REQ = re.compile(
+    _L + r"(?:please|pls|could you|can you|would you|will you|i(?:'d| would) like|i want|i need|we want|send|ship|replace|repair|exchange|swap|refund"
+    r"|por favor|quiero|quisiera|necesito|me gustaría|me gustaria|pueden|podrían|podrian|podéis|envi\w+|mand\w+|cambi\w+|repar\w+|reemplaz\w+|reembols\w+"
+    r"|need|needs|brauche|brauchen|benötige|necesito|necesitamos|bitte|möchte|würde gerne|hätte gerne|könnten sie|können sie|könnt ihr|schick\w*|send\w*|tausch\w*|ersetz\w*|reparier\w*|erstatt\w*)" + _R +
+    r"|ください|下さい|お願い|ほしい|欲しい|希望します|いただけ|頂け|もらえ|送って|交換|修理|返金|"
+    r"必要です|要ります|請|麻煩|需要|希望|想要|想換|要求|幫我|可以.{0,6}嗎|能不能|換貨|退款|維修|寄", re.I)
+
+
+def _cue_positions(rx: re.Pattern, text: str) -> list[int]:
+    return [m.start() for m in rx.finditer(text) if not _NEG_BEFORE.search(text[:m.start()])]
+
+
 def _scan_skus(text: str) -> list[str]:
     return scan_products(text or "")
 
@@ -417,6 +492,7 @@ def _scan_skus(text: str) -> list[str]:
 def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
               open_task_for: Callable[[str], dict | None] = lambda k: None) -> DecisionV3:
     d = DecisionV3()
+    message = norm_text(message)  # v3.1: normalise BEFORE any matching (hyphen variants, full-width, odd spaces)
     negated = {g["goal"] for g in ex.negated_goals}
     items = ex.items
     all_goals = [g["goal"] for it in items for g in it.goals if g["goal"] not in negated]
@@ -457,8 +533,15 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     s2 = ex.safety_level if ex.safety_level != "NONE" and quote_ok(ex.safety_evidence, message) else "NONE"
     issues_present = {it.issue_type for it in items}
     skus_for_safety = mentioned or (order_skus if len(order_skus) == 1 else [])
-    s3 = [s for s in skus_for_safety if HAZARD_CLASS.get(s) == "GAS_APPLIANCE"] \
-        if issues_present & {"DEFECT", "PART_NEED", "MISSING_ITEM"} else []
+    gas = [s for s in skus_for_safety if HAZARD_CLASS.get(s) == "GAS_APPLIANCE"]
+    # v3.1: a gas appliance with any problem, a gas-part word (valve, knob, ignition, hose) or a gas part number goes to
+    # a human, including when the customer only wants a refund (D2).
+    s3 = gas if (issues_present - {"NO_ISSUE"} or _unnegated(_GAS_PART, message, True)
+                 or any(p.startswith("CS-") for p in scan_part_numbers(message))) else []
+    if not s3 and _unnegated(_GAS_PART, message, True) and any(HAZARD_CLASS.get(s) == "GAS_APPLIANCE"
+                                                         for s in scan_products(message)):
+        s3 = ["CAMP-STOVE"]
+    s5 = elec_hits(message)
     parts_in_text = scan_part_numbers(message)
     s4 = []
     if issues_present & {"DEFECT", "PART_NEED"} and any(HAZARD_CLASS.get(s) == "MAINS_ELECTRIC" for s in skus_for_safety):
@@ -466,10 +549,11 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
             s4 = [s for s in skus_for_safety if HAZARD_CLASS.get(s) == "MAINS_ELECTRIC"]
     if set(parts_in_text) & POWER_PARTS and not s4:
         s4 = ["power part " + ", ".join(sorted(set(parts_in_text) & POWER_PARTS))]
-    d.derived["safety"] = {"S1_words": s1, "S2_model": s2, "S3_gas": s3, "S4_mains": s4}
-    if s1 or s2 != "NONE" or s3 or s4:
+    d.derived["safety"] = {"S1_words": s1, "S2_model": s2, "S3_gas": s3, "S4_mains": s4, "S5_electrical": s5}
+    if s1 or s2 != "NONE" or s3 or s4 or s5:
         src = ", ".join(x for x, v in (("S1 hazard words " + "/".join(s1[:3]), s1), (f"S2 model {s2}", s2 != "NONE"),
-                                        ("S3 gas appliance", s3), ("S4 mains-electric hazard", s4)) if v)
+                                        ("S3 gas appliance", s3), ("S4 mains-electric hazard", s4),
+                                        ("S5 electrical (burnt-plastic smell / power base / fuse) " + "/".join(s5[:3]), s5)) if v)
         extra = " Refund intent kept for the reviewer (D2)." if d.refund_intent else ""
         return d.stop("V1", "HUMAN_REVIEW", f"Possible safety issue ({src}): always a human first.{extra}")
     d.step("V1", True, "no safety source fired")
@@ -498,6 +582,16 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     if [it.issue_type for it in fixed] != [it.issue_type for it in items]:
         d.derived["issue_consistency"] = "MISSING_ITEM/UNCLEAR + one catalogue part number, no missing claim -> PART_NEED (C4)"
     items = fixed
+    # v3.1 fix 2: an explicit buyer-error cue ("by mistake", "me equivoqué", "aus Versehen", "間違えて注文", "我訂錯")
+    # turns a WRONG_ITEM_OR_VARIANT / SIZE_MISMATCH extraction into CUSTOMER_ORDERED_WRONG (demote-only: return policy).
+    buyer = _cue_positions(_BUYER_ERR, message)
+    if buyer:
+        conv = [ItemX(it.item_quote, it.issue_evidence, "CUSTOMER_ORDERED_WRONG", it.component_quote, it.part_number_quote,
+                      it.current_variant_quote, it.requested_variant_quote, it.goals, it.goal_relation)
+                if it.issue_type in ("WRONG_ITEM_OR_VARIANT", "SIZE_MISMATCH") else it for it in items]
+        if [i.issue_type for i in conv] != [i.issue_type for i in items]:
+            d.derived["buyer_error_cue"] = message[buyer[0]: buyer[0] + 30]
+        items = conv
     issues_present = {it.issue_type for it in items}
     holding = {"DEFECT", "PART_NEED", "SIZE_MISMATCH", "CUSTOMER_ORDERED_WRONG"}
     # ---- V3 data conflicts (customer not unsure)
@@ -507,12 +601,52 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
         if mentioned and order and not set(mentioned) & set(order_skus) and not hedged:
             return d.stop("V3", "HUMAN_REVIEW", f"The message is about {', '.join(CATALOG[s]['name'] for s in mentioned)}, "
                                                 f"which is not in order {oid}.")
+        # v3.1 fix 1: ANY described product that is not in the cited order is a data conflict, resolved before any
+        # multi-item handling (never a task from a multi-item complaint whose products do not match the order).
+        extra = [s for s in mentioned if s not in order_skus]
+        if extra and not hedged:
+            return d.stop("V3", "HUMAN_REVIEW", f"The message describes {', '.join(CATALOG[s]['name'] for s in extra)}, which "
+                                                f"is not in order {oid}: resolve the data conflict first.")
+        act_now = [it for it in items if is_actionable(it, negated)]
+        if len(act_now) >= 2 and not hedged:
+            unmatched = [it.item_quote for it in act_now if it.item_quote and quote_ok(it.item_quote, message)
+                         and not set(_scan_skus(it.item_quote)) & set(order_skus)]
+            if unmatched:
+                return d.stop("V3", "HUMAN_REVIEW", f"Several products described and “{unmatched[0][:40]}” cannot be matched to "
+                                                    f"order {oid}: resolve the data conflict before any multi-item handling.")
         lines = [l for l in order["lines"] if not mentioned or l["sku"] in mentioned]
         undelivered = [l for l in lines if (l.get("logistics") or {}).get("status") in ("LOST", "IN_TRANSIT")]
         if undelivered and len(lines) == len(undelivered) and issues_present & holding:
             return d.stop("V3", "HUMAN_REVIEW", f"Carrier shows {undelivered[0]['logistics']['status']} but the customer "
                                                 "describes using the item: our data conflicts with the claim.")
+        # v3.1 fix 1: a seller-error claim ("you sent the wrong one") is never accepted on the customer's word alone:
+        # it is only eligible when it is CONSISTENT with the order record (the variant the customer says they ordered is
+        # the recorded one, and the variant they say they received is a different, known one).
         for it in items:
+            if it.issue_type == "WRONG_ITEM_OR_VARIANT" and len(lines) == 1:
+                ln = lines[0]
+                vkeys = list(CATALOG[ln["sku"]]["variants"])
+                if vkeys == ["standard"]:
+                    return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim for a product without variants: what was shipped "
+                                                        "cannot be checked against the order record, so a human verifies.")
+                got = canonical_variant(ln["sku"], it.current_variant_quote) if it.current_variant_quote and \
+                    quote_ok(it.current_variant_quote, message) else None
+                claimed = canonical_variant(ln["sku"], it.requested_variant_quote) if it.requested_variant_quote and \
+                    quote_ok(it.requested_variant_quote, message) else None
+                in_text = scan_variants(ln["sku"], message)
+                if got is None:
+                    others = [v for v in in_text if v != ln["variant"]]
+                    got = others[0] if len(others) == 1 else None
+                if claimed and claimed != ln["variant"]:
+                    return d.stop("V3", "HUMAN_REVIEW", f"Customer says they ordered {claimed}, but order {oid} shows "
+                                                        f"{ln['variant']}: claim conflicts with the order record; a human verifies.")
+                if got == ln["variant"]:
+                    return d.stop("V3", "HUMAN_REVIEW", f"Customer says the wrong variant arrived, but what they describe "
+                                                        f"receiving ({got}) is what order {oid} shows: a human verifies.")
+                if got is None or ln["variant"] not in in_text and claimed is None:
+                    return d.stop("V3", "HUMAN_REVIEW", "Wrong-item claim that cannot be checked against the order record "
+                                                        "(received/ordered variant not stated): a human verifies.")
+                d.derived["wrong_item_consistent"] = f"ordered {ln['variant']} (record), received {got}"
             if it.issue_type != "WRONG_ITEM_OR_VARIANT" and it.current_variant_quote and len(lines) == 1:
                 cur = canonical_variant(lines[0]["sku"], it.current_variant_quote)
                 if cur and cur != lines[0]["variant"] and quote_ok(it.current_variant_quote, message):
@@ -536,6 +670,34 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
                       "ASK_ORDER_REF", ["order_ref"], quote=bad_ref)
     d.step("V4", True, "order reference absent, linked or verified")
 
+    # ---- V4b v3.1 fix 4: intent revision -> last explicit intent; ambiguous -> clarify
+    rev = _cue_positions(_REVISION, message)
+    if rev:
+        tail = message[rev[-1]:]
+        refund_after = bool(_REFUND_WORDS.search(tail)) and not _NEG_BEFORE.search(tail[:(_REFUND_WORDS.search(tail).start())])
+        gl = [(message.casefold().rfind(nq(g["evidence"])[:40]), g["goal"], it) for it in items for g in it.goals
+              if g["goal"] not in negated and g["goal"] != "INFORMATION" and quote_ok(g["evidence"], message)]
+        fams_all = {FAMILY[norm_goal(it.issue_type, g, it.part_number_quote)] for _, g, it in gl}
+        if refund_after and "REFUND" not in {g for _, g, _ in gl}:
+            return d.stop("V4b", "CLARIFY_WITH_CUSTOMER", "The customer revises their request towards a refund, but the "
+                          "extracted intent disagrees: ask which outcome they want.", "ASK_GOAL_CHOICE", ["goal_choice"],
+                          goal_a="REFUND", goal_b=next((g for _, g, _ in gl), "REPLACE_SAME"), relation="REVISED")
+        if len(fams_all) >= 2:
+            last = max(gl, key=lambda x: x[0])
+            if last[0] >= rev[-1] - 5:
+                keep = last[1]
+                d.derived["intent_revision"] = f"last explicit intent kept: {keep}"
+                for it in items:
+                    for g in it.goals:
+                        if g["goal"] != keep and g["goal"] != "INFORMATION":
+                            negated.add(g["goal"])
+                d.derived["negated_goals"] = sorted(negated)
+            else:
+                return d.stop("V4b", "CLARIFY_WITH_CUSTOMER", "The customer changed their mind but the final intent is "
+                              "not clear: ask which outcome.", "ASK_GOAL_CHOICE", ["goal_choice"], goal_a=gl[0][1],
+                              goal_b=gl[-1][1], relation="REVISED")
+    all_goals = [g["goal"] for it in items for g in it.goals if g["goal"] not in negated]
+    d.refund_intent = "REFUND" in all_goals
     # ---- V5 availability-question cross-check (demote-only)
     act_items = [it for it in items if is_actionable(it, negated)]
     goal_evs = [g["evidence"] for it in items for g in it.goals if quote_ok(g["evidence"], message)]
@@ -552,6 +714,10 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
     if ex.speech_act == "OTHER" and not any(action_goals(it, negated) for it in items):
         return d.stop("V6", "HUMAN_REVIEW", "No request and no problem to route: standard support reads it.")
     d.step("V6", True, "not an information-only question")
+    # ---- V6b v3.1 fix 4: a complaint with no explicit remedy request never creates anything: ask what they want
+    if ex.speech_act == "COMPLAINT_ONLY" and any(it.issue_type != "NO_ISSUE" for it in items):
+        return d.stop("V6b", "CLARIFY_WITH_CUSTOMER", "Problem described but no explicit remedy request (complaint only): "
+                      "ask what the customer would like. No supplier task.", "ASK_GOAL", ["goal"])
 
     # ---- V7 mixed (computed by code, D13)
     one_product = len(set(text_skus)) <= 1 and (not order_skus or len(order_skus) == 1)
@@ -659,6 +825,10 @@ def decide_v3(ex: ExtractionV3, message: str, ctx: ContextV3, today: date,
 
     # ---- V12 responsibility table
     action, why = _responsibility(item, fam, goals_here, order, line, product, days, part, d)
+    if action == "CREATE_SUPPLIER_TASK" and not _EXPLICIT_REQ.search(message):
+        # v3.1 fix 4 (demote-only): a suggested supplier task needs an explicit remedy request in the text itself
+        return d.stop("V12b", "CLARIFY_WITH_CUSTOMER", "Would be a supplier task, but the text contains no explicit remedy "
+                      "request: ask what the customer would like.", "ASK_GOAL", ["goal"])
     d.stop("V12", action, why)
     if action == "CREATE_SUPPLIER_TASK":
         key = f"{oid}|{sku}|{fam}|{part or d.derived.get('requested_variant') or ''}"
