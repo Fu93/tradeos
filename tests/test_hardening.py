@@ -243,6 +243,20 @@ def test_capture_warning_events_are_log_only(settings, etype):
     assert pp.refund_capture.call_count == 1
 
 
+def test_reversed_event_with_refund_shaped_resource_matches_by_up_link(settings):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    case = wf.db.get_case(case_id)
+    cap = case["capture_id"]
+    ev = {"id": "E-REV", "event_type": "PAYMENT.CAPTURE.REVERSED",
+          "resource": {"id": "REVERSAL-REFUND-1", "status": "COMPLETED", "note_to_payer": "Payment reversed",
+                       "links": [{"rel": "up", "href": f"https://api.sandbox.paypal.com/v2/payments/captures/{cap}"}]}}
+    assert post(client, ev)["case"] == case_id
+    after = wf.db.get_case(case_id)
+    assert after["refund_id"] == case["refund_id"] and after["status"] == case["status"]
+    assert [e["outcome"] for e in wf.db.webhook_events(case_id)] == ["WARNING_NEEDS_HUMAN"]
+
+
 # ------------------------------------------------------------------ 3. unknown refund outcome
 def flaky_refund(pp, exc):
     real = pp._mock_wraps.refund_capture

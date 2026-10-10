@@ -326,7 +326,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 223 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 224 tests (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 

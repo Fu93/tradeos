@@ -686,7 +686,7 @@ class Workflow:
         case = None
         if res_id:
             case = self.db.find_case_by("capture_id" if capture_event else "refund_id", res_id)
-        if case is None and not capture_event:
+        if case is None:  # refund-shaped resources (incl. PAYMENT.CAPTURE.REVERSED) link "up" to the capture
             for link in resource.get("links") or []:
                 if link.get("rel") == "up" and "/captures/" in (link.get("href") or ""):
                     case = self.db.find_case_by("capture_id", link["href"].rstrip("/").split("/")[-1])
@@ -730,8 +730,9 @@ class Workflow:
         case_id = case["id"]
         res_status = resource.get("status")
         if etype in CAPTURE_WARNING_EVENTS:
+            # DECLINED carries the capture; REVERSED carries a refund-shaped resource (PayPal's own reversal).
             return ("WARNING_NEEDS_HUMAN",
-                    f"Verified PayPal webhook {etype}: capture {resource.get('id')} is {res_status} — "
+                    f"Verified PayPal webhook {etype}: {resource.get('id')} is {res_status} — "
                     "needs a human (no automatic change)")
         if not case.get("refund_id") or case["refund_id"] != resource.get("id"):
             return ("MISMATCH_IGNORED", "Verified PayPal webhook does not match this case's refund id "
@@ -785,7 +786,9 @@ class Workflow:
         return utcnow()
 
 
-CAPTURE_WARNING_EVENTS = ("PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED")  # log-only, needs a human
+# Log-only, needs a human. Per PayPal's event-names page: DECLINED's resource is the capture;
+# REVERSED's is a refund object (PayPal reversed the capture) linking "up" to the capture.
+CAPTURE_WARNING_EVENTS = ("PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED")
 RECONCILE_MIN_INTERVAL = 30.0  # seconds between automatic reconciliations of one case
 RECONCILE_READ_TIMEOUT = 5.0   # seconds per PayPal GET during reconciliation (demo must never hang)
 
