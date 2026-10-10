@@ -165,3 +165,8 @@ table.evidence code{font-size:11px}
 table.evidence tr.bad td{background:#fef2f2}
 .ev-caption{font-size:13px;color:#4b5563;margin:2px 0 8px}
 #evidence{min-width:0;overflow:hidden}
+
+.chain-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-top:.4rem}
+.chain-badge{font-size:.85rem;padding:.2rem .55rem;border-radius:999px;border:1px solid}
+.chain-badge.ok{color:#14532d;background:#ecfdf3;border-color:#86efac}
+.chain-badge.bad{color:#7f1d1d;background:#fef2f2;border-color:#fca5a5;font-weight:600}

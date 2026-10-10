@@ -272,6 +272,19 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   `MOCK-` / `mock-debug-`. The "Pending refund (MOCK)" demo and its "Simulate signed PayPal webhook" button exist only in
   mock mode. The webhook was verified live on Sandbox; the evidence panel and reconciliation were developed against the
   mock and are verified on Sandbox with `docs/sandbox-verification.md`.
+- **Hash-chained audit trail.** Every timeline record (policy result, human decision, refund results, reconcile
+  results), every PayPal call result and every webhook outcome also gets an entry in an append-only `audit_chain` table:
+  `entry_hash = SHA-256(sorted-key JSON of {case_id, seq, type, ts, payload, prev_hash})`, one chain per case, starting
+  from a fixed genesis value (64 zeros). The case page shows "Audit trail intact: N entries, head <hash>" or "BROKEN at
+  entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON. Verification also checks that the
+  timeline and PayPal-call rows still match what was hashed and that none of them is missing from the chain (this
+  catches a deleted last entry while its record remains; deleting both is only visible against an external head hash). Existing databases are backfilled on start (marked
+  *backfilled*: those entries were hashed at migration time and say nothing about edits before it).
+  **Limits:** this *detects* modification of stored entries by anyone who does not also recompute the chain. It does
+  not *prevent* tampering: someone with write access to the database can rewrite and recompute the whole chain, and
+  that is only detectable if the head hash was recorded outside the database beforehand (it is shown on the case page
+  so it can be noted). The append-only rule is enforced in code and by SQLite triggers, which a database owner can drop.
+  The demo database is reset on each restart, so chains do not outlive a deploy.
 - **Not covered:** partial refunds, disputes, automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
 
@@ -335,7 +348,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 249 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 269 tests (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 

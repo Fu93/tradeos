@@ -59,12 +59,21 @@ def main(base: str) -> int:
     check(bool(rec) and rec[-1]["title"].startswith("Reconciled with PayPal"),
           f"reconcile result: {rec[-1]['title'] if rec else 'none'}")
 
+    # Hash-chained audit trail
+    chain_a = c.get(f"/cases/{case_a}/audit/verify").json()
+    check(chain_a.get("ok") is True, f"Case A audit trail intact: {chain_a.get('entries')} entries, head "
+          f"{(chain_a.get('head') or '')[:12]}")
+
     # Case B: blocked, refund API never called
     r = c.post("/demo/run/B")
     case_b = r.headers["location"].split("case=")[1]
     check(c.post(f"/cases/{case_b}/approve").status_code == 409, f"Case B {case_b} approve -> 409")
     b_calls = c.get(f"/api/cases/{case_b}").json()["paypal_calls"]
     check(not any(x["operation"] == "refund_capture" for x in b_calls), "Case B: refund API not called")
+    chain_b = c.get(f"/cases/{case_b}/audit/verify").json()
+    check(chain_b.get("ok") is True, f"Case B audit trail intact: {chain_b.get('entries')} entries")
+    page = c.get(f"/?case={case_a}").text
+    check("Audit trail intact:" in page, "audit trail badge rendered on Case A page")
 
     print(f"\nManual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
     print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")

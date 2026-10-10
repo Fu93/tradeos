@@ -88,6 +88,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "cases": cases,
             "current": current,
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
+            "audit_chain": db.verify_chain(current["id"]) if current else None,
             "evidence_summary": evidence_summary(db, current, bool(settings.paypal_webhook_id)) if current else [],
             "evidence": evidence_log(db, current["id"]) if current else [],
             "pending": pending,
@@ -272,6 +273,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.get("/cases/{case_id}/paypal-return")
     def paypal_return(request: Request, case_id: str):
         return guarded(request, case_id, wf.complete_buyer_approval)
+
+    @app.get("/cases/{case_id}/audit/verify")
+    def audit_verify(case_id: str):
+        """Recompute the case's hash chain. Read-only. See README 'Hash-chained audit trail' for limits."""
+        if not db.get_case(case_id):
+            raise HTTPException(404)
+        return JSONResponse(db.verify_chain(case_id))
 
     @app.get("/api/cases/{case_id}")
     def case_json(case_id: str):
