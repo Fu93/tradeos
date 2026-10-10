@@ -434,21 +434,21 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
     elif refund_calls:
         rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
     else:
-        rows.append({"label": "PayPal refund", "value": "Refund API not called", "ok": None})
+        rows.append({"label": "PayPal refund", "value": "No refund requested from PayPal", "ok": None})
     last = (refund_calls or calls or [None])[-1]
     if last and last.get("debug_id"):
-        rows.append({"label": "PayPal-Debug-Id", "value": f"{last['debug_id']} ({OPERATION_LABELS.get(last['operation'], last['operation']).lower()})",
+        rows.append({"label": "PayPal trace ID", "value": f"{last['debug_id']} — PayPal's debug id for the {OPERATION_LABELS.get(last['operation'], last['operation']).lower()} call; PayPal support can look it up",
                      "ok": None})
     if case.get("refund_id"):
         events = db.webhook_events(case["id"])
         verified = [e for e in events if e["verified"]]
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
-            value = f"verified · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
-            rows.append({"label": "Signed webhook", "value": value, "ok": True})
+            value = f"signature verified with PayPal · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
         else:
-            rows.append({"label": "Signed webhook", "value": "waiting…" if webhook_configured else
-                         "not configured (PAYPAL_WEBHOOK_ID)", "ok": None})
+            rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else
+                         "webhook not set up on this server", "ok": None})
     return rows
 
 

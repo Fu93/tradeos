@@ -161,7 +161,8 @@
 
   <!-- PayPal evidence -->
   <section class="block" id="evidence">
-    <h2>PayPal evidence {% if paypal_mode == "mock" %}<span class="mock-tag">MOCK PayPal</span>{% endif %}</h2>
+    <h2>PayPal evidence {% if paypal_mode == "mock" %}<span class="mock-tag">MOCK PayPal — not real Sandbox data</span>{% endif %}</h2>
+    <p class="ev-caption">What PayPal itself reported for this case: the refund and its status, an ID PayPal can trace, and PayPal's signed confirmation. TradeOS only shows success after PayPal says COMPLETED.</p>
     {% if current and evidence %}
     <dl class="ev-summary">
       {% for r in evidence_summary %}
@@ -169,7 +170,7 @@
       {% endfor %}
     </dl>
     <details class="ev-log">
-      <summary>Show details — full PayPal log ({{ evidence|length }} entries)</summary>
+      <summary>Show details — every PayPal call and notification ({{ evidence|length }})</summary>
       <div class="ev-scroll">
       <table class="evidence">
         <thead><tr><th>#</th><th>Time</th><th>Call / event</th><th>Status</th><th>IDs</th><th>PayPal-Debug-Id</th><th>PayPal-Request-Id</th></tr></thead>

@@ -163,3 +163,4 @@ table.evidence{border-collapse:collapse;font-size:12px;white-space:nowrap}
 table.evidence th,table.evidence td{border-bottom:1px solid #e5e7eb;padding:3px 8px;text-align:left}
 table.evidence code{font-size:11px}
 table.evidence tr.bad td{background:#fef2f2}
+.ev-caption{font-size:13px;color:#4b5563;margin:2px 0 8px}
