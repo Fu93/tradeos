@@ -5303,12 +5303,776 @@
    "required_action": "CLARIFY_WITH_CUSTOMER",
    "acceptable_actions": [],
    "_latency": 22.6
+  },
+  "X278": {
+   "speech_act_evidence": "Könnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "City Regenjacke (City rain jacket)",
+     "issue_evidence": "ich habe mich jetzt doch anders entschieden.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten?",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96257",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests a refund for a City jacket due to change of mind (CUSTOMER_ORDERED_WRONG). No safety concerns, order reference is valid and verified, only REFUND goal present => DIRECT_WORKFLOW per decision rule V8.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 14.7
+  },
+  "X283": {
+   "speech_act_evidence": "bitte um Erstattung des Kaufpreises für meine Bestellung TO-96262",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "City Regenjacke",
+     "issue_evidence": "ich habe meine Meinung zum City Regenjacke geändert",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "bitte um Erstattung des Kaufpreises",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96262",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund for City jacket due to changed mind; order matches; no safety or conflict; only refund goal => V8 => DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 15.79
+  },
+  "X285": {
+   "speech_act_evidence": "請問能否協助辦理退款事宜？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "雨衣縫線出現破損，導致無法正常使用",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請問能否協助辦理退款事宜？",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "雨衣縫線出現破損，導致無法正常使用",
+   "safety": "NONE",
+   "order_ref_as_written": "ＴＯ－９６２６４",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund for a defective city jacket; safety is NONE; order reference matches; only goal is REFUND, so decision table V8 applies => DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 192.26
+  },
+  "X282": {
+   "speech_act_evidence": "¿Se puede hacer la devolucion y el reembolso?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "City rain jacket (CITY-JACKET)",
+     "issue_evidence": "y al final cambié de idea, no la voy a usar.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Se puede hacer la devolucion y el reembolso?",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96261",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer changed mind about City rain jacket, only wants a refund; safety NONE, order verified, no conflict, only REFUND goal → V8 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 22.01
+  },
+  "X286": {
+   "speech_act_evidence": "¿Se podría hacer un reembolso?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "tiene la costura rota en un lateral",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Se podría hacer un reembolso?",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO‑96265",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The order reference TO-96265 does not correspond to any existing order for the customer (no linked order), creating a data conflict per V3, which triggers HUMAN_REVIEW before any other rule.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 23.81
+  },
+  "X289": {
+   "speech_act_evidence": "想申請退貨退款，請幫忙處理",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LED檯燈",
+     "issue_evidence": "我改變主意想申請退貨退款",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "想申請退貨退款",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96268",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund for a desk lamp that works normally due to change of mind (CUSTOMER_ORDERED_WRONG). No safety issues, order reference valid, single REFUND goal triggers V8 -> DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 26.05
+  },
+  "X291": {
+   "speech_act_evidence": "möchte eine Rückerstattung",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "ich habe meine Meinung geändert",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "möchte eine Rückerstattung",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "der Wasserkocher funktioniert einwandfrei",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96270",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer changed mind (CUSTOMER_ORDERED_WRONG) and requests refund only; safety NONE; order verified; matches decision rule V8 (only REFUND family) → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 23.53
+  },
+  "X287": {
+   "speech_act_evidence": "mir den Kaufpreis für das defekte Produkt zurückzuerstatten.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "die Naht an der linken Schulter meines Regenjackets, das ich erst vor einigen Wochen erworben habe, plötzlich aufgegangen ist – das Material reißt sich an der Stelle, wo ich die Jacke beim Anziehen immer leicht ziehe, und es zieht nun Wasser durch, obwohl die Jacke sonst noch ganz intakt wirkt.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "mir den Kaufpreis für das defekte Produkt zurückzuerstatten.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO–96266",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer cites order TO-96266 which is not found in the system, constituting a data conflict (V3), leading to HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 27.45
+  },
+  "X276": {
+   "speech_act_evidence": "想申請退款",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "改變主意",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "想申請退款",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96255",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund for City jacket due to change of mind (CUSTOMER_ORDERED_WRONG). Safety NONE, order reference verified, no data conflict, single REFUND goal matches V8 → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 25.96
+  },
+  "X265": {
+   "speech_act_evidence": "Sサイズに交換できますっか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Merino socks (final sale) M size",
+     "issue_evidence": "Mサイズがおおきくて",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Sサイズに交換できますっか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96244",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests exchange of too-big Merino socks (final sale) M for S; order TO-96244 verified; issue is SIZE_MISMATCH with goal EXCHANGE_VARIANT; safety NONE; no earlier decision-table rule matches; responsibility table for EXCHANGE SIZE_MISMATCH on merchant-warehouse non-returnable product yields DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 30.3
+  },
+  "X267": {
+   "speech_act_evidence": "Por favor, envíenlo de nuevo o indiquen qué está pasando.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "todavía no ha llegado.",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "envíenlo de nuevo",
+       "goal": "RESHIP"
+      },
+      {
+       "evidence": "indiquen qué está pasando",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "UNDECIDED"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96246",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (not arrived) and requests either reshipment or information, leading to mixed goals across FULFILMENT and INFO families, triggering V7 (mixed) → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 36.56
+  },
+  "X296": {
+   "speech_act_evidence": "¿Me pueden mandar un par de reemplazo?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "la plantilla se despegó y el forro del talón se rasgó",
+     "issue_type": "DEFECT",
+     "component": "insole/heel lining",
+     "goals": [
+      {
+       "evidence": "¿Me pueden mandar un par de reemplazo?",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96275",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (insole detached, heel lining torn) on Trail Runner sneakers bought 120 days ago, within the supplier's 180‑day warranty, and requests a replacement pair. No safety concerns, order reference is valid and matches the product. According to the responsibility table (V12), a supplier warranty defect within warranty period leads to CREATE_SUPPLIER_TASK.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 34.36
+  },
+  "X304": {
+   "speech_act_evidence": "¿Podrían cambiar el artículo por la talla S?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "Por error, necesitaba la talla S.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Podrían cambiar el artículo por la talla S?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "¿Podrían cambiar el artículo por la talla S?",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96283",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and requests exchange to correct size; no safety issues; order reference valid; matches V10 → DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 26.72
+  },
+  "X308": {
+   "speech_act_evidence": "Thank you for making the whole process so smooth and for delivering a product that lives up to the hype.",
+   "speech_act": "OTHER",
+   "items": [],
+   "negated_goals": [],
+   "safety_evidence": "I’ve been using it every day since it arrived, and I’m really impressed with how quickly it brings water to a boil.",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The message is positive feedback with no problem, request, or question; safety is NONE; no order reference; no goals; per decision table V9 (no goals, issue NO_ISSUE/OTHER) leads to HUMAN.",
+   "deciding_rule": "V9",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 26.11
+  },
+  "X272": {
+   "speech_act_evidence": "再送をお願いできますでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "デスクランプが未着のようです",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "再送をお願いできますでしょうか",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96251",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports the desk lamp (TO-96251) as missing, but the order record shows DELIVERED. This data conflict falls under the FULFILMENT responsibility table: DELIVERED in full → HUMAN_REVIEW, so V12 applies.",
+   "deciding_rule": "V12",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 26.83
+  },
+  "X297": {
+   "speech_act_evidence": "Bitte senden Sie mir ein Ersatzpaar zu.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner Sneaker (TRAIL-RUNNER-42)",
+     "issue_evidence": "die Einlegesohle meiner Trail Runner Sneaker ... ist auseinandergegangen und das Fersenfutter ist gerissen",
+     "issue_type": "DEFECT",
+     "component": "insole and heel lining",
+     "goals": [
+      {
+       "evidence": "Bitte senden Sie mir ein Ersatzpaar zu.",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Hallo, die Einlegesohle meiner Trail Runner Sneaker (Bestellung TO-96276, 120 Tage alt) ist auseinandergegangen und das Fersenfutter ist gerissen. Bitte senden Sie mir ein Ersatzpaar zu. Danke.",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96276",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The item is a DEFECT (insole came apart, heel lining torn) within the supplier warranty period (180 days, purchased 120 days ago). According to the responsibility table for WARRANTY_REMEDY on DEFECT, supplier warranty within its days → CREATE_SUPPLIER_TASK.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 29.69
+  },
+  "X288": {
+   "speech_act_evidence": "I would like to return it for a refund",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LED desk lamp",
+     "issue_evidence": "I’ve changed my mind and would like to return it for a refund",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "I would like to return it for a refund",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96267",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests a refund for a desk lamp they received but changed their mind; no safety concerns, order reference valid, only REFUND goal → V8 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 19.54
+  },
+  "X306": {
+   "speech_act_evidence": "Nochmals vielen Dank für den tollen Service.",
+   "speech_act": "OTHER",
+   "items": [],
+   "negated_goals": [],
+   "safety_evidence": "Der Wasserkocher ist angekommen und ich liebe ihn einfach.",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Message expresses thanks only, no request, question, or problem; no goals or items; no safety concerns; no order reference provided, so the first matching decision rule is V11 (no order reference) leading to CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "_latency": 27.68
+  },
+  "X305": {
+   "speech_act_evidence": "Könnt ihr das bitte auf S umtauschen?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "City Regenjacke",
+     "issue_evidence": "ich hab leider die City Regenjacke in M bestellt, aber ich wollte eigentlich S haben (mein Fehlerr)",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnt ihr das bitte auf S umtauschen?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96284",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering wrong size (CUSTOMER_ORDERED_WRONG) and requests exchange to correct size; safety NONE; order reference valid and matches; V10 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 19.59
+  },
+  "X293": {
+   "speech_act_evidence": "I have changed my mind and would like to request a full refund.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE (Electric kettle 1.7 L)",
+     "issue_evidence": "Although the product works perfectly, I have changed my mind and would like to request a full refund.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "I have changed my mind and would like to request a full refund.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96272",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests a refund for a correctly received kettle due to change of mind (CUSTOMER_ORDERED_WRONG). No safety issues, order reference valid, single REFUND goal triggers V8 -> DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 14.76
+  },
+  "X298": {
+   "speech_act_evidence": "Se podria hacer el cambio a talla 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "Las sneakers talla 43 me quedan un poco grandes despues de probarmelas.",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Se podria hacer el cambio a talla 42?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96277",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer reports SIZE_MISMATCH (size 43 too big) and requests EXCHANGE_VARIANT to size 42. Order reference TO-96277 exists, belongs to customer, product is supplier‑dropshipped. No safety concerns. According to responsibility table V12, for EXCHANGE on a supplier‑dropshipped product with supplier stock confirmed, the required action is CREATE_SUPPLIER_TASK.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "_latency": 25.8
+  },
+  "X292": {
+   "speech_act_evidence": "返品返金お願いします",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "気が変わっちゃって",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "返品返金お願いします",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "ちゃんと動くんだけど",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96271",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund for a working kettle due to change of mind (CUSTOMER_ORDERED_WRONG). No safety concerns, order reference valid, single REFUND goal matches V8 => DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 16.31
+  },
+  "X290": {
+   "speech_act_evidence": "¿Me pueden gestionar la devolución y el reembolso?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "pero he cambiado de opinión",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Me pueden gestionar la devolución y el reembolso?",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96269",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests refund due to changed mind (CUSTOMER_ORDERED_WRONG) on a delivered, functioning BREW-KETTLE. No safety concerns, order reference valid, only REFUND goal → decision table V8 applies.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 22.57
+  },
+  "X301": {
+   "speech_act_evidence": "Could I swapp them for a size 41?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "they're size 42 and they feell a bit big on me",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Could I swapp them for a size 41?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96280",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (size 42 too big) and requests exchange to size 41. The order matches the record, product is supplier-dropshipped with confirmed stock, so responsibility table yields a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 25.31
+  },
+  "X302": {
+   "speech_act_evidence": "I would like to exchange the size M for size S if that is possible.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "I ordered the City rain jacket in size M, but I actually meant to order size S.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "I would like to exchange the size M for size S if that is possible.",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96281",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and wants to exchange to size S. The order shows City jacket M delivered; target size S is in merchant warehouse stock (3 units). According to responsibility table for EXCHANGE with merchant‑warehouse product and target variant in stock, required action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 27.66
+  },
+  "X300": {
+   "speech_act_evidence": "できればサイズ42に交換してもらえたら嬉しいです。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "サイズ43だとちょっと大きめでした",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "できればサイズ42に交換してもらえたら嬉しいです。",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "交換の手順を教えてください。",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96279",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports size 43 sneakers are too big (SIZE_MISMATCH) and requests exchange to size 42. The order reference TO-96279 is valid and belongs to the customer. The product is supplier‑dropshipped with confirmed stock, so per the responsibility table an EXCHANGE on a supplier‑dropshipped item with confirmed stock requires a supplier task (CREATE_SUPPLIER_TASK). No safety concerns or data conflicts are present.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 36.39
   }
  },
  "stats": {
-  "calls": 177,
-  "retries": 1456,
-  "prompt_tokens": 1159727,
-  "completion_tokens": 524768
+  "calls": 203,
+  "retries": 1596,
+  "prompt_tokens": 1329785,
+  "completion_tokens": 590662
  }
 }

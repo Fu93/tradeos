@@ -3160,12 +3160,152 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 122.95
+  },
+  "X116": {
+   "speech_act_evidence": "¿Podrían enviarme la pieza de repuesto?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "se me rompió el interrumptor",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "¿Podrían enviarme la pieza de repuesto?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "se me rompió el interrumptor",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96116",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96116 belongs to the customer and contains DESK-LAMP white bought 100 days ago, delivered. Customer reports a malfunction of a MAINS_ELECTRIC gated product: switch broke and requests a spare part. v3.2 SG-1 gates any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, which takes precedence over the missing part number / SEND_PART clarification. Safety review therefore overrides the normal SEND_PART flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 125.74
+  },
+  "X110": {
+   "speech_act_evidence": "Can you fix it?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "The dimmer button stopped responding.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "Can you fix it?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "The dimmer button stopped responding.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96110",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96110 belongs to customer and contains DESK-LAMP white delivered 50 days ago. Customer reports dimmer malfunction on a MAINS_ELECTRIC safety_class product. v3.2 SG-1 gates any malfunction on MAINS_ELECTRIC/GAS/MAINS_HEATING to HUMAN_REVIEW safety review, overriding warranty task routing.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 130.97
+  },
+  "X115": {
+   "speech_act_evidence": "can you please help fix it?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "it keeps turnin off after a few minutes.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "can you please help fix it?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "it keeps turnin off after a few minutes.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96115",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96115 belongs to the customer and contains DESK-LAMP white, safety_class MAINS_ELECTRIC. Customer reports a malfunction – lamp keeps turning off/goes dark – which is a defect on a gated MAINS_ELECTRIC product. v3.2 SG-1 safety gate requires HUMAN_REVIEW for any malfunction on MAINS_ELECTRIC/MAINS_HEATING/GAS, overriding normal warranty routing.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 148.36
+  },
+  "X111": {
+   "speech_act_evidence": "請問能否辦理 refund？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_quote": "最近完全無法開啟",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "quote": "請問能否辦理 refund？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "最近完全無法開啟",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96111",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96111 is verified for this customer and contains DESK-LAMP white bought 50 days ago, delivered. Customer reports a malfunction: cannot turn on. Product safety_class is MAINS_ELECTRIC. SG-1 safety gate applies: any malfunction on a MAINS_ELECTRIC/MAINS_HEATING/GAS product requires HUMAN_REVIEW safety review, which overrides the refund request. Safety is escalated for gated-class malfunction.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 164.87
+  },
+  "X114": {
+   "speech_act_evidence": "もし可能であれば新しいものと交換していただけないでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "最近ずっと点灯がチカチカして安定しません。",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "goal_evidence": "もし可能であれば新しいものと交換していただけないでしょうか。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "煙や火花、変な臭いや熱などはありませんが",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96114",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96114 belongs to customer and contains DESK-LAMP white delivered 50 days ago. Customer reports flickering malfunction on a MAINS_ELECTRIC safety_class product. v3.2 SG-1 gates any malfunction on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, overriding warranty task flow. No hazard words are present.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 174.53
   }
  },
  "stats": {
-  "calls": 22,
-  "retries": 5,
-  "prompt_tokens": 132718,
-  "completion_tokens": 53441
+  "calls": 6,
+  "retries": 1,
+  "prompt_tokens": 35927,
+  "completion_tokens": 15993
  }
 }
