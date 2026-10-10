@@ -1,8 +1,9 @@
-"""Post-deploy Sandbox check for the PayPal depth work (#10-#12). Read-mostly; uses the public demo endpoints.
+"""Post-deploy Sandbox check for the PayPal depth work (#10-#12, #20). Read-mostly; uses the public demo endpoints.
 
     python scripts/sandbox_verify.py https://<your-render-host>
 
-Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount) and ONE Case B.
+Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B and ONE
+Case R (a forced 422 refund failure, then a retry that refunds).
 It needs no credentials: it only talks to the deployed app. Exit code 0 = all checks passed.
 """
 from __future__ import annotations
@@ -74,6 +75,38 @@ def main(base: str) -> int:
     check(chain_b.get("ok") is True, f"Case B audit trail intact: {chain_b.get('entries')} entries")
     page = c.get(f"/?case={case_a}").text
     check("Audit trail intact:" in page, "audit trail badge rendered on Case A page")
+
+    # Logic-review fixes (#20): chained case state, how COMPLETED was confirmed, GET without side effects
+    case = c.get(f"/api/cases/{case_a}").json()["case"]
+    st_a = c.get(f"/cases/{case_a}/audit/verify").json().get("chained_state") or {}
+    check(st_a.get("decision") == "ELIGIBLE" and st_a.get("human_decision") == "APPROVED"
+          and st_a.get("status") == case["status"],
+          f"Case A decision/approval/status on the hash chain: {st_a}")
+    check(case.get("refund_request_id") == f"tradeos-refund-{case_a}"
+          and case.get("completed_via") in ("refund_api", "webhook", "reconcile"),
+          f"Case A request id {case.get('refund_request_id')}, COMPLETED confirmed via {case.get('completed_via')}")
+    st_b = c.get(f"/cases/{case_b}/audit/verify").json().get("chained_state") or {}
+    check(st_b.get("decision") == "REJECTED" and st_b.get("human_decision") is None,
+          f"Case B rejection on the hash chain, no approval: {st_b}")
+    before = c.get(f"/api/cases/{case_a}").json()["case"]["status"]
+    r = c.get(f"/cases/{case_a}/paypal-return")
+    check(r.status_code == 200 and c.get(f"/api/cases/{case_a}").json()["case"]["status"] == before,
+          "GET /paypal-return changes nothing")
+
+    # Refund failure (PayPal 422) -> 'PayPal refused, no money moved' -> retry COMPLETED (same request id)
+    r = c.post("/demo/run/R")
+    case_r = r.headers["location"].split("case=")[1]
+    c.post(f"/cases/{case_r}/approve")
+    rc = c.get(f"/api/cases/{case_r}").json()["case"]
+    page = c.get(f"/?case={case_r}").text
+    check(rc["status"] == "REFUND_ERROR" and "no money moved" in page,
+          f"Case R {case_r}: PayPal 422 shown as refused, no money moved (status {rc['status']})")
+    c.post(f"/cases/{case_r}/refund")
+    data = c.get(f"/api/cases/{case_r}").json()
+    rcalls = [x for x in data["paypal_calls"] if x["operation"] == "refund_capture"]
+    check(data["case"]["status"] == "REFUND_COMPLETED" and len(rcalls) == 2
+          and {x["request_id"] for x in rcalls} == {f"tradeos-refund-{case_r}"},
+          f"Case R retry COMPLETED with the same PayPal-Request-Id ({len(rcalls)} calls)")
 
     print(f"\nManual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
     print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")

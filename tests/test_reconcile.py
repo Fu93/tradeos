@@ -32,7 +32,8 @@ def test_all_match_after_case_a(settings):
 def test_pending_advances_to_completed_from_paypal_get(settings):
     wf, pp, case_id = approved_a(settings, refund_status="PENDING")
     assert wf.db.get_case(case_id)["status"] == "REFUND_PENDING"
-    r = wf.reconcile(case_id)  # mock GET refund reports COMPLETED
+    pp.complete_refund(wf.db.get_case(case_id)["refund_id"])  # PayPal settles the refund
+    r = wf.reconcile(case_id)  # GET refund now reports COMPLETED
     case = wf.db.get_case(case_id)
     assert r["advanced"] and case["status"] == "REFUND_COMPLETED" and case["refund_status"] == "COMPLETED"
     assert case["note"]["outcome"] == "COMPLETED_NOTE"

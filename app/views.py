@@ -130,13 +130,26 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             elif rs == "PENDING":
                 st["paypal"] = ("waiting", "Refund PENDING at PayPal")
             elif status == "REFUND_ERROR":
-                st["paypal"] = ("failed", "Refund FAILED — retry possible")
+                st["paypal"] = ("failed", "PayPal refused the refund — retry possible")
+            elif status == "REFUND_OUTCOME_UNKNOWN":
+                st["paypal"] = ("waiting", "Refund outcome UNKNOWN — checking with PayPal")
             elif rs:
                 st["paypal"] = ("failed", f"Refund {rs}")
         elif status == "ERROR" and case.get("capture_id"):
             st["policy"] = ("failed", "PayPal lookup failed")
     return [{"key": k, "label": label, "state": st[k][0], "detail": st[k][1], "n": i + 1}
             for i, (k, label) in enumerate(STEPS)]
+
+
+def _refund_api_status(db: Database, case_id: str) -> str | None:
+    """Status PayPal returned to the first successful Refund API call (None: no reply / never called)."""
+    for c in db.paypal_calls(case_id, "refund_capture"):
+        if c["ok"]:
+            try:
+                return (json.loads(c["result"] or "{}") or {}).get("status")
+            except ValueError:
+                return None
+    return None
 
 
 # ---------------------------------------------------------------- result card
@@ -150,13 +163,23 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     base = {"case": case, "calls": calls}
     if status == "REFUND_COMPLETED":
         webhook = case.get("webhook_status")
+        via = case.get("completed_via") or "refund_api"
+        api = None if via == "recovery" else _refund_api_status(db, case["id"])
+        via_text = {"refund_api": "the Refund API response",
+                    "webhook": f"a signed PayPal webhook (the Refund API had returned {api})",
+                    "reconcile": f"a PayPal GET during reconciliation (the Refund API had returned {api})",
+                    "recovery": "PayPal's answer to the same PayPal-Request-Id re-sent after an unanswered call"}[via]
         return {**base, "kind": "ok", "icon": "✓", "title": "Refund COMPLETED",
-                "subtitle": "Confirmed by PayPal — shown only after the Refund API returned COMPLETED.",
+                "subtitle": f"Confirmed by PayPal — COMPLETED came from {via_text}. "
+                            "TradeOS shows success only after PayPal reports COMPLETED.",
                 "rows": [("PayPal Order ID", case.get("order_id")), ("Capture ID", case.get("capture_id")),
                          ("Refund ID", case.get("refund_id")),
                          ("Amount", f"${amount.get('value', case['amount'])} {amount.get('currency_code', case['currency'])}"),
                          ("PayPal timestamp", fmt_ts(refund.get("create_time") or case.get("updated_at")))],
-                "confirmations": [("PayPal Refund API response", "COMPLETED", True),
+                "confirmations": [("PayPal Refund API response", api or "no reply (timeout)", api == "COMPLETED"),
+                                  *([("COMPLETED confirmed by", {"webhook": "signed webhook", "reconcile": "PayPal GET",
+                                                                 "recovery": "same-request-id re-send"}[via], True)]
+                                    if via != "refund_api" else []),
                                   ("Signed PayPal webhook", {"VERIFIED": "verified ✓", "UNVERIFIED": "received, NOT verified"}
                                    .get(webhook or "", "waiting…" if webhook_configured else
                                         "not configured (PAYPAL_WEBHOOK_ID)"), webhook == "VERIFIED")],
@@ -181,6 +204,23 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "reason": reason,
                 "rows": [("Refund ID", case.get("refund_id") or "none"), ("Refund API calls", str(calls)),
                          ("Capture ID", case.get("capture_id"))]}
+    if status == "REFUND_OUTCOME_UNKNOWN":
+        return {**base, "kind": "warn", "icon": "?", "title": "Refund outcome UNKNOWN — checking with PayPal",
+                "subtitle": "PayPal did not answer the refund call (timeout / 5xx), so TradeOS can't say whether money "
+                            "moved. It checks the capture with PayPal; a retry re-sends the SAME PayPal-Request-Id, so "
+                            "PayPal returns the existing refund instead of making a second one.",
+                "reason": case.get("error"),
+                "rows": [("PayPal-Request-Id", case.get("refund_request_id") or f"tradeos-refund-{case['id']}"),
+                         ("Refund API calls", str(calls)), ("Capture ID", case.get("capture_id"))]}
+    if status == "REFUND_FAILED":
+        details = refund.get("status_details") or {}
+        return {**base, "kind": "bad", "icon": "✕", "title": f"Refund {refund.get('status') or 'FAILED'} at PayPal — needs a human",
+                "subtitle": "PayPal reported this refund as not completed, so no money moved for it. A retry needs a "
+                            "NEW PayPal-Request-Id: PayPal must confirm the failure, the policy is re-checked, and the "
+                            "human approval must still be on record.",
+                "reason": details.get("reason") or case.get("error"),
+                "rows": [("Refund ID", case.get("refund_id")), ("PayPal status", refund.get("status") or case.get("refund_status")),
+                         ("Refund API calls", str(calls)), ("Capture ID", case.get("capture_id"))]}
     if status == "PENDING_APPROVAL":
         policy = case.get("policy") or {}
         checks = policy.get("checks", [])
@@ -199,8 +239,11 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
         return {**base, "kind": "neutral", "icon": "—", "title": "Declined by the merchant",
                 "subtitle": "Refund API not called.", "rows": [("Refund API calls", str(calls)), ("Refund ID", "none")]}
     if status == "ERROR":
-        return {**base, "kind": "bad", "icon": "!", "title": "PayPal error", "subtitle": "Nothing was refunded.",
-                "reason": case.get("error"), "rows": []}
+        retry = bool(case.get("capture_id")) and not case.get("decision")
+        return {**base, "kind": "bad", "icon": "!", "title": "PayPal error",
+                "subtitle": "Nothing was refunded." + (" The payment was captured but PayPal could not be read for "
+                                                       "the policy check — it can be retried." if retry else ""),
+                "reason": case.get("error"), "rows": [], "retry_policy": retry}
     if status == "AWAITING_BUYER_APPROVAL":
         return {**base, "kind": "warn", "icon": "⏳", "title": "Waiting for sandbox buyer payment",
                 "subtitle": "Card capture was unavailable; approve the order as a sandbox buyer.", "rows": []}

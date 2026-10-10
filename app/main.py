@@ -25,7 +25,7 @@ from .ratelimit import Cooldown, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary)
-from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
+from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
                        Workflow)
 
 BASE = Path(__file__).parent
@@ -58,6 +58,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     db.init(reset=settings.reset_on_start)
     if not db.list_cases():
         wf.seed_demo()
+    # A kept database with refunds still PENDING / outcome UNKNOWN (incl. archived cases): resolve them
+    # against PayPal in the background (bounded GETs; recovery re-sends only the same PayPal-Request-Id).
+    wf.resume_unresolved_refunds()
 
     reset_cooldown = Cooldown(settings.reset_cooldown_per_ip_s, settings.reset_cooldown_global_s)
 
@@ -77,7 +80,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         current = db.get_case(selected) if selected else None
         if current is None and cases:
             current = next((c for c in cases if c["status"] != "NEW"), cases[0])
-        pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR)
+        if current and current.get("archived_at") and not flash:
+            flash = (f"Case {current['id']} was archived by a demo reset at {current['archived_at']} — kept with its "
+                     "audit trail (it no longer appears in the case list).")
+        pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR,
+                                                       REFUND_UNKNOWN, REFUND_FAILED, "ERROR")
                    and (not current or c["id"] != current["id"])]
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
@@ -172,9 +179,16 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Shared demo: confirm step in the page (JS confirm), per-IP + global cooldown here."""
         if (reason := reset_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Not reset: {reason}", status_code=429)
-        db.init(reset=True)  # drops cases, audit, PayPal call log and webhook_events
-        wf.reset_runtime_state()
-        wf.seed_demo()
+        # Never underneath a refund: refused while any refund call is in flight or a case lock is held.
+        if not wf.begin_reset():
+            return render_dashboard(request, flash="Not reset: a refund is being processed right now — "
+                                    "try again in a few seconds.", status_code=409)
+        try:
+            db.init(reset=True)  # ARCHIVES the cases (chained); tables, audit chain and PayPal log are kept
+            wf.reset_runtime_state()
+            wf.seed_demo()
+        finally:
+            wf.end_reset()
         return RedirectResponse("/", status_code=303)
 
     def guarded(request: Request, case_id: str, action) -> HTMLResponse | RedirectResponse:
@@ -208,7 +222,16 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, case_id, status_code=409,
                                     flash="Checking with PayPal whether the last refund request went through — "
                                           "retry in a few seconds (it will reuse the same PayPal-Request-Id).")
+        if case and case["status"] == REFUND_FAILED:
+            return guarded(request, case_id, wf.retry_failed_refund)
         return guarded(request, case_id, wf.execute_refund)
+
+    @app.post("/cases/{case_id}/retry-policy")
+    def retry_policy(request: Request, case_id: str):
+        """Payment captured but PayPal could not be read for the policy check: run the check again."""
+        if (refused := limited(request)) is not None:
+            return refused
+        return guarded(request, case_id, wf.retry_policy_check)
 
     @app.post("/demo/mock-webhook/{case_id}")
     def mock_signed_webhook(request: Request, case_id: str):
@@ -296,6 +319,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.get("/cases/{case_id}/paypal-return")
     def paypal_return(request: Request, case_id: str):
+        """PayPal redirects the buyer here with a GET. GET never changes state (no capture, no CSRF
+        exposure): it only shows the case with a 'Capture payment' button that POSTs below."""
+        if not db.get_case(case_id):
+            raise HTTPException(404, "Case not found")
+        return render_dashboard(request, case_id, flash="Back from PayPal — press 'Capture payment' to continue.")
+
+    @app.post("/cases/{case_id}/paypal-return")
+    def paypal_return_capture(request: Request, case_id: str):
         return guarded(request, case_id, wf.complete_buyer_approval)
 
     @app.get("/cases/{case_id}/audit/verify")
@@ -303,7 +334,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Recompute the case's hash chain. Read-only. See README 'Hash-chained audit trail' for limits."""
         if not db.get_case(case_id):
             raise HTTPException(404)
-        return JSONResponse(db.verify_chain(case_id))
+        result = db.verify_chain(case_id)
+        chained = db.chained_case_state(case_id)
+        result["chained_state"] = {k: chained.get(k) for k in ("status", "decision", "human_decision",
+                                                               "refund_status", "refund_id")}
+        return JSONResponse(result)
 
     @app.get("/api/cases/{case_id}")
     def case_json(case_id: str):

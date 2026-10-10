@@ -204,7 +204,9 @@ def test_lock_map_is_bounded_and_reset_clears_state(app_ctx, monkeypatch):
     post(client, event(refund_id))
     assert wf.db.webhook_events()
     client.post("/demo/reset", follow_redirects=False)
-    assert wf.db.webhook_events() == [] and wf._locks == {}
+    # Reset archives (no DROP): the webhook log is kept, the case leaves the dashboard, locks are cleared.
+    assert wf.db.webhook_events() and wf._locks == {}
+    assert case_id not in {c["id"] for c in wf.db.list_cases()} and wf.db.get_case(case_id)["archived_at"]
 
 
 def test_paypal_request_ids_fit_paypal_limit(app_ctx):

@@ -62,7 +62,10 @@ CREATE TABLE IF NOT EXISTS cases (
     duplicate_json TEXT,                -- failure-mode demo: duplicate refund request evidence
     webhook_status TEXT,                -- PayPal webhook second confirmation
     webhook_json TEXT,
-    error TEXT
+    error TEXT,
+    refund_request_id TEXT,             -- PayPal-Request-Id of the current refund attempt (idempotency key)
+    completed_via TEXT,                 -- refund_api / webhook / reconcile / recovery: who confirmed COMPLETED
+    archived_at TEXT                    -- demo reset archives cases (never DROPs them)
 );
 
 CREATE TABLE IF NOT EXISTS audit_events (
@@ -108,6 +111,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
 """
 
 TABLES = ("audit_chain", "webhook_events", "paypal_calls", "audit_events", "cases", "products")
+# Case columns whose every change is appended to the case's hash chain ("case:update" entries).
+# The refund gate re-derives decision / human approval from these chained entries, not from the row.
+CHAINED_CASE_FIELDS = ("status", "decision", "human_decision", "refund_id", "refund_status", "refund_request_id",
+                       "capture_id", "archived_at")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
 
@@ -147,16 +154,17 @@ class Database:
             conn.close()
 
     def init(self, reset: bool = False) -> None:
+        """Create / migrate the schema. reset=True is the demo reset: it ARCHIVES every live case
+        (archived_at + a chained 'case:update' entry) instead of dropping tables, so the append-only
+        audit chain, the PayPal call log and webhook matching for in-flight refunds all survive."""
         with self.connect() as conn:
-            if reset:
-                for t in TABLES:
-                    conn.execute(f"DROP TABLE IF EXISTS {t}")
             conn.executescript(SCHEMA)
             conn.executescript(chain.SCHEMA)
             # Lightweight forward migration for a kept database (TRADEOS_RESET_ON_START=0).
             have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
             for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
-                        "webhook_status", "webhook_json", "payer_note_json"):
+                        "webhook_status", "webhook_json", "payer_note_json", "refund_request_id", "completed_via",
+                        "archived_at"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
             have = {r[1] for r in conn.execute("PRAGMA table_info(paypal_calls)")}
@@ -169,6 +177,20 @@ class Database:
             if "verify_method" not in have_we:
                 conn.execute("ALTER TABLE webhook_events ADD COLUMN verify_method TEXT")
         self._backfill_chain()
+        self._backfill_case_state()
+        if reset:
+            self.archive_all()
+
+    def archive_all(self) -> int:
+        now = utcnow()
+        ids = [r["id"] for r in self._rows("SELECT id FROM cases WHERE archived_at IS NULL")]
+        for case_id in ids:
+            self.update_case(case_id, archived_at=now)
+        return len(ids)
+
+    def _rows(self, sql: str, args: tuple = ()) -> list[dict]:
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute(sql, args).fetchall()]
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -190,22 +212,51 @@ class Database:
         fields.setdefault("updated_at", now)
         cols = ",".join(fields)
         marks = ",".join("?" for _ in fields)
-        with self.connect() as conn:
+        with _chain_lock, self.connect() as conn:
             conn.execute(f"INSERT INTO cases ({cols}) VALUES ({marks})", tuple(fields.values()))
+            self._chain_case(conn, fields["id"], fields, fields["updated_at"])
 
     def update_case(self, case_id: str, **fields: Any) -> None:
+        """Every write of a CHAINED_CASE_FIELDS column is appended to the case's hash chain in the
+        same transaction, so a decision / approval / refund state can't change without a chain entry."""
         fields["updated_at"] = utcnow()
         sets = ",".join(f"{k}=?" for k in fields)
-        with self.connect() as conn:
-            conn.execute(f"UPDATE cases SET {sets} WHERE id=?", (*fields.values(), case_id))
+        with _chain_lock, self.connect() as conn:
+            cur = conn.execute(f"UPDATE cases SET {sets} WHERE id=?", (*fields.values(), case_id))
+            if cur.rowcount:
+                self._chain_case(conn, case_id, fields, fields["updated_at"])
+
+    def _chain_case(self, conn, case_id: str, fields: dict, ts: str, backfilled: bool = False) -> None:
+        changed = {k: fields[k] for k in CHAINED_CASE_FIELDS if k in fields}
+        if changed:
+            self._chain_append(conn, case_id, "case:update", ts, changed, None, None, backfilled)
+
+    def chained_case_state(self, case_id: str) -> dict:
+        """Case state re-derived from the chain alone (fold of its 'case:update' entries)."""
+        state: dict = {}
+        for e in self.chain_entries(case_id):
+            if e["type"] == "case:update":
+                state.update(json.loads(e["payload_json"]))
+        return state
+
+    def _backfill_case_state(self) -> None:
+        """Kept databases from before case state was chained: one backfilled snapshot per case."""
+        with _chain_lock, self.connect() as conn:
+            have = {r[0] for r in conn.execute("SELECT DISTINCT case_id FROM audit_chain WHERE type='case:update'")}
+            for r in conn.execute("SELECT * FROM cases").fetchall():
+                if r["id"] not in have:
+                    self._chain_case(conn, r["id"], dict(r), r["updated_at"], backfilled=True)
 
     def get_case(self, case_id: str) -> dict | None:
         with self.connect() as conn:
             row = conn.execute("SELECT * FROM cases WHERE id=?", (case_id,)).fetchone()
         return _decode_case(row) if row else None
 
-    def list_cases(self, status: str | None = None, scenario: str | None = None) -> list[dict]:
+    def list_cases(self, status: str | None = None, scenario: str | None = None,
+                   include_archived: bool = False) -> list[dict]:
         sql, args = "SELECT * FROM cases WHERE 1=1", []
+        if not include_archived:
+            sql += " AND archived_at IS NULL"
         if status:
             sql += " AND status=?"
             args.append(status)

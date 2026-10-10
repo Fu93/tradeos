@@ -121,6 +121,9 @@ def test_pending_refund_is_not_success_until_completed(settings):
     case_id = wf.run_scenario("A")
     wf.approve(case_id)
     assert db.get_case(case_id)["status"] == "REFUND_PENDING"
+    wf.refresh_refund(case_id)  # PayPal still PENDING: no change
+    assert db.get_case(case_id)["status"] == "REFUND_PENDING"
+    pp.complete_refund(db.get_case(case_id)["refund_id"])
     wf.refresh_refund(case_id)
     assert db.get_case(case_id)["status"] == "REFUND_COMPLETED"
 

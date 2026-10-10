@@ -82,16 +82,20 @@ class MockPayPalClient:
             raise PayPalError(f"The requested action could not be completed (mock) ({mock_response})", 422,
                               "UNPROCESSABLE_ENTITY", debug_id="mock-debug",
                               details=[{"issue": mock_response}])
-        if request_id in self.refunds_by_request:  # idempotent, like PayPal-Request-Id
-            return self.refunds_by_request[request_id]
+        prior = self.refunds_by_request.get(request_id)
+        if prior is not None and prior["_capture"] == capture_id and prior.get("_note") == note_to_payer:
+            return {k: v for k, v in prior.items() if not k.startswith("_")}  # idempotent: same id + same body
+        if prior is not None:  # same PayPal-Request-Id, different capture or body
+            raise PayPalError("PayPal-Request-Id reused with a different request (mock)", 422, "UNPROCESSABLE_ENTITY",
+                              details=[{"issue": "DUPLICATE_REQUEST_ID"}])
         cap = self.captures[capture_id]
-        if any(r["_capture"] == capture_id for r in self.refunds_by_request.values()):
+        if any(r["_capture"] == capture_id and r["status"] != "FAILED" for r in self.refunds_by_request.values()):
             raise PayPalError("Capture has already been fully refunded (mock)", 422, "UNPROCESSABLE_ENTITY",
                               details=[{"issue": "CAPTURE_FULLY_REFUNDED"}])
         pending_demo = request_id.startswith(PENDING_DEMO_PREFIX)
         refund = {"id": self._id("REFUND"), "status": "PENDING" if pending_demo else self.refund_status,
                   "create_time": _now(),
-                  "amount": dict(cap["amount"]), "_capture": capture_id,
+                  "amount": dict(cap["amount"]), "_capture": capture_id, "_note": note_to_payer,
                   "seller_payable_breakdown": {"total_refunded_amount": dict(cap["amount"])}}
         if note_to_payer:
             refund["note_to_payer"] = note_to_payer[:255]
@@ -99,8 +103,9 @@ class MockPayPalClient:
             refund["status_details"] = {"reason": "ECHECK"}
             refund["_completes_at"] = time.time() + self.pending_demo_seconds
         self.refunds_by_request[request_id] = refund
-        cap["status"] = "REFUNDED"  # full refund, as PayPal reports on GET capture
-        return refund
+        if refund["status"] == "COMPLETED":
+            cap["status"] = "REFUNDED"  # full refund, as PayPal reports on GET capture
+        return {k: v for k, v in refund.items() if not k.startswith("_")}
 
     def complete_refund(self, refund_id):
         """Mock only: the delayed PENDING refund settles (what PayPal does when an eCheck clears)."""
@@ -109,7 +114,9 @@ class MockPayPalClient:
                 r["status"] = "COMPLETED"
                 r.pop("status_details", None)
                 r["_completes_at"] = None
-                return dict(r)
+                if r["_capture"] in self.captures:
+                    self.captures[r["_capture"]]["status"] = "REFUNDED"
+                return {k: v for k, v in r.items() if not k.startswith("_")}
         return None
 
     def verify_webhook_signature(self, headers, raw_body, webhook_id):
@@ -122,5 +129,5 @@ class MockPayPalClient:
                     if time.time() >= r["_completes_at"]:
                         self.complete_refund(refund_id)
                     return {k: v for k, v in r.items() if not k.startswith("_")}
-                return dict(r, status="COMPLETED")
+                return {k: v for k, v in r.items() if not k.startswith("_")}  # the refund's real status
         raise PayPalError("Refund not found (mock)", 404, "RESOURCE_NOT_FOUND")
