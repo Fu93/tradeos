@@ -3356,12 +3356,336 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 158.17
+  },
+  "X120": {
+   "speech_act_evidence": "できればフタだけを交換していただけると助かります。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "実は数日前から、ケトルのフタがきちんとロックされなくなってしまいました。",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "goal_evidence": "できればフタだけを交換していただけると助かります。部品名は「KL-170-LID」とのことです。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "お湯が沸騰しても自動で電源が切れず、そのまま加熱し続けてしまうことがあります。一度、うっかり目を離してしまい、危うく空焚きしかけたこともあり、少し怖い思いをしました。安全面でも心配ですし",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96120",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Order TO-96120 belongs to customer and contains BREW-KETTLE bought 100 days ago, delivered. Product safety_class is MAINS_HEATING. Customer reports lid lock failure causing continued heating / near dry-boil, a malfunction of a gated product. v3.2 SG-1 triggers safety review; safety also POSSIBLE. Request for part KL-170-LID is present but safety gate overrides any supplier/parts flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 135.18
+  },
+  "X123": {
+   "speech_act_evidence": "Necesito que me envíen una tapa de repuesto, parte KL-170-LID.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "la tapa ya no cierra bien, por lo que el aparato no se apaga sola.",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "Necesito que me envíen una tapa de repuesto, parte KL-170-LID."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "la tapa ya no cierra bien, por lo que el aparato no se apaga sola.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96123",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Order TO-96123 belongs to customer and contains BREW-KETTLE safety_class MAINS_HEATING. Customer reports a malfunction of a gated product: lid does not close and kettle does not auto shut off, and requests part KL-170-LID. SG-1 safety gate applies to any malfunction on MAINS_HEATING/MAINS_ELECTRIC/GAS; safety review overrides part/warranty flows. Required action is HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 135.26
+  },
+  "X122": {
+   "speech_act_evidence": "想請問是否可以幫我更換一個新的蓋子，零件號是 KL-170-LID？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "最近發現蓋子鎖不起來，蓋子沒扣緊時水壺煮沸後不會自動關機，有點危險。",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "想請問是否可以幫我更換一個新的蓋子，零件號是 KL-170-LID？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "蓋子沒扣緊時水壺煮沸後不會自動關機，有點危險。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96122",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Order TO-96122 belongs to the customer and contains BREW-KETTLE safety_class MAINS_HEATING bought 240 days ago. Customer reports a malfunction of the lid lock and loss of auto shut-off, i.e. a defect on a gated MAINS_HEATING product. v3.2 SG-1 gates any malfunction on MAINS_HEATING/MAINS_ELECTRIC/GAS to HUMAN_REVIEW safety review, which takes precedence over the SEND_PART request. Safety is escalated as POSSIBLE due to reported dangerous malfunction.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 119.44
+  },
+  "X117": {
+   "speech_act_evidence": "würde ich Sie höflich bitten, mir ein Ersatzteil für das defekte LED-Modul zuzusenden",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "dass das Licht plötzlich flackerte und schließlich ganz ausging; dass das LED-Modul selbst (Teil DL-LED-5W) defekt ist",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "mir ein Ersatzteil für das defekte LED-Modul zuzusenden"
+      },
+      {
+       "goal": "INFORMATION",
+       "evidence": "mir eventuell eine kurze Anleitung zum Austausch des Moduls zusenden könnten"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96117",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "DL-LED-5W"
+   ],
+   "reasoning": "Order TO-96117 belongs to the customer and contains DESK-LAMP white delivered 200 days ago. Customer reports a malfunction of a MAINS_ELECTRIC gated product: light flickered then went out and LED module DL-LED-5W is defective. SG-1 safety gate applies: MAINS_ELECTRIC product with any malfunction → HUMAN_REVIEW safety review, overriding normal warranty/part flow. Part DL-LED-5W is referenced and stock is 0.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 194.86
+  },
+  "X125": {
+   "speech_act_evidence": "Ich würde das Gerät gern zurückschicken und den Kaufpreis erstattet bekommen.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Der Gasventil bzw. der Reglerknopf ist leider locker.",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "Ich würde das Gerät gern zurückschicken und den Kaufpreis erstattet bekommen."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Der Gasventil bzw. der Reglerknopf ist leider locker.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96125",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96125 belongs to the customer and contains CAMP-STOVE delivered 20 days ago. The customer reports a loose gas valve/regulator knob on a GAS safety_class product, i.e. a malfunction of a gas appliance. Safety gate SG-1 and S3 gas appliance rule make this POSSIBLE safety; V1 safety precedence overrides the refund request, requiring human safety review.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 72.52
+  },
+  "X118": {
+   "speech_act_evidence": "もし可能であれば、スイッチの交換パーツを送っていただけないでしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "先日スイッチがポキッと折れてしまって使えなくなってしまいました",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "goal_evidence": "スイッチの交換パーツを送っていただけないでしょうか？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96118",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96118 belongs to the customer and contains DESK-LAMP white delivered 100 days ago, consistent with the message. The customer reports a switch breakage making the lamp unusable – a malfunction of a MAINS_ELECTRIC safety_class product. v3.2 SG-1 gates any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, which supersedes the part-number missing clarify that would otherwise apply for SEND_PART. No hazard words are present.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 212.5
+  },
+  "X126": {
+   "speech_act_evidence": "返金希望です",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "ガスバルブノブが固くて完全に閉まらない",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "evidence": "返金希望です"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "キャンプ用ガスストーブのガスバルブノブが固くて完全に閉まらない",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96126",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96126 belongs to the customer and contains CAMP-STOVE bought 60 days ago, delivered. The customer reports a gas valve knob malfunction on a GAS safety_class product. SG-1 / S3 gas appliance defect makes safety POSSIBLE and safety takes precedence over refund. V1 therefore requires HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 76.44
+  },
+  "X121": {
+   "speech_act_evidence": "please send part KL-170-LID.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "lid won’t lock",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "please send part KL-170-LID."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96121",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Order TO-96121 exists for this customer and contains BREW-KETTLE safety_class MAINS_HEATING. Customer reports a malfunction of a functional part – lid won’t lock – and requests part KL-170-LID. v3.2 SG-1 safety gate applies to MAINS_HEATING products with any malfunction/part request, requiring HUMAN_REVIEW safety review before any workflow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "_latency": 244.01
+  },
+  "X124": {
+   "speech_act_evidence": "La verdad es que solo quiero que me devolváis el dinero, por favor.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "el mando o la válvula del gas gira pero no hace absolutamente nada, como si no enganchara",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "solo quiero que me devolváis el dinero"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "el mando o la válvula del gas gira pero no hace absolutamente nada, como si no enganchara",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96124",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96124 belongs to customer and contains CAMP-STOVE bought 20 days ago, delivered. Customer reports gas valve/control turns but does not engage – a malfunction of a GAS safety_class product. SG-1 safety gate applies: any malfunction on a GAS gated product requires HUMAN_REVIEW safety review, and S3 makes safety POSSIBLE. Refund wish does not override safety. V1 safety precedence triggers HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 167.8
+  },
+  "X127": {
+   "speech_act_evidence": "I only want a refund for this defective item. Please process it as soon as possible.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "The gas valve/control knob sticks and does not close fully, making it unsafe to use.",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "I only want a refund for this defective item."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "The gas valve/control knob sticks and does not close fully, making it unsafe to use.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96127",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96127 belongs to the customer and contains CAMP-STOVE delivered 60 days ago. The customer reports a gas valve/control knob malfunction on a GAS safety class product. SG-1 / S3 gas appliance defect triggers safety POSSIBLE and safety takes precedence over refund. V1 therefore requires HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 117.57
+  },
+  "X129": {
+   "speech_act_evidence": "Me gustaría solicitar el reembolso.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "el perilla del gas se queda trabada y no cierra del todo",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "Me gustaría solicitar el reembolso"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "el perilla del gas se queda trabada y no cierra del todo",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96129",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96129 belongs to the customer and contains CAMP-STOVE bought 60 days ago, delivered. The customer reports a gas knob/valve malfunction on a GAS safety_class product. Safety gate SG-1 / S3 gas appliance defect makes safety POSSIBLE and requires safety review. V1 safety precedence overrides the refund request, so HUMAN_REVIEW is required.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 104.48
   }
  },
  "stats": {
-  "calls": 2,
-  "retries": 2,
-  "prompt_tokens": 11950,
-  "completion_tokens": 5457
+  "calls": 11,
+  "retries": 4,
+  "prompt_tokens": 66323,
+  "completion_tokens": 25854
  }
 }
