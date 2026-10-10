@@ -1,7 +1,8 @@
 """Minimal NVIDIA (integrate.api.nvidia.com) chat client for EVAL / GENERATION ONLY. Reads NVIDIA_API_KEY from env and never prints it. Retries 429 / 5xx / transport errors (counted); never falls back to anything else."""
 import json, os, time, httpx
 BASE = "https://integrate.api.nvidia.com/v1"
-_client = httpx.Client(timeout=httpx.Timeout(900, connect=20))
+import os as _os
+_client = httpx.Client(timeout=httpx.Timeout(float(_os.environ.get("NV_TIMEOUT", "900")), connect=20))
 STATS = {"calls": 0, "retries": 0, "prompt_tokens": 0, "completion_tokens": 0}
 
 def chat(model, messages, retries=8, **kw):

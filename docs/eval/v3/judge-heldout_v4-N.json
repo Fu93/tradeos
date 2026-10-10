@@ -9073,12 +9073,176 @@
    "required_action": "CLARIFY_WITH_CUSTOMER",
    "acceptable_actions": [],
    "_latency": 20.05
+  },
+  "X224": {
+   "speech_act_evidence": "我不想再花時間處理這些，所以想了想還是改變心意了。不用幫我換貨沒關係，我只要退款就好。再麻煩你們幫我處理退款",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "鞋底脫膠",
+     "issue_type": "DEFECT",
+     "component": "sole",
+     "goals": [
+      {
+       "evidence": "我不想再花時間處理這些，所以想了想還是改變心意了。不用幫我換貨沒關係，我只要退款就好。再麻煩你們幫我處理退款",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [
+    "EXCHANGE_VARIANT"
+   ],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96215",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The only action family expressed is REFUND, so decision rule V8 applies, leading to DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 20.34
+  },
+  "X211": {
+   "speech_act_evidence": "Ich bitte um einen Austausch.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "City Regenjacke",
+     "issue_evidence": "die City Regenjacke aus meiner Bestellung TO-96202 ist leider gerissen.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Ich bitte um einen Austausch.",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96202",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims a City rain jacket from order TO-96202 is torn, but the order only contains a backpack; this data conflict triggers V3 (data conflict) → HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "_latency": 17.24
+  },
+  "X098": {
+   "speech_act_evidence": "修理をお願いできないでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "電源を入れるとブレーカーが落ちたり、場合によってはヒューズが飛んだりするようになってしまいました。",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "修理をお願いできないでしょうか。",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "返送の手続きや必要な書類があれば教えていただけますと幸いです。",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "電源を入れるとブレーカーが落ちたり、場合によってはヒューズが飛んだりするようになってしまいました。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96098",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to blown fuse/tripped breaker on a MAINS_HEATING product (BREW-KETTLE) triggers V1 (safety first), requiring human review.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 33.17
+  },
+  "X221": {
+   "speech_act_evidence": "Bitte schickt mir ein Ersatzpaar",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "löst sich die Sohle der neuen Sneaker",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "stattdessen erstattet mir bitte den Kaufpreis",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [
+    "REPLACE_SAME"
+   ],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96212",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (sole came loose) on order TO-96212, then revises intent from replacement to refund; after applying intent revision (V4b) only refund goal remains, safety is NONE, no data conflict, order reference verifies, so V8 (only action family REFUND) applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 36.04
+  },
+  "X299": {
+   "speech_act_evidence": "Könnten Sie bitte den Austausch veranlassen und mir mitteilen, wie ich die Rücksendung organisieren soll?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42 (Trail Runner sneakers) variant 39",
+     "issue_evidence": "Die Schuhe sind wirklich schön und das Design gefällt mir sehr, aber beim Anziehen merke ich, dass sie leider ein bisschen zu groß sind; beim Laufen rutschen sie leicht nach vorne und ich muss die Schnürung etwas fester ziehen, damit sie nicht verrutschen.",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Ich würde gern die Schuhe gegen die gleiche Modellvariante in Größe 38 austauschen, falls das noch möglich ist.",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "mir mitteilen, wie ich die Rücksendung organisieren soll?",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Hallo Kundenservice,",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96278",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "One item (SIZE_MISMATCH) with both EXCHANGE_VARIANT and INFORMATION goals → mixed (V7) → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 19.97
   }
  },
  "stats": {
-  "calls": 98,
-  "retries": 107,
-  "prompt_tokens": 641052,
-  "completion_tokens": 299515
+  "calls": 5,
+  "retries": 5,
+  "prompt_tokens": 33527,
+  "completion_tokens": 15007
  }
 }

@@ -3680,12 +3680,68 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 104.48
+  },
+  "X133": {
+   "speech_act_evidence": "修理お願いします",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "ガスストーブのホースコネクターが漏れます",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "修理お願いします"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "ガスストーブのホースコネクターが漏れます",
+   "safety": "EXPLICIT",
+   "order_ref_as_written": "TO-96133",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96133 belongs to the customer and contains CAMP-STOVE bought 40 days ago, delivered. The customer reports a leaking hose connector on the gas stove and requests repair. CAMP-STOVE has safety_class GAS / hazard class GAS_APPLIANCE. Any malfunction/defect on a gated GAS product triggers SG-1 safety review and V1 safety precedence. Safety is EXPLICIT due to a gas leak indication. Therefore human review is required, no supplier task or direct workflow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 104.16
+  },
+  "X134": {
+   "speech_act_evidence": "Can you fix it?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Camping gas stove bought 100 days ago has very uneven flame",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "Can you fix it?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Camping gas stove bought 100 days ago has very uneven flame",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96134",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96134 belongs to the customer and contains CAMP-STOVE standard delivered 100 days ago. The customer reports a malfunction 'very uneven flame' on a GAS safety class product. S3 gas appliance defect => safety POSSIBLE and v3.2 SG-1 gates any malfunction on a GAS product to HUMAN_REVIEW safety review, which takes precedence over warranty/repair flows.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 71.34
   }
  },
  "stats": {
-  "calls": 11,
-  "retries": 4,
-  "prompt_tokens": 66323,
-  "completion_tokens": 25854
+  "calls": 2,
+  "retries": 2,
+  "prompt_tokens": 11882,
+  "completion_tokens": 3237
  }
 }

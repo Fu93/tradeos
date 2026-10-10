@@ -1428,12 +1428,954 @@
    "required_action": "CREATE_SUPPLIER_TASK",
    "acceptable_actions": [],
    "_latency": 12.2
+  },
+  "X051": {
+   "speech_act_evidence": "¿Podrían reenviarme las zapatillas?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "nunca llegó",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Podrían reenviarme las zapatillas?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96051",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (Trail Runner sneakers) for order TO-96051 and requests a reshipment. The order exists and belongs to the customer. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 23.18
+  },
+  "X050": {
+   "speech_act_evidence": "請問是否能協助重新寄送？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "我訂購的運動鞋至今仍未收到",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "協助重新寄送",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96050",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment for a missing item (Trail Runner sneakers). The order TO-96050 exists and contains the product. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 23.49
+  },
+  "X046": {
+   "speech_act_evidence": "請幫我確認一下狀況並直接再寄一台過來",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "到現在都沒收到，物流追蹤已經凍結好幾天了完全沒更新",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請幫我確認一下狀況",
+       "goal": "INFORMATION"
+      },
+      {
+       "evidence": "直接再寄一台過來",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96046",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (BREW-KETTLE) for order TO-96046. The MOCK record for TO-96046 shows the logistics status as LOST. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is a merchant-warehouse product (BREW-KETTLE) and there is stock available (6 units), the required action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 31.9
+  },
+  "X052": {
+   "speech_act_evidence": "wäre es sehr hilfreich, wenn Sie mir ein Ersatzpaket zusenden könnten",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "Leider zeigt das Tracking seit nunmehr zehn Tagen den Status „Unterwegs“ an, ohne dass es irgendwelche Updates gibt",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "wäre es sehr hilfreich, wenn Sie mir ein Ersatzpaket zusenden könnten",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96052",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (sneakers) for order TO-96052. The MOCK record for TO-96052 shows the item TRAIL-RUNNER-42 with logistics status LOST. The customer requests a reshipment. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the status is LOST and the product is supplier-dropshipped (SUPPLIER_DROPSHIP) and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 41.35
+  },
+  "X053": {
+   "speech_act_evidence": "再送いただけますでしょうか",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "スニーカーが届かず、追跡情報が10日間停止したままです",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "再送いただけますでしょうか",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96053",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment of sneakers from order TO-96053 because they haven't arrived and tracking has stopped. The MOCK record for TO-96053 shows the item (TRAIL-RUNNER-42) has a logistics status of LOST. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 51.51
+  },
+  "X054": {
+   "speech_act_evidence": "¿Habría posibilidad de que me manden un par de reemplazo?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "se me salió un ojillo y además se me rasgó el upper",
+     "issue_type": "DEFECT",
+     "component": "eyelet, upper",
+     "goals": [
+      {
+       "evidence": "¿Habría posibilidad de que me manden un par de reemplazo?",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96054",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports defects (eyelet came out, upper ripped) on Trail Runner sneakers from order TO-96054 and requests a replacement. The product is not in a gated safety class (NONE). The order exists and contains the product. The purchase was 100 days ago, which is outside the 30-day return window but within the 180-day supplier warranty. According to the responsibility table (V12), a warranty remedy for a defect within the supplier warranty period for a supplier-dropshipped product requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 54.83
+  },
+  "X055": {
+   "speech_act_evidence": "Bitte prüfen Sie, ob eine Reparatur möglich ist",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "dass sie sich entlang der Naht aufgetrennt haben",
+     "issue_type": "DEFECT",
+     "component": "seam",
+     "goals": [
+      {
+       "evidence": "ob eine Reparatur möglich ist",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "teilen Sie mir mit, wie wir weiter vorgehen sollen",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96055",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (seam ripped) on the Trail Runner sneakers from order TO-96055. The product is not in a gated safety class (NONE). The purchase was 100 days ago, which is outside the 30-day merchant return window but within the 180-day supplier warranty period. According to the responsibility table (V12), a warranty remedy (REPAIR) for a supplier-warranty product within its warranty period requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 54.65
+  },
+  "X058": {
+   "speech_act_evidence": "可以幫我修嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "最近鞋底開始脫膠了",
+     "issue_type": "DEFECT",
+     "component": "sole",
+     "goals": [
+      {
+       "evidence": "可以幫我修嗎？",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96058",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (sole peeling) for the Trail Runner sneakers in order TO-96058 and requests a repair. The product is not in a gated safety class (NONE). The order was placed 100 days ago, which is outside the 30-day return window. According to the responsibility table for WARRANTY_REMEDY on DEFECT, the product has a supplier warranty of 180 days. Since 100 days is within the 180-day supplier warranty period, the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 32.8
+  },
+  "X039": {
+   "speech_act_evidence": "¿Podrían enviarlo de nuevo, por favor?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "nunca llegó",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Podrían enviarlo de nuevo, por favor?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96039",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) from order TO-96039 and requests a reshipment. The order exists and belongs to the customer. The logistics status for the item is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 92.78
+  },
+  "X056": {
+   "speech_act_evidence": "replacement用の新しいペアを手配していただけますでしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "片方のアイレットが取れてアッパーが破れました",
+     "issue_type": "DEFECT",
+     "component": "eyelet/upper",
+     "goals": [
+      {
+       "evidence": "replacement用の新しいペアを手配していただけますでしょうか？",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96056",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (torn upper/broken eyelet) on the Trail Runner sneakers from order TO-96056 and requests a replacement. The product is not in a gated safety class (safety_class NONE). The purchase was 45 days ago, which is outside the 30-day merchant return window, but within the 180-day supplier warranty. According to the responsibility table (V12), a warranty remedy for a defect within the supplier warranty period for a supplier-dropshipped product requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 64.95
+  },
+  "X063": {
+   "speech_act_evidence": "想請問能否提供 repair 服務？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "眼環掉落且鞋面出現撕裂",
+     "issue_type": "DEFECT",
+     "component": "eyelet, upper",
+     "goals": [
+      {
+       "evidence": "能否提供 repair 服務？",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96063",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (eyelet fell off and upper torn) for the Trail Runner sneakers in order TO-96063 and requests a repair. The product is not a gated safety class (safety_class NONE). The order was placed 100 days ago, which is outside the 30-day return window. According to the responsibility table for WARRANTY_REMEDY on DEFECT, the product has a supplier warranty of 180 days. Since 100 days < 180 days, this is a supplier warranty case.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 13.59
+  },
+  "X062": {
+   "speech_act_evidence": "Is there any way you can repair them or send out a replacement part?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "One of the eyelets came off on the left shoe and teh upper tore right around it",
+     "issue_type": "DEFECT",
+     "component": "eyelet/upper",
+     "goals": [
+      {
+       "evidence": "repair them",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "send out a replacement part",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96062",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (torn upper/eyelet) on Trail Runner sneakers from order TO-96062. The product is not in a gated safety class (NONE). The customer requests either a repair or a replacement part. According to the responsibility table (V12), for a DEFECT, the product is returnable and the purchase was 45 days ago (outside the 30-day direct return window). However, the product has a SUPPLIER warranty of 180 days. Since it is within the supplier warranty period, a supplier task is required. Note: although SEND_PART is requested, it is as a remedy for a DEFECT, so it follows the warranty flow. However, V11 requires a specific part number for SEND_PART; since none is provided, the request for a part is currently unfulfillable, but the overall warranty claim for the defect is valid for a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 24.36
+  },
+  "X060": {
+   "speech_act_evidence": "bitte ich Sie um ein Ersatzpaar",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "die Schuhe entlang der Naht aufgeplatzt",
+     "issue_type": "DEFECT",
+     "component": "Naht",
+     "goals": [
+      {
+       "evidence": "bitte ich Sie um ein Ersatzpaar",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96060",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (burst seam) on the Trail Runner sneakers from order TO-96060 and requests a replacement. The product is not in a gated safety class (NONE). The order exists and contains the product. The purchase was 150 days ago, which is outside the 30-day return window but within the 180-day supplier warranty period. According to the responsibility table (V12), a warranty remedy for a supplier-warranty product within its warranty period requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 39.2
+  },
+  "X057": {
+   "speech_act_evidence": "I’d like to request a repair.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "the sole is peeling off",
+     "issue_type": "DEFECT",
+     "component": "sole",
+     "goals": [
+      {
+       "evidence": "I’d like to request a repair.",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96057",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (peeling sole) on Trail Runner sneakers from order TO-96057. The product is not a gated safety class (NONE). The purchase was 150 days ago, which is outside the 30-day return window. According to the responsibility table for WARRANTY_REMEDY on DEFECT, the product has a supplier warranty of 180 days. Since 150 <= 180, it is eligible for a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 76.84
+  },
+  "X061": {
+   "speech_act_evidence": "修理対応をお願いできますでしょうか",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "ソールが剥がれ始めました",
+     "issue_type": "DEFECT",
+     "component": "sole",
+     "goals": [
+      {
+       "evidence": "修理対応をお願いできますでしょうか",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96061",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (sole peeling) on the Trail Runner sneakers from order TO-96061 and requests a repair. The product is not in a gated safety class (NONE). The purchase was 150 days ago, which is outside the 30-day return window. According to the responsibility table for WARRANTY_REMEDY on DEFECT, the product has a supplier warranty of 180 days. Since 150 <= 180, it is eligible for a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 38.53
+  },
+  "X059": {
+   "speech_act_evidence": "Le agradecería mucho si pudieran enviarme un par de reemplazo.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "presentan un ojete perdido y una rotura en la parte superior",
+     "issue_type": "DEFECT",
+     "component": "eyelet, upper part",
+     "goals": [
+      {
+       "evidence": "enviarme un par de reemplazo",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96059",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect (missing eyelet and tear) on the Trail Runner sneakers from order TO-96059 and requests a replacement. The product is not a gated safety class (NONE). The order exists and contains the product. The purchase was 150 days ago, which is outside the 30-day return window but within the supplier warranty period (180 days). According to the responsibility table (V12), a warranty remedy for a supplier-warranty product within its period requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 70.49
+  },
+  "X067": {
+   "speech_act_evidence": "請問能否麻煩再寄一次",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "我的桌燈一直沒收到",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "能否麻煩再寄一次",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": null,
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment of a desk lamp that has not arrived. The linked order TO-96067 contains a DESK-LAMP with logistics status 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 34.21
+  },
+  "X064": {
+   "speech_act_evidence": "Könntet ihr sie bitte nochmal rausschicken?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "meine Schreibtischlampe ist bisher nicht angekommen",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könntet ihr sie bitte nochmal rausschicken?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": null,
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) and requests a reshipment. The linked order TO-96064 contains the DESK-LAMP and the logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 71.33
+  },
+  "X066": {
+   "speech_act_evidence": "Could you please look into this and arrange for it to be sent again?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "I have not received it, and it does not appear to have been delivered.",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "arrange for it to be sent again",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": null,
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is reporting a missing item (DESK-LAMP) and requesting a reshipment. The linked order TO-96066 contains the DESK-LAMP and the logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 70.95
+  },
+  "X068": {
+   "speech_act_evidence": "Las puedo cambiar por la talla 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "las zapatillas son talla 41 y me quedan chicas, me aprientan bastante",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Las puedo cambiar por la talla 42?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO‑96068",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (received 41, too small) and requests an exchange for size 42. The order TO-96068 is not provided in the MOCK records, but the product is identified. According to rule V11, if the order is not found, the required action is to clarify with the customer.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 85.9
+  },
+  "X070": {
+   "speech_act_evidence": "可能であればサイズ40への交換をお願いしたく存じます。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "届きましたサイズ39のものが小さく、履くことができない状態です。",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "サイズ40への交換をお願いしたく存じます。",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "ＴＯ－９６０７０",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (received 39, which is too small) and requests an exchange for size 40. The order TO-96070 exists and contains the Trail Runner sneakers in size 39. The product is returnable and the purchase was 6 days ago (within the 30-day window). According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock, the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 67.93
+  },
+  "X071": {
+   "speech_act_evidence": "Could I please exchange them for a size 43?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "the sneakers in size 42 are a bit too tight for me",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "exchange them for a size 43",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO−96071",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers and requests an exchange for size 43. The order TO-96071 is not provided in the MOCK records, meaning the order cannot be found/verified. According to rule V11, if the order is not found, the required action is to clarify with the customer.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 39.63
+  },
+  "X073": {
+   "speech_act_evidence": "交換対応よろしくおねがいします。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "スイッチ入れてもランプがつかず、音もせず、動きまへん",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "交換対応よろしくおねがいします。",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "スイッチ入れてもランプがつかず、音もせず、動きまへん",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96073",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction (does not turn on/no lamp/no sound) for the Electric Kettle (BREW-KETTLE). According to the safety gate SG-1, any malfunction of a product in a gated class (MAINS_HEATING) requires HUMAN_REVIEW for safety review, regardless of the requested remedy (REPLACE_SAME). This takes precedence over other rules.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 22.72
+  },
+  "X074": {
+   "speech_act_evidence": "Can I please get a replacement?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "The indicator light comes on but nothing happens.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can I please get a replacement?",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "The indicator light comes on but nothing happens.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96074",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction ('nothing happens') for a product in the MAINS_HEATING safety class (BREW-KETTLE). According to the v3.2 Safety Gate (SG-1), any malfunction of a gated class product requires HUMAN_REVIEW for safety review, regardless of the requested remedy (replacement).",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 13.41
+  },
+  "X069": {
+   "speech_act_evidence": "Könnt ihr mir die gegen Größe 41 tauschn?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "die sind mir leider zu klein",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "gegen Größe 41 tauschn",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO–96069",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers and requests an exchange for size 41. The order reference TO-96069 is not provided in the MOCK records, meaning the order is not found. According to rule V11, if the order is not found, the required action is to clarify with the customer.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 109.51
+  },
+  "X072": {
+   "speech_act_evidence": "ich brauche bitte einen Ersatz dafür",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "Das Licht leuchtet, aber es passiert nichts",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "ich brauche bitte einen Ersatz dafür",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Das Licht leuchtet, aber es passiert nichts",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96072",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction ('Das Licht leuchtet, aber es passiert nichts') for the Electric kettle (BREW-KETTLE). According to the v3.2 SAFETY GATE (SG-1), any malfunction of a product in a gated safety class (MAINS_HEATING) requires HUMAN_REVIEW for safety review, regardless of the requested remedy (REPLACE_SAME).",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 71.29
+  },
+  "X075": {
+   "speech_act_evidence": "請問是否可以安排維修？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "指示燈會亮起，但水壺不會加熱",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "是否可以安排維修？",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "水壺不會加熱",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96075",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction (kettle does not heat) for a product with safety_class MAINS_HEATING. According to the v3.2 SAFETY GATE (SG-1), any malfunction of a gated class product (MAINS_HEATING, MAINS_ELECTRIC, or GAS) requires HUMAN_REVIEW for safety review, regardless of the requested remedy (REPAIR).",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 39.1
+  },
+  "X065": {
+   "speech_act_evidence": "もう一度送っていただけませんか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "まだ届いていないみたいです",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "もう一度送っていただけませんか？",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": null,
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (LED desk lamp) and requests a reshipment. The linked order TO-96065 contains the DESK-LAMP and the logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships, the required action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 24.68
+  },
+  "X076": {
+   "speech_act_evidence": "Quiero que me devuelvan el dinero, por favor.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "El interruptor de encendido/apagado no se queda abajo, se suelta solo.",
+     "issue_type": "DEFECT",
+     "component": "interruptor de encendido/apagado",
+     "goals": [
+      {
+       "evidence": "Quiero que me devuelvan el dinero, por favor.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "El interruptor de encendido/apagado no se queda abajo, se suelta solo.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96076",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction (defective switch) on a BREW-KETTLE. According to the MOCK data, the BREW-KETTLE has safety_class MAINS_HEATING. Under the v3.2 SAFETY GATE (SG-1), any malfunction reported for a product in a gated class (MAINS_HEATING, MAINS_ELECTRIC, or GAS) requires HUMAN_REVIEW for a safety review, regardless of the requested remedy (refund). This overrides the refund flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 37.5
+  },
+  "X079": {
+   "speech_act_evidence": "Could you please arrange a repair?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "the water stays cold and nothing happens",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "arrange a repair",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "the water stays cold and nothing happens",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96079",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction ('water stays cold and nothing happens') for a product with safety_class MAINS_HEATING (BREW-KETTLE). According to the v3.2 SAFETY GATE (SG-1), any malfunction of a gated class product (MAINS_HEATING, MAINS_ELECTRIC, or GAS) requires HUMAN_REVIEW for safety review, regardless of the requested remedy (REPAIR). This overrides all other rules including the warranty flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 11.68
+  },
+  "X080": {
+   "speech_act_evidence": "請問可以幫我更換一台嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "開關按下去後沒辦法固定住，手放開就會彈回來",
+     "issue_type": "DEFECT",
+     "component": "switch",
+     "goals": [
+      {
+       "evidence": "請問可以幫我更換一台嗎？",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "開關按下去後沒辦法固定住，手放開就會彈回來",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96080",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a malfunction (switch not staying down) of an electric kettle (BREW-KETTLE). According to the v3.2 Safety Gate (SG-1), any malfunction of a product in a gated class (MAINS_HEATING) requires HUMAN_REVIEW for safety review, regardless of the requested remedy (REPLACE_SAME). This overrides other rules.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 11.01
   }
  },
  "stats": {
-  "calls": 47,
-  "retries": 0,
-  "prompt_tokens": 301942,
-  "completion_tokens": 18088
+  "calls": 31,
+  "retries": 1,
+  "prompt_tokens": 197876,
+  "completion_tokens": 11471
  }
 }
