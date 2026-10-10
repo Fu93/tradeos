@@ -2906,12 +2906,931 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 37.05
+  },
+  "X142": {
+   "speech_act_evidence": "交換をお願いします",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "電気ケトルを入れるたびに fuse が飛びます",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "交換をお願いします",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "fuse が飛びます",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96142",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to fuse blowing on a MAINS_HEATING product (BREW-KETTLE) triggers V1 (safety first) => required_action HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 23.55
+  },
+  "X157": {
+   "speech_act_evidence": "修理の対応をお願いできますでしょうか",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Daypack 30L",
+     "issue_evidence": "ジッパーが壊れました",
+     "issue_type": "DEFECT",
+     "component": "ジッパー",
+     "goals": [
+      {
+       "evidence": "修理の対応をお願いできますでしょうか",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96148",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defective zipper on a Daypack 30L purchased ~100 days ago, requests repair. The item is covered by merchant warranty (365 days), so the responsibility table yields DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 19.56
+  },
+  "X162": {
+   "speech_act_evidence": "修理の対応は可能でしょうか。可能な場合の手続きについてご教示いただけますと幸いです。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Daypack 30L",
+     "issue_evidence": "ショルダーストラップが破損してしまいました",
+     "issue_type": "DEFECT",
+     "component": "ショルダーストラップ",
+     "goals": [
+      {
+       "evidence": "修理の対応は可能でしょうか。可能な場合の手続きについてご教示いただけますと幸いです.",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96153",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The Daypack 30L shoulder strap is a DEFECT; the product is merchant-warehouse with merchant warranty 365 days, and the purchase is about 100 days old, within warranty, so responsibility table yields DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 26.56
+  },
+  "X133": {
+   "speech_act_evidence": "修理お願いします",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "ホースコネクターが漏れます",
+     "issue_type": "DEFECT",
+     "component": "ホースコネクター",
+     "goals": [
+      {
+       "evidence": "修理お願いします",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "ホースコネクターが漏れます",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96133",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance leak triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 45.06
+  },
+  "X161": {
+   "speech_act_evidence": "Könnt ihr das bitte reparieren",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BACKPACK-30L",
+     "issue_evidence": "der Verschluss ist gebrochen",
+     "issue_type": "DEFECT",
+     "component": "Verschluss (buckle)",
+     "goals": [
+      {
+       "evidence": "Könnt ihr das bitte reparieren",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "mir sagen, wie ich es einschicken soll",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "der Verschluss ist gebrochen",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96152",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer requests repair or information about returning the item, resulting in mixed goals (WARRANTY_REMEDY and INFO) which triggers rule V7 (mixed) requiring clarification.",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 34.15
+  },
+  "X154": {
+   "speech_act_evidence": "Can you arrange a replacement for me?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "toaster",
+     "issue_evidence": "it has stopped working completely after only a couple of weeks of normal use",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can you arrange a replacement for me?",
+       "goal": "REPLACE_SAME"
+      },
+      {
+       "evidence": "Let me know what you need from my side to sort this out.",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "UNDECIDED"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defective toaster requesting replacement and information; multiple goals across WARRANTY_REMEDY and INFO families trigger the mixed-item rule V7, requiring clarification.",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 123.73
+  },
+  "X160": {
+   "speech_act_evidence": "¿Me pueden ayudar con un repair?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BACKPACK-30L (Daypack 30L)",
+     "issue_evidence": "se le rompió la hebilla",
+     "issue_type": "DEFECT",
+     "component": "hebilla (buckle)",
+     "goals": [
+      {
+       "evidence": "¿Me pueden ayudar con un repair?",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "Quisiera saber si es posible repararla y cómo proceder.",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96151",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a broken buckle (DEFECT) on a Daypack 30L purchased 100 days ago; the item is covered by merchant warranty (365 days) and within warranty period, so responsibility falls to merchant warranty → DIRECT_WORKFLOW per V12.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 47.0
+  },
+  "X151": {
+   "speech_act_evidence": "能不能幫我看看要不要修理啊？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "",
+     "issue_evidence": "突然不工作了",
+     "issue_type": "DEFECT",
+     "component": "",
+     "goals": [
+      {
+       "evidence": "能不能幫我看看要不要修理啊？",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "No order reference provided; cannot verify product or apply warranty/fulfilment rules, so clarification is required per V11.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 25.65
+  },
+  "X166": {
+   "speech_act_evidence": "請協助為此訂單辦理退款",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BACKPACK-30L",
+     "issue_evidence": "背包拉鍊已損壞，無法正常使用",
+     "issue_type": "DEFECT",
+     "component": "zipper",
+     "goals": [
+      {
+       "evidence": "請協助為此訂單辦理退款",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96157",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer requests a refund for a defective backpack zipper. No safety issues, order reference TO-96157 is valid, belongs to the customer and contains the item. Single goal REFUND matches decision rule V8 (only action family is REFUND) → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 17.97
+  },
+  "X174": {
+   "speech_act_evidence": "¿Se puede hacer un cambio a talla 44? Avísenme cómo gestionarlo.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "Reconozco que fue error mío al hacer el pedido, yo uso 44 y lo puse mal.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Se puede hacer un cambio a talla 44?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96165",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer admits ordering the wrong size (CUSTOMER_ORDERED_WRONG). According to V10, CUSTOMER_ORDERED_WRONG leads to DIRECT_WORKFLOW. No safety or other earlier rule applies.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 22.3
+  },
+  "X159": {
+   "speech_act_evidence": "我想詢問貴公司是否提供拉鍊維修服務？",
+   "speech_act": "QUESTION",
+   "items": [
+    {
+     "product": "BACKPACK-30L",
+     "issue_evidence": "發現背包拉鍊在靠近頂部的那一段突然卡住，用力拉也拉不開，看起來是拉鍊牙齒脫落或是滑動片損壞導致的。",
+     "issue_type": "DEFECT",
+     "component": "zipper",
+     "goals": [
+      {
+       "evidence": "我想詢問貴公司是否提供拉鍊維修服務？",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "如果需要寄回廠家維修，請告知我應該怎麼包裝、運送的流程以及可能的費用與時程。",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96150",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer claims they ordered navy (deep blue) variant but order record shows black, creating a data conflict (C1 v3.1) → V3 triggers HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 33.16
+  },
+  "X176": {
+   "speech_act_evidence": "お手数ですが、サイズ42に交換していただけないでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "Trail Runner をサイズ41で注文しましたが、私の間違いでした。普段は42を履いています。届いた商品は注文どおり41でした。",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "サイズ42に交換していただけないでしょうか。",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96167",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering the wrong size (CUSTOMER_ORDERED_WRONG) and requests an exchange to the correct size; V10 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 23.65
+  },
+  "X177": {
+   "speech_act_evidence": "Please let me know how to exchange them for size 41.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42 size 40",
+     "issue_evidence": "I made a mistake and ordered size 40 instead of my usual 41",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Please let me know how to exchange them for size 41.",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "Please let me know how to exchange them for size 41.",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96168",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering wrong size (CUSTOMER_ORDERED_WRONG); per V10 this leads to DIRECT_WORKFLOW; no safety issues or data conflicts.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 32.68
+  },
+  "X170": {
+   "speech_act_evidence": "スニーカーのソールが、購入から約四ヶ月で剥がれ始めてしまい、正直残念な気持ちです。丁寧に扱っていただけに少しショックです。",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "スニーカーのソールが、購入から約四ヶ月で剥がれ始めてしまい",
+     "issue_type": "DEFECT",
+     "component": "sole",
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96161",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The message describes a problem (sole peeling) without any explicit request or question, matching speech_act COMPLAINT_ONLY. According to decision table, rule V6b (speech_act COMPLAINT_ONLY → CLARIFY_WITH_CUSTOMER) is the first match, so required_action is CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V6b",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 17.35
+  },
+  "X148": {
+   "speech_act_evidence": "möchte ich Sie bitten, mir eine Reparatur zu ermöglichen.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "",
+     "issue_evidence": "nicht mehr funktioniert",
+     "issue_type": "DEFECT",
+     "component": "",
+     "goals": [
+      {
+       "evidence": "möchte ich Sie bitten, mir eine Reparatur zu ermöglichen.",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "Könnten Sie mir bitte mitteilen, wie ich am besten vorgehen soll",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "UNDECIDED"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Speech act is REQUEST (repair request). One DEFECT item with goals REPAIR and INFORMATION spans WARRANTY_REMEDY and INFO families → mixed → V7 → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 29.91
+  },
+  "X147": {
+   "speech_act_evidence": "急に加熱しなくなった。ほんと困った。",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "急に加熱しなくなった",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "急に加熱しなくなった",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96147",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to mains electric defect (kettle not heating) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 39.67
+  },
+  "X172": {
+   "speech_act_evidence": "我只是想反映一下，沒有要你們做什麼，單純覺得這種狀況不太應該。",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "鞋底就開始剝落了",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "我只是想反映一下，沒有要你們做什麼，單純覺得這種狀況不太應該。",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96163",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The message describes a defect but only provides feedback with no request or question; speech act is COMPLAINT_ONLY, triggering V6b (complaint only → clarify).",
+   "deciding_rule": "V6b",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 23.16
+  },
+  "X179": {
+   "speech_act_evidence": "¿Podría cambiarme a talla 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "Pedí por error las zapatillas Trail Runner talla 41 (uso 42)",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Podría cambiarme a talla 42?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96170",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and requests exchange to correct size; V10 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 28.24
+  },
+  "X180": {
+   "speech_act_evidence": "Könnt ihr das gegen Größe 40 umtaushen?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "ich hab versehentlich die Trail Runner in Groesse 39 bestellt, obwohl ich eigentlich 40 trage.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnt ihr das gegen Größe 40 umtaushen?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96171",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and wants to exchange for correct size; matches V10 rule leading to DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 55.65
+  },
+  "X164": {
+   "speech_act_evidence": "返金をお願いしたいです",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Daypack 30L",
+     "issue_evidence": "縫い目が裂けちゃってて…",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "返金をお願いしたいです",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96155",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer requests a refund for a defective Daypack 30L (seam torn). No safety concerns, order reference matches, single goal REFUND → V8 applies, leading to DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 26.08
+  },
+  "X183": {
+   "speech_act_evidence": "請問能否協助換貨？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "我誤訂了尺碼 42，實際需要尺碼 43",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請問能否協助換貨？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96174",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering wrong size (CUSTOMER_ORDERED_WRONG); per V10, CUSTOMER_ORDERED_WRONG leads to DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 21.01
+  },
+  "X181": {
+   "speech_act_evidence": "交換できますか？おねがいします。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42 Trail Runner sneakers size 43",
+     "issue_evidence": "実は自分はサイズ44なんだ",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "交換できますか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "ノアです。注文番号TO-96172でトレイルランナーのスニーカーをサイズ43で頼んじゃったんですが、実は自分はサイズ44なんだ。交換できますか？おねがいします。",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96172",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and wants exchange; no safety or data conflict; V10 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 31.08
+  },
+  "X191": {
+   "speech_act_evidence": "Bitte senden Sie mir die korrekte weiße Variante zu",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "ich habe meine Bestellung TO-96182 aufgegeben und eine weiße LED-Schreibtischlampe bestellt. Leider ist eine schwarze Lampe angekommen.",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Bitte senden Sie mir die korrekte weiße Variante zu",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "teilen Sie mir mit, wie ich die falsche Farbe zurückschicken soll",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96182",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer claims they ordered white DESK-LAMP but order record shows black variant; this data conflict triggers V3 (data conflict) → HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "_latency": 40.99
+  },
+  "X195": {
+   "speech_act_evidence": "¿Podéis enviarme la correcta?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "pero me llegó negra.",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Podéis enviarme la correcta?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96186",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer claims they ordered white DESK-LAMP but order TO-96186 shows black variant; this conflicts with the order record, triggering data conflict rule V3 → HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 17.62
+  },
+  "X184": {
+   "speech_act_evidence": "想請問能否換成白色的？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "但我自己選錯顏色了",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "想請問能否換成白色的？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96175",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits choosing wrong color (CUSTOMER_ORDERED_WRONG) and requests exchange to white (EXCHANGE_VARIANT). Order TO-96175 contains black desk lamp as described. No safety concerns, no data conflict. Responsibility table for EXCHANGE with CUSTOMER_ORDERED_WRONG yields DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 49.31
+  },
+  "X175": {
+   "speech_act_evidence": "Könnten Sie bitte einen Umtausch auf Größe 42 veranlassen?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "Beim Bestellen der Trail Runner Sneaker habe ich versehentlich die Größe 41 ausgewählt, obwohl ich Größe 42 trage.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnten Sie bitte einen Umtausch auf Größe 42 veranlassen?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96166",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer ordered wrong size (CUSTOMER_ORDERED_WRONG) and requests exchange to correct size; no safety issues; order reference valid; responsibility table for EXCHANGE with CUSTOMER_ORDERED_WRONG directs DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 31.88
+  },
+  "X204": {
+   "speech_act_evidence": "Please send me the correct size 39.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "I ordered size 39 sneakers but received size 40",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Please send me the correct size 39.",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96195",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer claims they ordered size 39 but received size 40, while the order record shows they were sent size 40 (variant 40) and it was delivered. This is a data conflict (C1 v3.1) where the customer's description of what they ordered does not match the record, triggering rule V3 → HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 29.19
+  },
+  "X182": {
+   "speech_act_evidence": "Can I exchange these for size 42? Let me know how to do that.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "That was my mistake, I wear a 42 and I ordered the wrong size by accident.",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can I exchange these for size 42?",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "Let me know how to do that.",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96173",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering the wrong size (CUSTOMER_ORDERED_WRONG). V10 maps CUSTOMER_ORDERED_WRONG to DIRECT_WORKFLOW. No safety issues or data conflicts.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 48.69
+  },
+  "X199": {
+   "speech_act_evidence": "could you please send the correct white lamp?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "I placed order TO-96190 for a white LED desk lamp but I got a black one instead.",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "could you please send the correct white lamp?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96190",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer claims they ordered white but received black; order record shows black variant, creating a data conflict (C1 v3.1) that triggers V3 => HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 37.7
+  },
+  "X205": {
+   "speech_act_evidence": "請幫我換成 42 號",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "訂購 42 號運動鞋，但收到的是 43 號",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請幫我換成 42 號",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96196",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer states they ordered size 42 but received size 43, while the order record shows size 43; this contradicts the customer's claim about what they ordered, creating a data conflict that triggers rule V3 → HUMAN_REVIEW.",
+   "deciding_rule": "V3",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 60.27
   }
  },
  "stats": {
-  "calls": 95,
-  "retries": 748,
-  "prompt_tokens": 624751,
-  "completion_tokens": 296247
+  "calls": 125,
+  "retries": 1019,
+  "prompt_tokens": 820547,
+  "completion_tokens": 385666
  }
 }
