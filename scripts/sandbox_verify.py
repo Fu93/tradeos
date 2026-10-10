@@ -1,0 +1,75 @@
+"""Post-deploy Sandbox check for the PayPal depth work (#10-#12). Read-mostly; uses the public demo endpoints.
+
+    python scripts/sandbox_verify.py https://<your-render-host>
+
+Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount) and ONE Case B.
+It needs no credentials: it only talks to the deployed app. Exit code 0 = all checks passed.
+"""
+from __future__ import annotations
+
+import sys
+import time
+
+import httpx
+
+
+def main(base: str) -> int:
+    c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False)
+    fails: list[str] = []
+
+    def check(ok: bool, label: str) -> None:
+        print(("PASS " if ok else "FAIL ") + label)
+        if not ok:
+            fails.append(label)
+
+    health = c.get("/healthz").json()
+    check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
+    check(bool(health.get("webhook_configured")), "PAYPAL_WEBHOOK_ID configured")
+
+    # Case A: one real Sandbox refund
+    r = c.post("/demo/run/A")
+    case_a = r.headers["location"].split("case=")[1]
+    check(c.post(f"/cases/{case_a}/approve").status_code == 303, f"Case A {case_a} approved")
+    data = c.get(f"/api/cases/{case_a}").json()
+    case, calls = data["case"], data["paypal_calls"]
+    check(case["refund_status"] in ("COMPLETED", "PENDING"), f"refund {case['refund_id']} status {case['refund_status']}")
+    refund_calls = [x for x in calls if x["operation"] == "refund_capture"]
+    check(len(refund_calls) == 1, "exactly one refund call")
+    dbg = refund_calls[0].get("debug_id") if refund_calls else None
+    check(bool(dbg) and not str(dbg).startswith("mock"), f"real PayPal-Debug-Id on the refund call: {dbg}")
+    check(all(x.get("request_id") for x in calls if x["operation"] in ("create_order_with_card", "refund_capture")),
+          "PayPal-Request-Id recorded on order + refund")
+    check(c.post(f"/cases/{case_a}/refund").status_code == 409, "retry on a finished refund -> 409, no new call")
+
+    # Signed webhook (arrived 16-18 s after the refund in earlier live tests)
+    status = None
+    for _ in range(18):
+        status = c.get(f"/api/cases/{case_a}").json()["case"].get("webhook_status")
+        if status == "VERIFIED":
+            break
+        time.sleep(5)
+    check(status == "VERIFIED", f"signed PAYMENT.CAPTURE.REFUNDED verified (webhook_status={status})")
+
+    # Check against PayPal (reconciliation)
+    c.post(f"/cases/{case_a}/refresh-refund")
+    tl = c.get(f"/api/cases/{case_a}").json()["timeline"]
+    rec = [e for e in tl if e["stage"] == "reconcile"]
+    check(bool(rec) and rec[-1]["title"].startswith("Reconciled with PayPal"),
+          f"reconcile result: {rec[-1]['title'] if rec else 'none'}")
+
+    # Case B: blocked, refund API never called
+    r = c.post("/demo/run/B")
+    case_b = r.headers["location"].split("case=")[1]
+    check(c.post(f"/cases/{case_b}/approve").status_code == 409, f"Case B {case_b} approve -> 409")
+    b_calls = c.get(f"/api/cases/{case_b}").json()["paypal_calls"]
+    check(not any(x["operation"] == "refund_capture" for x in b_calls), "Case B: refund API not called")
+
+    print(f"\nManual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
+    print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
+    return 0 if not fails else 1
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        sys.exit("usage: sandbox_verify.py https://<host>")
+    sys.exit(main(sys.argv[1]))

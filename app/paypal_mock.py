@@ -7,6 +7,7 @@ It is never used automatically: without credentials the app shows a visible erro
 from __future__ import annotations
 
 import itertools
+import time
 from datetime import datetime, timezone
 
 from .paypal_client import PayPalError
@@ -14,6 +15,9 @@ from .paypal_client import PayPalError
 
 def _now() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+
+
+PENDING_DEMO_PREFIX = "tradeos-refund-P-"  # scenario P (mock only): refund starts PENDING
 
 
 class MockPayPalClient:
@@ -29,6 +33,7 @@ class MockPayPalClient:
         self.orders: dict[str, dict] = {}
         self.captures: dict[str, dict] = {}
         self.refunds_by_request: dict[str, dict] = {}
+        self.pending_demo_seconds = 20.0
 
     last_debug_id: str | None = None
 
@@ -65,7 +70,7 @@ class MockPayPalClient:
                       "purchase_units": [{"payments": {"captures": [self._capture(amount, currency)]}}]})
         return order
 
-    def get_capture(self, capture_id):
+    def get_capture(self, capture_id, timeout=None):
         return dict(self.captures[capture_id])
 
     is_sandbox = True
@@ -83,19 +88,39 @@ class MockPayPalClient:
         if any(r["_capture"] == capture_id for r in self.refunds_by_request.values()):
             raise PayPalError("Capture has already been fully refunded (mock)", 422, "UNPROCESSABLE_ENTITY",
                               details=[{"issue": "CAPTURE_FULLY_REFUNDED"}])
-        refund = {"id": self._id("REFUND"), "status": self.refund_status, "create_time": _now(),
+        pending_demo = request_id.startswith(PENDING_DEMO_PREFIX)
+        refund = {"id": self._id("REFUND"), "status": "PENDING" if pending_demo else self.refund_status,
+                  "create_time": _now(),
                   "amount": dict(cap["amount"]), "_capture": capture_id,
                   "seller_payable_breakdown": {"total_refunded_amount": dict(cap["amount"])}}
         if note_to_payer:
             refund["note_to_payer"] = note_to_payer[:255]
+        if pending_demo:  # like an eCheck-funded refund: PENDING, completes after a delay
+            refund["status_details"] = {"reason": "ECHECK"}
+            refund["_completes_at"] = time.time() + self.pending_demo_seconds
         self.refunds_by_request[request_id] = refund
+        cap["status"] = "REFUNDED"  # full refund, as PayPal reports on GET capture
         return refund
+
+    def complete_refund(self, refund_id):
+        """Mock only: the delayed PENDING refund settles (what PayPal does when an eCheck clears)."""
+        for r in self.refunds_by_request.values():
+            if r["id"] == refund_id:
+                r["status"] = "COMPLETED"
+                r.pop("status_details", None)
+                r["_completes_at"] = None
+                return dict(r)
+        return None
 
     def verify_webhook_signature(self, headers, raw_body, webhook_id):
         return "SUCCESS" if headers.get("paypal-transmission-sig") == "valid-mock-signature" else "FAILURE"
 
-    def get_refund(self, refund_id):
+    def get_refund(self, refund_id, timeout=None):
         for r in self.refunds_by_request.values():
             if r["id"] == refund_id:
+                if r.get("_completes_at") is not None:  # mock PENDING demo: completes later
+                    if time.time() >= r["_completes_at"]:
+                        self.complete_refund(refund_id)
+                    return {k: v for k, v in r.items() if not k.startswith("_")}
                 return dict(r, status="COMPLETED")
         raise PayPalError("Refund not found (mock)", 404, "RESOURCE_NOT_FOUND")

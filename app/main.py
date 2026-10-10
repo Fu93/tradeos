@@ -22,7 +22,7 @@ from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import RateLimiter, client_key
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary)
-from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, CaseNotFound, RefundNotAllowed,
+from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
                        Workflow)
 
 BASE = Path(__file__).parent
@@ -65,13 +65,15 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             current = next((c for c in cases if c["status"] != "NEW"), cases[0])
         pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR)
                    and (not current or c["id"] != current["id"])]
+        if current:
+            wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
         latest_a, latest_b = db.latest_case("A"), db.latest_case("B")
         ctx = {
             "pipeline": pipeline(db, current),
             "result": result_card(db, current, bool(settings.paypal_webhook_id)),
             "ai": ai_panel(current),
             "controls": backend_controls(db, current),
-            "failure_modes": failure_modes(db),
+            "failure_modes": failure_modes(db, mock=wf.paypal_mode == "mock"),
             "presets": PRESETS,
             "current_preset": preset_for(current),
             "draft": draft,
@@ -117,7 +119,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/demo/run/{scenario}")
     def run_demo(request: Request, scenario: str):
-        if scenario not in RUNNABLE:
+        if scenario not in RUNNABLE or (scenario in MOCK_ONLY and wf.paypal_mode != "mock"):
             raise HTTPException(404)
         if (refused := limited(request)) is not None:
             return refused
@@ -179,7 +181,32 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/cases/{case_id}/refund")
     def refund(request: Request, case_id: str):
         """Retry endpoint. Same hard guard as approve: policy ELIGIBLE + human APPROVED."""
+        case = db.get_case(case_id)
+        if case and case.get("refund_status") in ("COMPLETED", "PENDING"):
+            return render_dashboard(request, case_id, status_code=409,
+                                    flash=f"Nothing to retry: refund {case['refund_id']} is already "
+                                          f"{case['refund_status']} at PayPal. No new refund request was sent.")
         return guarded(request, case_id, wf.execute_refund)
+
+    @app.post("/demo/mock-webhook/{case_id}")
+    def mock_signed_webhook(request: Request, case_id: str):
+        """MOCK mode only: PayPal 'settles' the pending mock refund and sends a signed
+        PAYMENT.CAPTURE.REFUNDED, verified by the mock verifier through the normal webhook path."""
+        if wf.paypal_mode != "mock":
+            raise HTTPException(404)
+        case = db.get_case(case_id)
+        if not case or not case.get("refund_id"):
+            raise HTTPException(404)
+        pp = wf.paypal()
+        inner = getattr(pp, "_mock_wraps", None) or pp
+        refund = inner.complete_refund(case["refund_id"]) or {"id": case["refund_id"], "status": "COMPLETED"}
+        n = len(db.webhook_events(case_id)) + 1
+        event = {"id": f"WH-MOCK-{case_id}-{n}", "event_type": "PAYMENT.CAPTURE.REFUNDED",
+                 "resource": {"id": refund["id"], "status": "COMPLETED", "amount": refund.get("amount")}}
+        raw = json.dumps(event).encode()
+        verification = pp.verify_webhook_signature({"paypal-transmission-sig": "valid-mock-signature"}, raw, "WEBHOOK_ID")
+        wf.record_webhook(event, verification)
+        return back(case_id)
 
     @app.post("/cases/{case_id}/approve-twice")
     def approve_twice(request: Request, case_id: str):

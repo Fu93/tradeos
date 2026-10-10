@@ -189,6 +189,14 @@
       <p class="muted small">Logged straight from PayPal responses and webhook deliveries, in call order. Decisions (policy, human) are in the case timeline. No tokens or credentials are stored or shown.</p>
     </details>
     {% elif current %}<p class="muted">No PayPal calls for this case yet.</p>{% endif %}
+    {% if current and current.capture_id %}
+    <div class="row">
+      <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy"><button class="btn small ghost">Check against PayPal</button></form>
+      {% if paypal_mode == "mock" and current.refund_id and current.refund_status == "PENDING" %}
+      <form method="post" action="/demo/mock-webhook/{{ current.id }}" class="js-busy"><button class="btn small ghost">Simulate signed PayPal webhook (MOCK)</button></form>
+      {% endif %}
+    </div>
+    {% endif %}
   </section>
 
   <!-- AI understanding -->

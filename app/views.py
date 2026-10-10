@@ -337,6 +337,8 @@ def narrate(e: dict) -> str:
         return (f"The identical refund request was replayed with the same PayPal-Request-Id: PayPal returned "
                 f"{'the SAME' if d.get('same_refund') else 'a DIFFERENT'} Refund ID {d.get('replayed_refund_id')}"
                 f"{' — total refunded ' + d['total_refunded'] if d.get('total_refunded') else ''}.")
+    if t.startswith("Reconcil") or t.startswith("PayPal reports the capture PARTIALLY"):
+        return t + "."
     if t.startswith("PayPal webhook"):
         return t + "."
     if t == "Human declined — Refund API not called":
@@ -410,10 +412,21 @@ def _webhook_row(w: dict) -> dict:
             "ids": [(k, v) for k, v in (("event", w.get("event_id")),) if v], "debug_id": None, "request_id": None}
 
 
+def _reconcile_row(e: dict) -> dict:
+    d = e.get("detail") or {}
+    diffs = [f"{c['field']}: local {c['local']} vs PayPal {c['paypal']}" for c in d.get("checks", []) if not c["match"]]
+    return {"seq": int(d.get("seq") or 0), "id": e["id"], "ts": e["ts"], "source": "reconcile", "what": e["title"],
+            "ok": bool(d.get("ok")), "status": "; ".join(diffs) if diffs else ("all match" if d.get("ok") else d.get("error")),
+            "ids": [], "debug_id": d.get("debug_id"), "request_id": None}
+
+
 def evidence_log(db: Database, case_id: str) -> list[dict]:
     """Full PayPal log for one case (API calls + webhook deliveries) in true call order.
     Decisions (policy, human) are not repeated here; the case timeline already shows them."""
     rows = [_call_row(c) for c in db.paypal_calls(case_id)] + [_webhook_row(w) for w in db.webhook_events(case_id)]
+    for e in db.timeline(case_id):
+        if e["stage"] == "reconcile":
+            rows.append(_reconcile_row(e))
     rows.sort(key=lambda r: (r["seq"], r["source"], r["id"]))
     for r in rows:
         r["time"] = fmt_time(r["ts"])
@@ -449,6 +462,15 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         else:
             rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else
                          "webhook not set up on this server", "ok": None})
+    recs = [e for e in db.timeline(case["id"]) if e["stage"] == "reconcile"]
+    if recs:
+        last_rec = recs[-1]
+        rows.append({"label": "Checked against PayPal",
+                     "value": last_rec["title"].replace("Reconciled with PayPal — ", "").replace("Reconciliation ", "")
+                     + f" · {fmt_time(last_rec['ts'])}",
+                     "ok": bool((last_rec.get("detail") or {}).get("ok"))})
+    elif case.get("capture_id"):
+        rows.append({"label": "Checked against PayPal", "value": "not yet — press “Check against PayPal”", "ok": None})
     return rows
 
 
@@ -457,7 +479,7 @@ def timeline_view(events: list[dict]) -> list[dict]:
 
 
 # ---------------------------------------------------------------- failure-modes panel
-def failure_modes(db: Database) -> list[dict]:
+def failure_modes(db: Database, mock: bool = False) -> list[dict]:
     def latest(scenario: str, label: str | None = None):
         return db.latest_case(scenario, label)
 
@@ -500,6 +522,16 @@ def failure_modes(db: Database) -> list[dict]:
          if ev else dup["status"].replace("_", " ")),
         "ok": bool(ev.get("same_refund")),
     })
+    if mock:
+        p = latest("P")
+        tiles.append({
+            "key": "P", "title": "Pending refund (MOCK)", "action": ("run", "P"),
+            "expect": "MOCK PayPal only: the refund comes back PENDING (eCheck) and settles ~20 s later. "
+                      "Never shown as success until PayPal says COMPLETED — via “Check against PayPal” or a signed webhook.",
+            "case": p,
+            "result": None if not p or p["status"] == "NEW" else p["status"].replace("_", " "),
+            "ok": bool(p) and p.get("refund_status") == "COMPLETED",
+        })
     return tiles
 
 

@@ -56,6 +56,7 @@ class Settings:
     paypal_base_url: str = SANDBOX_BASE_URL
     # Opt-in offline mode: fake PayPal IDs, loudly labelled in the UI. Never the default.
     paypal_mock: bool = False
+    reconcile_in_background: bool = False  # from_env() turns this on for the server; tests run it inline
 
     # LLM: any OpenAI-compatible endpoint (default: Groq). Without LLM_API_KEY the
     # deterministic keyword extractor is used instead, so the demo always runs.
@@ -104,6 +105,7 @@ class Settings:
             paypal_client_secret=_env("PAYPAL_CLIENT_SECRET"),
             paypal_base_url=(_env("PAYPAL_BASE_URL") or SANDBOX_BASE_URL).rstrip("/"),
             paypal_mock=_env_bool("PAYPAL_MOCK", False),
+            reconcile_in_background=_env_bool("TRADEOS_RECONCILE_IN_BACKGROUND", True),
             llm_api_key=_env("LLM_API_KEY"),
             llm_base_url=(_env("LLM_BASE_URL") or DEFAULT_LLM_BASE_URL).rstrip("/"),
             llm_model=_env("LLM_MODEL") or DEFAULT_LLM_MODEL,
