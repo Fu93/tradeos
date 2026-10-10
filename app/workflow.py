@@ -1,6 +1,12 @@
 """The one TradeOS loop (plan §3):
 
-request -> AI intent -> deterministic policy -> supplier -> human approval -> PayPal refund (or block).
+request -> AI intent -> deterministic policy -> autonomy -> supplier -> approval -> PayPal refund (or block).
+
+A case is approved either by a person ("human") or, when the merchant's autonomy
+settings allow it, by the merchant's own policy ("auto"). Both take the same
+``approve()`` path, the same per-case lock and the same ``_guard_refund`` hard
+guard; the difference is recorded on the case and on its hash chain so the audit
+can say which one it was.
 """
 
 from __future__ import annotations
@@ -14,6 +20,7 @@ from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any, Callable
 
+from .autonomy import decide_detailed
 from .config import Settings
 from .db import Database, next_seq
 from .intent import AssistFields, IntentExtractor
@@ -23,6 +30,9 @@ from .paypal_mock import MockPayPalClient
 from .intent import looks_like_injection
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
+
+HUMAN = "human"
+AUTO = "auto"
 
 DEMO_PRODUCT = {
     "sku": "TRAIL-RUNNER-42",
@@ -295,6 +305,7 @@ class Workflow:
 
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
+        s = self.settings
         product = self.db.get_product(case["product_sku"])
 
         # Step 2: customer request.
@@ -333,14 +344,36 @@ class Workflow:
             return
 
         if pre.action == "REFUND":
-            # Return for a refund: no supplier step. Policy is final; a human must approve the refund.
+            # Return for a refund: no supplier step. Policy is final; the merchant's autonomy
+            # settings decide whether this still needs a person.
             self.db.audit(case_id, "policy", "Policy final: ELIGIBLE — return for a refund (supplier not involved)",
                           pre.to_dict())
             self.db.update_case(case_id, policy_json=json.dumps(pre.to_dict()), decision="ELIGIBLE",
                                 status=PENDING_APPROVAL)
-            self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
-            self.db.audit(case_id, "human", "Waiting for human approval of the refund",
-                          {"amount": f"{case['amount']} {case['currency']}"})
+            verdict = decide_detailed(
+                pre,
+                amount=Decimal(case["amount"]),
+                auto_enabled=s.auto_enabled,
+                auto_refund_max_amount=s.auto_refund_max_amount,
+                auto_exchange_enabled=s.auto_exchange_enabled,
+                injection_suspected=looks_like_injection(case.get("customer_message") or ""),
+                intent_is_unknown=extraction.result.intent == "UNKNOWN",
+                action=pre.action,
+            )
+            limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount)}
+            if verdict.decision != "AUTO":
+                # Anything that is not an explicit AUTO is a person's call: AUTO off, an unreadable
+                # request, an instruction-like message, or an amount above the merchant's limit.
+                self.db.audit(case_id, "human", "Autonomy: HUMAN — this case needs a person",
+                              {"why": verdict.reason, **limits})
+                self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
+                self.db.audit(case_id, "human", "Waiting for human approval of the refund",
+                              {"amount": f"{case['amount']} {case['currency']}"})
+                return
+            self.db.audit(case_id, "human", "Autonomy: AUTO — within the merchant's limits, no human needed",
+                          {"why": verdict.reason, **limits, "amount": f"{case['amount']} {case['currency']}"})
+            # The same approve() path, lock and hard guard a person clicking Approve would take.
+            self.approve(case_id, approver=AUTO, source=AUTO)
             return
 
         # Step 5 (exchange only): supplier draft + clearly labelled mock reply. No money moves on this path.
@@ -448,28 +481,45 @@ class Workflow:
         note = self._write_note(case_id, "REFUND_NOTE", None, case.get("assist"))
         return note["text"] if note else None
 
-    # ------------------------------------------------------------------ human + money
-    def approve(self, case_id: str, approver: str = "merchant") -> None:
+    # ------------------------------------------------------------------ approval + money
+    @staticmethod
+    def _approval_title(source: str) -> str:
+        """The audit line has to say which of the two happened. An auto-approval is never
+        reported as a human one (and vice versa)."""
+        return ("Auto-approved by the merchant's policy — no human involved" if source == AUTO
+                else "Human approved the refund")
+
+    def approve(self, case_id: str, approver: str = "merchant", source: str = HUMAN) -> None:
+        """approver/source: a person ("merchant"/"human") or the merchant's own policy ("auto"/"auto").
+
+        Both are the same code path: the same per-case lock, the same hard guard, the same PayPal
+        call. Only the recorded origin differs.
+        """
         # Serialised per case: a double-click can never start two approvals.
         try:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
                 if case["status"] == PENDING_APPROVAL and case["decision"] == "EXCHANGE_ELIGIBLE":
-                    self._approve_exchange(case_id, approver)
+                    self._approve_exchange(case_id, approver, source)
                     return
                 if case["status"] != PENDING_APPROVAL or case["decision"] != "ELIGIBLE":
                     raise RefundNotAllowed(f"Case {case_id} is not awaiting approval (status {case['status']}, "
                                            f"policy {case['decision']}).")
-                self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now())
-                self.db.audit(case_id, "human", "Human approved the refund", {"approver": approver})
+                self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(),
+                                    approval_source=source)
+                self.db.audit(case_id, "human", self._approval_title(source),
+                              {"approver": approver, "source": source})
                 self._execute_refund(case_id)
         finally:
             self._after_money(case_id)
 
-    def _approve_exchange(self, case_id: str, approver: str) -> None:
-        """Exchange path: the human approves the replacement. No money moves: Refund API NOT CALLED."""
-        self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(), status=EXCHANGE_ARRANGED)
-        self.db.audit(case_id, "human", "Human approved the exchange", {"approver": approver})
+    def _approve_exchange(self, case_id: str, approver: str, source: str = HUMAN) -> None:
+        """Exchange path: the replacement is approved. No money moves: Refund API NOT CALLED."""
+        title = ("Auto-approved by the merchant's policy — no human involved" if source == AUTO
+                 else "Human approved the exchange")
+        self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(), approval_source=source,
+                            status=EXCHANGE_ARRANGED)
+        self.db.audit(case_id, "human", title, {"approver": approver, "source": source})
         self.db.audit(case_id, "paypal", "Refund API NOT CALLED — exchange arranged (replacement via the MOCK "
                       "supplier), no refund", {"refund_id": None})
         case = self._case(case_id)
@@ -530,24 +580,27 @@ class Workflow:
             case = self._case(case_id)
             if case["status"] != PENDING_APPROVAL:
                 raise RefundNotAllowed(f"Case {case_id} is not awaiting approval.")
-            self.db.update_case(case_id, human_decision="DECLINED", human_at=self._now(), status=DECLINED)
+            self.db.update_case(case_id, human_decision="DECLINED", human_at=self._now(),
+                                approval_source=HUMAN, status=DECLINED)
             self.db.audit(case_id, "human", "Human declined — Refund API not called", {"approver": approver})
 
     def _guard_refund(self, case: dict) -> None:
         if case["decision"] != "ELIGIBLE":
             raise RefundNotAllowed(f"Policy decision is {case['decision'] or 'missing'}; refund refused.")
         if case["human_decision"] != "APPROVED":
-            raise RefundNotAllowed("Human approval is required before any refund.")
+            raise RefundNotAllowed("An approval is required before any refund.")
         if not case["capture_id"]:
             raise RefundNotAllowed("No PayPal capture to refund.")
         # The row alone is not enough: the decision and the approval must also be on the case's hash
         # chain, and the chain must verify. A direct UPDATE of the cases table (no chain entry) is refused.
+        # The approval may be a person's or, when the merchant enabled autonomy, the policy's own
+        # (approval_source "human" / "auto"); either way it has to be a chained entry.
         chain = self.db.verify_chain(case["id"])
         if not chain["ok"]:
             raise RefundNotAllowed(f"Audit trail BROKEN at entry {chain['broken_at']}; refund refused.")
         chained = self.db.chained_case_state(case["id"])
         if chained.get("decision") != "ELIGIBLE" or chained.get("human_decision") != "APPROVED":
-            raise RefundNotAllowed("No policy ELIGIBLE + human APPROVED entry on the audit chain; refund refused.")
+            raise RefundNotAllowed("No policy ELIGIBLE + chained APPROVED entry on the audit chain; refund refused.")
         if chained.get("capture_id") != case["capture_id"]:
             raise RefundNotAllowed("Capture on the audit chain differs from the case record; refund refused.")
 

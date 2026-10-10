@@ -42,6 +42,13 @@ def _first_failed(policy: dict | None) -> dict | None:
 
 
 # ---------------------------------------------------------------- evidence (plan §7)
+def _approval_text(case: dict) -> str:
+    """Who approved: a person, or the merchant's own policy. Never says "human" when it was not."""
+    if case.get("human_decision") != "APPROVED":
+        return (case.get("human_decision") or "awaiting approval").lower()
+    return "auto — merchant policy (no human)" if case.get("approval_source") == "auto" else "human (merchant)"
+
+
 def evidence_a(db: Database, case: dict | None) -> list[dict] | None:
     if not case or case["status"] == "NEW":
         return None
@@ -54,7 +61,7 @@ def evidence_a(db: Database, case: dict | None) -> list[dict] | None:
         ("Policy", (policy.get("decision") or "—").lower(), policy.get("decision") == "ELIGIBLE"),
         ("Supplier", "replacement approved (MOCK)" if case.get("supplier_reply") == "REPLACEMENT_APPROVED"
          else (case.get("supplier_reply") or "not involved (return)"), True),
-        ("Human", (case.get("human_decision") or "awaiting approval").lower(), case.get("human_decision") == "APPROVED"),
+        ("Approval", _approval_text(case), case.get("human_decision") == "APPROVED"),
         ("Refund", refund_status or "not yet executed", refund_status == "COMPLETED"),
     ]
     return [{"label": l, "value": v, "ok": ok} for l, v, ok in rows]
@@ -86,7 +93,7 @@ def evidence_b(db: Database, case: dict | None) -> list[dict] | None:
 
 # ---------------------------------------------------------------- 6-step pipeline
 STEPS = [("request", "Customer request"), ("intent", "AI intent"), ("policy", "Policy"),
-         ("supplier", "Supplier"), ("human", "Human approval"), ("paypal", "PayPal")]
+         ("supplier", "Supplier"), ("human", "Approval"), ("paypal", "PayPal")]
 
 
 def pipeline(db: Database, case: dict | None) -> list[dict]:
@@ -129,7 +136,8 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             st["supplier"] = ("skipped", "not needed — return for a refund")
             human = case.get("human_decision")
             if human == "APPROVED":
-                st["human"] = ("done", "approved by merchant")
+                st["human"] = ("done", "auto-approved by the merchant's policy"
+                               if case.get("approval_source") == "auto" else "approved by merchant")
             elif human == "DECLINED":
                 st["human"] = ("blocked", "declined by merchant")
                 st["paypal"] = ("blocked", f"Refund API NOT CALLED · {calls} calls")
@@ -180,12 +188,16 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                     "webhook": f"a signed PayPal webhook (the Refund API had returned {api})",
                     "reconcile": f"a PayPal GET during reconciliation (the Refund API had returned {api})",
                     "recovery": "PayPal's answer to the same PayPal-Request-Id re-sent after an unanswered call"}[via]
+        auto = case.get("approval_source") == "auto"
+        approval_line = ("Approved by the merchant's policy (auto) — no human involved. " if auto
+                         else "Approved by a human. ")
         return {**base, "kind": "ok", "icon": "✓", "title": "Refund COMPLETED",
-                "subtitle": f"Confirmed by PayPal — COMPLETED came from {via_text}. "
+                "subtitle": f"{approval_line}Confirmed by PayPal — COMPLETED came from {via_text}. "
                             "TradeOS shows success only after PayPal reports COMPLETED.",
                 "rows": [("PayPal Order ID", case.get("order_id")), ("Capture ID", case.get("capture_id")),
                          ("Refund ID", case.get("refund_id")),
                          ("Amount", f"${amount.get('value', case['amount'])} {amount.get('currency_code', case['currency'])}"),
+                         ("Approved by", _approval_text(case)),
                          ("PayPal timestamp", fmt_ts(refund.get("create_time") or case.get("updated_at")))],
                 "confirmations": [("PayPal Refund API response", api or "no reply (timeout)", api == "COMPLETED"),
                                   *([("COMPLETED confirmed by", {"webhook": "signed webhook", "reconcile": "PayPal GET",
@@ -228,7 +240,7 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
         return {**base, "kind": "bad", "icon": "✕", "title": f"Refund {refund.get('status') or 'FAILED'} at PayPal — needs a human",
                 "subtitle": "PayPal reported this refund as not completed, so no money moved for it. A retry needs a "
                             "NEW PayPal-Request-Id: PayPal must confirm the failure, the policy is re-checked, and the "
-                            "human approval must still be on record.",
+                            "approval (a person's or the merchant's own policy) must still be on record.",
                 "reason": details.get("reason") or case.get("error"),
                 "rows": [("Refund ID", case.get("refund_id")), ("PayPal status", refund.get("status") or case.get("refund_status")),
                          ("Refund API calls", str(calls)), ("Capture ID", case.get("capture_id"))]}
@@ -297,11 +309,13 @@ def ai_panel(case: dict | None) -> dict | None:
                            else "Draft — not sent.")
         elif outcome == "COMPLETED_NOTE":
             note_kind = "final"
-            note_status = (f"FINAL — written only after the merchant approved and PayPal returned COMPLETED "
+            who = ("the merchant's policy (auto)" if case.get("approval_source") == "auto" else "the merchant")
+            note_status = (f"FINAL — written only after {who} approved and PayPal returned COMPLETED "
                            f"for refund {case.get('refund_id')}.")
         elif outcome == "EXCHANGE_NOTE":
             note_kind = "final"
-            note_status = "Written after the merchant approved the exchange. No refund involved. Not sent (demo)."
+            who = ("the merchant's policy (auto)" if case.get("approval_source") == "auto" else "the merchant")
+            note_status = f"Written after {who} approved the exchange. No refund involved. Not sent (demo)."
         elif outcome == "FAILURE_NOTE":
             note_kind = "draft"
             note_status = "DRAFT — the refund could not be completed yet. Not sent; no money moved."
@@ -336,7 +350,8 @@ def backend_controls(db: Database, case: dict | None) -> list[tuple[str, str, st
         ("Refund amount", f"${case['amount']} {case['currency']}", "PayPal capture (full refund only)"),
         ("Capture to refund", case.get("capture_id") or "—", "PayPal order created by TradeOS"),
         ("Eligibility", case.get("decision") or "—", "Python policy engine"),
-        ("Refund permission", "policy ELIGIBLE + human APPROVED", "hard guard in execute_refund"),
+        ("Refund permission", "policy ELIGIBLE + a chained APPROVED (human or merchant policy)",
+         "hard guard in execute_refund"),
         ("Refund API calls", str(_refund_api_calls(db, case["id"])), "PayPal call log"),
     ]
 
@@ -377,6 +392,13 @@ def narrate(e: dict) -> str:
         return f"Supplier replied {d.get('status', '').replace('_', ' ').lower()} — MOCK reply, simulated for the demo."
     if t == "Waiting for human approval of the refund":
         return f"Waiting for a human to approve the {d.get('amount', '')} refund. Nothing moves automatically."
+    if t.startswith("Autonomy: AUTO"):
+        return (f"The merchant's policy auto-approved this case ({d.get('why', '')}). No human was involved; it "
+                "takes the same hard guard and the same PayPal call as a human approval.")
+    if t.startswith("Autonomy: HUMAN"):
+        return f"This case needs a person: {d.get('why', '')}."
+    if t == "Auto-approved by the merchant's policy — no human involved":
+        return "Auto-approved by the merchant's policy. No human approved this refund."
     if t.startswith("Waiting for human approval of the exchange"):
         return "Waiting for a human to approve the exchange. No refund is involved."
     if t == "Human approved the refund":

@@ -10,7 +10,8 @@
 <section class="controls">
   <div>
     <h1>Merchant operations</h1>
-    <p class="muted">Customer speaks naturally → AI reads the language → Python rules decide → a human approves → PayPal moves the money.</p>
+    <p class="muted">Customer speaks naturally → AI reads the language → Python rules decide eligibility → a human approves, or the merchant's policy does when autonomy is on → PayPal moves the money.</p>
+    <p class="muted small">Autonomy {% if settings.auto_enabled %}<strong>ON</strong> — a policy-eligible refund up to ${{ settings.auto_refund_max_amount }} {{ settings.currency }} is approved by the merchant's own policy, with no human. Recorded on the audit chain as <code>approval_source: auto</code>.{% else %}<strong>OFF</strong> — every refund needs a person to approve it.{% endif %}</p>
   </div>
   <div class="buttons">
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible return (refund)</button></form>
@@ -77,7 +78,7 @@
             {% endif %}
             <form method="post" action="/cases/{{ current.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
           </div>
-          <p class="muted small">Human approval is required before any financial action. Nothing is refunded automatically.</p>
+          <p class="muted small">Nothing is refunded without an approval recorded on the audit chain. This case needs a person: either autonomy is off, or it falls outside the merchant's limits.</p>
         {% elif current.status in ("REFUND_ERROR", "REFUND_OUTCOME_UNKNOWN") %}
           <div class="row gap actions">
             <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>

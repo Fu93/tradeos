@@ -3,6 +3,7 @@ notes, failure modes (late, injection, refund failure, double click), rate limit
 
 import json
 import re
+import sqlite3
 import threading
 from unittest.mock import MagicMock
 
@@ -464,7 +465,7 @@ def test_dashboard_has_new_panels(app_ctx):
     for text in ("Try it yourself", "中文（繁體）", "Español", "Deutsch", "日本語", "Prompt injection",
                  "Late request (45 days)", "Purchased 45 days ago", "Failure &amp; safety modes",
                  "Refund API failure", "Double-click approve", "MOCK supplier", "Customer request",
-                 "AI intent", "Human approval", 'maxlength="500"'):
+                 "AI intent", "Approval", "Autonomy", 'maxlength="500"'):
         assert text in html, text
 
 
@@ -702,3 +703,44 @@ def test_rejected_note_keeps_no_refund_wording(settings):
     case = wf.db.get_case(wf.run_scenario("B"))
     assert case["note"]["outcome"] == "REJECTION_NOTE" and "No refund has been issued." in case["note"]["text"]
     assert not makes_completion_claim(case["note"]["text"])
+
+
+# ------------------------------------------------------------------ forward migration (kept database)
+def _columns(path, table):
+    with sqlite3.connect(path) as conn:
+        return [r[1] for r in conn.execute(f"PRAGMA table_info({table})")]
+
+
+def test_kept_database_gains_approval_source_and_still_refunds(settings):
+    """`TRADEOS_RESET_ON_START=0`: a database from before `approval_source` existed must keep working.
+
+    Nothing covered the forward migration until this test, and the refund gate depends on the hash chain
+    surviving it. So: the column is added, an old row stays NULL (an unknown origin is not guessed at),
+    the chain still verifies, and an approval recorded after the upgrade still refunds.
+    """
+    db = Database(settings.db_path)
+    db.init(reset=True)
+    pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)  # one client: its captures outlive the reopen
+    wf = Workflow(db, settings, KeywordIntentExtractor(), paypal=pp)
+    wf.seed_demo()
+    case_id = wf.run_scenario("A")
+    assert db.get_case(case_id)["status"] == "PENDING_APPROVAL"
+
+    # Simulate the pre-upgrade schema: the column did not exist yet.
+    with db.connect() as conn:
+        conn.execute("ALTER TABLE cases DROP COLUMN approval_source")
+    assert "approval_source" not in _columns(settings.db_path, "cases")
+
+    # Re-opening a KEPT database (no reset) runs the forward migration.
+    kept = Database(settings.db_path)
+    kept.init(reset=False)
+    assert "approval_source" in _columns(settings.db_path, "cases")
+    assert kept.get_case(case_id)["approval_source"] is None  # old row: unknown, not assumed
+    assert kept.verify_chain(case_id)["ok"] is True
+
+    wf2 = Workflow(kept, settings, KeywordIntentExtractor(), paypal=pp)
+    wf2.approve(case_id)
+    case = kept.get_case(case_id)
+    assert case["status"] == "REFUND_COMPLETED"
+    assert case["approval_source"] == "human"
+    assert kept.verify_chain(case_id)["ok"] is True

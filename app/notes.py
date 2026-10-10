@@ -10,12 +10,14 @@ The wording follows the case state, so nothing claims an approval or a refund th
 not happened:
 
 * PENDING_NOTE    — policy ELIGIBLE, waiting for the merchant: "awaiting merchant approval.
-                    No refund has been issued yet." Draft, not sent.
-* REFUND_NOTE     — written when the merchant presses Approve and sent to PayPal as
-                    ``note_to_payer`` WITH the refund call. Neutral ("This refund of 49.99 USD
-                    is for ...") because it is only ever delivered attached to that refund.
+                    No refund has been issued yet." Draft, not sent. (Not written when the
+                    merchant's autonomy approved the case: it never waits, so nothing may say it does.)
+* REFUND_NOTE     — written when the approval is given (a person's, or the merchant's policy's)
+                    and sent to PayPal as ``note_to_payer`` WITH the refund call. Neutral
+                    ("This refund of 49.99 USD is for ...") because it is only ever delivered
+                    attached to that refund.
 * COMPLETED_NOTE  — the only note allowed to say "approved" / "refunded": written after the
-                    merchant approved AND PayPal returned COMPLETED for the refund.
+                    case was approved AND PayPal returned COMPLETED for the refund.
 * FAILURE_NOTE    — PayPal refused the refund: "could not be completed yet". Draft, not sent.
 * REJECTION_NOTE  — policy REJECTED: "No refund has been issued". Draft, not sent.
 

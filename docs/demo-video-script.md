@@ -2,6 +2,11 @@
 
 Recorded on the LIVE Sandbox site (main `331ab4a`), Playwright CDP screencast, edge-tts en-US-AndrewNeural, subtitles in a dedicated black band. Duration 2:48.
 
+> The recording was made with autonomy **off** (`AUTO_ENABLED` unset, the default), which is why the narration can say
+> "a human approves, and only then does TradeOS call the PayPal Refund API". That sentence describes the configuration
+> on screen, not a permanent property of the system: with `AUTO_ENABLED=1` the same eligible return is approved by the
+> merchant's own policy and the case completes with no human. Showing that contrast is a v5 item, not a correction to v4.
+
 | Time | Screen | Narration |
 | --- | --- | --- |
 | 0:00–0:22 | Overlays: the two customer messages (return + 42→43 exchange); manual-work steps; tagline. | A customer writes: these sneakers are too small, I want to return them. Another asks to swap a 42 for a 43. For a small merchant with no ops team, that's minutes of manual work: translate, check the date, find the PayPal capture, refund by hand. TradeOS turns it into one approval. PayPal moves the money. TradeOS moves the work. |
