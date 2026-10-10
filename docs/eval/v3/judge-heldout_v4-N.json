@@ -6067,12 +6067,62 @@
    "required_action": "CREATE_SUPPLIER_TASK",
    "acceptable_actions": [],
    "_latency": 36.39
+  },
+  "X228": {
+   "speech_act_evidence": "me gustaría saber si sería posible repararla",
+   "speech_act": "QUESTION",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "la cremallera se ha roto",
+     "issue_type": "DEFECT",
+     "component": "cremallera",
+     "goals": [
+      {
+       "evidence": "me gustaría saber si sería posible repararla",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "cabría la posibilidad de solicitar un reembolso",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "UNDECIDED"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96219",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Speech act is QUESTION as the customer asks about repair and refund possibilities. The item is a DEFECT (broken zipper) with goals REPAIR and REFUND; the customer is undecided which they prefer. Intent revision leads to undecided preference, triggering rule V4b → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V4b",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 28.34
+  },
+  "X245": {
+   "speech_act_evidence": "wie lange ich denn die Rückgabefrist habe",
+   "speech_act": "QUESTION",
+   "items": [],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer asks a pure policy question about the return period, with no product problem. Speech act is QUESTION and there are no goals, matching decision rule V6 (QUESTION with only INFORMATION goals or none) → required_action HUMAN_REVIEW.",
+   "deciding_rule": "V6",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 12.52
   }
  },
  "stats": {
-  "calls": 203,
-  "retries": 1596,
-  "prompt_tokens": 1329785,
-  "completion_tokens": 590662
+  "calls": 205,
+  "retries": 1601,
+  "prompt_tokens": 1342809,
+  "completion_tokens": 595348
  }
 }

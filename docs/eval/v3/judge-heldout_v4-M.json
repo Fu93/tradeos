@@ -3300,12 +3300,68 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 174.53
+  },
+  "X109": {
+   "speech_act_evidence": "修理対応をお願いできますでしょうか",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "調光ボタンが反応しなくなりました",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "修理対応をお願いできますでしょうか"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "調光ボタンが反応しなくなりました",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96109",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96109 exists, belongs to the customer and contains DESK-LAMP white delivered 300 days ago. The customer reports a malfunction of the dimmer button on a MAINS_ELECTRIC safety_class product. v3.2 SG-1 gates any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, which takes precedence over warranty/repair flows. Safety is therefore escalated and no supplier task is allowed.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 121.94
+  },
+  "X119": {
+   "speech_act_evidence": "Could you please send me a replacement part?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "the switch just snapped off",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "goal_evidence": "Could you please send me a replacement part?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "switch just snapped off",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96119",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96119 belongs to customer and contains DESK-LAMP white delivered 100 days ago. Customer reports a malfunction on a MAINS_ELECTRIC gated product. v3.2 SG-1 gates any malfunction on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, which takes precedence over the SEND_PART request and the missing part number clarification.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 158.17
   }
  },
  "stats": {
-  "calls": 6,
-  "retries": 1,
-  "prompt_tokens": 35927,
-  "completion_tokens": 15993
+  "calls": 2,
+  "retries": 2,
+  "prompt_tokens": 11950,
+  "completion_tokens": 5457
  }
 }
