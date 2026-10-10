@@ -49,6 +49,8 @@ def main(base: str) -> int:
             break
         time.sleep(5)
     check(status == "VERIFIED", f"signed PAYMENT.CAPTURE.REFUNDED verified (webhook_status={status})")
+    method = (c.get(f"/api/cases/{case_a}").json()["case"].get("webhook") or {}).get("verify_method")
+    check(method in ("self", "postback"), f"webhook verification method recorded: {method} (self expected)")
 
     # Check against PayPal (reconciliation)
     c.post(f"/cases/{case_a}/refresh-refund")

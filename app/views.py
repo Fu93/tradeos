@@ -401,12 +401,14 @@ WEBHOOK_OUTCOME_WORDS = {
     "NO_CHANGE": "verified, no state change", "DUPLICATE_IGNORED": "duplicate delivery ignored",
     "MISMATCH_IGNORED": "refund id does not match — ignored", "UNVERIFIED_IGNORED": "NOT verified — ignored",
     "UNMATCHED": "no matching case", "FAILED_WILL_RETRY": "processing failed — PayPal will retry",
+    "PENDING_CONFIRMED": "verified: still PENDING", "PENDING_TO_FAILED": "verified: refund FAILED — needs a human",
+    "WARNING_NEEDS_HUMAN": "verified warning — needs a human", "NEEDS_HUMAN": "verified, differs — needs a human",
 }
 
 
 def _webhook_row(w: dict) -> dict:
     return {"seq": int(w.get("seq") or 0), "id": w["id"], "ts": w["ts"], "source": "webhook",
-            "what": f"Webhook {w.get('event_type')}",
+            "what": f"Webhook {w.get('event_type')}" + (f" (checked: {w['verify_method']})" if w.get("verify_method") else ""),
             "ok": bool(w["verified"]) or w["outcome"] == "DUPLICATE_IGNORED",
             "status": f"{w.get('resource_status') or '—'} · {WEBHOOK_OUTCOME_WORDS.get(w['outcome'], w['outcome'])}",
             "ids": [(k, v) for k, v in (("event", w.get("event_id")),) if v], "debug_id": None, "request_id": None}
@@ -457,7 +459,8 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         verified = [e for e in events if e["verified"]]
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
-            value = f"signature verified with PayPal · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            how = {"self": "signature checked against PayPal's certificate", "postback": "signature verified by PayPal's API"}
+            value = f"{how.get(verified[-1].get('verify_method'), 'signature verified')} · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
             rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
         else:
             rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else

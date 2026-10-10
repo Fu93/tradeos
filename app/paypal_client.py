@@ -265,6 +265,12 @@ class PayPalClient:
     def list_webhooks(self) -> dict:
         return self._request("GET", "/v1/notifications/webhooks")
 
+    def update_webhook_events(self, webhook_id: str, event_types: list[str]) -> dict:
+        """PATCH /v1/notifications/webhooks/{id}: replace the subscribed event list (same webhook id)."""
+        return self._request("PATCH", f"/v1/notifications/webhooks/{webhook_id}",
+                             json=[{"op": "replace", "path": "/event_types",
+                                    "value": [{"name": n} for n in event_types]}])
+
     def create_webhook(self, url: str, event_types: list[str]) -> dict:
         return self._request("POST", "/v1/notifications/webhooks",
                              json={"url": url, "event_types": [{"name": n} for n in event_types]})

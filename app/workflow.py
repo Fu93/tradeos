@@ -80,6 +80,7 @@ class Workflow:
         self._locks: dict[str, threading.Lock] = {}
         self._locks_guard = threading.Lock()
         self._reconciled: dict[str, float] = {}
+        self._refund_checks: dict[str, str] = {}
         # UTC, to match PayPal timestamps.
         self.today = today or (lambda: datetime.now(timezone.utc).date())
 
@@ -166,6 +167,7 @@ class Workflow:
             for key in [k for k, v in self._locks.items() if not v.locked()]:
                 del self._locks[key]
             self._reconciled.clear()
+            self._refund_checks.clear()
 
     def _case(self, case_id: str) -> dict:
         case = self.db.get_case(case_id)
@@ -489,9 +491,55 @@ class Workflow:
             self.db.update_case(case_id, status=REFUND_ERROR, error=str(exc), refund_fault=None)
             self.db.audit(case_id, "paypal", "Refund failed", {**exc.to_dict(), "paypal_request_id": request_id})
             self._write_note(case_id, "FAILURE_NOTE", None, case.get("assist"))
+            if exc.status_code is None or exc.status_code >= 500:
+                # Outcome unknown (timeout / network / 5xx): PayPal may have refunded anyway. Check with
+                # PayPal before a retry is allowed; the retry itself reuses the same PayPal-Request-Id.
+                self._start_refund_check(case_id)
             raise
         self._record_refund(case_id, refund, request_id)
         return refund
+
+    # ------------------------------------------------------------------ unknown refund outcome
+    def refund_check_pending(self, case_id: str) -> bool:
+        with self._locks_guard:
+            return self._refund_checks.get(case_id) == "CHECKING"
+
+    def _start_refund_check(self, case_id: str) -> None:
+        with self._locks_guard:
+            if self._refund_checks.get(case_id) == "CHECKING":
+                return
+            self._refund_checks.pop(case_id, None)
+            self._refund_checks[case_id] = "CHECKING"
+            while len(self._refund_checks) > MAX_TRACKED_CASES:
+                self._refund_checks.pop(next(iter(self._refund_checks)))
+        if self.settings.reconcile_in_background:
+            threading.Thread(target=self._refund_check, args=(case_id,), daemon=True).start()
+        else:
+            self._refund_check(case_id)
+
+    def _refund_check(self, case_id: str) -> None:
+        """Bounded GET of the capture (short timeout). Read-only; never calls the Refund API."""
+        result = "UNKNOWN"
+        try:
+            case = self._case(case_id)
+            capture = self._pp(case_id, "get_capture", case["capture_id"], timeout=RECONCILE_READ_TIMEOUT)
+            status = capture.get("status")
+            if status in ("REFUNDED", "PARTIALLY_REFUNDED"):
+                result = "REFUNDED_AT_PAYPAL"
+                title = (f"Checked with PayPal after the failed refund call: capture is {status} — the request "
+                         "probably went through. Retry reuses the same PayPal-Request-Id, so PayPal returns that "
+                         "refund instead of creating a new one.")
+            else:
+                result = "NOT_REFUNDED"
+                title = (f"Checked with PayPal after the failed refund call: capture is {status}, no refund yet. "
+                         "Safe to retry with the same PayPal-Request-Id.")
+            self.db.audit(case_id, "paypal", title, {"capture_status": status, "seq": next_seq()})
+        except Exception as exc:  # PayPal down / timeout: retry stays safe (same PayPal-Request-Id)
+            self.db.audit(case_id, "paypal", "Could not check with PayPal after the failed refund call — retry "
+                          "still uses the same PayPal-Request-Id", {"error": type(exc).__name__, "seq": next_seq()})
+        finally:
+            with self._locks_guard:
+                self._refund_checks[case_id] = result
 
     def refresh_refund(self, case_id: str) -> None:
         """Manual 'Refresh status' button: a full reconciliation against PayPal."""
@@ -613,34 +661,41 @@ class Workflow:
                           {"error": type(exc).__name__, "seq": next_seq()})
 
     # ------------------------------------------------------------------ webhook
-    def record_webhook(self, event: dict, verification: str) -> str | None:
-        """Signed PayPal webhook (PAYMENT.CAPTURE.REFUNDED). Returns the matched case id.
+    def record_webhook(self, event: dict, verification: str, method: str = "postback") -> str | None:
+        """Signed PayPal webhook. Returns the matched case id.
+
+        Refund events (resource = refund): PAYMENT.CAPTURE.REFUNDED, PAYMENT.REFUND.PENDING,
+        PAYMENT.REFUND.FAILED. Capture events (resource = capture): PAYMENT.CAPTURE.REVERSED,
+        PAYMENT.CAPTURE.DECLINED -> logged as a warning for a human, never a state change.
 
         Trust rules:
-        - Only a VERIFIED event can change anything. Unverified deliveries are logged only (in
-          webhook_events + audit) and never change the case, including its displayed webhook status.
+        - Only a VERIFIED event can change anything. Unverified deliveries are logged only.
         - A verified event id is processed once (persisted in webhook_events); retries are no-ops.
-        - The event's refund id must equal the case's own refund id; otherwise (unknown refund,
-          refund we never created, case not yet refunded) it is logged with no state change.
-        - The only state change is PENDING -> COMPLETED, through the same _record_refund path the
-          Refund API response uses. COMPLETED is never downgraded by a late/out-of-order event.
+        - Refund events must carry this case's own refund id; otherwise logged, no state change.
+        - Allowed state changes, all through _record_refund: PENDING -> COMPLETED; PENDING -> PENDING
+          (new reason, e.g. ECHECK); PENDING -> FAILED (needs a human). COMPLETED is never
+          downgraded, and nothing here ever calls the Refund API.
         """
         resource = event.get("resource") or {}
-        refund_id = resource.get("id")
+        etype = event.get("event_type")
+        res_id = resource.get("id")
         res_status = resource.get("status")
         event_id = event.get("id")
         verified = verification == "SUCCESS"
-        case = self.db.find_case_by("refund_id", refund_id) if refund_id else None
-        if case is None:
+        capture_event = etype in CAPTURE_WARNING_EVENTS
+        case = None
+        if res_id:
+            case = self.db.find_case_by("capture_id" if capture_event else "refund_id", res_id)
+        if case is None and not capture_event:
             for link in resource.get("links") or []:
                 if link.get("rel") == "up" and "/captures/" in (link.get("href") or ""):
                     case = self.db.find_case_by("capture_id", link["href"].rstrip("/").split("/")[-1])
                     break
-        log = dict(event_id=event_id, event_type=event.get("event_type"), verification=verification,
-                   verified=verified, resource_id=refund_id, resource_status=res_status)
-        info = {"event_id": event_id, "event_type": event.get("event_type"), "resource_id": refund_id,
-                "resource_status": res_status, "verification": verification, "received_at": self._now(),
-                "create_time": event.get("create_time")}
+        log = dict(event_id=event_id, event_type=etype, verification=verification, verified=verified,
+                   resource_id=res_id, resource_status=res_status, verify_method=method)
+        info = {"event_id": event_id, "event_type": etype, "resource_id": res_id, "resource_status": res_status,
+                "status_details": resource.get("status_details"), "verification": verification,
+                "verify_method": method, "received_at": self._now(), "create_time": event.get("create_time")}
         if case is None:
             self.db.log_webhook_event(case_id=None, outcome="UNMATCHED", **log)
             return None
@@ -650,35 +705,18 @@ class Workflow:
             if not verified:
                 # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
-                self.db.audit(case_id, "webhook", f"PayPal webhook {event.get('event_type')} received but NOT "
-                              "verified — ignored (no state change)", info)
+                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} received but NOT verified — ignored "
+                              "(no state change)", info)
                 return case_id
             if not event_id or not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
-                self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED",
-                                          **{**log, "verified": False})
+                self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED", **{**log, "verified": False})
                 self.db.audit(case_id, "webhook", "Duplicate PayPal webhook delivery ignored (event already processed)",
                               info)
                 return case_id
             try:
-                if not case.get("refund_id") or case["refund_id"] != refund_id:
-                    self.db.set_webhook_outcome(event_id, "MISMATCH_IGNORED")
-                    self.db.audit(case_id, "webhook", "Verified PayPal webhook does not match this case's refund id "
-                                  "— logged, no state change", {**info, "case_refund_id": case.get("refund_id")})
-                    return case_id
-                outcome = "CONFIRMED"
-                if res_status == "COMPLETED" and case.get("refund_status") == "PENDING":
-                    self._record_refund(case_id, {**(case.get("refund") or {}), **resource}, None)
-                    outcome = "PENDING_TO_COMPLETED"
-                    self.db.audit(case_id, "webhook", "Verified PayPal webhook moved refund PENDING → COMPLETED", info)
-                elif res_status != "COMPLETED":
-                    outcome = "NO_CHANGE"
+                outcome, title = self._apply_webhook(case, etype, resource, info)
                 self.db.set_webhook_outcome(event_id, outcome)
-                if res_status == "COMPLETED":
-                    self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
-                self.db.audit(case_id, "webhook",
-                              f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
-                              if res_status == "COMPLETED" else
-                              f"Verified PayPal webhook reports refund {res_status} — no state change", info)
+                self.db.audit(case_id, "webhook", title, info)
                 return case_id
             except Exception:
                 # Failed midway: release the claim so PayPal's retry of this event is processed, not
@@ -686,6 +724,44 @@ class Workflow:
                 self.db.release_webhook_event(event_id)
                 self.db.log_webhook_event(case_id=case_id, outcome="FAILED_WILL_RETRY", **{**log, "verified": False})
                 raise
+
+    def _apply_webhook(self, case: dict, etype: str, resource: dict, info: dict) -> tuple[str, str]:
+        """Verified, first delivery, case lock held. Returns (outcome, audit title)."""
+        case_id = case["id"]
+        res_status = resource.get("status")
+        if etype in CAPTURE_WARNING_EVENTS:
+            return ("WARNING_NEEDS_HUMAN",
+                    f"Verified PayPal webhook {etype}: capture {resource.get('id')} is {res_status} — "
+                    "needs a human (no automatic change)")
+        if not case.get("refund_id") or case["refund_id"] != resource.get("id"):
+            return ("MISMATCH_IGNORED", "Verified PayPal webhook does not match this case's refund id "
+                    "— logged, no state change")
+        local = case.get("refund_status")
+        merged = {**(case.get("refund") or {}), **resource}
+        if res_status == "COMPLETED":
+            if local == "PENDING":
+                self._record_refund(case_id, merged, None)
+                self._confirm_webhook(case_id, info)
+                return "PENDING_TO_COMPLETED", "Verified PayPal webhook moved refund PENDING → COMPLETED"
+            if local == "COMPLETED":
+                self._confirm_webhook(case_id, info)
+                return ("CONFIRMED", f"PayPal webhook {etype} received — signature verified (second confirmation)")
+            return ("NEEDS_HUMAN", f"Verified PayPal webhook says COMPLETED but TradeOS has {local} — needs a human "
+                    "(no automatic change)")
+        if local == "COMPLETED":
+            return ("NO_CHANGE", f"Verified PayPal webhook reports refund {res_status} after COMPLETED — "
+                    "not downgraded; needs a human if it persists")
+        if res_status == "PENDING" and local == "PENDING":
+            self._record_refund(case_id, merged, None)  # stays PENDING; records the reason (e.g. ECHECK)
+            reason = (resource.get("status_details") or {}).get("reason")
+            return "PENDING_CONFIRMED", f"Verified PayPal webhook: refund still PENDING{f' ({reason})' if reason else ''}"
+        if res_status == "FAILED" and local == "PENDING":
+            self._record_refund(case_id, merged, None)
+            return "PENDING_TO_FAILED", "Verified PayPal webhook: refund FAILED at PayPal — needs a human"
+        return "NO_CHANGE", f"Verified PayPal webhook reports refund {res_status} — no state change"
+
+    def _confirm_webhook(self, case_id: str, info: dict) -> None:
+        self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
 
     def _record_refund(self, case_id: str, refund: dict, request_id: str | None) -> None:
         status = refund.get("status")
@@ -709,6 +785,7 @@ class Workflow:
         return utcnow()
 
 
+CAPTURE_WARNING_EVENTS = ("PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED")  # log-only, needs a human
 RECONCILE_MIN_INTERVAL = 30.0  # seconds between automatic reconciliations of one case
 RECONCILE_READ_TIMEOUT = 5.0   # seconds per PayPal GET during reconciliation (demo must never hang)
 
