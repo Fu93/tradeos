@@ -492,7 +492,8 @@ def test_webhook_bad_signature_is_not_trusted(app_ctx):
                     headers={"PAYPAL-TRANSMISSION-SIG": "forged"})
     assert r.json()["verified"] is False and r.json()["case"] == case_id  # matched via capture link
     case = wf.db.get_case(case_id)
-    assert case["webhook_status"] == "UNVERIFIED" and case["status"] == "REFUND_COMPLETED"
+    # Changed in #10 review fix: unverified deliveries are log-only and never touch the displayed status.
+    assert case["webhook_status"] is None and case["status"] == "REFUND_COMPLETED"
 
 
 def test_webhook_ignores_other_events_and_bad_json(app_ctx):
@@ -515,7 +516,8 @@ def test_webhook_without_webhook_id_is_unverified(settings):
                     headers={"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature"})
     assert r.json()["verified"] is False
     pp.verify_webhook_signature.assert_not_called()
-    assert "not configured (PAYPAL_WEBHOOK_ID)" not in client.get(f"/?case={case_id}").text  # webhook did arrive
+    # Changed in #10 review fix: an unverified delivery no longer changes what the case shows.
+    assert "not configured (PAYPAL_WEBHOOK_ID)" in client.get(f"/?case={case_id}").text
     other = case_from(client.post("/demo/run/A", follow_redirects=False))
     client.post(f"/cases/{other}/approve", follow_redirects=False)
     assert "not configured (PAYPAL_WEBHOOK_ID)" in client.get(f"/?case={other}").text

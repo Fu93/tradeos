@@ -40,6 +40,7 @@ SCENARIOS = {
     "R": {"customer_name": "Ana (failure test)", "seeded_days_ago": None, "label": "Refund API failure"},
     "D": {"customer_name": "Ken (failure test)", "seeded_days_ago": None, "label": "Double-click approve"},
 }
+MAX_TRACKED_CASES = 500  # cap for per-case in-memory maps (locks, reconcile throttle)
 RUNNABLE = ("A", "B", "R", "D")
 
 # Case statuses
@@ -134,7 +135,20 @@ class Workflow:
 
     def _lock(self, case_id: str) -> threading.Lock:
         with self._locks_guard:
-            return self._locks.setdefault(case_id, threading.Lock())
+            lock = self._locks.pop(case_id, None) or threading.Lock()
+            self._locks[case_id] = lock  # most recently used last
+            if len(self._locks) > MAX_TRACKED_CASES:  # bounded: evict idle locks, oldest first
+                for key in [k for k, v in self._locks.items() if k != case_id and not v.locked()]:
+                    if len(self._locks) <= MAX_TRACKED_CASES:
+                        break
+                    del self._locks[key]
+            return lock
+
+    def reset_runtime_state(self) -> None:
+        """Demo reset: forget per-case in-memory state (idle locks) along with the database."""
+        with self._locks_guard:
+            for key in [k for k, v in self._locks.items() if not v.locked()]:
+                del self._locks[key]
 
     def _case(self, case_id: str) -> dict:
         case = self.db.get_case(case_id)
@@ -476,27 +490,78 @@ class Workflow:
 
     # ------------------------------------------------------------------ webhook
     def record_webhook(self, event: dict, verification: str) -> str | None:
-        """Second, independent confirmation from PayPal (signed webhook). Returns the case id if matched."""
+        """Signed PayPal webhook (PAYMENT.CAPTURE.REFUNDED). Returns the matched case id.
+
+        Trust rules:
+        - Only a VERIFIED event can change anything. Unverified deliveries are logged only (in
+          webhook_events + audit) and never change the case, including its displayed webhook status.
+        - A verified event id is processed once (persisted in webhook_events); retries are no-ops.
+        - The event's refund id must equal the case's own refund id; otherwise (unknown refund,
+          refund we never created, case not yet refunded) it is logged with no state change.
+        - The only state change is PENDING -> COMPLETED, through the same _record_refund path the
+          Refund API response uses. COMPLETED is never downgraded by a late/out-of-order event.
+        """
         resource = event.get("resource") or {}
         refund_id = resource.get("id")
+        res_status = resource.get("status")
+        event_id = event.get("id")
+        verified = verification == "SUCCESS"
         case = self.db.find_case_by("refund_id", refund_id) if refund_id else None
         if case is None:
             for link in resource.get("links") or []:
                 if link.get("rel") == "up" and "/captures/" in (link.get("href") or ""):
                     case = self.db.find_case_by("capture_id", link["href"].rstrip("/").split("/")[-1])
                     break
+        log = dict(event_id=event_id, event_type=event.get("event_type"), verification=verification,
+                   verified=verified, resource_id=refund_id, resource_status=res_status)
+        info = {"event_id": event_id, "event_type": event.get("event_type"), "resource_id": refund_id,
+                "resource_status": res_status, "verification": verification, "received_at": self._now(),
+                "create_time": event.get("create_time")}
         if case is None:
+            self.db.log_webhook_event(case_id=None, outcome="UNMATCHED", **log)
             return None
-        info = {"event_id": event.get("id"), "event_type": event.get("event_type"),
-                "resource_id": refund_id, "resource_status": resource.get("status"),
-                "verification": verification, "received_at": self._now(), "create_time": event.get("create_time")}
-        status = "VERIFIED" if verification == "SUCCESS" else "UNVERIFIED"
-        self.db.update_case(case["id"], webhook_status=status, webhook_json=json.dumps(info))
-        title = (f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
-                 if status == "VERIFIED" else
-                 f"PayPal webhook {event.get('event_type')} received but NOT verified — ignored")
-        self.db.audit(case["id"], "webhook", title, info)
-        return case["id"]
+        case_id = case["id"]
+        with self._lock(case_id):
+            case = self._case(case_id)
+            if not verified:
+                # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
+                self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
+                self.db.audit(case_id, "webhook", f"PayPal webhook {event.get('event_type')} received but NOT "
+                              "verified — ignored (no state change)", info)
+                return case_id
+            if not event_id or not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
+                self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED",
+                                          **{**log, "verified": False})
+                self.db.audit(case_id, "webhook", "Duplicate PayPal webhook delivery ignored (event already processed)",
+                              info)
+                return case_id
+            try:
+                if not case.get("refund_id") or case["refund_id"] != refund_id:
+                    self.db.set_webhook_outcome(event_id, "MISMATCH_IGNORED")
+                    self.db.audit(case_id, "webhook", "Verified PayPal webhook does not match this case's refund id "
+                                  "— logged, no state change", {**info, "case_refund_id": case.get("refund_id")})
+                    return case_id
+                outcome = "CONFIRMED"
+                if res_status == "COMPLETED" and case.get("refund_status") == "PENDING":
+                    self._record_refund(case_id, {**(case.get("refund") or {}), **resource}, None)
+                    outcome = "PENDING_TO_COMPLETED"
+                    self.db.audit(case_id, "webhook", "Verified PayPal webhook moved refund PENDING → COMPLETED", info)
+                elif res_status != "COMPLETED":
+                    outcome = "NO_CHANGE"
+                self.db.set_webhook_outcome(event_id, outcome)
+                if res_status == "COMPLETED":
+                    self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
+                self.db.audit(case_id, "webhook",
+                              f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
+                              if res_status == "COMPLETED" else
+                              f"Verified PayPal webhook reports refund {res_status} — no state change", info)
+                return case_id
+            except Exception:
+                # Failed midway: release the claim so PayPal's retry of this event is processed, not
+                # discarded as a duplicate. Logged as FAILED for the record.
+                self.db.release_webhook_event(event_id)
+                self.db.log_webhook_event(case_id=case_id, outcome="FAILED_WILL_RETRY", **{**log, "verified": False})
+                raise
 
     def _record_refund(self, case_id: str, refund: dict, request_id: str | None) -> None:
         status = refund.get("status")

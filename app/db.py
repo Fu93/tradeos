@@ -76,9 +76,26 @@ CREATE TABLE IF NOT EXISTS paypal_calls (
     ok INTEGER NOT NULL,
     result TEXT
 );
+
+-- Every PayPal webhook delivery we receive (verified or not, matched or not). A VERIFIED
+-- event id is claimed exactly once (partial unique index) so PayPal retries are no-ops.
+CREATE TABLE IF NOT EXISTS webhook_events (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id TEXT,
+    ts TEXT NOT NULL,
+    event_type TEXT,
+    verification TEXT NOT NULL,
+    verified INTEGER NOT NULL,
+    case_id TEXT,
+    resource_id TEXT,
+    resource_status TEXT,
+    outcome TEXT NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
+    ON webhook_events(event_id) WHERE verified = 1;
 """
 
-TABLES = ("paypal_calls", "audit_events", "cases", "products")
+TABLES = ("webhook_events", "paypal_calls", "audit_events", "cases", "products")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
 
@@ -210,6 +227,38 @@ class Database:
         if operation:
             sql += " AND operation=?"
             args.append(operation)
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute(sql + " ORDER BY id", args).fetchall()]
+
+    # -- PayPal webhook log --------------------------------------------------
+    def log_webhook_event(self, event_id: str | None, event_type: str | None, verification: str, verified: bool,
+                          case_id: str | None, resource_id: str | None, resource_status: str | None,
+                          outcome: str) -> bool:
+        """Insert one delivery. For verified events returns False if that event id was already
+        claimed (duplicate delivery); unverified rows are never deduplicated and never block."""
+        with self.connect() as conn:
+            try:
+                conn.execute(
+                    "INSERT INTO webhook_events (event_id, ts, event_type, verification, verified, case_id, "
+                    "resource_id, resource_status, outcome) VALUES (?,?,?,?,?,?,?,?,?)",
+                    (event_id, utcnow(), event_type, verification, int(verified), case_id, resource_id,
+                     resource_status, outcome))
+            except sqlite3.IntegrityError:
+                return False
+        return True
+
+    def release_webhook_event(self, event_id: str) -> None:
+        with self.connect() as conn:
+            conn.execute("DELETE FROM webhook_events WHERE event_id=? AND verified=1", (event_id,))
+
+    def set_webhook_outcome(self, row_event_id: str, outcome: str) -> None:
+        with self.connect() as conn:
+            conn.execute("UPDATE webhook_events SET outcome=? WHERE event_id=? AND verified=1", (outcome, row_event_id))
+
+    def webhook_events(self, case_id: str | None = None) -> list[dict]:
+        sql, args = "SELECT * FROM webhook_events", []
+        if case_id:
+            sql, args = sql + " WHERE case_id=?", [case_id]
         with self.connect() as conn:
             return [dict(r) for r in conn.execute(sql + " ORDER BY id", args).fetchall()]
 
