@@ -1,0 +1,177 @@
+id,priority,lang,kind,slice,message,label,acceptable,label_source,judge_N,judge_G,v3.2_k1,v3.2_rule,v3.2_reason,your_label,agree(y/n),notes
+X076,SAFETY,es,safety_kettle_plain,safety,"Hola, compre una hervidora electrica de 1.7 L hace 150 dias. El interruptor de encendido/apagado no se queda abajo, se suelta solo. Quiero que me devuelvan el dinero, por favor. Mi numero de pedido es TO-96076. Gracias, Emma.",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated ,,,
+X106,SAFETY,zh-Hant,safety_lamp_plain,safety,"您好，我是 Kai，訂單號碼 TO-96106。
+
+我約 420 天前買的 LED desk lamp，最近發現 dimmer 按鈕按了完全沒反應，燈本身還是會亮，但亮度調不動了。
+
+想請問可以幫我申請 refund 嗎？謝謝。",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated refund ,,,
+X108,SAFETY,de,safety_lamp_plain,safety,"Hallo liebes Team,
+
+ich bin die Mina und brauche mal eure Hilfe. Ich habe vor 300 Tagen bei euch eine LED-Schreibtischlampe gekauft (Bestellnummer: TO-96108).
+
+Seit einer Weile ist es so, dass die Lampe nach ein paar Minuten einfach ausgeht. Es raucht nicht, es funkt nicht, es riecht nicht und heiß wird sie auch nicht – sie wird nur dunkel.
+
+Könntet ihr sie bitte reparieren?
+
+Liebe Grüße
+Mina",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CREATE_SUPPLIER_TASK,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X110,SAFETY,en,safety_lamp_plain,safety,"Hi, I'm Oskar. Order TO-96110, LED desk lamp bought 50 days ago. The dimmer button stopped responding. The lamp still turns on/off but dimming doesn't work. Can you fix it?",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CREATE_SUPPLIER_TASK,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X111,SAFETY,zh-Hant,safety_lamp_plain,safety,您好，我是 Paula，我於 50 天前在貴店購買了一盞 LED 桌燈（訂單號：TO-96111），但最近完全無法開啟，沒有冒煙、火花、異味或發熱的情況。請問能否辦理 refund？謝謝。,HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated refund ,,,
+X112,SAFETY,es,safety_lamp_plain,safety,"Hola, ¿qué tal? Les escribo porque compré una lámpara de escritorio LED hace 150 días (mi pedido es TO-96112) y de repente ha dejado de encenderse. No hace humo, no salen chispas, no huele a nada raro y no se calienta, simplemente ya no enciende. Me gustaría pedir un reembolso, por favor. ¡Gracias!",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated refund ,,,
+X113,SAFETY,de,safety_lamp_plain,safety,"Hallo,
+
+meine LED‑Schreibtischlampe (Bestellnummer TO-96113) flackert seit dem Kauf vor etwa 150 Tagen ständig. Bitte senden Sie mir ein Ersatzgerät zu.
+
+Danke.",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CREATE_SUPPLIER_TASK,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X116,SAFETY,es,safety_lamp_part,safety,"Hola, soy Valeria, compré una lámpara LED de escritorio hace como 100 días y se me rompió el interrumptor. ¿Podrían enviarme la pieza de repuesto? Mi pedido es TO-96116. Gracías!",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X118,SAFETY,ja,safety_lamp_part,safety,"こんにちは！
+いつもお世話になっています、ユキです。
+
+100日前に購入したLEDデスクライトなんですが、先日スイッチがポキッと折れてしまって使えなくなってしまいました…。
+注文番号は TO-96118 です。
+
+もし可能であれば、スイッチの交換パーツを送っていただけないでしょうか？
+ご確認よろしくお願いします！",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X119,SAFETY,en,safety_lamp_part,safety,"Hey there, I got my LED desk lamp about 100 days ago (order TO-96119) and the switch just snapped off. Could you please send me a replacement part? Thanks a lot! (Sorry for the typo, hope it’s clear).",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X136,SAFETY,es,safety_kettle_refund_new,safety,"Hola, soy Rin. Hace 20 días compré una tetera eléctrica de 1.7 L, pedido TO-96136. La luz se enciende pero no pasa nada, no calienta. Quisiera pedir un refund, por favor.",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated ,,,
+X137,SAFETY,de,safety_kettle_refund_new,safety,"Sehr geehrte Damen und Herren,
+
+ich habe vor 12 Tagen einen 1,7 L elektrischen Wasserkocher mit der Bestellnummer TO-96137 bei Ihnen erworben. Seit einigen Tagen erhitzt das Gerät das Wasser nicht mehr. Da das Produkt noch innerhalb der Rückgabefrist liegt, bitte ich Sie höflich um eine Rückerstattung des Kaufpreises.
+
+Vielen Dank für Ihre Bemühungen.
+
+Mit freundlichen Grüßen  
+Sofia",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated ,,,
+X138,SAFETY,ja,safety_kettle_refund_new,safety,"お世話になっております。太郎と申します。
+
+20日前に購入した1.7L電気ケトルが、最近水を温めなくなりました。
+注文番号は TO-96138 です。
+
+初期不良かと思われますので、返金の手続きをお願いできますでしょうか。
+ご確認のほど、よろしくお願いいたします。",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated ,,,
+X140,SAFETY,zh-Hant,safety_kettle_refund_new,safety,你好，我 20 天前買的 1.7L 電熱水壺，訂單編號是 TO-96140。現在插電後燈會亮，但完全不會加熱，水一直都是冷的，根本沒辦法用。才買 20 天就遇到這種狀況，真的讓人很困擾。請幫我辦理退款，謝謝。,HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),DIRECT_WORKFLOW,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated ,,,
+X146,SAFETY,de,safety_complaint_only,safety,"Hallo,
+
+ich schreibe das jetzt einfach mal hierhin, weil es mich gerade echt beschäftigt. Ich bin Chiara und ich habe bei euch vor ungefähr 150 Tagen einen elektrischen Wasserkocher bestellt, Bestellnummer TO-96146. Er stand seitdem brav auf meiner Küchenarbeitsplatte, direkt neben dem kleinen Kräutertopf mit Basilikum, den ich mir damals beim Umzug mitgenommen habe und der jetzt leider auch nicht mehr so gut aussieht.
+
+Anfangs war ich richtig zufrieden, das Wasser wurde schnell heiß und das Aussehen passte super zu meiner neuen weißen Küche. Inzwischen macht er einfach gar nichts mehr, wenn ich den Knopf drücke. Kein Heizen, kein Gluckern, nichts. Das Licht geht noch kurz an und dann ist wieder Stille. Ich finde das gerade total frustrierend, weil ich ihn eigentlich täglich benutzt habe und jetzt muss ich wieder mit dem alten Topf auf dem Herd hantieren, was viel länger dauert und die Küche volldunstet.
+
+Ich weiß, das ist jetzt nur ein Ventil, ich erzähle nur, weil es mich gerade so ärgert.
+
+Liebe Grüße
+Chiara",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task.,,,
+X148,SAFETY,de,unmapped_no_ref,unmapped,"Guten Tag,
+
+ich wende mich an Sie, weil ein Artikel, den ich bei Ihnen erworben habe, leider nicht mehr funktioniert. Da ich mit der Qualität bislang sehr zufrieden war, möchte ich Sie bitten, mir eine Reparatur zu ermöglichen.
+
+Könnten Sie mir bitte mitteilen, wie ich am besten vorgehen soll und ob eine Einsendung zur Überprüfung möglich ist? Ich wäre Ihnen für eine kurze Rückmeldung sehr dankbar.
+
+Mit freundlichen Grüßen
+Emma",HUMAN_REVIEW,HUMAN_REVIEW,"author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",HUMAN_REVIEW,y,"User decision (2026-10-10): keep HUMAN_REVIEW. A reported malfunction combined with a product that can't be identified means TradeOS can't tell which safety rules apply, so it must go to human review. This does NOT mean every vague message goes to a human: general product questions without a malfunction or safety concern should still ask the customer."
+X149,SAFETY,ja,unmapped_no_ref,unmapped,こんにちは、ふみこです。買ったものが動かなくなりました。修理をお願いします。,HUMAN_REVIEW,HUMAN_REVIEW,"author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",HUMAN_REVIEW,y,"User decision (2026-10-10): keep HUMAN_REVIEW. A reported malfunction combined with a product that can't be identified means TradeOS can't tell which safety rules apply, so it must go to human review. This does NOT mean every vague message goes to a human: general product questions without a malfunction or safety concern should still ask the customer."
+X150,SAFETY,en,unmapped_no_ref,unmapped,"Hi, I'm Gonzalo. The item I bought from you recently stopped working. Can you help arrange a repair? Thanks.",HUMAN_REVIEW,HUMAN_REVIEW,"author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",HUMAN_REVIEW,y,"User decision (2026-10-10): keep HUMAN_REVIEW. A reported malfunction combined with a product that can't be identified means TradeOS can't tell which safety rules apply, so it must go to human review. This does NOT mean every vague message goes to a human: general product questions without a malfunction or safety concern should still ask the customer."
+X151,SAFETY,zh-Hant,unmapped_no_ref,unmapped,嗨～我最近買的東好像突然不工作了，能不能幫我看看要不要修理啊？謝謝～,HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",,,
+X152,SAFETY,es,unmapped_no_ref,unmapped,"Hola, soy Isamu. Compré un artículo en su tienda y dejó de funcionar. ¿Me pueden ayudar con un repair? ¿Cómo puedo hacer para enviarlo? Gracias.",HUMAN_REVIEW,HUMAN_REVIEW,"author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",HUMAN_REVIEW,y,"User decision (2026-10-10): keep HUMAN_REVIEW. A reported malfunction combined with a product that can't be identified means TradeOS can't tell which safety rules apply, so it must go to human review. This does NOT mean every vague message goes to a human: general product questions without a malfunction or safety concern should still ask the customer."
+X153,SAFETY,ja,unmapped_unknown_product,unmapped,こんにちは！実は先日ここで買ったドライヤーが急に壊れてしまって、全然使えなくて困ってます。交換できるでしょうか？よろしくお願いします！,HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",,,
+X154,SAFETY,en,unmapped_unknown_product,unmapped,"Hi, 
+
+I bought a toaster from your shop and it has stopped working completely after only a couple of weeks of normal use. That's really frustrating for something brand new.
+
+Can you arrange a replacement for me? Let me know what you need from my side to sort this out.
+
+Thanks,
+Kai",HUMAN_REVIEW,HUMAN_REVIEW,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,HUMAN_REVIEW,SG,"Safety Gate: a malfunction is reported (DEFECT) but the product cannot be mapped to the order/catalogue (safety class unknown): human verification, never auto-released. No supplier task.",,,
+X003,ERROR,en,exch_shoe_size,normal_task,"Hey, I got my Trail Runner sneakers (order TO-96003) but they’re size 41 and feel a bit tight after 21 days. Can I swapp them for a size 42? Thanks!",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,V12b,"Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",,,
+X011,ERROR,es,seller_wrong_size,buyer_vs_seller,"Hola,
+
+Mi nombre es Luis y les escribo respecto al pedido que realicé el pasado viernes 3 de noviembre con el número de orden TO-96011. Quería comentarles que, al abrir el paquete que recibí ayer por la mañana, encontré dentro una zapatilla de trail running, pero al revisar la etiqueta vi que estaba indicada como talla 42, cuando yo había solicitado explícitamente la talla 40. Ya llevo unos meses usando esta marca para mis salidas de fin de semana por la sierra y me gusta mucho el agarre de la suela, por eso había decidido renovar mi calzado antes de la próxima ruta que tengo planeada para el próximo sábado, cuando el pronóstico indica cielos parcialmente nublados y una temperatura máxima de alrededor de 18 °C, ideal para probar unas zapatillas nuevas. Además, recuerdo que la última vez que compré en su tienda fue una chaqueta impermeable que llegó perfectamente y me dejó muy satisfecho, por lo que espero que este pequeño error se pueda resolver sin mayores complicaciones.
+
+Le agradecería mucho si pudieran enviarme la talla correcta, es decir, la talla 40, y indicarme el procedimiento para devolver la talla 42 que recibí por error. Quedo a la espera de sus instrucciones sobre la etiqueta de devolución o cualquier otro paso que necesiten que siga.
+
+Muchas gracias por su atención y quedo atento a su respuesta.
+
+Un saludo,
+Luis",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,V3,"Customer says they have 42, the order shows 40.",,,
+X012,ERROR,de,seller_wrong_size,buyer_vs_seller,"Hallo, ich bin Mina. Ich habe Trail Runner in Größe 39 bestellt (Bestellnr. TO-96012), im Karton war aber Größe 40 – euer Fehler. Bitte schickt mir die 39. Danke.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,V3,"Customer says the wrong variant arrived, but what they describe receiving (39) is what order TO-96012 shows: a human verifies.",,,
+X015,ERROR,zh-Hant,seller_wrong_size,buyer_vs_seller,嗨～我是 Paula，訂單號是 TO-96015。我買了 Trail Runner 運動鞋尺寸 41，但收到的盒子裡竟然是尺寸 40（店家烏龍），麻煩能幫我換成正確的 41 號嗎？謝謝～,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,V3,"Customer says the wrong variant arrived, but what they describe receiving (41) is what order TO-96015 shows: a human verifies.",,,
+X021,ERROR,es,seller_wrong_colour_lamp,buyer_vs_seller,"Hola, soy Wen. Ordené la lámpara LED de escritorio negra (order TO-96021) pero me llegó una blanca. Aunque funciona bien, quisiera cambiarla por la negra que solicité. Por favor, could you send me the correct one and let me know how to return the white lamp? Thanks.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,V2,Evidence quote not found in the message (item1.goal EXCHANGE_VARIANT): a human reads it.,,,
+X031,ERROR,de,exch_jacket_L,normal_task,"Sehr geehrtes Kundenserviceteam,
+
+ich hoffe, Sie hatten bisher einen angenehmen Tag und dass das Wetter in Ihrer Region nicht zu stark regnet – schließlich habe ich vor ein paar Wochen bei einem ausgiebigen Spaziergang durch den Stadtpark bemerkt, dass meine neue City Regenjacke in Größe M zwar optisch sehr gut aussieht, aber beim Anziehen doch irgendwie etwas eng sitzt, insbesondere über den Schultern und im Brustbereich, sodass ich beim Tragen eines leichten Pullovers darunter leicht eingeengt fühlte. Ich habe die Jacke ursprünglich am 12. März bestellt, nachdem ich sie im Online‑Katalog entdeckt hatte und sofort von dem modernen Schnitt und der wasserabweisenden Beschichtung begeistert war; die Lieferung kam prompt am 15. März an, und ich habe sie seitdem nur ein- oder zweimal getragen, hauptsächlich bei leichten Nieselregen auf dem Weg zum Büro. Da ich jedoch festgestellt habe, dass die Größe M für meine Figur nicht optimal passt und ich lieber etwas mehr Bewegungsfreiheit hätte, insbesondere weil ich beim Radfahren oder beim Tragen eines Rucksacks etwas mehr Spielraum benötige, würde ich die Jacke sehr gerne gegen die gleiche Variante in Größe L austauschen, falls dies noch möglich ist. Meine Bestellnummer lautet dabei genau TO-96031, und ich habe die Jacke samt Originalverpackung und allen Etiketten noch unverändert aufbewahrt, sodass eine Rücksendung problemlos erfolgen sollte.
+
+Ich wäre Ihnen sehr dankbar, wenn Sie mir kurz mitteilen könnten, wie wir den Umtausch am besten abwickeln können – ob Sie mir ein Retourenlabel zusenden oder ob ich das Paket selbst zu einer nahegelegenen Abgabestelle bringen soll. Sollte es irgendwelche Gebühren oder Besonderheiten geben, lassen Sie mich das bitte ebenfalls wissen, damit ich alles entsprechend vorbereiten kann.
+
+Vielen Dank im Voraus für Ihre Unterstützung und Ihr Verständnis.
+
+Mit freundlichen Grüßen  
+Hanna",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,HUMAN_REVIEW,V2,"Evidence quote not found in the message (speech_act, item1.goal EXCHANGE_VARIANT): a human reads it.",,,
+X040,ERROR,de,reship_lamp,normal_task,"Sehr geehrtes Support-Team,
+
+ich hoffe, es geht Ihnen gut und Sie hatten eine angenehme Woche, trotz des wechselhaften Wetters, das wir derzeit haben – gestern Morgen hat es sogar leicht geregnet, während ich meine Frühstückstasse Kaffee getrunken habe und dabei beobachtet habe, wie meine Katze versucht, den Sonnenstrahl auf dem Fensterbrett zu ergattern, was sie leider nie schafft, weil sie ständig vom Tisch herunterfällt. Nachdem ich letztes Monat schließlich beschlossen hatte, meine Arbeitsbeleuchtung aufzuwerten, bestellte ich am 12. Oktober die Schreibtischlampe mit der Modellnummer XYZ‑200 und erhielt die Bestätigung mit der Auftragsnummer TO-96040. Die Lieferung sollte ursprünglich innerhalb von drei bis fünf Werktagen eintreffen, doch leider zeigte das Tracking bereits eine Woche vor dem erwarteten Zustelldatum keinerlei Aktualisierung mehr an – es blieb einfach bei „Versand bestätigt“ stehen, obwohl ich das Paket verfolgt und mehrmals täglich die Seite aktualisiert habe, in der Hoffnung, dass sich doch noch etwas bewegt. Da ich die Lampe dringend für meine abendlichen Lese- und Arbeits sessions benötige – ich lese gerade ein interessantes Buch über die Geschichte der Typografie und arbeite gleichzeitig an einem kleinen Designprojekt für meinen Freundeskreis – wäre es sehr hilfreich, wenn Sie mir die Lampe noch einmal zusenden könnten, alternativ auch eine Rückerstattung veranlassen könnten, falls das ursprüngliche Paket tatsächlich verloren gegangen ist. Ich würde mich sehr freuen, wenn Sie dieses Problem zeitnah klären könnten, damit ich meine Arbeitsplatzbeleuchtung wieder voll nutzen kann und nicht länger im halbdunklen Licht arbeiten muss.
+
+Mit freundlichen Grüßen  
+Rin  
+
+TO-96040 (Bestellnummer zur Referenz)",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree (design differs),CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,SG,Safety Gate: LED desk lamp is safety class MAINS_ELECTRIC and a malfunction is reported (MISSING_ITEM): human safety review first. No supplier task. Refund intent kept for the reviewer; no automated r,,,
+X052,ERROR,de,reship_shoe,normal_task,"Hallo, ich heiße Emma und hoffe, dass Sie mir weiterhelfen können. Vor etwa zwei Wochen habe ich ein Paar Sneaker bei Ihnen bestellt – ich erinnere mich noch genau daran, weil ich sie zu meinem Geburtstag tragen wollte, der am 14. Mai ist, und ich hatte sogar schon ein passendes Outfit zusammengestellt, das ich im Kopf durchgespielt habe, während ich auf der Couch saß und eine Tasse Kräutertee getrunken habe. Die Bestellung wurde mit der Nummer TO-96052 aufgegeben und ich erhielt sofort eine Bestätigungsmail, in der auch das voraussichtliche Lieferdatum genannt wurde. Leider zeigt das Tracking seit nunmehr zehn Tagen den Status „Unterwegs“ an, ohne dass es irgendwelche Updates gibt, und ich habe bereits mehrmals bei dem Paketdienst nachgefragt, aber dort heißt es, dass das Paket nicht mehr im System zu finden sei. Ich habe auch meine Nachbarn gefragt, ob vielleicht das Paket versehentlich bei ihnen abgegeben wurde, aber niemand hat etwas gesehen. Da ich wirklich auf die Sneaker angewiesen bin – ich plane nämlich nächsten Freitag einen Ausflug in die Berge und hätte sie gern dafür dabei – wäre es sehr hilfreich, wenn Sie mir ein Ersatzpaket zusenden könnten, preferably mit gleichem Modell und Größe, damit ich nicht länger warten muss. Vielen Dank im Voraus für Ihre Unterstützung und ich hoffe, dass wir das schnell klären können. Mit freundlichen Grüßen, Emma.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,V12b,"Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",,,
+X059,ERROR,es,shoe_warranty,low_risk_malfunction,"Estimado equipo de atención al cliente,
+
+Soy Luis y le escribo respecto a mi pedido TO-96059, realizado hace 150 días. Mis zapatillas Trail Runner presentan un ojete perdido y una rotura en la parte superior. Le agradecería mucho si pudieran enviarme un par de reemplazo.
+
+Quedo a la espera de su respuesta.
+
+Un cordial saludo,
+
+Luis",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,V7,2 items need separate handling (D13): ask which first.,,,
+X062,ERROR,en,shoe_warranty,low_risk_malfunction,"Hi, I'm Oskar. I ordered a pair of Trail Runner sneakers with order number TO-96062 about 45 days ago and they’ve already got a problem.
+
+One of the eyelets came off on the left shoe and teh upper tore right around it. I’ve only worn them a few times so this is pretty disappointing.
+
+Is there any way you can repair them or send out a replacement part? Let me know what you need from me.
+
+Thanks",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,2 of 3 (design + one judge),CLARIFY_WITH_CUSTOMER,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,V11,Part requested without exactly one part number: ask (part models are never guessed).,,,
+X159,ERROR,zh-Hant,backpack_warranty,low_risk_malfunction,"您好，
+
+我是 Paula，去年八月在貴公司官網購買了一個 Daypack 30L，訂單編號是 TO-96150，當時選了深藍色，因為覺得比較耐污，也適合我常常去郊區徒步的需求。收到貨後我就把它當作每週末的登山夥伴，除了放水瓶、零食之外，我也常把相機、備用電池和簡易急救塞進去，感覺容量剛好，背帶的設計也很符合人體工學，長時間背負也不會太緊繃。
+
+不過最近我在一次到北投溫泉的行程中，發現背包拉鍊在靠近頂部的那一段突然卡住，用力拉也拉不開，看起來是拉鍊牙齒脫落或是滑動片損壞導致的。因為這個背包才使用了大約一百天，還沒有顯然的磨損或其他問題，我覺得應該可以維修而不是直接換新。
+
+我想詢問貴公司是否提供拉鍊維修服務？如果需要寄回廠家維修，請告知我應該怎麼包裝、運送的流程以及可能的費用與時程。另外，如果維修期間需要暫時使用替代品，我也不知道貴公司是否有備用背包可以借用？期待您的回覆，謝謝！
+
+此致  
+Paula",DIRECT_WORKFLOW,DIRECT_WORKFLOW,2 of 3 (design + one judge),HUMAN_REVIEW,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,V11,Part requested without exactly one part number: ask (part models are never guessed).,,,
+X170,ERROR,ja,lowrisk_complaint_only,low_risk_malfunction,"お世話になっております。Chiaraと申します。
+注文番号 TO-96161 で購入したスニーカーのソールが、購入から約四ヶ月で剥がれ始めてしまい、正直残念な気持ちです。丁寧に扱っていただけに少しショックです。",CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,V2,Evidence quote not found in the message (speech_act): a human reads it.,,,
+X172,ERROR,zh-Hant,lowrisk_complaint_only,low_risk_malfunction,訂單編號 TO-96163 的球鞋，穿了四個月鞋底就開始剝落了，看到真的有點傻眼。一雙鞋也不算便宜，結果撐不到半年，走路還得擔心鞋底會不會整片掉下來。老實說滿失望的，之前對你們家的品質印象還不錯，這次真的有點落漆。我只是想反映一下，沒有要你們做什麼，單純覺得這種狀況不太應該。,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,judges agree + design,CLARIFY_WITH_CUSTOMER,CLARIFY_WITH_CUSTOMER,HUMAN_REVIEW,V2,Evidence quote not found in the message (speech_act): a human reads it.,,,
+X177,ERROR,en,buyer_wrong_size,buyer_vs_seller,"Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,DIRECT_WORKFLOW,DIRECT_WORKFLOW,CREATE_SUPPLIER_TASK,V12,Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41.,,,
+X193,ERROR,en,conflict_lamp_colour,order_conflict,"Hi there,
+
+I hope you’re doing well. I wanted to take a moment to share a little about my recent experience with your store. I’ve been looking for a new desk lamp for my home office for weeks now, and after browsing through a few different models and reading a bunch of reviews, I finally decided on the sleek white LED desk lamp that seemed to fit perfectly with the minimalist vibe I’m going for. I placed the order on a rainy Tuesday afternoon while I was sipping tea and listening to some jazz, and I remember feeling pretty excited about finally getting something that would brighten up my workspace and help me stay focused during those long writing sessions.
+
+When the package arrived yesterday, I was eager to open it and set it up right away. I carefully unpacked everything, admiring the packaging and the little thank‑you card you included—such a nice touch! However, as I lifted the lamp out of the box, I noticed that the shade was a deep black instead of the crisp white I had selected. I double‑checked the order confirmation email and the website page I had bookmarked, and both clearly show the white version, so I’m pretty sure there was a mix‑up on the fulfillment side.
+
+I’m really hoping we can sort this out quickly, as I’ve been wanting to replace my old, flickering lamp for a while now, and the white one would really complete the look I’m aiming for. If possible, could you please arrange to send the correct white LED desk lamp and provide a return label for the black one that arrived by mistake? My order number is TO-96184, and I’d appreciate any updates you can share regarding the timeline for the replacement.
+
+Thank you so much for your attention to this matter. I’ve always enjoyed shopping with your store and hope we can resolve this smoothly.
+
+Warm regards,
+
+Bea",HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,HUMAN_REVIEW,HUMAN_REVIEW,DIRECT_WORKFLOW,V10,Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).,,,
+X199,ERROR,en,conflict_typo,order_conflict,"Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",HUMAN_REVIEW,HUMAN_REVIEW,judges agree + design,HUMAN_REVIEW,HUMAN_REVIEW,CREATE_SUPPLIER_TASK,V12,Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).,,,
+X223,ERROR,en,revision_to_refund,intent_revision,"Dear Support Team,
+
+I am writing regarding my recent order TO-96214. The sole of the new sneakers I received has come loose. I would like to request a replacement pair, please. However, after further consideration, I have decided that I would prefer a refund instead. Could you please process a refund for the order? Thank you for your assistance.
+
+Sincerely,
+Luis",DIRECT_WORKFLOW,DIRECT_WORKFLOW,judges agree + design,DIRECT_WORKFLOW,DIRECT_WORKFLOW,CLARIFY_WITH_CUSTOMER,V4b,"The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want.",,,
+X301,ERROR,en,exch_shoe_size_b,normal_task,"Hey, I got my sneakers from order TO-96280 but they're size 42 and they feell a bit big on me. Could I swapp them for a size 41? Thanks!",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CLARIFY_WITH_CUSTOMER,V12b,"Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",,,
+X054,low-risk scope,es,shoe_warranty,low_risk_malfunction,"¡Hola! Soy Gonzalo, les escribo por unas Trail Runner que compré hace unos 100 días, pedido TO-96054.
+
+Están con un problemita: se me salió un ojillo y además se me rasgó el upper. No las he usado tanto y me da pena.
+
+¿Habría posibilidad de que me manden un par de reemplazo? Muchas gracias, quedo atento.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",,,
+X055,low-risk scope,de,shoe_warranty,low_risk_malfunction,"Sehr geehrte Damen und Herren,
+
+ich habe vor etwa 100 Tagen meine Trail Runner Sneaker (Bestellnummer TO-96055) erhalten und musste nun feststellen, dass sie sich entlang der Naht aufgetrennt haben. Ich erwarte, dass dies bei einem so neuen Produkt nicht vorkommen sollte. Bitte prüfen Sie, ob eine Reparatur möglich ist, und teilen Sie mir mit, wie wir weiter vorgehen sollen.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",,,
+X056,low-risk scope,ja,shoe_warranty,low_risk_malfunction,こんにちは、Isamuです。注文番号TO-96056で購入したトレイルランナー スニーカー（購入から45日）ですが、片方のアイレットが取れてアッパーが破れました。replacement用の新しいペアを手配していただけますでしょうか？よろしくお願いします。,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",,,
+X057,low-risk scope,en,shoe_warranty,low_risk_malfunction,"Hi, my Trail Runner sneakers (order TO-96057) are 150 days old and the sole is peeling off. I’d like to request a repair. Thanks, Julia.",CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,judges agree + design,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,CREATE_SUPPLIER_TASK,V12,"Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",,,

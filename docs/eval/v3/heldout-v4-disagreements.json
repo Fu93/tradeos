@@ -1,0 +1,498 @@
+[
+ {
+  "id": "X009",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X011",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X013",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X015",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X016",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X017",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X018",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X019",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X020",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X021",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X022",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X024",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X025",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X026",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X027",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X028",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X062",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X064",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X065",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X066",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X068",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ {
+  "id": "X069",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ {
+  "id": "X071",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ {
+  "id": "X076",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X106",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X108",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X110",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X111",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X112",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X113",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X116",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X118",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X119",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X136",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X137",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X138",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X140",
+  "N": "DIRECT_WORKFLOW",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X146",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X148",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ {
+  "id": "X149",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ {
+  "id": "X150",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ {
+  "id": "X151",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X152",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ {
+  "id": "X153",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X154",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X155",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X159",
+  "N": "HUMAN_REVIEW",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X161",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X185",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X186",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X189",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X201",
+  "N": "HUMAN_REVIEW",
+  "D": "DIRECT_WORKFLOW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X262",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X267",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X274",
+  "N": "HUMAN_REVIEW",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X277",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X284",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ {
+  "id": "X286",
+  "N": "HUMAN_REVIEW",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X287",
+  "N": "HUMAN_REVIEW",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X299",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X306",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "X307",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ }
+]

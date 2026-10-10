@@ -1,0 +1,1 @@
+v3 frozen build = c65eb83 (rules supplier-routing-rules/3.0.0 (taxonomy v3 experiment) v3-extract-1); pre-registered: primary k=1, k=3/5 reported from the same run (extras temp 0.6)

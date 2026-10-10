@@ -1,0 +1,15 @@
+{
+ "n_both": 327,
+ "raw_action_agreement": 283,
+ "kappa": {
+  "required_action": 0.816,
+  "speech_act": 0.918,
+  "safety_flag": 0.971,
+  "issue_type": 0.958,
+  "first_goal": 0.96,
+  "order_ref_hedged": 0.932,
+  "deciding_rule": 0.801,
+  "required_action_N_vs_design": 0.805,
+  "required_action_M_vs_design": 0.917
+ }
+}

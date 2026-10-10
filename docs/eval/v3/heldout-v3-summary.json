@@ -1,0 +1,4643 @@
+{
+ "v3.1 k1 (primary)": {
+  "n": 327,
+  "strict": 290,
+  "strict_ci": [
+   84.8,
+   91.7
+  ],
+  "lenient": 291,
+  "lenient_ci": [
+   85.1,
+   91.9
+  ],
+  "task_pred": 81,
+  "task_tp": 72,
+  "task_true": 83,
+  "precision": 0.889,
+  "recall": 0.867,
+  "false_triggers": [
+   "W019",
+   "W044",
+   "W107",
+   "W105",
+   "W156",
+   "W153",
+   "W183",
+   "W181",
+   "W231"
+  ],
+  "non_supplier_n": 244,
+  "safety_human": 35,
+  "safety_n": 40,
+  "safety_automated": [
+   "W149",
+   "W156",
+   "W153",
+   "W183",
+   "W181"
+  ],
+  "noreq_tasks": [],
+  "noreq_n": 16,
+  "slices": {
+   "buyer_vs_seller": [
+    28,
+    36
+   ],
+   "order_conflict": [
+    30,
+    32
+   ],
+   "multi_item": [
+    8,
+    8
+   ],
+   "safety": [
+    35,
+    40
+   ],
+   "intent_revision": [
+    13,
+    16
+   ],
+   "complaint_only": [
+    14,
+    16
+   ],
+   "normalisation": [
+    14,
+    16
+   ],
+   "normal_task": [
+    61,
+    67
+   ],
+   "other": [
+    88,
+    96
+   ]
+  },
+  "by_lang": {
+   "en": [
+    61,
+    67
+   ],
+   "zh-Hant": [
+    62,
+    66
+   ],
+   "es": [
+    62,
+    66
+   ],
+   "de": [
+    50,
+    62
+   ],
+   "ja": [
+    56,
+    66
+   ]
+  },
+  "latency_median_s": 36.1,
+  "latency_p90_s": 125.5,
+  "usage": {
+   "calls": 408,
+   "prompt_tokens": 507167,
+   "completion_tokens": 773295
+  },
+  "retries": 18,
+  "wall_s": 1473.5,
+  "errors": [
+   {
+    "id": "W007",
+    "lang": "de",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W006",
+    "lang": "es",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W009",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 40, the order shows 41."
+   },
+   {
+    "id": "W018",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 43, the order shows 42."
+   },
+   {
+    "id": "W017",
+    "lang": "de",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 45, the order shows 43."
+   },
+   {
+    "id": "W024",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Wrong-item claim that cannot be checked against the order record (received/ordered variant not stated): a human verifies."
+   },
+   {
+    "id": "W022",
+    "lang": "es",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W019",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W040",
+    "lang": "ja",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W047",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S1 hazard words Rauch): always a human first."
+   },
+   {
+    "id": "W044",
+    "lang": "en",
+    "kind": "kettle_warranty",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W076",
+    "lang": "es",
+    "kind": "part_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W096",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90096 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W098",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90098 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W107",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W105",
+    "lang": "en",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W149",
+    "lang": "de",
+    "kind": "safety_burnt_plastic",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W156",
+    "lang": "ja",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W153",
+    "lang": "zh-Hant",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W183",
+    "lang": "de",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W195",
+    "lang": "de",
+    "kind": "revision_ambiguous",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REFUND): a human reads it."
+   },
+   {
+    "id": "W187",
+    "lang": "ja",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W201",
+    "lang": "de",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W181",
+    "lang": "zh-Hant",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W207",
+    "lang": "ja",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V3",
+    "reason": "Several products described and “Trail Runner” cannot be matched to order TO-90207: resolve the data conflict before any multi-item handling."
+   },
+   {
+    "id": "W223",
+    "lang": "ja",
+    "kind": "norm_valid_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W231",
+    "lang": "de",
+    "kind": "norm_valid_task",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W271",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W269",
+    "lang": "de",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W274",
+    "lang": "de",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W275",
+    "lang": "ja",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S4 mains-electric hazard): always a human first."
+   },
+   {
+    "id": "W272",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W276",
+    "lang": "en",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W265",
+    "lang": "de",
+    "kind": "malformed_ref",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR): a human reads it."
+   },
+   {
+    "id": "W186",
+    "lang": "de",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V4b",
+    "reason": "The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want."
+   },
+   {
+    "id": "W314",
+    "lang": "en",
+    "kind": "backpack_warranty",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Inside our own 365-day warranty: merchant process."
+   }
+  ],
+  "bar_met": false
+ },
+ "v3.1 k3": {
+  "n": 327,
+  "strict": 286,
+  "strict_ci": [
+   83.4,
+   90.6
+  ],
+  "lenient": 287,
+  "lenient_ci": [
+   83.8,
+   90.9
+  ],
+  "task_pred": 71,
+  "task_tp": 65,
+  "task_true": 83,
+  "precision": 0.915,
+  "recall": 0.783,
+  "false_triggers": [
+   "W019",
+   "W107",
+   "W156",
+   "W153",
+   "W183",
+   "W181"
+  ],
+  "non_supplier_n": 244,
+  "safety_human": 35,
+  "safety_n": 40,
+  "safety_automated": [
+   "W149",
+   "W156",
+   "W153",
+   "W183",
+   "W181"
+  ],
+  "noreq_tasks": [],
+  "noreq_n": 16,
+  "slices": {
+   "buyer_vs_seller": [
+    27,
+    36
+   ],
+   "order_conflict": [
+    31,
+    32
+   ],
+   "multi_item": [
+    8,
+    8
+   ],
+   "safety": [
+    35,
+    40
+   ],
+   "intent_revision": [
+    13,
+    16
+   ],
+   "complaint_only": [
+    14,
+    16
+   ],
+   "normalisation": [
+    15,
+    16
+   ],
+   "normal_task": [
+    56,
+    67
+   ],
+   "other": [
+    88,
+    96
+   ]
+  },
+  "by_lang": {
+   "en": [
+    61,
+    67
+   ],
+   "zh-Hant": [
+    62,
+    66
+   ],
+   "es": [
+    62,
+    66
+   ],
+   "de": [
+    47,
+    62
+   ],
+   "ja": [
+    55,
+    66
+   ]
+  },
+  "latency_median_s": 36.1,
+  "latency_p90_s": 125.5,
+  "usage": {
+   "calls": 408,
+   "prompt_tokens": 507167,
+   "completion_tokens": 773295
+  },
+  "retries": 18,
+  "wall_s": 1473.5,
+  "errors": [
+   {
+    "id": "W007",
+    "lang": "de",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W006",
+    "lang": "es",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W009",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 40, the order shows 41."
+   },
+   {
+    "id": "W014",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42 and what was shipped (C1)."
+   },
+   {
+    "id": "W018",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 43, the order shows 42."
+   },
+   {
+    "id": "W003",
+    "lang": "ja",
+    "kind": "exch_shoe_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42."
+   },
+   {
+    "id": "W017",
+    "lang": "de",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 45, the order shows 43."
+   },
+   {
+    "id": "W024",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Wrong-item claim that cannot be checked against the order record (received/ordered variant not stated): a human verifies."
+   },
+   {
+    "id": "W022",
+    "lang": "es",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W019",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W040",
+    "lang": "ja",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W039",
+    "lang": "de",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Stride Footwear Co. (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W047",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S1 hazard words Rauch): always a human first."
+   },
+   {
+    "id": "W041",
+    "lang": "en",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Stride Footwear Co. (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W052",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W076",
+    "lang": "es",
+    "kind": "part_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W066",
+    "lang": "de",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides."
+   },
+   {
+    "id": "W057",
+    "lang": "de",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W096",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90096 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W098",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90098 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W107",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W149",
+    "lang": "de",
+    "kind": "safety_burnt_plastic",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W156",
+    "lang": "ja",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W153",
+    "lang": "zh-Hant",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W183",
+    "lang": "de",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W195",
+    "lang": "de",
+    "kind": "revision_ambiguous",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REFUND): a human reads it."
+   },
+   {
+    "id": "W187",
+    "lang": "ja",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W201",
+    "lang": "de",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W181",
+    "lang": "zh-Hant",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W207",
+    "lang": "ja",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V3",
+    "reason": "Several products described and “Trail Runner” cannot be matched to order TO-90207: resolve the data conflict before any multi-item handling."
+   },
+   {
+    "id": "W223",
+    "lang": "ja",
+    "kind": "norm_valid_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W271",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W269",
+    "lang": "de",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W274",
+    "lang": "de",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W275",
+    "lang": "ja",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S4 mains-electric hazard): always a human first."
+   },
+   {
+    "id": "W272",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W276",
+    "lang": "en",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W265",
+    "lang": "de",
+    "kind": "malformed_ref",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR): a human reads it."
+   },
+   {
+    "id": "W186",
+    "lang": "de",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V4b",
+    "reason": "The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want."
+   },
+   {
+    "id": "W314",
+    "lang": "en",
+    "kind": "backpack_warranty",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Inside our own 365-day warranty: merchant process."
+   }
+  ],
+  "bar_met": false
+ },
+ "v3.1 k5": {
+  "n": 327,
+  "strict": 279,
+  "strict_ci": [
+   81.1,
+   88.7
+  ],
+  "lenient": 280,
+  "lenient_ci": [
+   81.4,
+   89.0
+  ],
+  "task_pred": 62,
+  "task_tp": 57,
+  "task_true": 83,
+  "precision": 0.919,
+  "recall": 0.687,
+  "false_triggers": [
+   "W019",
+   "W107",
+   "W156",
+   "W153",
+   "W181"
+  ],
+  "non_supplier_n": 244,
+  "safety_human": 36,
+  "safety_n": 40,
+  "safety_automated": [
+   "W149",
+   "W156",
+   "W153",
+   "W181"
+  ],
+  "noreq_tasks": [],
+  "noreq_n": 16,
+  "slices": {
+   "buyer_vs_seller": [
+    25,
+    36
+   ],
+   "order_conflict": [
+    31,
+    32
+   ],
+   "multi_item": [
+    8,
+    8
+   ],
+   "safety": [
+    36,
+    40
+   ],
+   "intent_revision": [
+    13,
+    16
+   ],
+   "complaint_only": [
+    14,
+    16
+   ],
+   "normalisation": [
+    15,
+    16
+   ],
+   "normal_task": [
+    50,
+    67
+   ],
+   "other": [
+    88,
+    96
+   ]
+  },
+  "by_lang": {
+   "en": [
+    61,
+    67
+   ],
+   "zh-Hant": [
+    59,
+    66
+   ],
+   "es": [
+    59,
+    66
+   ],
+   "de": [
+    47,
+    62
+   ],
+   "ja": [
+    54,
+    66
+   ]
+  },
+  "latency_median_s": 36.1,
+  "latency_p90_s": 125.5,
+  "usage": {
+   "calls": 408,
+   "prompt_tokens": 507167,
+   "completion_tokens": 773295
+  },
+  "retries": 18,
+  "wall_s": 1473.5,
+  "errors": [
+   {
+    "id": "W007",
+    "lang": "de",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W006",
+    "lang": "es",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W009",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 40, the order shows 41."
+   },
+   {
+    "id": "W014",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42 and what was shipped (C1)."
+   },
+   {
+    "id": "W018",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 43, the order shows 42."
+   },
+   {
+    "id": "W002",
+    "lang": "de",
+    "kind": "exch_shoe_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 40."
+   },
+   {
+    "id": "W003",
+    "lang": "ja",
+    "kind": "exch_shoe_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42."
+   },
+   {
+    "id": "W017",
+    "lang": "de",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 45, the order shows 43."
+   },
+   {
+    "id": "W015",
+    "lang": "zh-Hant",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 40 and what was shipped (C1)."
+   },
+   {
+    "id": "W024",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Wrong-item claim that cannot be checked against the order record (received/ordered variant not stated): a human verifies."
+   },
+   {
+    "id": "W022",
+    "lang": "es",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12b",
+    "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+   },
+   {
+    "id": "W019",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W040",
+    "lang": "ja",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W037",
+    "lang": "zh-Hant",
+    "kind": "reship_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W010",
+    "lang": "zh-Hant",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41 and what was shipped (C1)."
+   },
+   {
+    "id": "W033",
+    "lang": "es",
+    "kind": "reship_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Lumina Lighting (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W039",
+    "lang": "de",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Stride Footwear Co. (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W047",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S1 hazard words Rauch): always a human first."
+   },
+   {
+    "id": "W048",
+    "lang": "ja",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W041",
+    "lang": "en",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Stride Footwear Co. (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W052",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W038",
+    "lang": "es",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "LOST: Stride Footwear Co. (MOCK supplier) shipped it and reships: confirm reship."
+   },
+   {
+    "id": "W076",
+    "lang": "es",
+    "kind": "part_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W065",
+    "lang": "es",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides."
+   },
+   {
+    "id": "W066",
+    "lang": "de",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides."
+   },
+   {
+    "id": "W057",
+    "lang": "de",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W096",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90096 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W098",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they ordered black, but order TO-90098 shows white: claim conflicts with the order record; a human verifies."
+   },
+   {
+    "id": "W107",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W149",
+    "lang": "de",
+    "kind": "safety_burnt_plastic",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W156",
+    "lang": "ja",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W153",
+    "lang": "zh-Hant",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W195",
+    "lang": "de",
+    "kind": "revision_ambiguous",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REFUND): a human reads it."
+   },
+   {
+    "id": "W187",
+    "lang": "ja",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W201",
+    "lang": "de",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W181",
+    "lang": "zh-Hant",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W207",
+    "lang": "ja",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V3",
+    "reason": "Several products described and “Trail Runner” cannot be matched to order TO-90207: resolve the data conflict before any multi-item handling."
+   },
+   {
+    "id": "W223",
+    "lang": "ja",
+    "kind": "norm_valid_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W271",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W269",
+    "lang": "de",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W274",
+    "lang": "de",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W275",
+    "lang": "ja",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S4 mains-electric hazard): always a human first."
+   },
+   {
+    "id": "W272",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W276",
+    "lang": "en",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W265",
+    "lang": "de",
+    "kind": "malformed_ref",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR): a human reads it."
+   },
+   {
+    "id": "W186",
+    "lang": "de",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V4b",
+    "reason": "The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want."
+   },
+   {
+    "id": "W314",
+    "lang": "en",
+    "kind": "backpack_warranty",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Inside our own 365-day warranty: merchant process."
+   }
+  ],
+  "bar_met": false
+ },
+ "v3 frozen 04b65fc (k1)": {
+  "n": 327,
+  "strict": 256,
+  "strict_ci": [
+   73.5,
+   82.4
+  ],
+  "lenient": 257,
+  "lenient_ci": [
+   73.8,
+   82.7
+  ],
+  "task_pred": 105,
+  "task_tp": 75,
+  "task_true": 83,
+  "precision": 0.714,
+  "recall": 0.904,
+  "false_triggers": [
+   "W019",
+   "W097",
+   "W098",
+   "W096",
+   "W106",
+   "W105",
+   "W107",
+   "W104",
+   "W100",
+   "W108",
+   "W113",
+   "W112",
+   "W109",
+   "W115",
+   "W117",
+   "W114",
+   "W116",
+   "W121",
+   "W111",
+   "W118",
+   "W119",
+   "W152",
+   "W155",
+   "W153",
+   "W156",
+   "W160",
+   "W162",
+   "W181",
+   "W183",
+   "W231"
+  ],
+  "non_supplier_n": 244,
+  "safety_human": 31,
+  "safety_n": 40,
+  "safety_automated": [
+   "W152",
+   "W155",
+   "W153",
+   "W156",
+   "W160",
+   "W162",
+   "W181",
+   "W183"
+  ],
+  "noreq_tasks": [],
+  "noreq_n": 16,
+  "slices": {
+   "buyer_vs_seller": [
+    28,
+    36
+   ],
+   "order_conflict": [
+    7,
+    32
+   ],
+   "multi_item": [
+    7,
+    8
+   ],
+   "safety": [
+    31,
+    40
+   ],
+   "intent_revision": [
+    13,
+    16
+   ],
+   "complaint_only": [
+    15,
+    16
+   ],
+   "normalisation": [
+    6,
+    16
+   ],
+   "normal_task": [
+    64,
+    67
+   ],
+   "other": [
+    86,
+    96
+   ]
+  },
+  "by_lang": {
+   "en": [
+    52,
+    67
+   ],
+   "zh-Hant": [
+    53,
+    66
+   ],
+   "es": [
+    52,
+    66
+   ],
+   "de": [
+    48,
+    62
+   ],
+   "ja": [
+    52,
+    66
+   ]
+  },
+  "latency_median_s": 31.6,
+  "latency_p90_s": 83.1,
+  "usage": {
+   "calls": 327,
+   "prompt_tokens": 406729,
+   "completion_tokens": 410017
+  },
+  "retries": 18,
+  "wall_s": 1756.9,
+  "errors": [
+   {
+    "id": "W014",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 44, the order shows 42."
+   },
+   {
+    "id": "W018",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V3",
+    "reason": "Customer says they have 43, the order shows 42."
+   },
+   {
+    "id": "W019",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W022",
+    "lang": "es",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V11",
+    "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+   },
+   {
+    "id": "W044",
+    "lang": "en",
+    "kind": "kettle_warranty",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V9",
+    "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like."
+   },
+   {
+    "id": "W047",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S1 hazard words Rauch): always a human first."
+   },
+   {
+    "id": "W077",
+    "lang": "en",
+    "kind": "part_unknown",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V11",
+    "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+   },
+   {
+    "id": "W097",
+    "lang": "en",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W098",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W096",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W106",
+    "lang": "zh-Hant",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W105",
+    "lang": "en",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W107",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W104",
+    "lang": "ja",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W100",
+    "lang": "de",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W110",
+    "lang": "en",
+    "kind": "conflict_lamp_colour",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+   },
+   {
+    "id": "W108",
+    "lang": "de",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W113",
+    "lang": "de",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W112",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W109",
+    "lang": "ja",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+   },
+   {
+    "id": "W115",
+    "lang": "ja",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43 and what was shipped (C1)."
+   },
+   {
+    "id": "W117",
+    "lang": "zh-Hant",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 39 and what was shipped (C1)."
+   },
+   {
+    "id": "W114",
+    "lang": "de",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41 and what was shipped (C1)."
+   },
+   {
+    "id": "W116",
+    "lang": "en",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41 and what was shipped (C1)."
+   },
+   {
+    "id": "W121",
+    "lang": "en",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 43 and what was shipped (C1)."
+   },
+   {
+    "id": "W111",
+    "lang": "zh-Hant",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+   },
+   {
+    "id": "W118",
+    "lang": "es",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 40 and what was shipped (C1)."
+   },
+   {
+    "id": "W119",
+    "lang": "de",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 39 and what was shipped (C1)."
+   },
+   {
+    "id": "W128",
+    "lang": "en",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W130",
+    "lang": "es",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W132",
+    "lang": "ja",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W131",
+    "lang": "de",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "Order TO-90131 has 2 items and the message does not say which: ask."
+   },
+   {
+    "id": "W134",
+    "lang": "zh-Hant",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W129",
+    "lang": "zh-Hant",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W133",
+    "lang": "en",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W141",
+    "lang": "es",
+    "kind": "multi_item_in_order",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR): a human reads it."
+   },
+   {
+    "id": "W152",
+    "lang": "en",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W155",
+    "lang": "de",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W135",
+    "lang": "es",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V7",
+    "reason": "2 items need separate handling (D13): ask which first."
+   },
+   {
+    "id": "W153",
+    "lang": "zh-Hant",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W156",
+    "lang": "ja",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W160",
+    "lang": "es",
+    "kind": "safety_fuse",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W162",
+    "lang": "ja",
+    "kind": "safety_fuse",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+   },
+   {
+    "id": "W182",
+    "lang": "es",
+    "kind": "safety_water_base",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+   },
+   {
+    "id": "W181",
+    "lang": "zh-Hant",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W183",
+    "lang": "de",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W194",
+    "lang": "es",
+    "kind": "revision_ambiguous",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W189",
+    "lang": "zh-Hant",
+    "kind": "revision_to_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (speech_act, item1.goal REFUND): a human reads it."
+   },
+   {
+    "id": "W198",
+    "lang": "zh-Hant",
+    "kind": "revision_ambiguous",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W212",
+    "lang": "ja",
+    "kind": "complaint_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W218",
+    "lang": "ja",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W216",
+    "lang": "es",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W221",
+    "lang": "es",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W223",
+    "lang": "ja",
+    "kind": "norm_valid_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER",
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W219",
+    "lang": "en",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W229",
+    "lang": "zh-Hant",
+    "kind": "norm_valid_task",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR): a human reads it."
+   },
+   {
+    "id": "W228",
+    "lang": "en",
+    "kind": "norm_valid_task",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W231",
+    "lang": "de",
+    "kind": "norm_valid_task",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+   },
+   {
+    "id": "W230",
+    "lang": "es",
+    "kind": "norm_valid_task",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W217",
+    "lang": "de",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V8",
+    "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+   },
+   {
+    "id": "W270",
+    "lang": "ja",
+    "kind": "no_order_ref",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V9",
+    "reason": "No problem and no requested outcome: standard support reads it."
+   },
+   {
+    "id": "W272",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W274",
+    "lang": "de",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W277",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V6",
+    "reason": "Information question: support answers it. No supplier task."
+   },
+   {
+    "id": "W273",
+    "lang": "es",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (item1.goal REPAIR, item1.goal REFUND): a human reads it."
+   },
+   {
+    "id": "W275",
+    "lang": "ja",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "V1",
+    "reason": "Possible safety issue (S4 mains-electric hazard): always a human first."
+   },
+   {
+    "id": "W285",
+    "lang": "de",
+    "kind": "jacket_in_stock",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "V2",
+    "reason": "Evidence quote not found in the message (speech_act, item1.goal EXCHANGE_VARIANT): a human reads it."
+   },
+   {
+    "id": "W269",
+    "lang": "de",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W271",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V11",
+    "reason": "No order number in the message and no linked order: ask for it."
+   },
+   {
+    "id": "W314",
+    "lang": "en",
+    "kind": "backpack_warranty",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "V12",
+    "reason": "Inside our own 365-day warranty: merchant process."
+   }
+  ],
+  "bar_met": false
+ },
+ "rules 0.2.0": {
+  "n": 327,
+  "strict": 184,
+  "strict_ci": [
+   50.9,
+   61.5
+  ],
+  "lenient": 186,
+  "lenient_ci": [
+   51.5,
+   62.1
+  ],
+  "task_pred": 79,
+  "task_tp": 36,
+  "task_true": 83,
+  "precision": 0.456,
+  "recall": 0.434,
+  "false_triggers": [
+   "W086",
+   "W094",
+   "W093",
+   "W095",
+   "W087",
+   "W085",
+   "W099",
+   "W090",
+   "W100",
+   "W088",
+   "W092",
+   "W102",
+   "W091",
+   "W106",
+   "W109",
+   "W096",
+   "W097",
+   "W098",
+   "W113",
+   "W103",
+   "W108",
+   "W112",
+   "W119",
+   "W111",
+   "W116",
+   "W115",
+   "W105",
+   "W110",
+   "W120",
+   "W117",
+   "W118",
+   "W121",
+   "W107",
+   "W154",
+   "W156",
+   "W155",
+   "W157",
+   "W153",
+   "W163",
+   "W181",
+   "W174",
+   "W173",
+   "W231"
+  ],
+  "non_supplier_n": 244,
+  "safety_human": 23,
+  "safety_n": 40,
+  "safety_automated": [
+   "W149",
+   "W154",
+   "W156",
+   "W155",
+   "W166",
+   "W167",
+   "W157",
+   "W153",
+   "W168",
+   "W170",
+   "W169",
+   "W163",
+   "W181",
+   "W174",
+   "W173"
+  ],
+  "noreq_tasks": [],
+  "noreq_n": 16,
+  "slices": {
+   "buyer_vs_seller": [
+    1,
+    36
+   ],
+   "order_conflict": [
+    8,
+    32
+   ],
+   "multi_item": [
+    8,
+    8
+   ],
+   "safety": [
+    23,
+    40
+   ],
+   "intent_revision": [
+    12,
+    16
+   ],
+   "complaint_only": [
+    16,
+    16
+   ],
+   "normalisation": [
+    3,
+    16
+   ],
+   "normal_task": [
+    37,
+    67
+   ],
+   "other": [
+    78,
+    96
+   ]
+  },
+  "by_lang": {
+   "en": [
+    33,
+    67
+   ],
+   "zh-Hant": [
+    39,
+    66
+   ],
+   "es": [
+    39,
+    66
+   ],
+   "de": [
+    36,
+    62
+   ],
+   "ja": [
+    39,
+    66
+   ]
+  },
+  "latency_median_s": 12.3,
+  "latency_p90_s": 24.8,
+  "usage": {
+   "calls": 0,
+   "prompt_tokens": 0,
+   "completion_tokens": 0
+  },
+  "retries": 0,
+  "wall_s": 510.9,
+  "errors": [
+   {
+    "id": "W012",
+    "lang": "de",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W009",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W013",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W011",
+    "lang": "es",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W003",
+    "lang": "ja",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W015",
+    "lang": "zh-Hant",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W007",
+    "lang": "de",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W017",
+    "lang": "de",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W006",
+    "lang": "es",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W004",
+    "lang": "en",
+    "kind": "exch_shoe_size",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W020",
+    "lang": "en",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W018",
+    "lang": "ja",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W014",
+    "lang": "en",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W016",
+    "lang": "es",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W023",
+    "lang": "de",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W022",
+    "lang": "es",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W021",
+    "lang": "zh-Hant",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W010",
+    "lang": "zh-Hant",
+    "kind": "seller_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W024",
+    "lang": "ja",
+    "kind": "seller_wrong_colour_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W035",
+    "lang": "ja",
+    "kind": "reship_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W030",
+    "lang": "ja",
+    "kind": "reship_lamp",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W041",
+    "lang": "en",
+    "kind": "reship_shoe",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W050",
+    "lang": "zh-Hant",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W047",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W049",
+    "lang": "en",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W046",
+    "lang": "es",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W052",
+    "lang": "de",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W060",
+    "lang": "zh-Hant",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W053",
+    "lang": "ja",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W056",
+    "lang": "es",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W051",
+    "lang": "es",
+    "kind": "kettle_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W062",
+    "lang": "ja",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W067",
+    "lang": "ja",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W061",
+    "lang": "es",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W059",
+    "lang": "en",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W058",
+    "lang": "ja",
+    "kind": "lamp_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W069",
+    "lang": "ja",
+    "kind": "part_kettle_lid",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W072",
+    "lang": "es",
+    "kind": "part_kettle_lid",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W063",
+    "lang": "en",
+    "kind": "shoe_warranty",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W074",
+    "lang": "en",
+    "kind": "part_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W068",
+    "lang": "de",
+    "kind": "part_kettle_lid",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W075",
+    "lang": "zh-Hant",
+    "kind": "part_lamp",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W084",
+    "lang": "ja",
+    "kind": "buyer_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W086",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W071",
+    "lang": "zh-Hant",
+    "kind": "part_kettle_lid",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W070",
+    "lang": "en",
+    "kind": "part_kettle_lid",
+    "pred": "HUMAN_REVIEW",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W089",
+    "lang": "ja",
+    "kind": "buyer_wrong_size",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W077",
+    "lang": "en",
+    "kind": "part_unknown",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W094",
+    "lang": "ja",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W093",
+    "lang": "de",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W095",
+    "lang": "en",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W087",
+    "lang": "es",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W085",
+    "lang": "en",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W099",
+    "lang": "es",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W090",
+    "lang": "en",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W100",
+    "lang": "de",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W101",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W088",
+    "lang": "de",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W092",
+    "lang": "es",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W102",
+    "lang": "en",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W091",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W106",
+    "lang": "zh-Hant",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W109",
+    "lang": "ja",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W096",
+    "lang": "ja",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W097",
+    "lang": "en",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W098",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W113",
+    "lang": "de",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W103",
+    "lang": "zh-Hant",
+    "kind": "buyer_wrong_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W108",
+    "lang": "de",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W112",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W119",
+    "lang": "de",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W111",
+    "lang": "zh-Hant",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W116",
+    "lang": "en",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W115",
+    "lang": "ja",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W105",
+    "lang": "en",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W110",
+    "lang": "en",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W120",
+    "lang": "ja",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W117",
+    "lang": "zh-Hant",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W118",
+    "lang": "es",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W121",
+    "lang": "en",
+    "kind": "conflict_shoe_size",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W135",
+    "lang": "es",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W129",
+    "lang": "zh-Hant",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W131",
+    "lang": "de",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W130",
+    "lang": "es",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W132",
+    "lang": "ja",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W128",
+    "lang": "en",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W134",
+    "lang": "zh-Hant",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W107",
+    "lang": "es",
+    "kind": "conflict_lamp_colour",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W133",
+    "lang": "en",
+    "kind": "multi_item_not_in_order",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W149",
+    "lang": "de",
+    "kind": "safety_burnt_plastic",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W154",
+    "lang": "es",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W156",
+    "lang": "ja",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W155",
+    "lang": "de",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W166",
+    "lang": "de",
+    "kind": "safety_gas_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W167",
+    "lang": "ja",
+    "kind": "safety_gas_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W157",
+    "lang": "en",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W153",
+    "lang": "zh-Hant",
+    "kind": "safety_power_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W168",
+    "lang": "en",
+    "kind": "safety_gas_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W170",
+    "lang": "es",
+    "kind": "safety_gas_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W169",
+    "lang": "zh-Hant",
+    "kind": "safety_gas_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W161",
+    "lang": "de",
+    "kind": "safety_fuse",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W163",
+    "lang": "en",
+    "kind": "safety_fuse",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W181",
+    "lang": "zh-Hant",
+    "kind": "safety_water_base",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W182",
+    "lang": "es",
+    "kind": "safety_water_base",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W174",
+    "lang": "en",
+    "kind": "safety_gas_repair",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W173",
+    "lang": "ja",
+    "kind": "safety_gas_repair",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W185",
+    "lang": "es",
+    "kind": "revision_to_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W184",
+    "lang": "zh-Hant",
+    "kind": "revision_to_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W191",
+    "lang": "de",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W186",
+    "lang": "de",
+    "kind": "revision_to_refund",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W217",
+    "lang": "de",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W222",
+    "lang": "de",
+    "kind": "norm_valid_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W219",
+    "lang": "en",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W227",
+    "lang": "de",
+    "kind": "norm_valid_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W218",
+    "lang": "ja",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W216",
+    "lang": "es",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W220",
+    "lang": "zh-Hant",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W231",
+    "lang": "de",
+    "kind": "norm_valid_task",
+    "pred": "CREATE_SUPPLIER_TASK",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W221",
+    "lang": "es",
+    "kind": "norm_hedged_bad_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W225",
+    "lang": "zh-Hant",
+    "kind": "norm_valid_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W228",
+    "lang": "en",
+    "kind": "norm_valid_task",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W226",
+    "lang": "es",
+    "kind": "norm_valid_refund",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W239",
+    "lang": "zh-Hant",
+    "kind": "refund_only",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W230",
+    "lang": "es",
+    "kind": "norm_valid_task",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "CREATE_SUPPLIER_TASK",
+    "acceptable": [
+     "CREATE_SUPPLIER_TASK"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W266",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W269",
+    "lang": "de",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W273",
+    "lang": "es",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W271",
+    "lang": "en",
+    "kind": "no_order_ref",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W279",
+    "lang": "zh-Hant",
+    "kind": "kettle_within_30",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W280",
+    "lang": "es",
+    "kind": "kettle_within_30",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W278",
+    "lang": "en",
+    "kind": "kettle_within_30",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W272",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W276",
+    "lang": "en",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W286",
+    "lang": "ja",
+    "kind": "jacket_in_stock",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W282",
+    "lang": "ja",
+    "kind": "kettle_within_30",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W277",
+    "lang": "zh-Hant",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W281",
+    "lang": "de",
+    "kind": "kettle_within_30",
+    "pred": "CLARIFY_WITH_CUSTOMER",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W275",
+    "lang": "ja",
+    "kind": "undecided",
+    "pred": "HUMAN_REVIEW",
+    "label": "CLARIFY_WITH_CUSTOMER",
+    "acceptable": [
+     "CLARIFY_WITH_CUSTOMER"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W283",
+    "lang": "en",
+    "kind": "kettle_within_30",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W314",
+    "lang": "en",
+    "kind": "backpack_warranty",
+    "pred": "DIRECT_WORKFLOW",
+    "label": "HUMAN_REVIEW",
+    "acceptable": [
+     "HUMAN_REVIEW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   },
+   {
+    "id": "W312",
+    "lang": "zh-Hant",
+    "kind": "part_in_stock",
+    "pred": "HUMAN_REVIEW",
+    "label": "DIRECT_WORKFLOW",
+    "acceptable": [
+     "DIRECT_WORKFLOW"
+    ],
+    "rule": "0.2.0",
+    "reason": ""
+   }
+  ],
+  "bar_met": false
+ }
+}

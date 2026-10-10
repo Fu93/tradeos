@@ -1,0 +1,4443 @@
+{
+ "meta": {
+  "set": "heldout_v3",
+  "pipeline": "baseline020",
+  "tag": "final",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "0.2.0",
+  "k": 5,
+  "agreement_temp": 0.6,
+  "labels": "frozen",
+  "usage": {
+   "calls": 0,
+   "prompt_tokens": 0,
+   "completion_tokens": 0
+  },
+  "retries": 0,
+  "wall_s": 510.9
+ },
+ "results": {
+  "W002": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.18,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W008": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 6.93,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W001": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 9.18,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W012": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.61,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W009": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.28,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W013": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.09,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W011": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.13,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W005": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 16.59,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W003": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 16.67,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W015": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.55,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W007": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 17.27,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W017": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 2.78,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W006": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 19.71,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W004": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 20.03,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W020": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.43,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W018": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.12,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W014": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.25,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W025": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.61,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W016": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 14.37,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W023": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.82,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W026": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.28,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W022": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.0,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W028": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 12.52,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W019": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 21.71,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W033": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.07,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W021": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 22.73,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W029": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 12.41,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W027": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 17.59,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W031": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 7.03,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W010": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 42.17,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W024": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 23.06,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W037": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.97,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W038": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.85,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W035": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 8.76,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W042": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.01,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W030": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.01,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W039": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 7.8,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W034": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 13.37,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W041": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 8.8,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W036": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 12.26,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W045": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.27,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W032": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.7,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W050": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.59,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W047": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.66,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W048": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 6.16,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W049": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.71,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W040": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 17.4,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W046": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.51,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W043": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 13.31,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W044": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 13.88,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W052": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 8.78,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W060": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.89,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W053": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.17,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W055": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 11.57,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W056": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.36,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W054": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.02,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W057": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 11.32,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W051": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.79,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W064": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 4.41,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W065": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.95,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W062": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W066": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 4.98,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W067": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.8,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W061": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 14.02,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W059": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W058": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W069": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.22,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W072": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.13,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W063": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 16.65,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W074": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.2,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W076": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 4.37,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W068": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 12.79,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W075": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.81,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W078": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.54,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W081": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.8,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W084": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 2.85,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W073": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.78,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W086": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.45,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W071": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.98,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W080": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 13.26,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W079": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.47,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W070": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 24.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W089": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.86,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W083": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 12.95,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W077": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 19.94,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W082": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 15.41,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W094": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 2.54,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W093": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.78,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W095": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 2.74,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W087": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 12.98,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W085": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.72,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W099": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 4.29,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W090": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 10.51,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W100": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 4.44,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W101": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.41,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W104": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.33,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W088": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.96,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W092": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 15.68,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W102": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 7.4,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W091": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.23,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W106": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 7.15,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W109": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.58,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W096": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 19.21,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W097": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.76,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W098": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 20.59,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W113": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 5.31,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W103": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 25.43,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W108": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 19.49,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W114": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 13.35,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W112": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 15.34,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W119": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 2.44,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W111": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 16.96,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W116": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 11.91,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W115": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 15.51,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W105": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 31.02,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W110": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 25.63,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W120": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 7.92,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W122": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.56,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W117": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 14.94,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W123": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.36,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W127": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.2,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W124": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.57,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W118": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.03,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W121": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 22.13,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W125": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W126": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 21.11,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W135": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 8.78,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W129": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 25.33,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W131": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 22.9,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W130": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 25.91,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W139": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 26.06,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W132": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 49.8,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W128": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 58.61,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W134": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 51.72,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W141": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 13.48,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W140": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 53.38,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W143": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 23.27,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W145": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.61,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W107": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 122.63,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W137": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 68.16,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W133": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 83.75,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W136": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 72.54,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W144": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 28.33,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W147": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 15.32,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W150": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.11,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W146": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.82,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W149": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 17.11,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W154": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 8.06,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W148": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.0,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W156": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 8.43,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W151": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.25,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W155": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 18.04,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W158": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.49,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W152": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 28.17,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W138": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 91.07,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W162": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.17,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W165": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.51,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W166": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 3.07,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W142": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 68.28,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W167": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 2.65,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W160": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 17.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W157": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 20.54,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W159": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 21.64,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W153": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 37.36,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W168": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 8.12,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W170": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.68,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W169": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 12.57,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W172": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.85,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W161": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 28.16,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W177": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.47,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W164": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 22.96,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W171": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 14.92,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W163": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 24.97,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W181": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.49,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W182": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.66,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W174": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 20.39,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W173": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 22.48,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W185": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 2.79,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W184": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W176": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.15,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W188": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 3.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W178": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.18,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W190": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.43,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W179": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.8,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W183": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 16.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W191": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 4.72,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W180": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W192": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 11.12,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W187": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 16.28,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W175": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 37.68,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W194": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 14.27,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W196": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 14.0,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W186": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 23.9,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W200": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 8.59,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W195": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 20.43,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W202": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 5.57,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W193": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 24.77,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W189": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 31.18,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W206": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 5.5,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W199": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 18.32,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W207": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 7.37,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W209": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 5.75,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W211": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 4.18,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W197": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 34.64,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W201": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 23.79,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W205": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 18.44,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W212": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 8.99,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W215": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 3.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W208": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 17.47,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W203": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 26.88,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W213": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 9.34,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W204": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 27.54,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W214": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 13.95,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W217": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.41,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W222": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 5.21,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W223": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 2.95,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W210": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 26.71,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W219": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 13.45,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W227": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W218": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 18.43,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W216": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 21.1,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W229": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 4.81,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W220": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 20.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W231": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "status": "SUPPLIER_TASK_OPEN",
+   "latency_s": 3.76,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   },
+   "reason": null
+  },
+  "W221": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.54,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W232": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 3.41,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W225": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 14.46,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W224": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 16.5,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W228": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 13.49,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W233": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.33,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W236": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 3.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W226": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 16.41,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W238": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.82,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W234": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 13.1,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W235": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 16.16,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W240": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 13.63,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W239": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 15.01,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W230": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 24.75,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W242": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 14.7,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W245": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.42,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W241": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 20.72,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W247": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.38,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W250": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 5.6,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W244": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 16.77,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W251": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.36,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W237": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 27.82,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W246": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.84,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W243": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 22.31,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W254": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 2.98,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W248": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 15.86,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W255": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W253": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.14,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W257": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.76,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W256": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.44,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W258": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W249": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 22.56,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W262": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.04,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W259": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 14.14,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W252": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 20.31,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W260": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 12.9,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W266": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 6.99,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W261": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 11.08,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W263": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 9.8,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W265": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 12.4,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W269": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 11.14,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W264": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 18.32,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W270": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 11.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W268": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 15.07,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W273": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.89,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W271": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 14.65,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W279": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 4.47,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W280": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 3.22,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W274": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 13.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W278": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 6.87,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W267": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 22.44,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W272": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 19.51,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W285": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 2.85,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W276": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.32,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W284": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 8.89,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W286": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.01,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W282": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.71,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W290": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 4.02,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W277": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 23.2,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W281": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 18.98,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  },
+  "W291": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.74,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W275": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 29.62,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W292": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.5,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W294": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.55,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W287": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 20.14,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W296": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 4.36,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W283": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 24.72,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W289": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 16.95,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W297": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 4.97,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W293": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 13.03,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W288": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 25.65,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W299": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W300": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 5.95,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W301": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.37,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W295": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 15.75,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W307": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 5.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W304": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W302": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 10.71,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W298": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 14.39,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W306": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.07,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W309": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 8.76,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W305": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W314": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.31,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W303": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 17.96,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W313": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 11.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W315": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W311": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 12.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W312": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 12.22,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W316": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 6.47,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W308": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 17.31,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W317": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 8.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W318": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.96,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W321": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 5.52,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W310": {
+   "action1": "DIRECT_WORKFLOW",
+   "status": "DIRECT_WORKFLOW",
+   "latency_s": 20.88,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   },
+   "reason": null
+  },
+  "W323": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 8.02,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W320": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W319": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.65,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W322": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.13,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W325": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.99,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W324": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 11.43,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W327": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 7.27,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W326": {
+   "action1": "HUMAN_REVIEW",
+   "status": "NEEDS_HUMAN_REVIEW",
+   "latency_s": 9.49,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   },
+   "reason": null
+  },
+  "W198": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "status": "NEEDS_CLARIFICATION",
+   "latency_s": 197.95,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   },
+   "reason": null
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 327,
+   "strict": 184,
+   "strict_ci": [
+    50.9,
+    61.5
+   ],
+   "lenient": 186,
+   "lenient_ci": [
+    51.5,
+    62.1
+   ],
+   "task_pred": 79,
+   "task_true": 83,
+   "task_tp": 36,
+   "task_precision": 0.456,
+   "task_recall": 0.434,
+   "false_triggers": [
+    "W086",
+    "W094",
+    "W093",
+    "W095",
+    "W087",
+    "W085",
+    "W099",
+    "W090",
+    "W100",
+    "W088",
+    "W092",
+    "W102",
+    "W091",
+    "W106",
+    "W109",
+    "W096",
+    "W097",
+    "W098",
+    "W113",
+    "W103",
+    "W108",
+    "W112",
+    "W119",
+    "W111",
+    "W116",
+    "W115",
+    "W105",
+    "W110",
+    "W120",
+    "W117",
+    "W118",
+    "W121",
+    "W107",
+    "W154",
+    "W156",
+    "W155",
+    "W157",
+    "W153",
+    "W163",
+    "W181",
+    "W174",
+    "W173",
+    "W231"
+   ],
+   "non_supplier_n": 244,
+   "errors": [
+    {
+     "id": "W012",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W009",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W013",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W011",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W003",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W015",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W007",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W017",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W006",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W004",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W020",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W018",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W014",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W016",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W023",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W022",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W021",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W010",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W024",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W035",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W030",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W041",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W050",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W047",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W049",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W046",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W052",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W060",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W053",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W056",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W051",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W062",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W067",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W061",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W059",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W058",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W069",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W072",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W063",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W074",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W068",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W075",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W084",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W086",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W071",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W070",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W089",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W077",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W094",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W093",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W095",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W087",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W085",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W099",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W090",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W100",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W101",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W088",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W092",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W102",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W091",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W106",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W109",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W096",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W097",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W098",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W113",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W103",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W108",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W112",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W119",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W111",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W116",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W115",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W105",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W110",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W120",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W117",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W118",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W121",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W135",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W129",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W131",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W130",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W132",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W128",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W134",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W107",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W133",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W149",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W154",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W156",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W155",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W166",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W167",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W157",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W153",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W168",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W170",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W169",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W161",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W163",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W181",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W182",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W174",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W173",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W185",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W184",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W191",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W186",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W217",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W222",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W219",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W227",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W218",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W216",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W220",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W231",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W221",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W225",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W228",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W226",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W239",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W230",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W266",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W269",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W273",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W271",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W279",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W280",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W278",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W272",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W276",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W286",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W282",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W277",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W281",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W275",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W283",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W314",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": null,
+     "reason": ""
+    },
+    {
+     "id": "W312",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": null,
+     "reason": ""
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,1029 @@
+{
+ "description": "Round-2 addition: issue_type / customer_goal labels for the original 100 cases, following docs/eval/heldout-labelling-guide.md. Added BEFORE the round-2 run. required_action is the frozen round-1 expected_route mapped 1:1 (SUPPLIER_REQUIRED->CREATE_SUPPLIER_TASK, NEEDS_CLARIFICATION->CLARIFY_WITH_CUSTOMER, NEEDS_HUMAN_REVIEW->HUMAN_REVIEW). Round-1 results had no such dimensions. The original set was written by the same author as the rules: it is a regression set of known scenarios, not unseen data.",
+ "labelled_at": "2026-10-09",
+ "cases": [
+  {
+   "id": "E01",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E02",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E03",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E04",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E05",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E06",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E07",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E08",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E09",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "E10",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "E11",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "E12",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "E13",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "E14",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "E15",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "E16",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E17",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E18",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E19",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E20",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E21",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "E22",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "E23",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "E24",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "E25",
+   "issue_type": "SIZE_MISMATCH",
+   "customer_goal": "EXCHANGE",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R01",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R02",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R03",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R04",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R05",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R06",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R07",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R08",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R09",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "R10",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "R11",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "R12",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R13",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R14",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R15",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R16",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R17",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R18",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R19",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R20",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "DIRECT_WORKFLOW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R21",
+   "issue_type": "UNCLEAR",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R22",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R23",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "R24",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "R25",
+   "issue_type": "MISSING_ITEM",
+   "customer_goal": "RESHIP",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D01",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D02",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D03",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D04",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D05",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D06",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D07",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D08",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D09",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "D10",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "D11",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "D12",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D13",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D14",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D15",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D16",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D17",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D18",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D19",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D20",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D21",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D22",
+   "issue_type": "DEFECT",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D23",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "D24",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "D25",
+   "issue_type": "DEFECT",
+   "customer_goal": "REPAIR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P01",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P02",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P03",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P04",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P05",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P06",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P07",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P08",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P09",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ]
+  },
+  {
+   "id": "P10",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "P11",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ]
+  },
+  {
+   "id": "P12",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P13",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P14",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P15",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P16",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P17",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P18",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P19",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P20",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P21",
+   "issue_type": "NO_ISSUE_INQUIRY",
+   "customer_goal": "INFORMATION",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW",
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P22",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P23",
+   "issue_type": "DEFECT",
+   "customer_goal": "UNCLEAR",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER",
+    "HUMAN_REVIEW"
+   ]
+  },
+  {
+   "id": "P24",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ]
+  },
+  {
+   "id": "P25",
+   "issue_type": "PART_NEED",
+   "customer_goal": "BUY_PART",
+   "mixed": false,
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ]
+  }
+ ],
+ "guide_divergence": {
+  "D22": "frozen round-1 label CLARIFY_WITH_CUSTOMER (kept); the round-2 guide (goal INFORMATION) would say HUMAN_REVIEW, which is already in acceptable_actions"
+ }
+}

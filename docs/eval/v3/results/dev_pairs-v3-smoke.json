@@ -1,0 +1,629 @@
+{
+ "meta": {
+  "set": "dev_pairs",
+  "pipeline": "v3",
+  "tag": "smoke",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "supplier-routing-rules/3.0.0 (taxonomy v3 experiment)",
+  "k": 3,
+  "labels": "designed",
+  "usage": {
+   "calls": 11,
+   "prompt_tokens": 12165,
+   "completion_tokens": 19691
+  },
+  "retries": 1,
+  "wall_s": 218.3
+ },
+ "results": {
+  "MP09B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80205"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "SEND_PART"
+    ],
+    "order_status": {
+     "TO-80205": "CONFIRMED"
+    },
+    "order_id": "TO-80205",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich schreibe Ihnen bezüglich meiner Bestellung mit der Auftragsnummer TO-80205. Ich habe den Wasserkocher letzte Woche erhalten und war eigentlich sehr zufrieden, bis ich bemerkt habe, dass der Deckel beim ersten Gebrauch einen Riss hat. Das ist etwas ärgerlich, weil ich gerade erst ein neues Küchenhandtuch gekauft habe und nun das Wasser überall ist. Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden? Eigentlich möchte ich lieber eine Rückerstattung des gesamten Kaufpreises statt eines Ersatzteils. Vielen Dank für Ihre Mühe.\n\nMit freundlichen Grüßen\nRosa",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Deckel",
+      "issue_evidence": "Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_type": "DEFECT",
+      "component_quote": "Deckel",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Eigentlich möchte ich lieber eine Rückerstattung des gesamten Kaufpreises statt eines Ersatzteils",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Eigentlich möchte ich lieber eine Rückerstattung des gesamten Kaufpreises statt eines Ersatzteils",
+      "goal": "SEND_PART"
+     }
+    ],
+    "order_ref_quote": "TO-80205",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 41.77,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP06B": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-80202"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "SEND_PART"
+    ],
+    "order_status": {
+     "TO-80202": "CONFIRMED"
+    },
+    "order_id": "TO-80202",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi team, I just recieved my order TO-80202 and the kettle lid is cracked. Can you please send a new lid KL-170-LID? Actually I just want my money back instead. Thanks so much. Best, Olga",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "kettle lid is cracked",
+      "issue_evidence": "kettle lid is cracked",
+      "issue_type": "DEFECT",
+      "component_quote": "kettle lid is cracked",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Actually I just want my money back instead.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Can you please send a new lid KL-170-LID?",
+      "goal": "SEND_PART"
+     }
+    ],
+    "order_ref_quote": "TO-80202",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 42.44,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW"
+   }
+  },
+  "MP05B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+   "derived": {
+    "order_refs": [
+     "TO-80201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80201": "CONFIRMED"
+    },
+    "order_id": "TO-80201",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "part": "KL-170-LID"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちわ！ 注文番号 TO-80201 の件ですが、ケトルのフタ KL-170-LID をお願いします。 よろしくおねがいします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ケトルのフタ KL-170-LID",
+      "issue_evidence": "ケトルのフタ KL-170-LID をお願いします",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ケトルのフタ KL-170-LID をお願いします",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    ]
+   },
+   "latency_s": 44.19,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP09A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80205"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80205": "CONFIRMED"
+    },
+    "order_id": "TO-80205",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 120,
+    "part": "KL-170-LID",
+    "warranty_basis": "120 of 365 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich schreibe Ihnen bezüglich meiner Bestellung mit der Auftragsnummer TO-80205. Ich habe den Wasserkocher letzte Woche erhalten und war eigentlich sehr zufrieden, bis ich bemerkt habe, dass der Deckel beim ersten Gebrauch einen Riss hat. Das ist etwas ärgerlich, weil ich gerade erst ein neues Küchenhandtuch gekauft habe und nun das Wasser überall ist. Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden? Vielen Dank für Ihre Mühe.\n\nMit freundlichen Grüßen\nRosa",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_evidence": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "issue_type": "DEFECT",
+      "component_quote": "der Deckel beim ersten Gebrauch einen Riss hat",
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnten Sie bitte einen neuen Deckel KL-170-LID für mich senden?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80205",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 64.34,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP12B": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (speech_act, item1.issue): a human reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-80208"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80208": "CONFIRMED"
+    },
+    "order_id": "TO-80208",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [
+     "speech_act",
+     "item1.issue"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "REQUEST",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "桌燈",
+      "issue_evidence": "DEFECT",
+      "issue_type": "DEFECT",
+      "component_quote": "燈光會不規則地閃爍，亮一下暗一下",
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的金屬款",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "麻煩您幫我修理或更換都可以",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "麻煩您幫我修理或更換都可以",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80208",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "NONE",
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 57.08,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW"
+   }
+  },
+  "MP12A": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-80208"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80208": "CONFIRMED"
+    },
+    "order_id": "TO-80208",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 300,
+    "warranty_basis": "300 of 730 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "麻煩您幫我修理它",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "桌燈",
+      "issue_evidence": "燈光會不規則地閃爍，亮一下暗一下，持續大概十幾秒才會恢復正常",
+      "issue_type": "DEFECT",
+      "component_quote": "燈光會不規則地閃爍，亮一下暗一下",
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的金屬款",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "麻煩您幫我修理它",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80208",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides.",
+     "V12: Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    ]
+   },
+   "latency_s": 102.95,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "MP03B": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+   "derived": {
+    "order_refs": [
+     "TO-80199"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-80199": "CONFIRMED"
+    },
+    "order_id": "TO-80199",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": []
+    },
+    "evidence_failures": [],
+    "sku": "BREW-KETTLE",
+    "product": "Electric kettle 1.7 L",
+    "variant": "standard",
+    "qty": 1,
+    "days": 200,
+    "part": "KL-170-LID"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, mi pedido es TO-80199. Por favor envíenme la tapa de tetera KL-170-LID. Gracias, Lucia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "tapa de tetera KL-170-LID",
+      "issue_evidence": "tapa de tetera KL-170-LID",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-LID",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Por favor envíenme la tapa de tetera KL-170-LID.",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-80199",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+    "extras": [
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY",
+     "CREATE_SUPPLIER_TASK/WARRANTY_REMEDY"
+    ],
+    "notes": [
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts.",
+     "V12: KL-170-LID (Lid assembly) out of stock; Kettleworks Ltd. (MOCK supplier) supplies parts."
+    ]
+   },
+   "latency_s": 218.31,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "CREATE_SUPPLIER_TASK"
+   }
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 7,
+   "strict": 6,
+   "strict_ci": [
+    48.7,
+    97.4
+   ],
+   "lenient": 6,
+   "lenient_ci": [
+    48.7,
+    97.4
+   ],
+   "task_pred": 4,
+   "task_true": 5,
+   "task_tp": 4,
+   "task_precision": 1.0,
+   "task_recall": 0.8,
+   "false_triggers": [],
+   "non_supplier_n": 2,
+   "errors": [
+    {
+     "id": "MP12B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act, item1.issue): a human reads it."
+    }
+   ]
+  },
+  "k3": {
+   "n": 7,
+   "strict": 6,
+   "strict_ci": [
+    48.7,
+    97.4
+   ],
+   "lenient": 6,
+   "lenient_ci": [
+    48.7,
+    97.4
+   ],
+   "task_pred": 4,
+   "task_true": 5,
+   "task_tp": 4,
+   "task_precision": 1.0,
+   "task_recall": 0.8,
+   "false_triggers": [],
+   "non_supplier_n": 2,
+   "errors": [
+    {
+     "id": "MP12B",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act, item1.issue): a human reads it."
+    }
+   ]
+  }
+ }
+}

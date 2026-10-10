@@ -1,0 +1,354 @@
+[
+ {
+  "id": "W010",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W011",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W012",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W014",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W016",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W017",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W019",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "author-adjudicated: Seller-error claim consistent with the record (ordered black, got white), but the customer asks how to proceed rather than requesting a remedy: ask what they want (HUMAN also defensible). Not a task: no explicit remedy request."
+ },
+ {
+  "id": "W020",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W021",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W022",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W023",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W024",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W035",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W043",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: '修理の対応は可能でしょうか、手続きを教えてください' is a polite repair request (guide s.2); kettle ~9 months, supplier warranty 365 d, no hazard -> TASK. Clarify/human defensible (procedure question)."
+ },
+ {
+  "id": "W074",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W080",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W082",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "CREATE_SUPPLIER_TASK",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W085",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W097",
+  "N": "HUMAN_REVIEW",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W154",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W155",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W218",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W222",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "author-adjudicated: TO–90222 (en dash) is the same id per guide s.8 (judges' record lookup did not normalise the dash); refund wish -> V8 refund flow."
+ },
+ {
+  "id": "W223",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "author-adjudicated: Dented kettle, id TO−90223 (minus sign) valid per s.8; no explicit remedy requested (complaint only) -> V6b clarify."
+ },
+ {
+  "id": "W225",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "author-adjudicated: TO‑90225 (non-breaking hyphen) valid per s.8; asks for a refund -> V8."
+ },
+ {
+  "id": "W226",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "author-adjudicated: TO‐90226 (U+2010) valid per s.8; requests refund of the full amount -> V8."
+ },
+ {
+  "id": "W227",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "author-adjudicated: TO–90227 valid per s.8; requests full refund -> V8."
+ },
+ {
+  "id": "W228",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: TO‐90228 valid per s.8; lamp 150 d, supplier warranty 730 d, repair requested, no hazard -> TASK."
+ },
+ {
+  "id": "W230",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CREATE_SUPPLIER_TASK",
+  "final": "CREATE_SUPPLIER_TASK",
+  "source": "author-adjudicated: TO−90230 valid per s.8; lamp 150 d, repair requested -> TASK."
+ },
+ {
+  "id": "W260",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W263",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W264",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W268",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W275",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W277",
+  "N": "HUMAN_REVIEW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "CLARIFY_WITH_CUSTOMER",
+  "final": "CLARIFY_WITH_CUSTOMER",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W281",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W286",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W289",
+  "N": "CREATE_SUPPLIER_TASK",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W291",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W297",
+  "N": "DIRECT_WORKFLOW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W298",
+  "N": "DIRECT_WORKFLOW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W299",
+  "N": "DIRECT_WORKFLOW",
+  "D": "CLARIFY_WITH_CUSTOMER",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W312",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "DIRECT_WORKFLOW",
+  "design": "DIRECT_WORKFLOW",
+  "final": "DIRECT_WORKFLOW",
+  "source": "2 of 3 (design + one judge)"
+ },
+ {
+  "id": "W327",
+  "N": "CLARIFY_WITH_CUSTOMER",
+  "D": "HUMAN_REVIEW",
+  "design": "HUMAN_REVIEW",
+  "final": "HUMAN_REVIEW",
+  "source": "2 of 3 (design + one judge)"
+ }
+]

@@ -1,0 +1,120 @@
+{# Supplier routing — EXPERIMENT (MVP 1). Additive panel; independent of the refund flow above. #}
+{% set R = routing %}
+<section class="block routing" id="routing">
+  <h2>Supplier routing <span class="chip mock">EXPERIMENT · MVP 1</span>
+    <span class="muted small">· triage only · {{ R.rule_version }}</span></h2>
+  <p class="rt-banner">MOCK data (catalog / inventory / logistics / supplier table) · nothing is ever sent to a supplier ·
+    supplier tasks are internal drafts · <strong>independent of refunds</strong>: no routing state can enable, skip or change any refund gate.</p>
+
+  <div class="rt-grid">
+    <div>
+      <form method="post" action="/routing/triage" class="js-busy" id="rt-form">
+        <input type="hidden" name="case" value="{{ current.id if current else '' }}">
+        <div class="chips">
+          {% for p in R.presets %}<button type="button" class="rt-chip {{ p.kind or '' }}" data-message="{{ p.message }}" data-customer="{{ p.customer }}">{{ p.chip }}</button>{% endfor %}
+        </div>
+        <label class="small muted" for="rt-message">Complaint (any language)</label>
+        <textarea id="rt-message" name="message" rows="2" maxlength="500" required placeholder="e.g. Order TO-10421: can I exchange size 42 for 43?"></textarea>
+        <div class="row gap">
+          <label class="small">Customer account <span class="chip mock">MOCK</span>
+            <select name="customer" id="rt-customer">
+              {% for c in R.customers %}<option value="{{ c.email }}">{{ c.email }} ({{ c.orders | join(', ') }})</option>{% endfor %}
+            </select></label>
+          <label class="small">Linked order
+            <select name="linked_order"><option value="">none — read it from the message</option>
+              {% for o in R.orders %}<option value="{{ o.id }}">{{ o.label }}</option>{% endfor %}
+            </select></label>
+        </div>
+        <div class="row gap actions">
+          <button class="btn primary">Triage complaint</button>
+          {% if R.current_triageable %}
+            <button class="btn" formaction="/routing/tradeos/{{ current.id }}">Triage selected case {{ current.id }}</button>
+          {% endif %}
+        </div>
+        <p class="muted small">Extractor: {{ R.extractor }} (extracts issue + goal only; rules compute the action).
+          Confidence is uncalibrated and <strong>demote-only</strong>: an automatic action below {{ R.thresholds.demote_below }}
+          goes to a human; nothing is ever promoted. Keyword fallback capped at {{ R.thresholds.keyword_confidence_cap }} (never automatic).</p>
+      </form>
+
+      {% if R.recent %}
+      <h3 class="small-h">Recent routing cases</h3>
+      <ul class="pending-list">
+        {% for c in R.recent %}
+          <li><a href="/?{{ 'case=' ~ current.id ~ '&' if current else '' }}rcase={{ c.id }}#routing">{{ c.id }}</a>
+            <span class="chip {{ R.chips.get(c.status, 'neutral') }}">{{ c.status | replace('_', ' ') }}</span>
+            <span class="muted small">{{ c.message[:60] }}{{ '…' if c.message | length > 60 }}</span></li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+      {% if R.tasks %}
+      <h3 class="small-h">Internal supplier tasks (drafts, never sent)</h3>
+      <ul class="pending-list">
+        {% for t in R.tasks %}<li><code>{{ t.id }}</code> {{ t.complaint_type }} · {{ t.order_id }} · <span class="chip warn">{{ t.status | replace('_', ' ') }} · not sent</span></li>{% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+
+    <div>
+    {% if R.view %}
+      {% set v = R.view %}
+      <article class="rt-card">
+        <div class="row between">
+          <strong>Routing case {{ v.case.id }}{% if v.case.tradeos_case_id %} · TradeOS case {{ v.case.tradeos_case_id }}{% endif %}</strong>
+          <span class="chip {{ v.chip }}">{{ v.case.status | replace('_', ' ') }}</span>
+        </div>
+        <p class="quote">“{{ v.case.message }}”</p>
+        <div class="rt-dims">
+          <div><span class="muted small">issue_type (AI)</span><code>{{ v.decision.issue_type or '—' }}</code></div>
+          <div><span class="muted small">customer_goal (AI)</span><code>{{ v.decision.customer_goal or '—' }}</code>{% if v.decision.mixed %} <span class="chip warn">mixed</span>{% endif %}</div>
+          <div><span class="muted small">required_action (rules)</span><code>{{ v.decision.required_action or '—' }}</code></div>
+        </div>
+        <p class="small"><strong>Decided by:</strong> {{ v.decision.decided_by }}</p>
+        {% if v.decision.derived is defined and v.decision.derived and v.decision.derived.safety_gate %}<p class="small"><strong>Safety Gate:</strong> class {{ v.decision.derived.safety_gate["class"] or "n/a" }}: {{ v.decision.derived.safety_gate.reason }}</p>{% endif %}
+        <dl class="kv">
+          <dt>Route</dt><dd><code>{{ v.case.route }}</code>{% if v.case.proposed_route and v.case.proposed_route != v.case.route %} <span class="muted small">(rules proposed {{ v.case.proposed_route }})</span>{% endif %}</dd>
+          <dt>Supplier task</dt><dd><code>{{ v.case.supplier_status }}</code> — {{ v.task_text }}</dd>
+          <dt>Refund status</dt><dd class="small">separate — routing never reads or writes it</dd>
+          <dt>Confidence</dt><dd>{{ v.confidence.combined }} <span class="chip neutral">{{ v.confidence.band }}</span>
+            <span class="muted small">LLM self-report {{ v.confidence.llm if v.confidence.llm is not none else 'n/a' }};
+            {% for s in v.confidence.signals %}{{ s.signal }} {{ s.value }}{{ '; ' if not loop.last }}{% endfor %}</span></dd>
+          <dt>Extraction</dt><dd class="small">{{ v.extraction.extractor }} · raw AI: <code>{{ v.extraction.fields.issue_type }}</code> <code>{{ v.extraction.fields.customer_goal }}</code>{% if v.decision.complaint_type %} · family <code>{{ v.decision.complaint_type }}</code>{% endif %}
+            {% if v.extraction.fields.summary_en %}· {{ v.extraction.fields.summary_en }}{% endif %}</dd>
+          <dt>Rule version</dt><dd class="small"><code>{{ v.decision.rule_version }}</code> · decided {{ v.case.updated_at | ts }}</dd>
+        </dl>
+        <h3 class="small-h">Gates</h3>
+        <ul class="checks rt-gates">
+          {% for g in v.gates %}<li class="{{ 'pass' if g.passed else 'fail' }}">{{ '✓' if g.passed else '✗' }} <strong>{{ g.gate }}. {{ g.name | replace('_', ' ') }}</strong> — {{ g.reason }}{% if g.outcome %} → <code>{{ g.outcome }}</code>{% endif %}</li>{% endfor %}
+        </ul>
+        {% if v.decision.trigger_reason %}<p class="small"><strong>Trigger reason:</strong> {{ v.decision.trigger_reason }}</p>{% endif %}
+        <h3 class="small-h">Data used</h3>
+        <ul class="small rt-data">
+          {% for d in v.data_used %}<li>{% if d.mock %}<span class="chip mock">MOCK</span> {% endif %}<strong>{{ d.source }}</strong> · {{ d.key }}: <code>{{ d.value if d.value is string else (d.value | tojson) }}</code></li>{% endfor %}
+        </ul>
+        {% if v.confirmable %}
+          <form method="post" action="/routing/{{ v.case.id }}/confirm" class="js-busy actions">
+            <input type="hidden" name="case" value="{{ current.id if current else '' }}">
+            <button class="btn">Confirm supplier route (creates an internal draft, sends nothing)</button></form>
+        {% endif %}
+        {% if v.task %}
+          <details open><summary>Supplier task {{ v.task.id }} · {{ v.task.status }} · {{ 'complete' if v.task_complete else 'INCOMPLETE' }}{% if v.case.duplicate_of_task %} · duplicate prevented: linked to the existing open task{% endif %}</summary>
+            <pre>{{ v.task.draft }}</pre></details>
+        {% endif %}
+        <details class="raw"><summary>routing log ({{ v.events | length }} events)</summary>
+          <pre>{% for e in v.events %}{{ e.ts }}  {{ e.event }}
+{% endfor %}</pre></details>
+        <p class="muted small">JSON: <a href="/api/routing/{{ v.case.id }}">/api/routing/{{ v.case.id }}</a></p>
+      </article>
+    {% else %}
+      <p class="muted">No routing case yet. Pick an example or triage the selected TradeOS case.</p>
+    {% endif %}
+    </div>
+  </div>
+</section>
+<script>
+document.querySelectorAll(".rt-chip").forEach(function (chip) {
+  chip.addEventListener("click", function () {
+    document.getElementById("rt-message").value = chip.dataset.message;
+    document.getElementById("rt-customer").value = chip.dataset.customer;
+  });
+});
+</script>

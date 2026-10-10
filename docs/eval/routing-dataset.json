@@ -1,0 +1,1726 @@
+{
+ "description": "Hand-labelled supplier-routing cases (experiment, MVP 1). Labels = expected route under the rules in app/routing.py and the MOCK data in app/routing_data.py, written BEFORE the first eval run and not changed afterwards. acceptable_routes lists the non-triggering alternatives accepted for genuinely ambiguous rows (also fixed before the run). Cases run IN ORDER against one fresh DB, so 'duplicate' rows hit the task opened by their earlier twin.",
+ "labelled_at": "2026-10-09",
+ "cases": [
+  {
+   "id": "E01",
+   "family": "EXCHANGE",
+   "lang": "en",
+   "customer": "ana@example.test",
+   "linked_order": null,
+   "message": "Hi, order TO-10421 — the Trail Runners are too small. Could I exchange my size 42 for a 43?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "drop-ship: supplier owns stock"
+  },
+  {
+   "id": "E02",
+   "family": "EXCHANGE",
+   "lang": "zh-Hant",
+   "customer": "cara@example.test",
+   "linked_order": null,
+   "message": "您好，訂單 TO-10433 的鞋子太大了，可以把 39 號換成 38 號嗎？",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "E03",
+   "family": "EXCHANGE",
+   "lang": "es",
+   "customer": "dan@example.test",
+   "linked_order": null,
+   "message": "Hola, pedido TO-10434: las zapatillas me quedan grandes. ¿Puedo cambiar la talla 45 por la 44?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "E04",
+   "family": "EXCHANGE",
+   "lang": "de",
+   "customer": "ola@example.test",
+   "linked_order": null,
+   "message": "Hallo, Bestellung TO-40011: Ich hätte die Schreibtischlampe lieber in Schwarz statt Weiß. Kann ich sie umtauschen?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "E05",
+   "family": "EXCHANGE",
+   "lang": "ja",
+   "customer": "chen@example.test",
+   "linked_order": null,
+   "message": "注文番号TO-20031のジャケット、Mサイズが小さかったのでLサイズに交換できますか？",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "L out of stock, supplier restocks"
+  },
+  {
+   "id": "E06",
+   "family": "EXCHANGE",
+   "lang": "en",
+   "customer": "gil@example.test",
+   "linked_order": null,
+   "message": "Order TO-20032: the rain jacket in S is too tight. Please exchange it for size L.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "E07",
+   "family": "EXCHANGE",
+   "lang": "es",
+   "customer": "fay@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-40012: compré la lámpara negra pero quiero cambiarla por la blanca, ¿es posible?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "E08",
+   "family": "EXCHANGE",
+   "lang": "zh-Hant",
+   "customer": "ana@example.test",
+   "linked_order": null,
+   "message": "我剛剛已經寫信了：訂單 TO-10421 的鞋子 42 號太小，想換 43 號，麻煩盡快處理。",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same order/type as E01"
+  },
+  {
+   "id": "E09",
+   "family": "EXCHANGE",
+   "lang": "de",
+   "customer": "cara@example.test",
+   "linked_order": null,
+   "message": "Nochmal wegen Bestellung TO-10433: Bitte die Schuhe von Größe 39 auf 38 umtauschen.",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as E02"
+  },
+  {
+   "id": "E10",
+   "family": "EXCHANGE",
+   "lang": "en",
+   "customer": "hal@example.test",
+   "linked_order": null,
+   "message": "Hi, order TO-20033 — the XL jacket is too big. Can I swap it for an S?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "S in our stock"
+  },
+  {
+   "id": "E11",
+   "family": "EXCHANGE",
+   "lang": "ja",
+   "customer": "eva@example.test",
+   "linked_order": null,
+   "message": "注文TO-30077のリュック、黒ではなく緑に交換したいです。",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "green 0 stock, supplier has no restock duty"
+  },
+  {
+   "id": "E12",
+   "family": "EXCHANGE",
+   "lang": "de",
+   "customer": "dora@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-20013: Die Jacke in L ist zu groß, kann ich sie gegen M umtauschen?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "outside window: policy decides"
+  },
+  {
+   "id": "E13",
+   "family": "EXCHANGE",
+   "lang": "zh-Hant",
+   "customer": "felix@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-40005 的襪子 M 號太小，可以換成 L 號嗎？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "final sale"
+  },
+  {
+   "id": "E14",
+   "family": "EXCHANGE",
+   "lang": "es",
+   "customer": "gus@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-10431: las zapatillas talla 44 me quedan pequeñas, ¿puedo cambiarlas por la 45?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "40 days: outside window"
+  },
+  {
+   "id": "E15",
+   "family": "EXCHANGE",
+   "lang": "zh-Hant",
+   "customer": "kim@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-50130：我想把海軍藍的背包換成黑色的，可以嗎？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "black in stock"
+  },
+  {
+   "id": "E16",
+   "family": "EXCHANGE",
+   "lang": "en",
+   "customer": "emi@example.test",
+   "linked_order": null,
+   "message": "The sneakers are too small, can I exchange them for size 41?",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no order number"
+  },
+  {
+   "id": "E17",
+   "family": "EXCHANGE",
+   "lang": "ja",
+   "customer": "emi@example.test",
+   "linked_order": null,
+   "message": "注文TO-10435の靴が小さいので、もっと大きいサイズに交換してください。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no target size"
+  },
+  {
+   "id": "E18",
+   "family": "EXCHANGE",
+   "lang": "de",
+   "customer": "ben@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-10412: Ich möchte die Schuhe umtauschen, bitte.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no target size"
+  },
+  {
+   "id": "E19",
+   "family": "EXCHANGE",
+   "lang": "es",
+   "customer": "dan@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-10434: quiero cambiar la talla 45 por la 52.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "size 52 does not exist"
+  },
+  {
+   "id": "E20",
+   "family": "EXCHANGE",
+   "lang": "ja",
+   "customer": "ana@example.test",
+   "linked_order": null,
+   "message": "靴のサイズが合わない場合、交換はできますか？一般的な質問です。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "policy question"
+  },
+  {
+   "id": "E21",
+   "family": "EXCHANGE",
+   "lang": "zh-Hant",
+   "customer": "ben@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-10412 的鞋子尺寸好像有點怪，穿起來不太舒服。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting"
+  },
+  {
+   "id": "E22",
+   "family": "EXCHANGE",
+   "lang": "ja",
+   "customer": "ola@example.test",
+   "linked_order": null,
+   "message": "TO-40011のランプ、色がイメージと違いました。残念です。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting"
+  },
+  {
+   "id": "E23",
+   "family": "EXCHANGE",
+   "lang": "es",
+   "customer": "fay@example.test",
+   "linked_order": null,
+   "message": "¿Cuánto tiempo tengo para cambiar un producto? Es una pregunta general.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "policy question"
+  },
+  {
+   "id": "E24",
+   "family": "EXCHANGE",
+   "lang": "en",
+   "customer": "ana@example.test",
+   "linked_order": null,
+   "message": "Order TO-10412: shoes too small, please exchange size 42 for 43.",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "ana cites ben's similar order number"
+  },
+  {
+   "id": "E25",
+   "family": "EXCHANGE",
+   "lang": "de",
+   "customer": "gil@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-2032: Bitte die Jacke von S auf L umtauschen.",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "TO-2032 does not exist (real: TO-20032)"
+  },
+  {
+   "id": "R01",
+   "family": "RESHIP",
+   "lang": "en",
+   "customer": "hana@example.test",
+   "linked_order": null,
+   "message": "Order TO-50101: I ordered two desk lamps but only one arrived. Please send the missing lamp.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R02",
+   "family": "RESHIP",
+   "lang": "zh-Hant",
+   "customer": "oli@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-50170 的檯燈一直沒收到，物流說包裹遺失了，請幫我重新寄一個。",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R03",
+   "family": "RESHIP",
+   "lang": "es",
+   "customer": "lea@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-50140: recibí el hervidor pero la lámpara nunca llegó. ¿Podéis enviarla de nuevo?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "multi-item order; lamp lost, drop-shipped"
+  },
+  {
+   "id": "R04",
+   "family": "RESHIP",
+   "lang": "de",
+   "customer": "pat@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-50180: Von den drei Lampen sind nur zwei angekommen. Bitte schicken Sie die fehlende Lampe nach.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R05",
+   "family": "RESHIP",
+   "lang": "ja",
+   "customer": "ray@example.test",
+   "linked_order": null,
+   "message": "注文TO-50181のスニーカーが届いていません。配送業者は紛失したと言っています。再送をお願いします。",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R06",
+   "family": "RESHIP",
+   "lang": "en",
+   "customer": "sol@example.test",
+   "linked_order": null,
+   "message": "Hi, order TO-50182 - I paid for 2 pairs of trail runners but the box only had one pair. Can you ship the other pair?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R07",
+   "family": "RESHIP",
+   "lang": "es",
+   "customer": "ted@example.test",
+   "linked_order": null,
+   "message": "Mi pedido TO-50183 (lámpara negra) se perdió en el envío según el transportista. Necesito que me lo reenvíen, por favor.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R08",
+   "family": "RESHIP",
+   "lang": "ja",
+   "customer": "hana@example.test",
+   "linked_order": null,
+   "message": "TO-50101の件、ランプが1つ足りません。早く送ってください。",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as R01"
+  },
+  {
+   "id": "R09",
+   "family": "RESHIP",
+   "lang": "de",
+   "customer": "oli@example.test",
+   "linked_order": null,
+   "message": "Nochmals: Meine Lampe aus Bestellung TO-50170 ist nie angekommen. Bitte neu senden.",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as R02"
+  },
+  {
+   "id": "R10",
+   "family": "RESHIP",
+   "lang": "en",
+   "customer": "ivan@example.test",
+   "linked_order": null,
+   "message": "My kettle from order TO-50110 never arrived and the tracking says lost. Please send another one.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "we shipped it, in stock"
+  },
+  {
+   "id": "R11",
+   "family": "RESHIP",
+   "lang": "zh-Hant",
+   "customer": "max@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-50150 的外套一直沒收到，物流顯示遺失，可以重寄嗎？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R12",
+   "family": "RESHIP",
+   "lang": "es",
+   "customer": "jon@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-50120: todavía no me han llegado las zapatillas. ¿Me las pueden reenviar?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "in transit: tracking answers it"
+  },
+  {
+   "id": "R13",
+   "family": "RESHIP",
+   "lang": "de",
+   "customer": "kim@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-50130: Der Rucksack ist nicht angekommen, obwohl als zugestellt markiert. Bitte schicken Sie ihn erneut.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "carrier says delivered: investigate"
+  },
+  {
+   "id": "R14",
+   "family": "RESHIP",
+   "lang": "ja",
+   "customer": "noa@example.test",
+   "linked_order": null,
+   "message": "注文TO-50160のケトルがまだ届いていません。再送してもらえますか？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "no logistics record"
+  },
+  {
+   "id": "R15",
+   "family": "RESHIP",
+   "lang": "en",
+   "customer": "una@example.test",
+   "linked_order": null,
+   "message": "Order TO-50184: the rain jacket was lost in the mail. Can you send me a new one?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "we shipped it, 0 stock"
+  },
+  {
+   "id": "R16",
+   "family": "RESHIP",
+   "lang": "en",
+   "customer": "lea@example.test",
+   "linked_order": null,
+   "message": "Order TO-50140 arrived but something is missing. Please send it.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "multi-item, which one?"
+  },
+  {
+   "id": "R17",
+   "family": "RESHIP",
+   "lang": "zh-Hant",
+   "customer": "pat@example.test",
+   "linked_order": null,
+   "message": "我的檯燈少了一個，請補寄。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no order number"
+  },
+  {
+   "id": "R18",
+   "family": "RESHIP",
+   "lang": "de",
+   "customer": "ray@example.test",
+   "linked_order": null,
+   "message": "Meine Schuhe sind nie angekommen, bitte erneut senden.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R19",
+   "family": "RESHIP",
+   "lang": "es",
+   "customer": "sol@example.test",
+   "linked_order": null,
+   "message": "Me falta un par de zapatillas de mi pedido, por favor envíenlo.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "R20",
+   "family": "RESHIP",
+   "lang": "zh-Hant",
+   "customer": "jon@example.test",
+   "linked_order": null,
+   "message": "請問我的訂單 TO-50120 現在到哪裡了？可以給我追蹤狀態嗎？",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "DIRECT_WORKFLOW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "order lookup"
+  },
+  {
+   "id": "R21",
+   "family": "RESHIP",
+   "lang": "ja",
+   "customer": "ted@example.test",
+   "linked_order": null,
+   "message": "配送が遅すぎます。本当にがっかりです。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting"
+  },
+  {
+   "id": "R22",
+   "family": "RESHIP",
+   "lang": "zh-Hant",
+   "customer": "hana@example.test",
+   "linked_order": null,
+   "message": "請問如果包裹裡少了東西，你們一般怎麼處理？",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "policy question"
+  },
+  {
+   "id": "R23",
+   "family": "RESHIP",
+   "lang": "de",
+   "customer": "ivan@example.test",
+   "linked_order": null,
+   "message": "Was passiert eigentlich, wenn ein Paket verloren geht? Nur eine allgemeine Frage.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "policy question"
+  },
+  {
+   "id": "R24",
+   "family": "RESHIP",
+   "lang": "es",
+   "customer": "hana@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-50110: falta una lámpara, por favor envíenla.",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "ivan's order"
+  },
+  {
+   "id": "R25",
+   "family": "RESHIP",
+   "lang": "ja",
+   "customer": "oli@example.test",
+   "linked_order": null,
+   "message": "注文TO-50107のランプが届きません。再送してください。",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "does not exist"
+  },
+  {
+   "id": "D01",
+   "family": "DEFECT",
+   "lang": "en",
+   "customer": "quinn@example.test",
+   "linked_order": null,
+   "message": "Order TO-60202: my kettle stopped heating last week. Can you repair or replace it?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "120d: supplier warranty"
+  },
+  {
+   "id": "D02",
+   "family": "DEFECT",
+   "lang": "zh-Hant",
+   "customer": "sara@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-60204 的檯燈一直閃爍，已經不能正常使用了，請問可以維修或更換嗎？",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D03",
+   "family": "DEFECT",
+   "lang": "es",
+   "customer": "vic@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-60207: la suela de las zapatillas se despegó después de tres meses. ¿Me pueden dar una solución?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D04",
+   "family": "DEFECT",
+   "lang": "de",
+   "customer": "yan@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70303: Der Gaskocher zündet nicht mehr, der Drehknopf ist gebrochen. Bitte um Reparatur oder Ersatz.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "gas appliance: a safety flag from the model would also be acceptable"
+  },
+  {
+   "id": "D05",
+   "family": "DEFECT",
+   "lang": "ja",
+   "customer": "amy@example.test",
+   "linked_order": null,
+   "message": "注文TO-60211の電気ケトルが壊れて、電源が入りません。修理か交換をお願いします。",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D06",
+   "family": "DEFECT",
+   "lang": "en",
+   "customer": "bo@example.test",
+   "linked_order": null,
+   "message": "Order TO-60212 - the desk lamp's LED died after a year. It's still under warranty, right? Please replace it.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D07",
+   "family": "DEFECT",
+   "lang": "de",
+   "customer": "cy@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-60213: Die Naht an den Schuhen ist nach zwei Monaten aufgegangen. Können Sie das reparieren oder ersetzen?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D08",
+   "family": "DEFECT",
+   "lang": "es",
+   "customer": "quinn@example.test",
+   "linked_order": null,
+   "message": "Les escribo otra vez por el pedido TO-60202: el hervidor sigue sin calentar. Por favor, una solución.",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as D01"
+  },
+  {
+   "id": "D09",
+   "family": "DEFECT",
+   "lang": "ja",
+   "customer": "sara@example.test",
+   "linked_order": null,
+   "message": "TO-60204のライトがまだ点滅しています。対応をお願いします。",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as D02"
+  },
+  {
+   "id": "D10",
+   "family": "DEFECT",
+   "lang": "en",
+   "customer": "pia@example.test",
+   "linked_order": null,
+   "message": "Order TO-60201: the kettle I got 10 days ago is leaking from the bottom. What can you do?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "inside return window: refund policy covers it"
+  },
+  {
+   "id": "D11",
+   "family": "DEFECT",
+   "lang": "zh-Hant",
+   "customer": "zoe@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-60208 的背包拉鍊壞了，可以處理一下嗎？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "merchant warranty"
+  },
+  {
+   "id": "D12",
+   "family": "DEFECT",
+   "lang": "de",
+   "customer": "uma@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-60206: Ich rieche Gas, wenn der Kocher an ist. Bitte helfen Sie.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "safety"
+  },
+  {
+   "id": "D13",
+   "family": "DEFECT",
+   "lang": "es",
+   "customer": "rui@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-60203: el hervidor ya no funciona, ¿me lo pueden reparar?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "out of warranty"
+  },
+  {
+   "id": "D14",
+   "family": "DEFECT",
+   "lang": "ja",
+   "customer": "tim@example.test",
+   "linked_order": null,
+   "message": "注文TO-60205のジャケットの縫い目が破れました。直してもらえますか？",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "no warranty owner"
+  },
+  {
+   "id": "D15",
+   "family": "DEFECT",
+   "lang": "en",
+   "customer": "uma@example.test",
+   "linked_order": null,
+   "message": "Order TO-60206: the stove's ignition button sometimes sparks and I saw smoke. Please advise.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "safety"
+  },
+  {
+   "id": "D16",
+   "family": "DEFECT",
+   "lang": "zh-Hant",
+   "customer": "pia@example.test",
+   "linked_order": null,
+   "message": "我的熱水壺壞了，請幫我修。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no order number"
+  },
+  {
+   "id": "D17",
+   "family": "DEFECT",
+   "lang": "zh-Hant",
+   "customer": "bo@example.test",
+   "linked_order": null,
+   "message": "我的檯燈壞了，不會亮，請幫我換一個。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D18",
+   "family": "DEFECT",
+   "lang": "de",
+   "customer": "amy@example.test",
+   "linked_order": null,
+   "message": "Mein Wasserkocher ist kaputt. Was nun?",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D19",
+   "family": "DEFECT",
+   "lang": "ja",
+   "customer": "bo@example.test",
+   "linked_order": null,
+   "message": "ライトが壊れました。交換してください。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D20",
+   "family": "DEFECT",
+   "lang": "es",
+   "customer": "quinn@example.test",
+   "linked_order": null,
+   "message": "¿Cuál es su política de garantía para los hervidores eléctricos?",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "policy question"
+  },
+  {
+   "id": "D21",
+   "family": "DEFECT",
+   "lang": "zh-Hant",
+   "customer": "amy@example.test",
+   "linked_order": null,
+   "message": "這個熱水壺的設計真的很爛，我很失望。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting"
+  },
+  {
+   "id": "D22",
+   "family": "DEFECT",
+   "lang": "es",
+   "customer": "sara@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-60204: la lámpara hace un ruido raro a veces, no sé si es normal.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "unclear; an open task exists for this order"
+  },
+  {
+   "id": "D23",
+   "family": "DEFECT",
+   "lang": "de",
+   "customer": "quinn@example.test",
+   "linked_order": null,
+   "message": "Ist es normal, dass der Wasserkocher beim Kochen so laut ist? Nur eine Frage.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "D24",
+   "family": "DEFECT",
+   "lang": "ja",
+   "customer": "quinn@example.test",
+   "linked_order": null,
+   "message": "注文TO-60203のケトルが壊れました。修理をお願いします。",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "rui's order"
+  },
+  {
+   "id": "D25",
+   "family": "DEFECT",
+   "lang": "en",
+   "customer": "sara@example.test",
+   "linked_order": null,
+   "message": "Order TO-60240: my lamp flickers constantly, please replace it.",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "does not exist (real: TO-60204)"
+  },
+  {
+   "id": "P01",
+   "family": "PART_REPLACEMENT",
+   "lang": "en",
+   "customer": "wen@example.test",
+   "linked_order": null,
+   "message": "Order TO-70301: the lid hinge snapped. I'd like to buy a replacement lid, part KL-170-LID.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P02",
+   "family": "PART_REPLACEMENT",
+   "lang": "zh-Hant",
+   "customer": "xia@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-70302：我需要一個替換的 LED 模組，型號 DL-LED-5W，請問可以寄給我嗎？",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P03",
+   "family": "PART_REPLACEMENT",
+   "lang": "es",
+   "customer": "bea@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-70306: necesito la base de alimentación de repuesto KL-170-BASE para mi hervidor.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P04",
+   "family": "PART_REPLACEMENT",
+   "lang": "de",
+   "customer": "cal@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70307: Ich brauche eine neue Tischklemme, Ersatzteil DL-CLAMP-M. Können Sie die liefern?",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P05",
+   "family": "PART_REPLACEMENT",
+   "lang": "ja",
+   "customer": "eli@example.test",
+   "linked_order": null,
+   "message": "注文TO-70309のデスクライト用に、交換部品DL-LED-7Wが使えるか知りたいです。取り寄せできますか？",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "unknown part: supplier answers compatibility"
+  },
+  {
+   "id": "P06",
+   "family": "PART_REPLACEMENT",
+   "lang": "zh-Hant",
+   "customer": "dee@example.test",
+   "linked_order": null,
+   "message": "您好，訂單 TO-70308。請問有備用零件 KL-170-GSK（蓋子的密封圈）嗎？我想訂一個。",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "unknown part"
+  },
+  {
+   "id": "P07",
+   "family": "PART_REPLACEMENT",
+   "lang": "de",
+   "customer": "fin@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70310: Bitte schicken Sie mir einen neuen Deckel, Teilenummer KL-170-LID.",
+   "tags": [
+    "needed"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": true,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P08",
+   "family": "PART_REPLACEMENT",
+   "lang": "ja",
+   "customer": "wen@example.test",
+   "linked_order": null,
+   "message": "TO-70301の件で再度連絡します。部品KL-170-LIDの交換をお願いします。",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as P01"
+  },
+  {
+   "id": "P09",
+   "family": "PART_REPLACEMENT",
+   "lang": "en",
+   "customer": "xia@example.test",
+   "linked_order": null,
+   "message": "Following up on order TO-70302 — still need the DL-LED-5W replacement module.",
+   "tags": [
+    "duplicate"
+   ],
+   "expected_route": "SUPPLIER_REQUIRED",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "SUPPLIER_REQUIRED"
+   ],
+   "note": "same as P02"
+  },
+  {
+   "id": "P10",
+   "family": "PART_REPLACEMENT",
+   "lang": "zh-Hant",
+   "customer": "gia@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-70311 的背包扣環斷了，我需要替換零件 BP-BUCKLE-25。",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": "in our stock"
+  },
+  {
+   "id": "P11",
+   "family": "PART_REPLACEMENT",
+   "lang": "es",
+   "customer": "bea@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-70306: ¿me pueden enviar un filtro de repuesto KL-170-FLT?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "DIRECT_WORKFLOW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "DIRECT_WORKFLOW"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P12",
+   "family": "PART_REPLACEMENT",
+   "lang": "de",
+   "customer": "yan@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70303: Ich brauche ein Ersatzventil CS-VALVE-2 für den Gaskocher.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "supplier sells no parts"
+  },
+  {
+   "id": "P13",
+   "family": "PART_REPLACEMENT",
+   "lang": "ja",
+   "customer": "hux@example.test",
+   "linked_order": null,
+   "message": "注文TO-70312のコンロ用の部品CS-VALVE-2を送ってください。",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P14",
+   "family": "PART_REPLACEMENT",
+   "lang": "en",
+   "customer": "abe@example.test",
+   "linked_order": null,
+   "message": "Order TO-70305: can I get replacement laces, part TR-LACE-120, for my trail runners?",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "unknown part, supplier does not answer compatibility"
+  },
+  {
+   "id": "P15",
+   "family": "PART_REPLACEMENT",
+   "lang": "en",
+   "customer": "xia@example.test",
+   "linked_order": null,
+   "message": "Order TO-70302: I need part KL-170-LID for my desk lamp.",
+   "tags": [
+    "not_needed"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "part of another product family"
+  },
+  {
+   "id": "P16",
+   "family": "PART_REPLACEMENT",
+   "lang": "en",
+   "customer": "cal@example.test",
+   "linked_order": null,
+   "message": "Order TO-70307: the clamp of my lamp broke, I need a new clamp part.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no part number"
+  },
+  {
+   "id": "P17",
+   "family": "PART_REPLACEMENT",
+   "lang": "zh-Hant",
+   "customer": "wen@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-70301 的熱水壺蓋子壞了，需要一個新的零件。",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P18",
+   "family": "PART_REPLACEMENT",
+   "lang": "es",
+   "customer": "pia@example.test",
+   "linked_order": null,
+   "message": "Necesito el repuesto KL-170-FLT para mi hervidor.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "no order number"
+  },
+  {
+   "id": "P19",
+   "family": "PART_REPLACEMENT",
+   "lang": "de",
+   "customer": "eli@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70309: Ich brauche die Ersatzteile DL-LED-5W und DL-CLAMP-M.",
+   "tags": [
+    "missing"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "two part numbers"
+  },
+  {
+   "id": "P20",
+   "family": "PART_REPLACEMENT",
+   "lang": "ja",
+   "customer": "wen@example.test",
+   "linked_order": null,
+   "message": "このケトルの部品は別売りしていますか？一般的な質問です。",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P21",
+   "family": "PART_REPLACEMENT",
+   "lang": "es",
+   "customer": "cal@example.test",
+   "linked_order": null,
+   "message": "¿Los repuestos para la lámpara de escritorio están disponibles en general? Solo por curiosidad.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW",
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": ""
+  },
+  {
+   "id": "P22",
+   "family": "PART_REPLACEMENT",
+   "lang": "es",
+   "customer": "xia@example.test",
+   "linked_order": null,
+   "message": "Pedido TO-70302: la lámpara está bien pero el brazo se mueve un poco, qué lástima.",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting; open task exists for this order"
+  },
+  {
+   "id": "P23",
+   "family": "PART_REPLACEMENT",
+   "lang": "zh-Hant",
+   "customer": "wen@example.test",
+   "linked_order": null,
+   "message": "訂單 TO-70301 的熱水壺又壞又難用，真受不了！",
+   "tags": [
+    "ambiguous"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION",
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "venting; open task exists"
+  },
+  {
+   "id": "P24",
+   "family": "PART_REPLACEMENT",
+   "lang": "de",
+   "customer": "xia@example.test",
+   "linked_order": null,
+   "message": "Bestellung TO-70320: Bitte senden Sie mir das Ersatzteil DL-LED-5W.",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_CLARIFICATION",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_CLARIFICATION"
+   ],
+   "note": "does not exist (real: TO-70302)"
+  },
+  {
+   "id": "P25",
+   "family": "PART_REPLACEMENT",
+   "lang": "ja",
+   "customer": "eli@example.test",
+   "linked_order": null,
+   "message": "注文TO-70302のライトの部品DL-LED-5Wをお願いします。",
+   "tags": [
+    "similar_order"
+   ],
+   "expected_route": "NEEDS_HUMAN_REVIEW",
+   "expected_new_task": false,
+   "acceptable_routes": [
+    "NEEDS_HUMAN_REVIEW"
+   ],
+   "note": "xia's order"
+  }
+ ]
+}

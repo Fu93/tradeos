@@ -1,0 +1,414 @@
+{
+ "generator_model": "qwen/qwen3.8-27b",
+ "provider": "https://api.groq.com/openai/v1",
+ "generated_at": "2026-10-09T09:17:35+00:00",
+ "prompt_sha256": "196755844c3f80d3bce52d7be3fb1c0aef3264a24529af05b2ed354220dc7083",
+ "batches": [
+  {
+   "batch": 1,
+   "brief": "Messages that mention a product problem word (broken, size, missing, part, …) but where the customer does NOT actually want anything done about an order — e.g. a negation (\"not broken, just asking\"), a hypothetical, praise, or a question before buying.",
+   "messages": [
+    {
+     "message": "Hi, I bought the TRAIL-RUNNER-42 but they are not broken at all! Just checking if you do normal size exchanges or if I have to send them back with a fault report.",
+     "language": "en",
+     "customer": "ana@example.test",
+     "writer_intent": "The customer is asking about the exchange policy for non-defective items."
+    },
+    {
+     "message": "Hello, I am thinking about buying the CITY-JACKET. Is the medium size running small? My sister has one and the shoulders feel a bit tight.",
+     "language": "en",
+     "customer": "unknown@example.test",
+     "writer_intent": "The customer is asking for sizing advice before making a purchase."
+    },
+    {
+     "message": "Hi, I ordered the BACKPACK-30L in black (order #TO-30077) and the zipper feels a bit stiff. Is this supposed to be broken out of the box or does it loosen up after first use?",
+     "language": "es",
+     "customer": "eva@example.test",
+     "writer_intent": "The customer is asking if a stiff zipper is a defect or normal behavior."
+    },
+    {
+     "message": "Guten Tag, ich überlege, die KL-170-FLT Filter für meinen alten Kessel zu bestellen. Müssen diese immer im Set mit dem Grundteil KL-170-BASE bestellt werden, oder kann ich nur das Filterteil haben?",
+     "language": "de",
+     "customer": "unknown@example.test",
+     "writer_intent": "The customer is asking if spare parts can be bought individually."
+    },
+    {
+     "message": "あ、あの、DESK-LAMPの調光がうまくかないんですが、これは故障でしょうか？それとも設定の問題ですか？まだ保証期間内ですが、どうしても交換したくないんです。",
+     "language": "ja",
+     "customer": "ola@example.test",
+     "writer_intent": "The customer is asking for troubleshooting help for a lamp lighting issue."
+    }
+   ]
+  },
+  {
+   "batch": 2,
+   "brief": "Pure questions / inquiries: availability of spare parts, sizes, shipping times, policies, product use.",
+   "messages": [
+    {
+     "message": "hey, i just got my kettle (order TO-50110) and the water tastes a bit metallic. does the limescale filter KL-170-FLT fit this model? also, is the lid sold separately or was it missing from the box?",
+     "language": "en",
+     "customer": "ivan@example.test",
+     "writer_intent": "Check if specific spare parts are available or included for their kettle."
+    },
+    {
+     "message": "Hi, I am looking for a gas valve for my camping stove, but I don't remember the exact order number, maybe it was to-60206? Do you have the CS-VALVE-2 in stock? I need it urgently for a trip next weekend.",
+     "language": "en",
+     "customer": "uma@example.test",
+     "writer_intent": "Confirm availability and stock for a specific camping stove spare part."
+    },
+    {
+     "message": "我買的是 Cities 雨衣中號，但覺得袖子太短了。請問有沒有加大一點的款式，或者 M 到 L 之間的尺寸嗎？另外我想知道退貨政策，因為還沒拆吊牌。",
+     "language": "zh-Hant",
+     "customer": "chen@example.test",
+     "writer_intent": "Inquire about alternative sizes and return policy for a rain jacket."
+    },
+    {
+     "message": "Hola, acabo de pedir unas merino socks talla M y quería saber si tienen tallas intermedias como S/L por si acaso no me quedan. Además, ¿cuánto tarda la entrega usualmente a España? Vi que son final sale pero better to be safe.",
+     "language": "es",
+     "customer": "felix@example.test",
+     "writer_intent": "Ask about size range options and estimated shipping time to Spain."
+    },
+    {
+     "message": "Hallo, ich habe vor kurzem eine LED-Tischlampe in Schwarz gekauft (Bestellung TO-50140). Das Licht flackert ein wenig. Kenne ich da ein Ersatzteil wie den DL-LED-5W Modull, das ich selbst einsetzen kann? Oder ist das schwierig?",
+     "language": "de",
+     "customer": "lea@example.test",
+     "writer_intent": "Ask if a specific LED module spare part is user-replaceable and how to install it."
+    },
+    {
+     "message": "トレイルランナーの42サイズですが、幅が狭いです。幅広のサイズアップはおすすめですか？それとも43サイズで好みが分かれるのでしょうか？確認したいです。",
+     "language": "ja",
+     "customer": "ana@example.test",
+     "writer_intent": "Ask for sizing advice regarding shoe width and fit recommendation."
+    },
+    {
+     "message": "I bought a daypack in black, order to-30007. The zipper is stiff. Do you sell replacement zipper sliders or is there a way to lubaricate it? I don't want to return it if it's a simple fix.",
+     "language": "en",
+     "customer": "eva@example.test",
+     "writer_intent": "Seek technical advice on fixing a stiff zipper and ask about replacement parts."
+    },
+    {
+     "message": "Hallo, ich hatte im Mai eine e-Kettle bestellt (TO-60202). Die Glaskerze ist kaputt gegangen. Hättet ihr noch Ersatzfilter oder den Deckel KL-170-LID? Ich glaube nicht, dass ich noch im Garantiezeitraum bin, aber vielleicht habe ich Glück.",
+     "language": "de",
+     "customer": "quinn@example.test",
+     "writer_intent": "Request spare parts for an out-of-warranty kettle and check eligibility for exchange."
+    },
+    {
+     "message": "¿Tienen repuestos para la lámpara DESK-LAMP blanca? El clip se aflojo y creo que se puede comprar solo el DL-CLAMP-M. También, ¿hacen envíos a México? El último pedido tardó mucho, quería saber si es normal.",
+     "language": "es",
+     "customer": "sara@example.test",
+     "writer_intent": "Inquire about desk lamp clamp availability and international shipping times to Mexico."
+    },
+    {
+     "message": "注文番号TO-60204でデスクランプを買いました。LEDモジュールを交換しようと思っていますが、DL-LED-5Wは5V用のやつですよね？使用説明書に電圧が書いてなかったのですが、確認できますか？",
+     "language": "ja",
+     "customer": "sara@example.test",
+     "writer_intent": "Verify compatible voltage specifications for a specific LED spare part."
+    }
+   ]
+  },
+  {
+   "batch": 3,
+   "brief": "Customers who only want their money back (refund), with various reasons (defect, wrong size, late, changed mind), some angry, some polite.",
+   "messages": [
+    {
+     "message": "Hey, the jacket is way too small, just refund me plx. TO-20031",
+     "language": "en",
+     "customer": "chen@example.test",
+     "writer_intent": "Requests a refund due to wrong size."
+    },
+    {
+     "message": "The kettle is leaking badly from the base. I never opened it. Just give me my money back please.",
+     "language": "en",
+     "customer": "ivan@example.test",
+     "writer_intent": "Requests a refund for a defective product."
+    },
+    {
+     "message": "Hi, I ordered the sneakers but I made a mistake with the size. Can I just cancel and get a full refund? Order TO-50120.",
+     "language": "de",
+     "customer": "jon@example.test",
+     "writer_intent": "Requests a refund due to a sizing error."
+    },
+    {
+     "message": "Ich habe die Socken gestern geöffnet. Sie fühlen sich an wie Pappe. Das ist ein Witz. Ich erwartet einen Sofort-Rückerstattung. WO-40005",
+     "language": "de",
+     "customer": "felix@example.test",
+     "writer_intent": "Demands an immediate refund for unsatisfactory quality."
+    },
+    {
+     "message": "El paquete llegó tres semanas tarde. No quiero el paquete, solo quiero mi dinero de vuelta. Es muy frustrante.",
+     "language": "es",
+     "customer": "qua@example.test",
+     "writer_intent": "Requests a refund due to late delivery."
+    },
+    {
+     "message": "Hola, acabo de cambiar de opinión sobre la mochila. ¿Puedo hacer un reembolso completo y que recojan el artículo? Referencia TO-30077.",
+     "language": "es",
+     "customer": "eva@example.test",
+     "writer_intent": "Requests a refund after changing mind."
+    },
+    {
+     "message": "こんにちは、注文品が届きましたが、カラーが希望と違ったので返金を希望します。受注番号TO-50101です。",
+     "language": "ja",
+     "customer": "hana@example.test",
+     "writer_intent": "Requests a refund due to color mismatch."
+    },
+    {
+     "message": "Hi, the lamp arrived with a cracked shade. I don't want a replacement, just please refund me. Sorry for the trouble.",
+     "language": "ja",
+     "customer": "sara@example.test",
+     "writer_intent": "Requests a refund for a damaged item."
+    },
+    {
+     "message": "這件外套尺寸不合身，我完全無法穿。請直接進行退貨退款，謝謝。訂單編號 TO-20031。",
+     "language": "zh-Hant",
+     "customer": "unknown@example.test",
+     "writer_intent": "Requests a refund due to incorrect size."
+    },
+    {
+     "message": "瓦斯爐的閥門壞了，我已經檢查過不是我的使用問題。不想換零件，請直接退款。訂單是兩個月前下的。",
+     "language": "zh-Hant",
+     "customer": "uma@example.test",
+     "writer_intent": "Requests a refund for a defective stove part."
+    }
+   ]
+  },
+  {
+   "batch": 4,
+   "brief": "Messages mixing two or more wishes or two problems at once, or where the customer is undecided (\"exchange or refund, I don't know\", \"the lamp is broken and the kettle never came\").",
+   "messages": [
+    {
+     "message": "Hi, my order TO-50110 is a mess. The kettle never showed up and the lamp arrived cracked. I don't know if I want a refund for the kettle or a replacement for the lamp, can you help me sort this out?",
+     "language": "en",
+     "customer": "ivan@example.test",
+     "writer_intent": "Request clarification on handling a missing item and a damaged item from the same order."
+    },
+    {
+     "message": "I ordered the trail runners in size 42, but they feel tight. I'm not sure if I should exchange them for size 43 or just return them, what is better for my case?",
+     "language": "en",
+     "customer": "ana@example.test",
+     "writer_intent": "Ask for advice on whether to exchange for a larger size or return the shoes."
+    },
+    {
+     "message": "Hi, I bought the black desk lamp and it flickers. Also, the kettle I ordered at the same time has a leak. Do I have to send them back separately or can I bundle the complaints?",
+     "language": "en",
+     "customer": "lea@example.test",
+     "writer_intent": "Ask if multiple defective items from one order can be processed together."
+    },
+    {
+     "message": "我的訂單號應該是 TO-30077，但那個背包有點刮痕，而且我其實不確定要不要退錢還是換一個深藍色的？請告知。",
+     "language": "zh-Hant",
+     "customer": "eva@example.test",
+     "writer_intent": "Report a scratched backpack and ask about the option to refund or exchange for a different color."
+    },
+    {
+     "message": "我剛看到我的帳單，買的那雙襪子（TO-40005）開線了，然後我之前還買了個燈（可能是 TO-50120？）也壞了。這兩個是一個處理還是分開？",
+     "language": "zh-Hant",
+     "customer": "felix@example.test",
+     "writer_intent": "Report defects on socks and a lamp with an uncertain order number, asking about processing method."
+    },
+    {
+     "message": "Hola, me llegó la chaqueta (TO-20031) pero se ve arrugada. No estoy segura si cambiarla por una L o pedir un reembolso, ¿me das alguna guía?",
+     "language": "es",
+     "customer": "chen@example.test",
+     "writer_intent": "Report a wrinkled jacket and ask for guidance on exchanging for a larger size or refunding."
+    },
+    {
+     "message": "El termo eléctrico (creo que es TO-60201) no calienta y además los calcetines de lana que pedí a la vez tienen una costura rota. ¿Puedo devolver ambos a la vez?",
+     "language": "es",
+     "customer": "pia@example.test",
+     "writer_intent": "Report a non-heating kettle and damaged socks and ask to return both items together."
+    },
+    {
+     "message": "Hallo, meine Bestellung TO-50140 ist schwierig zuhandhaben. Die Lampe ist schwarz, aber ich habe eigentlich weiß bestellt, UND der Wasserkocher hat einen Kratzer. Was soll ich machen, Tausch oder Rückerstattung?",
+     "language": "de",
+     "customer": "lea@example.test",
+     "writer_intent": "Report wrong color lamp and damaged kettle, asking whether to exchange or refund."
+    },
+    {
+     "message": "Bestellung TO-60206, der Campingofen hat ein Leck und der Ersatzventil-Code CS-VALVE-2 passt nicht. Ich weiß nicht, ob ich nur das Ventil zurückgeben soll oder den ganzen Ofen?",
+     "language": "de",
+     "customer": "uma@example.test",
+     "writer_intent": "Report a leaking stove with a wrong valve part, asking whether to return just the part or the whole unit."
+    },
+    {
+     "message": "注文番号 TO-50101 です。デスクライト2台とも点滅します。返金か交換か迷っています。また、注文したマグカップ（ケトル？）が届いていない可能性もありますか？",
+     "language": "ja",
+     "customer": "hana@example.test",
+     "writer_intent": "Report flickering lamps and ask about a missing kettle from the order, undecided between refund and exchange."
+    }
+   ]
+  },
+  {
+   "batch": 5,
+   "brief": "Messages with too little information to act on: no order number, no size, no part number, vague (\"it doesn't work\", \"something is wrong\"), or an order number that is slightly off.",
+   "messages": [
+    {
+     "message": "Hey, the shoe I got last week is too tight. Can I exchange it?",
+     "language": "en",
+     "customer": "ana@example.test",
+     "writer_intent": "The customer wants to exchange their Trail Runner sneakers but did not specify the size or order number."
+    },
+    {
+     "message": "I bought order TO-104211 but I can't find it in my account. Is that right?",
+     "language": "en",
+     "customer": "unknown@example.test",
+     "writer_intent": "The customer is trying to locate an order but provided a slightly incorrect order number with an extra digit."
+    },
+    {
+     "message": "我的燈沒亮, 請幫我換一個零件。",
+     "language": "zh-Hant",
+     "customer": "ola@example.test",
+     "writer_intent": "The customer's desk lamp is not working and they want a replacement part, but did not specify which part or the order number."
+    },
+    {
+     "message": "El calzado no me queda bien. Quiero devolverlo.",
+     "language": "es",
+     "customer": "ben@example.test",
+     "writer_intent": "The customer wants to return the shoes because they don't fit, but did not mention the size or order number."
+    },
+    {
+     "message": "Me llegó algo roto del pedido TO-300777. ¿Qué pasa?",
+     "language": "es",
+     "customer": "eva@example.test",
+     "writer_intent": "The customer claims an item arrived broken for order TO-300777, which is a typo for their actual order TO-30077."
+    },
+    {
+     "message": "Mein Wasserkocher macht seltsame Geräusche. Bitte um Hilfe.",
+     "language": "de",
+     "customer": "ivan@example.test",
+     "writer_intent": "The customer's electric kettle is making strange noises and they need assistance, but provided no order number or specific model details."
+    },
+    {
+     "message": "Bestellnummer TO-602015, die Jacke ist kaputt.",
+     "language": "de",
+     "customer": "chen@example.test",
+     "writer_intent": "The customer thinks their rain jacket is broken and cites order TO-602015, which is incorrect for their order TO-20031."
+    },
+    {
+     "message": "注文番号は忘れましたが、靴底が剥がれました。すぐ直したいです。",
+     "language": "ja",
+     "customer": "jon@example.test",
+     "writer_intent": "The customer's shoe sole came off and they want a quick fix, but they forgot their order number and did not specify the size."
+    },
+    {
+     "message": "注文したランタンの部品が届きません。注文番号は TO-703031 です。",
+     "language": "ja",
+     "customer": "yan@example.test",
+     "writer_intent": "The customer says a part for their camping stove (mistakenly called a lantern) didn't arrive and provided an extra digit in their order number."
+    },
+    {
+     "message": "I need a refund for the socks I bought recently.",
+     "language": "en",
+     "customer": "felix@example.test",
+     "writer_intent": "The customer is requesting a refund for final-sale merino socks, which is likely policy-violating, and did not provide an order number or size."
+    }
+   ]
+  },
+  {
+   "batch": 6,
+   "brief": "Ordinary clear service requests: size/colour exchange, missing item to be sent again, broken product to be repaired or replaced, ordering a specific spare part for an item they own.",
+   "messages": [
+    {
+     "message": "Hi, I ordered the Trail Runner in size 42 but I think I made a mistake and actually need a 43. Is it possible to exchange them? Order was TO-10421.",
+     "language": "en",
+     "customer": "ana@example.test",
+     "writer_intent": "Exchange the sneakers from size 42 to size 43."
+    },
+    {
+     "message": "我買了黑色背包，但好像少了一個防雨罩。訂單號好像是 TO-30077，請幫我確認一下。",
+     "language": "zh-Hant",
+     "customer": "eva@example.test",
+     "writer_intent": "Ask if a missing rain cover for the backpack can be sent."
+    },
+    {
+     "message": "Hola, mi chubasquero se me rompió la cremallera en la primera semana. ¿Pueden repararlo o reemplazarlo? Es el pedido TO-20031.",
+     "language": "es",
+     "customer": "chen@example.test",
+     "writer_intent": "Request repair or replacement of a broken rain jacket zipper."
+    },
+    {
+     "message": "Ich habe die Bestellnummer nicht mehr zur Hand, aber ich brauche dringend ein neues Gasventil für meinen Campingkocher (CS-VALVE-2). Kann ich das direkt bestellen?",
+     "language": "de",
+     "customer": "vic@example.test",
+     "writer_intent": "Order a spare gas valve for their camping stove without providing an order number."
+    },
+    {
+     "message": "こんにちは、電気ケトルの蓋が壊れてしまったので、交換用の蓋(KL-170-LID)を注文したいのですが。注文番号はTO-50110だと思われます。",
+     "language": "ja",
+     "customer": "ivan@example.test",
+     "writer_intent": "Order a spare lid for their electric kettle."
+    },
+    {
+     "message": "Hi there, I bought the white desk lamp but it arrived with the wrong color clamp. Can I swap it for the black one? I think the order was TO-50101.",
+     "language": "en",
+     "customer": "hana@example.test",
+     "writer_intent": "Exchange the desk lamp for a black one due to wrong color receipt."
+    },
+    {
+     "message": "Hola, tengo una lámpara LED y necesito el módulo de 5W (DL-LED-5W) porque el original se quemó. ¿Me pueden enviar uno por separado? Mi correo es xia@example.test.",
+     "language": "es",
+     "customer": "xia@example.test",
+     "writer_intent": "Order a specific spare LED module for their desk lamp."
+    },
+    {
+     "message": "Ich habe vor 4 Monaten einen Wasserkocher bestellt. Jetzt ist der Kalkfilter durch. Weißt du, ob ich den Filter (KL-170-FLT) separat kaufen kann?",
+     "language": "de",
+     "customer": "quinn@example.test",
+     "writer_intent": "Buy a limescale filter spare part for an old kettle purchase."
+    },
+    {
+     "message": "お世話になります。キャンプストーブのガスバルブを失くしてしまいました。注文番号TO-60206を購入した者ですが、部品だけ購入することは可能でしょうか。",
+     "language": "ja",
+     "customer": "uma@example.test",
+     "writer_intent": "Inquire about purchasing a lost gas valve for their camping stove."
+    },
+    {
+     "message": "Hey, I need to return the merino socks because they are too tight. Sorry for the late notice but I opened them last week. Order TO-40005. Can I get a different size?",
+     "language": "en",
+     "customer": "felix@example.test",
+     "writer_intent": "Request a size exchange for merino socks, acknowledging it might be a final sale issue."
+    }
+   ]
+  },
+  {
+   "batch": 1,
+   "brief": "Messages that mention a product problem word (broken, size, missing, part, …) but where the customer does NOT actually want anything done about an order — e.g. a negation (\"not broken, just asking\"), a hypothetical, praise, or a question before buying.",
+   "messages": [
+    {
+     "message": "Hi, sorry to bother you but the trail runner I bought 10 days ago isn't broken at all, I just wanted to confirm if they arrive with a waterproof coating or if I need to add some myself?",
+     "language": "en",
+     "customer": "ana@example.test",
+     "writer_intent": "Checking product specifications before using the item."
+    },
+    {
+     "message": "你好，我買的那台電水壺完全沒有壞掉，只是我想問一下如果以後水垢很多，那個濾網KL-170-FLT是怎麼清理的呀？",
+     "language": "zh-Hant",
+     "customer": "ivan@example.test",
+     "writer_intent": "Asking for maintenance instructions for a spare part."
+    },
+    {
+     "message": "Hola, solo quería preguntar si la talla M de la chaqueta de ciudad es ajustada o holgada, porque la S me queda grande pero la M no la he probado aún.",
+     "language": "es",
+     "customer": "chen@example.test",
+     "writer_intent": "Inquiring about fit before deciding whether to return or keep the jacket."
+    },
+    {
+     "message": "Hallo, mein Camp-Ofen funktioniert einwandfrei, aber ich habe mal gelesen, dass der Gasventil-Schlüssel oft verloren geht. Stimmt das, oder ist das Teil schon fest im Griff?",
+     "language": "de",
+     "customer": "uma@example.test",
+     "writer_intent": "Asking a hypothetical question about product durability."
+    },
+    {
+     "message": "デスクランタンプの白いのは届いていませんが、もし届いたとして、LEDモジュールが黒いフレームと相性が悪いという噂が本当ですか？気にしすぎでしょうか。",
+     "language": "ja",
+     "customer": "sara@example.test",
+     "writer_intent": "Questioning a rumor about product compatibility before receiving the item."
+    }
+   ],
+   "top_up": true,
+   "generator_model": "qwen/qwen3.8-27b",
+   "generated_at": "2026-10-09T09:20:33+00:00",
+   "note": "top-up: requested 5 more because the first call returned fewer"
+  }
+ ]
+}

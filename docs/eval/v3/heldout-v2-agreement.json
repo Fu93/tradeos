@@ -1,0 +1,146 @@
+{
+ "n_items": 300,
+ "coverage": {
+  "A": 71,
+  "B": 300,
+  "C": 87
+ },
+ "missing_B": [],
+ "B_vs_A": {
+  "n": 71,
+  "fields": {
+   "speech_act": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "primary_issue": {
+    "kappa": 0.924,
+    "raw": 0.944
+   },
+   "goal_family": {
+    "kappa": 0.923,
+    "raw": 0.944
+   },
+   "multi_item": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "safety": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "required_action": {
+    "kappa": 1.0,
+    "raw": 1.0
+   }
+  }
+ },
+ "B_vs_C": {
+  "n": 87,
+  "fields": {
+   "speech_act": {
+    "kappa": 0.966,
+    "raw": 0.989
+   },
+   "primary_issue": {
+    "kappa": 0.874,
+    "raw": 0.897
+   },
+   "goal_family": {
+    "kappa": 0.845,
+    "raw": 0.885
+   },
+   "multi_item": {
+    "kappa": 0.0,
+    "raw": 0.977
+   },
+   "safety": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "required_action": {
+    "kappa": 0.97,
+    "raw": 0.989
+   }
+  }
+ },
+ "A_vs_C": {
+  "n": 57,
+  "fields": {
+   "speech_act": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "primary_issue": {
+    "kappa": 0.882,
+    "raw": 0.912
+   },
+   "goal_family": {
+    "kappa": 0.867,
+    "raw": 0.912
+   },
+   "multi_item": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "safety": {
+    "kappa": 1.0,
+    "raw": 1.0
+   },
+   "required_action": {
+    "kappa": 1.0,
+    "raw": 1.0
+   }
+  }
+ },
+ "B_vs_design_action": {
+  "n": 300,
+  "kappa": 0.908,
+  "raw": 0.933
+ },
+ "second_llm_judge_coverage": 101,
+ "B_vs_second_judge_action_by_generator": {
+  "z-ai/glm-5.3": {
+   "n": 33,
+   "kappa": 0.933,
+   "raw": 0.97
+  },
+  "nvidia/nemotron-3-super-120b-a12b": {
+   "n": 33,
+   "kappa": 1.0,
+   "raw": 1.0
+  },
+  "meta/muse-glimmer-30b": {
+   "n": 35,
+   "kappa": 1.0,
+   "raw": 1.0
+  }
+ },
+ "n_to_adjudicate": 21,
+ "confusion_B_vs_design": [
+  [
+   "HUMAN_REVIEW|CLARIFY_WITH_CUSTOMER",
+   11
+  ],
+  [
+   "CLARIFY_WITH_CUSTOMER|DIRECT_WORKFLOW",
+   4
+  ],
+  [
+   "CREATE_SUPPLIER_TASK|HUMAN_REVIEW",
+   2
+  ],
+  [
+   "HUMAN_REVIEW|DIRECT_WORKFLOW",
+   1
+  ],
+  [
+   "CREATE_SUPPLIER_TASK|DIRECT_WORKFLOW",
+   1
+  ],
+  [
+   "HUMAN_REVIEW|CREATE_SUPPLIER_TASK",
+   1
+  ]
+ ]
+}
