@@ -96,6 +96,11 @@ class Settings:
     webhook_max_age_s: int = 600
     webhook_max_future_skew_s: int = 120
 
+    # Autonomy (post-purchase agent). Merchant-configurable via env for the demo.
+    auto_enabled: bool = True
+    auto_refund_max_amount: Decimal = Decimal("50.00")
+    auto_exchange_enabled: bool = True
+
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
     @property
@@ -135,5 +140,8 @@ class Settings:
             refund_failure_mock_code=_env("REFUND_FAILURE_MOCK_CODE") or "REFUND_FAILED_INSUFFICIENT_FUNDS",
             mock_supplier_out_of_stock=_env("MOCK_SUPPLIER_OUT_OF_STOCK") == "1",
             paypal_webhook_id=_env("PAYPAL_WEBHOOK_ID"),
+            auto_enabled=_env_bool("AUTO_ENABLED", True),
+            auto_refund_max_amount=Decimal(_env("AUTO_REFUND_MAX_AMOUNT", "50.00")),
+            auto_exchange_enabled=_env_bool("AUTO_EXCHANGE_ENABLED", True),
             costs=CostAssumptions.from_env(),
         )
