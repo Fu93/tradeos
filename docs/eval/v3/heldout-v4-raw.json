@@ -2482,12 +2482,212 @@
    "attempts": 1,
    "reassigned_from": null,
    "log": []
+  },
+  "X244": {
+   "id": "X244",
+   "message": "¡Hola! Quería preguntar cuánto tiempo tengo para hacer una devolución. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X288": {
+   "id": "X288",
+   "message": "Hey there, I got my LED desk lamp (order TO-96267) and it works fine, but I’ve changed my mind and would like to return it for a refund. Let me know what I need to do. Thanks! 😊 (sorry for the typo)",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X272": {
+   "id": "X272",
+   "message": "お世話になっております。注文番号 TO-96251 のデスクランプが未着のようです。再送をお願いできますでしょうか。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X192": {
+   "id": "X192",
+   "message": "こんにちは！アキラです。注文番号 TO-96183 の白いLEDデスクライトを注文したつもりなのに、黒いものが届いてしまいました…。間違えて黒を送ってしまったみたいなので、白いのに交換してもらえますか？よろしくお願いします！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X116": {
+   "id": "X116",
+   "message": "Hola, soy Valeria, compré una lámpara LED de escritorio hace como 100 días y se me rompió el interrumptor. ¿Podrían enviarme la pieza de repuesto? Mi pedido es TO-96116. Gracías!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X268": {
+   "id": "X268",
+   "message": "Hallo, ich bin Isamu. Meine Sneaker, die ich vor drei Tagen bestellt habe (Bestellnummer TO-96247), sind noch nicht angekommen. Könntet ihr sie bitte noch einmal zusenden? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X184": {
+   "id": "X184",
+   "message": "您好，我是 Rin，訂單號 TO-96175，我收到了黑色的 LED 桌燈，但我自己選錯顏色了，想請問能否換成白色的？Thanks！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X304": {
+   "id": "X304",
+   "message": "Estimado equipo,\n\nSoy Valeria y realizé el pedido TO-96283, en el cual solicité la chaqueta City rain en talla M. Por error, necesitaba la talla S. ¿Podrían cambiar el artículo por la talla S? Agradezco su atención.\n\nQuedo atenta a su respuesta.\n\nSaludos cordiales,\nValeria",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X248": {
+   "id": "X248",
+   "message": "こんにちは、Minaです。Trail Runnerのスニーカー（サイズ42）が小さすぎて、サイズ43に交換したいです。注文番号はT0-96227です。よろしくお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X180": {
+   "id": "X180",
+   "message": "Hey, ich hab versehentlich die Trail Runner in Groesse 39 bestellt, obwohl ich eigentlich 40 trage. Das passt leider nicht. Könnt ihr das gegen Größe 40 umtaushen? Meine Bestellnummer ist TO-96171. Danke!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X052": {
+   "id": "X052",
+   "message": "Hallo, ich heiße Emma und hoffe, dass Sie mir weiterhelfen können. Vor etwa zwei Wochen habe ich ein Paar Sneaker bei Ihnen bestellt – ich erinnere mich noch genau daran, weil ich sie zu meinem Geburtstag tragen wollte, der am 14. Mai ist, und ich hatte sogar schon ein passendes Outfit zusammengestellt, das ich im Kopf durchgespielt habe, während ich auf der Couch saß und eine Tasse Kräutertee getrunken habe. Die Bestellung wurde mit der Nummer TO-96052 aufgegeben und ich erhielt sofort eine Bestätigungsmail, in der auch das voraussichtliche Lieferdatum genannt wurde. Leider zeigt das Tracking seit nunmehr zehn Tagen den Status „Unterwegs“ an, ohne dass es irgendwelche Updates gibt, und ich habe bereits mehrmals bei dem Paketdienst nachgefragt, aber dort heißt es, dass das Paket nicht mehr im System zu finden sei. Ich habe auch meine Nachbarn gefragt, ob vielleicht das Paket versehentlich bei ihnen abgegeben wurde, aber niemand hat etwas gesehen. Da ich wirklich auf die Sneaker angewiesen bin – ich plane nämlich nächsten Freitag einen Ausflug in die Berge und hätte sie gern dafür dabei – wäre es sehr hilfreich, wenn Sie mir ein Ersatzpaket zusenden könnten, preferably mit gleichem Modell und Größe, damit ich nicht länger warten muss. Vielen Dank im Voraus für Ihre Unterstützung und ich hoffe, dass wir das schnell klären können. Mit freundlichen Grüßen, Emma.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X196": {
+   "id": "X196",
+   "message": "Hello,\n\nI am contacting you about order TO-96187. I believe I ordered the whte LED desk lamp, but I received a black one instead. Could you please send the correct white LED desk lamp and let me know how to return the incorrect item?\n\nThank you for your help.\n\nBest regards,\nEmma",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X240": {
+   "id": "X240",
+   "message": "Hey, I placed order TO-96226. Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X040": {
+   "id": "X040",
+   "message": "Sehr geehrtes Support-Team,\n\nich hoffe, es geht Ihnen gut und Sie hatten eine angenehme Woche, trotz des wechselhaften Wetters, das wir derzeit haben – gestern Morgen hat es sogar leicht geregnet, während ich meine Frühstückstasse Kaffee getrunken habe und dabei beobachtet habe, wie meine Katze versucht, den Sonnenstrahl auf dem Fensterbrett zu ergattern, was sie leider nie schafft, weil sie ständig vom Tisch herunterfällt. Nachdem ich letztes Monat schließlich beschlossen hatte, meine Arbeitsbeleuchtung aufzuwerten, bestellte ich am 12. Oktober die Schreibtischlampe mit der Modellnummer XYZ‑200 und erhielt die Bestätigung mit der Auftragsnummer TO-96040. Die Lieferung sollte ursprünglich innerhalb von drei bis fünf Werktagen eintreffen, doch leider zeigte das Tracking bereits eine Woche vor dem erwarteten Zustelldatum keinerlei Aktualisierung mehr an – es blieb einfach bei „Versand bestätigt“ stehen, obwohl ich das Paket verfolgt und mehrmals täglich die Seite aktualisiert habe, in der Hoffnung, dass sich doch noch etwas bewegt. Da ich die Lampe dringend für meine abendlichen Lese- und Arbeits sessions benötige – ich lese gerade ein interessantes Buch über die Geschichte der Typografie und arbeite gleichzeitig an einem kleinen Designprojekt für meinen Freundeskreis – wäre es sehr hilfreich, wenn Sie mir die Lampe noch einmal zusenden könnten, alternativ auch eine Rückerstattung veranlassen könnten, falls das ursprüngliche Paket tatsächlich verloren gegangen ist. Ich würde mich sehr freuen, wenn Sie dieses Problem zeitnah klären könnten, damit ich meine Arbeitsplatzbeleuchtung wieder voll nutzen kann und nicht länger im halbdunklen Licht arbeiten muss.\n\nMit freundlichen Grüßen  \nRin  \n\nTO-96040 (Bestellnummer zur Referenz)",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X056": {
+   "id": "X056",
+   "message": "こんにちは、Isamuです。注文番号TO-96056で購入したトレイルランナー スニーカー（購入から45日）ですが、片方のアイレットが取れてアッパーが破れました。replacement用の新しいペアを手配していただけますでしょうか？よろしくお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X276": {
+   "id": "X276",
+   "message": "您好，我是Rin，訂單TO-96255的City雨衣改變主意，想申請退款。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X188": {
+   "id": "X188",
+   "message": "Hello,\n\nI received the white LED desk lamp from order TO-96179, but I realize I chose the wrong colour. I would like to exchange it for the black version. Please let me know how to proceed.\n\nThank you,\nValeria",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X236": {
+   "id": "X236",
+   "message": "您好，請問貴店是否單獨販售水壺除垢濾芯 KL-170-FLT？目前是否有庫存？謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X308": {
+   "id": "X308",
+   "message": "Hi there,\n\nI just wanted to drop a quick line to let you know how pleased I am with the recent purchase. The kettle arrived this morning, and I have to say the delivery was surprisingly swift—much faster than I had anticipated, especially given how busy the postal service seems to have been lately with all the holiday shipments swirling around. I actually woke up a bit earlier than usual, made myself a cup of tea while listening to the rain patter against the window, and the kettle whistled just as the sun peeked through the clouds, which made the whole moment feel rather nice and cozy.\n\nI’ve been using it every day since it arrived, and I’m really impressed with how quickly it brings water to a boil; it’s saved me a few precious minutes during my rushed morning routine when I’m trying to get out the door for work. The design is sleek, the handle feels comfortable, and it doesn’t wobble on the stove like my old one used to. Even my roommate has commented on how nice it looks sitting on the countertop, and we’ve both been enjoying a few extra cups of herbal tea in the evenings while we catch up on our favorite shows.\n\nThank you for making the whole process so smooth and for delivering a product that lives up to the hype. It’s little things like this that make online shopping a pleasure rather than a chore.\n\nThanks again,\n\nAkira",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
+  },
+  "X292": {
+   "id": "X292",
+   "message": "すいません、注文TO-96271の1.7Lの電気ケトル、ちゃんと動くんだけど気が変わっちゃって返品返金お願いします。よろしくおねがいします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "deepseek-ai/deepseek-v4.1-flash",
+   "log": [
+    "deepseek skipped: endpoint unresponsive (recorded reassignment)"
+   ]
   }
  },
  "stats": {
-  "calls": 308,
-  "retries": 475,
-  "prompt_tokens": 50639,
-  "completion_tokens": 142026
+  "calls": 20,
+  "retries": 15,
+  "prompt_tokens": 3193,
+  "completion_tokens": 7754
  }
 }
