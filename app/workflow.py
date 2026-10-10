@@ -661,7 +661,23 @@ class Workflow:
                           {"error": type(exc).__name__, "seq": next_seq()})
 
     # ------------------------------------------------------------------ webhook
-    def record_webhook(self, event: dict, verification: str, method: str = "postback") -> str | None:
+    def transmission_age(self, transmission_time: str | None) -> str:
+        """'fresh', 'stale' (older than the window), 'future' (beyond allowed clock skew) or 'unknown'."""
+        if not transmission_time:
+            return "unknown"
+        try:
+            sent = datetime.fromisoformat(transmission_time.replace("Z", "+00:00"))
+            if sent.tzinfo is None:
+                sent = sent.replace(tzinfo=timezone.utc)
+        except ValueError:
+            return "stale"  # unparseable: treat as untrusted-old
+        age = (datetime.now(timezone.utc) - sent).total_seconds()
+        if age < -self.settings.webhook_max_future_skew_s:
+            return "future"
+        return "stale" if age > self.settings.webhook_max_age_s else "fresh"
+
+    def record_webhook(self, event: dict, verification: str, method: str = "postback",
+                       transmission_time: str | None = None) -> str | None:
         """Signed PayPal webhook. Returns the matched case id.
 
         Refund events (resource = refund): PAYMENT.CAPTURE.REFUNDED, PAYMENT.REFUND.PENDING,
@@ -672,6 +688,13 @@ class Workflow:
         - Only a VERIFIED event can change anything. Unverified deliveries are logged only.
         - A verified event id is processed once (persisted in webhook_events); retries are no-ops.
         - Refund events must carry this case's own refund id; otherwise logged, no state change.
+        - Replay window on paypal-transmission-time (signed, so it cannot be altered). PayPal's docs do
+          not say whether its retries (up to 25 over 3 days) carry a new transmission time, so an old
+          time alone is not proof of a replay and must not lose a legitimate late delivery:
+            * future-dated beyond the skew, or old AND event id already processed -> "stale/replay
+              rejected": logged, no state change, 200 (a non-2xx would only make PayPal resend it);
+            * old but never seen -> accepted as a late delivery, but its payload is NOT trusted for a
+              state change: TradeOS re-reads the refund from PayPal (GET) and only that result counts.
         - Allowed state changes, all through _record_refund: PENDING -> COMPLETED; PENDING -> PENDING
           (new reason, e.g. ECHECK); PENDING -> FAILED (needs a human). COMPLETED is never
           downgraded, and nothing here ever calls the Refund API.
@@ -700,8 +723,16 @@ class Workflow:
             self.db.log_webhook_event(case_id=None, outcome="UNMATCHED", **log)
             return None
         case_id = case["id"]
+        age = self.transmission_age(transmission_time)
+        info["transmission_time"], info["transmission_age"] = transmission_time, age
+        recheck = False
         with self._lock(case_id):
             case = self._case(case_id)
+            if verified and (age == "future" or (age == "stale" and event_id and self.db.webhook_event_seen(event_id))):
+                self.db.log_webhook_event(case_id=case_id, outcome="STALE_REPLAY_REJECTED", **{**log, "verified": False})
+                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} rejected as stale/replay "
+                              f"(transmission time {transmission_time}) — no state change", info)
+                return case_id
             if not verified:
                 # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
@@ -714,16 +745,34 @@ class Workflow:
                               info)
                 return case_id
             try:
-                outcome, title = self._apply_webhook(case, etype, resource, info)
+                if age == "stale" and self._webhook_would_change_state(case, etype, resource):
+                    outcome, recheck = "STALE_GET_CHECK", True
+                    title = (f"Late PayPal webhook {etype} (sent {transmission_time}) — payload not trusted for a "
+                             "state change; re-reading the refund from PayPal instead")
+                else:
+                    outcome, title = self._apply_webhook(case, etype, resource, info)
                 self.db.set_webhook_outcome(event_id, outcome)
                 self.db.audit(case_id, "webhook", title, info)
-                return case_id
+                if not recheck:
+                    return case_id
             except Exception:
                 # Failed midway: release the claim so PayPal's retry of this event is processed, not
                 # discarded as a duplicate. Logged as FAILED for the record.
                 self.db.release_webhook_event(event_id)
                 self.db.log_webhook_event(case_id=case_id, outcome="FAILED_WILL_RETRY", **{**log, "verified": False})
                 raise
+        # Outside the case lock: PayPal GET decides (only PENDING -> COMPLETED; never a downgrade).
+        try:
+            self.reconcile(case_id, timeout=RECONCILE_READ_TIMEOUT)
+        except Exception:
+            pass  # PayPal unreachable: nothing changes; the manual / background check can still run
+        return case_id
+
+    @staticmethod
+    def _webhook_would_change_state(case: dict, etype: str, resource: dict) -> bool:
+        return (etype not in CAPTURE_WARNING_EVENTS and case.get("refund_status") == "PENDING"
+                and case.get("refund_id") == resource.get("id")
+                and resource.get("status") in ("COMPLETED", "PENDING", "FAILED"))
 
     def _apply_webhook(self, case: dict, etype: str, resource: dict, info: dict) -> tuple[str, str]:
         """Verified, first delivery, case lock held. Returns (outcome, audit title)."""

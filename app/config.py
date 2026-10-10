@@ -86,6 +86,9 @@ class Settings:
 
     # PayPal webhook (second, independent confirmation). Not a secret; set via env, never committed.
     paypal_webhook_id: str = ""
+    # Replay protection on paypal-transmission-time (see Workflow.record_webhook for the policy).
+    webhook_max_age_s: int = 600
+    webhook_max_future_skew_s: int = 120
 
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
@@ -106,6 +109,8 @@ class Settings:
             paypal_base_url=(_env("PAYPAL_BASE_URL") or SANDBOX_BASE_URL).rstrip("/"),
             paypal_mock=_env_bool("PAYPAL_MOCK", False),
             reconcile_in_background=_env_bool("TRADEOS_RECONCILE_IN_BACKGROUND", True),
+            webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),
+            webhook_max_future_skew_s=int(_env("TRADEOS_WEBHOOK_MAX_FUTURE_SKEW_S") or 120),
             llm_api_key=_env("LLM_API_KEY"),
             llm_base_url=(_env("LLM_BASE_URL") or DEFAULT_LLM_BASE_URL).rstrip("/"),
             llm_model=_env("LLM_MODEL") or DEFAULT_LLM_MODEL,

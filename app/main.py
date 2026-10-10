@@ -254,7 +254,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         def handle() -> str | None:
             # Runs in the threadpool: the verification call and DB work never block the event loop.
             verification, method = verify_webhook(headers, raw)
-            return verification, method, wf.record_webhook(event, verification, method)
+            ttime = {k.lower(): v for k, v in headers.items()}.get("paypal-transmission-time")
+            return verification, method, wf.record_webhook(event, verification, method, ttime)
 
         try:
             verification, method, case_id = await run_in_threadpool(handle)
