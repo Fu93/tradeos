@@ -1,3 +1,10 @@
+// Confirm step for destructive shared actions (e.g. Reset demo).
+document.querySelectorAll("form[data-confirm]").forEach(function (form) {
+  form.addEventListener("submit", function (e) {
+    if (!window.confirm(form.dataset.confirm)) { e.preventDefault(); e.stopImmediatePropagation(); }
+  });
+});
+
 // Minimal progressive enhancement: prevent double submits and show progress
 // while TradeOS talks to PayPal (the refund itself is also idempotent server-side).
 document.querySelectorAll("form.js-busy").forEach(function (form) {

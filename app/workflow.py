@@ -195,7 +195,7 @@ class Workflow:
         return case_id
 
     def process(self, case_id: str) -> None:
-        case = self._case(case_id)
+        self._case(case_id)  # raises CaseNotFound for an unknown id
         s = self.settings
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).

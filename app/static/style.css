@@ -170,3 +170,12 @@ table.evidence tr.bad td{background:#fef2f2}
 .chain-badge{font-size:.85rem;padding:.2rem .55rem;border-radius:999px;border:1px solid}
 .chain-badge.ok{color:#14532d;background:#ecfdf3;border-color:#86efac}
 .chain-badge.bad{color:#7f1d1d;background:#fef2f2;border-color:#fca5a5;font-weight:600}
+.error-page{max-width:560px;margin:15vh auto;padding:0 1rem;text-align:center}
+@media (max-width: 640px) {
+  .tabs { flex-wrap: wrap; overflow-x: visible; }
+  .tabs .tab { max-width: 100%; overflow-wrap: anywhere; }
+  .grid-top > *, .grid-mid > *, .grid-bottom > * { min-width: 0; }
+  table.econ { table-layout: fixed; width: 100%; }
+  table.econ td, table.econ th { overflow-wrap: anywhere; }
+  code, pre { overflow-wrap: anywhere; white-space: pre-wrap; }
+}

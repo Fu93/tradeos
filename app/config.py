@@ -87,6 +87,11 @@ class Settings:
     # PayPal webhook (second, independent confirmation). Not a secret; set via env, never committed.
     paypal_webhook_id: str = ""
     # Replay protection on paypal-transmission-time (see Workflow.record_webhook for the policy).
+    # Client IP for rate limits (see ratelimit.client_key). Render sits behind Cloudflare.
+    trusted_proxy_hops: int = 1
+    trust_cf_connecting_ip: bool = True
+    reset_cooldown_per_ip_s: int = 60
+    reset_cooldown_global_s: int = 15
     webhook_max_age_s: int = 600
     webhook_max_future_skew_s: int = 120
 
@@ -109,6 +114,10 @@ class Settings:
             paypal_base_url=(_env("PAYPAL_BASE_URL") or SANDBOX_BASE_URL).rstrip("/"),
             paypal_mock=_env_bool("PAYPAL_MOCK", False),
             reconcile_in_background=_env_bool("TRADEOS_RECONCILE_IN_BACKGROUND", True),
+            trusted_proxy_hops=int(_env("TRADEOS_TRUSTED_PROXY_HOPS") or 1),
+            trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", True),
+            reset_cooldown_per_ip_s=int(_env("TRADEOS_RESET_COOLDOWN_PER_IP_S") or 60),
+            reset_cooldown_global_s=int(_env("TRADEOS_RESET_COOLDOWN_GLOBAL_S") or 15),
             webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),
             webhook_max_future_skew_s=int(_env("TRADEOS_WEBHOOK_MAX_FUTURE_SKEW_S") or 120),
             llm_api_key=_env("LLM_API_KEY"),

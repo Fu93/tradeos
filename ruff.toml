@@ -1,0 +1,11 @@
+target-version = "py312"
+line-length = 120
+
+[lint]
+# Pyflakes (real bugs: undefined names, unused imports/variables) + pycodestyle errors + bugbear basics.
+select = ["F", "E", "W", "B"]
+ignore = ["E501", "E731", "E741", "B008", "B904", "B905"]  # style-only: long lines, small lambdas, short names, FastAPI Form() defaults, raise-from, zip strict
+
+[lint.per-file-ignores]
+"tests/*" = ["F811", "B017", "B023", "E402"]  # pytest fixture re-use; loop-closure lambdas in tests
+"scripts/*" = ["E402"]                          # sys.path setup before imports

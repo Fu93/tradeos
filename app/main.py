@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import json
 from pathlib import Path
 
@@ -20,7 +21,8 @@ from .notes import build_note_writer
 from .paypal_client import PayPalError
 from .webhook_verify import SelfVerifyUnavailable, self_verify
 from .presets import BY_KEY, PRESETS, preset_label
-from .ratelimit import RateLimiter, client_key
+from .ratelimit import Cooldown, RateLimiter, client_key
+from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
@@ -30,6 +32,10 @@ BASE = Path(__file__).parent
 EXCHANGE_COPY = ("For the hackathon MVP, the financial side of an exchange is simplified to a refund of the "
                  "original PayPal transaction. Replacement fulfilment is represented by the supplier confirmation.")
 
+
+SIGNATURE_HEADERS = ("paypal-transmission-id", "paypal-transmission-time", "paypal-transmission-sig",
+                     "paypal-cert-url", "paypal-auth-algo")
+log = logging.getLogger("tradeos")
 
 WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING", "PAYMENT.REFUND.FAILED",
                   "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED"}
@@ -53,11 +59,17 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     if not db.list_cases():
         wf.seed_demo()
 
+    reset_cooldown = Cooldown(settings.reset_cooldown_per_ip_s, settings.reset_cooldown_global_s)
+
+    def ip(request: Request) -> str:
+        return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
+
     app = FastAPI(title="TradeOS", docs_url="/api/docs", redoc_url=None)
     app.state.workflow = wf
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
+    install_security(app, templates, csrf_exempt=("/webhooks/paypal",))
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
                          status_code: int = 200, draft: str = "", draft_late: bool = False) -> HTMLResponse:
@@ -106,12 +118,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return RedirectResponse(f"/?case={case_id}", status_code=303)
 
     def limited(request: Request) -> HTMLResponse | None:
-        reason = limiter.check(client_key(request))
+        reason = limiter.check(ip(request))
         if reason:
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
-    @app.get("/", response_class=HTMLResponse)
+    @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
     def dashboard(request: Request, case: str | None = None):
         return render_dashboard(request, case)
 
@@ -156,7 +168,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return back(case_id)
 
     @app.post("/demo/reset")
-    def reset_demo():
+    def reset_demo(request: Request):
+        """Shared demo: confirm step in the page (JS confirm), per-IP + global cooldown here."""
+        if (reason := reset_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Not reset: {reason}", status_code=429)
         db.init(reset=True)  # drops cases, audit, PayPal call log and webhook_events
         wf.reset_runtime_state()
         wf.seed_demo()
@@ -251,6 +266,15 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if not isinstance(event, dict) or event.get("event_type") not in WEBHOOK_EVENTS:
             return JSONResponse({"ok": True, "handled": False})
         headers = dict(request.headers)
+        missing = [h for h in SIGNATURE_HEADERS if not headers.get(h)]
+        if missing and wf.paypal_mode != "mock":
+            # PayPal always sends these, so this request did not come from PayPal: reject before any
+            # verification call or DB write; log only. 400 (not 200): PayPal never retries something it
+            # didn't send, and a caller gets a clear answer.
+            log.warning("webhook rejected: missing PayPal signature headers %s (event %s)", missing,
+                        str(event.get("id"))[:60])
+            return JSONResponse({"ok": False, "handled": False, "error": "missing PayPal signature headers"},
+                                status_code=400)
 
         def handle() -> str | None:
             # Runs in the threadpool: the verification call and DB work never block the event loop.
