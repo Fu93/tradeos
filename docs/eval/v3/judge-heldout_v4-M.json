@@ -2567,12 +2567,605 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 117.61
+  },
+  "X089": {
+   "speech_act_evidence": "Ich bitte Sie daher höflich um eine kostenlose Ersatzlieferung der defekten Basis bzw. um den Austausch des Geräts.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Bei meinem Gerät ist die Stromzufuhrbasis leider beschädigt: Sie ist an mehreren Stellen gesprungen und funktioniert nicht mehr einwandfrei.",
+     "goals": [
+      {
+       "goal": "SEND_PART",
+       "evidence": "kostenlose Ersatzlieferung der defekten Basis"
+      },
+      {
+       "goal": "REPLACE_SAME",
+       "evidence": "um den Austausch des Geräts"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Stromzufuhrbasis leider beschädigt: Sie ist an mehreren Stellen gesprungen und funktioniert nicht mehr einwandfrei.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96089",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96089 exists for the customer and contains BREW-KETTLE bought 200 days ago, delivered. The customer reports a malfunction of the power base of a MAINS_HEATING / MAINS_ELECTRIC product. SG-1 safety gate applies: gated class MAINS_HEATING with any malfunction → HUMAN_REVIEW safety review. Safety is POSSIBLE due to power base fault per S5/S4. Safety takes precedence over warranty/remedy flows.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 81.36
+  },
+  "X092": {
+   "speech_act_evidence": "因此想向您申請退款",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "近期發現電源底座有裂痕，底座已損壞",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "evidence": "因此想向您申請退款"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "近期發現電源底座有裂痕，底座已損壞",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96092",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96092 belongs to the customer and contains BREW-KETTLE bought 200 days ago. Customer reports power base cracked/damaged and requests a refund. BREW-KETTLE safety_class is MAINS_HEATING with a power-base fault reported. SG-1 gates any malfunction on MAINS_HEATING/MAINS_ELECTRIC/GAS to HUMAN_REVIEW and S5 makes safety POSSIBLE. Safety V1 precedes refund flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 86.51
+  },
+  "X093": {
+   "speech_act_evidence": "les solicito amablemente que me indiquen el procedimiento para que puedan reparar o sustituir dicha base defectuosa",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "la base de alimentación presenta una grieta visible en la zona donde se conecta el cable, lo que hace que el contacto sea intermitente y a veces la tetera no enciende correctamente",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "me indiquen el procedimiento para que puedan reparar o sustituir dicha base defectuosa"
+      },
+      {
+       "goal": "SEND_PART",
+       "evidence": "reparar o sustituir dicha base defectuosa"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "la base de alimentación presenta una grieta visible en la zona donde se conecta el cable, lo que hace que el contacto sea intermitente y a veces la tetera no enciende correctamente",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96093",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96093 exists for the customer and contains BREW-KETTLE. The customer reports a malfunction of the power base of a MAINS_HEATING product: visible crack, intermittent contact, kettle sometimes does not turn on. SG-1 safety gate applies to MAINS_HEATING/MAINS_ELECTRIC/GAS with any malfunction/fault. Safety takes precedence over warranty/remedy flows, so human safety review is required before any repair/part dispatch.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 87.91
+  },
+  "X094": {
+   "speech_act_evidence": "I'd like a refund for this. Please let me know what I need to do to return it.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "it keeps cutting the power and tripping the breaker/fuse every time I switch it on.",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "quote": "I'd like a refund for this."
+      },
+      {
+       "goal": "INFORMATION",
+       "quote": "Please let me know what I need to do to return it."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "it keeps cutting the power and tripping the breaker/fuse every time I switch it on. It's clearly faulty and I don't feel safe using it.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96094",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96094 belongs to the customer and contains BREW-KETTLE safety_class MAINS_HEATING. Customer reports a malfunction: cutting power and tripping breaker/fuse on switch-on. SG-1 gates any malfunction on MAINS_HEATING/MAINS_ELECTRIC/GAS to HUMAN_REVIEW safety review, and S5 electrical tripped breaker/fuse makes safety POSSIBLE. Safety V1 takes precedence over the refund request.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 110.77
+  },
+  "X081": {
+   "speech_act_evidence": "Le agradecería que me indicara el procedimiento para obtener una unidad de reemplazo.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "mi hervidor eléctrico de 1.7 L ... tarda mucho en alcanzar el punto de ebullición",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "goal_evidence": "me indicara el procedimiento para obtener una unidad de reemplazo"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "tarda mucho en alcanzar el punto de ebullición",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96081",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96081 belongs to the customer and contains BREW-KETTLE safety_class MAINS_HEATING bought 150d ago. Customer reports a malfunction – slow boiling – on a gated MAINS_HEATING product. v3.2 SG-1 gates any malfunction on MAINS_HEATING/MAINS_ELECTRIC/GAS to HUMAN_REVIEW safety review, overriding the supplier warranty REPLACE_SAME flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 137.81
+  },
+  "X099": {
+   "speech_act_evidence": "I would kindly ask you to arrange a repair or replacement under warranty.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Since the first use, the kettle trips the breaker or fuse when switched on, cutting the power.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "I would kindly ask you to arrange a repair or replacement under warranty."
+      },
+      {
+       "goal": "REPLACE_SAME",
+       "evidence": "I would kindly ask you to arrange a repair or replacement under warranty."
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "the kettle trips the breaker or fuse when switched on, cutting the power",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96099",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96099 belongs to the customer and contains BREW-KETTLE safety_class MAINS_HEATING. Customer reports a malfunction tripping breaker/fuse. SG-1 gated class + malfunction and V1 safety POSSIBLE (S5 tripped breaker/fuse) take precedence over warranty remedy, requiring safety review.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 59.06
+  },
+  "X095": {
+   "speech_act_evidence": "請問可以幫忙維修x嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "每次開機就會跳斷路器或保險絲",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "請問可以幫忙維修x嗎？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "每次開機就會跳斷路器或保險絲",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96095",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96095 belongs to the customer and contains BREW-KETTLE, safety_class MAINS_HEATING. Customer reports a malfunction that trips circuit breaker/fuse on start-up. SG-1 gated class + malfunction and S5 electrical fuse/tripped breaker trigger safety POSSIBLE. Safety V1 takes precedence over any remedy, so human safety review is required.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 72.89
+  },
+  "X090": {
+   "speech_act_evidence": "すいません、修理できますか？対応方法教えてください。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "電源ベースの接点がぐらついてて、沸かしてる途中でよく電源が切れちゃうんです。",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "修理できますか？"
+      },
+      {
+       "goal": "INFORMATION",
+       "evidence": "対応方法教えてください。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "電源ベースの接点がぐらついてて、沸かしてる途中でよく電源が切れちゃうんです。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96090",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96090 belongs to the customer and contains BREW-KETTLE bought 80 days ago, delivered. Product safety_class is MAINS_HEATING / hazard class MAINS_ELECTRIC. Customer reports a malfunction of the power base: contacts wobbly and power cuts off while boiling. SG-1 safety gate applies to a gated MAINS_HEATING product with any malfunction, and S5 electrical power-base fault makes safety POSSIBLE. Safety takes precedence, so the case must be human safety review; no supplier task or direct workflow is allowed.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 162.2
+  },
+  "X100": {
+   "speech_act_evidence": "Could you fix it for me?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Some water got into the foot/base, and now it flickers.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "Could you fix it for me?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Some water got into the foot/base, and now it flickers.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96100",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96100 belongs to the customer and contains DESK-LAMP black delivered 60 days ago. The customer reports water ingress into the foot/base with flickering – a malfunction of a MAINS_ELECTRIC product. Safety gate SG-1 applies: MAINS_ELECTRIC product with any malfunction → HUMAN_REVIEW safety review. Safety is POSSIBLE per S4 water inside power part. V1 safety precedence overrides warranty flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 83.4
+  },
+  "X101": {
+   "speech_act_evidence": "請問可以辦理 refund 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "不小心讓水進入燈腳/底座，現在燈不亮了。",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "請問可以辦理 refund 嗎？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "不小心讓水進入燈腳/底座，現在燈不亮了。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96101",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96101 exists for this customer and contains DESK-LAMP black delivered 60 days ago. Customer reports water entered lamp foot/base and lamp no longer lights. DESK-LAMP safety_class is MAINS_ELECTRIC. Any malfunction/fault on a MAINS_ELECTRIC/GAS/MAINS_HEATING product triggers Safety Gate SG-1 → HUMAN_REVIEW safety review, and water inside the power base is S4 POSSIBLE. Refund wish does not override safety. V1 safety precedence applies.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 68.42
+  },
+  "X098": {
+   "speech_act_evidence": "保証期間内だと思いますので、修理をお願いできないでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "最近になって電源を入れるとブレーカーが落ちたり、場合によってはヒューズが飛んだりするようになってしまいました。",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "保証期間内だと思いますので、修理をお願いできないでしょうか。"
+      },
+      {
+       "goal": "INFORMATION",
+       "evidence": "返送の手続きや必要な書類があれば教えていただけますと幸いです。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "最近になって電源を入れるとブレーカーが落ちたり、場合によってはヒューズが飛んだりするようになってしまいました。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96098",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96098 belongs to the customer and contains BREW-KETTLE safety_class MAINS_HEATING. Customer reports breaker trips and fuse blows on power-on, a malfunction of a gated MAINS_HEATING product. S5 electrical safety and SG-1 gated class + malfunction trigger safety POSSIBLE and require safety review. V1 safety precedence overrides warranty/repair flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "_latency": 137.43
+  },
+  "X105": {
+   "speech_act_evidence": "I was wondering if it would be possible to arrange a replacement unit.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Some of the water seeped into the foot/base of the lamp",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "goal_evidence": "I was wondering if it would be possible to arrange a replacement unit."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Some of the water seeped into the foot/base of the lamp, and \"lamp has started to make a faint buzzing sound whenever it's turned on\"",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96105",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96105 belongs to the customer and contains DESK-LAMP black delivered 150 days ago. The customer reports water ingress into the foot/base and a persistent buzzing malfunction. DESK-LAMP safety_class is MAINS_ELECTRIC. SG-1 gates any malfunction on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, and S4 water inside power part makes safety POSSIBLE. V1 safety precedence overrides warranty remedy.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 32.43
+  },
+  "X103": {
+   "speech_act_evidence": "bitte ich um Erstattung des Kaufpreises",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Leider ist Wasser in den Fuß/Standfuß der Lampe gelangt, wodurch sie nun ein Summen von sich gibt",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "bitte ich um Erstattung des Kaufpreises"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Leider ist Wasser in den Fuß/Standfuß der Lampe gelangt, wodurch sie nun ein Summen von sich gibt",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96103",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96103 exists for this customer and contains DESK-LAMP black bought 60 days ago, delivered. Product safety_class is MAINS_ELECTRIC. Customer reports water ingress into the foot/base with humming and non-functional device – a malfunction of a gated electrical product. SG-1 safety gate applies: any malfunction of MAINS_ELECTRIC triggers HUMAN_REVIEW safety review, which overrides the refund request. Safety is therefore POSSIBLE and required_action is HUMAN_REVIEW per V1.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 76.04
+  },
+  "X102": {
+   "speech_act_evidence": "Quisiera saber si se puede reparar, cómo debería hacer para enviarla o si hay alguna indicación que pueda seguir antes.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "se me derramó un poco de agua cerca de la base y creo que terminó entrando dentro del pie de la lámpara.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "evidence": "Quisiera saber si se puede reparar"
+      },
+      {
+       "goal": "INFORMATION",
+       "evidence": "cómo debería hacer para enviarla o si hay alguna indicación que pueda seguir antes"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "se me derramó un poco de agua cerca de la base y creo que terminó entrando dentro del pie de la lámpara. Desde entonces, cuando la enciendo hace un zumbido raro, como un vibrazo constante que antes no hacía.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96102",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96102 belongs to the customer and contains DESK-LAMP variant black, bought 60 days ago, DELIVERED. The customer reports water ingress into the lamp foot and a new constant buzz/vibration when powered. DESK-LAMP has safety_class MAINS_ELECTRIC. SG-1 safety gate applies: a gated MAINS_ELECTRIC product with any malfunction/defect triggers HUMAN_REVIEW safety review, overriding normal warranty flows. Safety is at least POSSIBLE due to water ingress into a mains electric device with abnormal noise.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "_latency": 116.81
+  },
+  "X104": {
+   "speech_act_evidence": "すいません、交換してもらえませんか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "足の部分に水が入っちゃて、そこからブーンって音がするようになりました。",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "evidence": "交換してもらえませんか？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "足の部分に水が入っちゃて、そこからブーンって音がするようになりました。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96104",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96104 belongs to the customer and contains DESK-LAMP black delivered 150 days ago. The customer reports water ingress into the foot and a buzzing sound, a malfunction of a MAINS_ELECTRIC product. SG-1 gated-class malfunction triggers safety review; safety is POSSIBLE per S4 water inside mains electric. Safety takes precedence, so human review is required before any warranty/remedy flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 67.5
+  },
+  "X107": {
+   "speech_act_evidence": "¿Podrían arreglarlo, please?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Después de unos minutos se apaga",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "¿Podrían arreglarlo, please?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "no hay humo, chispas, olor ni calor",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96107",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96107 belongs to the customer and contains DESK-LAMP white delivered 150 days ago. The customer reports a malfunction: the lamp turns off after a few minutes. DESK-LAMP has safety_class MAINS_ELECTRIC. v3.2 SG-1 gates any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS products to HUMAN_REVIEW safety review, regardless of wording or absence of hazard signs. The explicit safety negations do not remove the gate. Therefore the case must be human reviewed for safety before any warranty/repair flow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 82.4
+  },
+  "X106": {
+   "speech_act_evidence": "想請問可以幫我申請 refund 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "最近發現 dimmer 按鈕按了完全沒反應，燈本身還是會亮，但亮度調不動了",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "evidence": "想請問可以幫我申請 refund 嗎？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "最近發現 dimmer 按鈕按了完全沒反應，燈本身還是會亮，但亮度調不動了",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96106",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96106 belongs to customer and contains DESK-LAMP white bought 420 days ago, delivered. Customer reports a malfunction of the dimmer on a MAINS_ELECTRIC safety_class product. v3.2 SG-1 gates any malfunction on MAINS_ELECTRIC/GAS/MAINS_HEATING to HUMAN_REVIEW safety review, which supersedes the refund request. Safety is therefore POSSIBLE and required_action is HUMAN_REVIEW before any refund/workflow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 100.95
+  },
+  "X108": {
+   "speech_act_evidence": "Könntet ihr sie bitte reparieren?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Seit einer Weile ist es so, dass die Lampe nach ein paar Minuten einfach ausgeht.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "quote": "Könntet ihr sie bitte reparieren?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Es raucht nicht, es funkt nicht, es riecht nicht und heiß wird sie auch nicht",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96108",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96108 belongs to the customer and contains DESK-LAMP white delivered 300 days ago. The customer reports a malfunction: the lamp goes off after a few minutes. DESK-LAMP has safety_class MAINS_ELECTRIC. SG-1 safety gate applies to any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS products, requiring HUMAN_REVIEW safety review before any warranty/supplier task. The supplier warranty task is therefore overridden.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 142.29
+  },
+  "X113": {
+   "speech_act_evidence": "Bitte senden Sie mir ein Ersatzgerät zu.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "flackert seit dem Kauf vor etwa 150 Tagen ständig",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "evidence": "Bitte senden Sie mir ein Ersatzgerät zu."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96113",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96113 belongs to the customer and contains DESK-LAMP white delivered 150 days ago. The customer reports a flickering malfunction on a MAINS_ELECTRIC safety_class product. v3.2 SG-1 safety gate: gated class + malfunction → HUMAN_REVIEW safety review, which supersedes the supplier warranty REPLACE_SAME task.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 96.11
+  },
+  "X112": {
+   "speech_act_evidence": "Me gustaría pedir un reembolso, por favor.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "de repente ha dejado de encenderse",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "Me gustaría pedir un reembolso, por favor."
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "No hace humo, no salen chispas, no huele a nada raro y no se calienta",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96112",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96112 belongs to the customer and contains DESK-LAMP white bought 150 days ago, delivered. The customer reports a malfunction: the lamp 'ha dejado de encenderse' / 'simplemente ya no enciende'. DESK-LAMP has safety_class MAINS_ELECTRIC. v3.2 SG-1 gates any malfunction/fault on MAINS_ELECTRIC/MAINS_HEATING/GAS to HUMAN_REVIEW safety review, wording does not matter and a refund wish does not override it. Therefore required_action is HUMAN_REVIEW despite the REFUND request.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 122.95
   }
  },
  "stats": {
-  "calls": 42,
-  "retries": 8,
-  "prompt_tokens": 253080,
-  "completion_tokens": 97878
+  "calls": 22,
+  "retries": 5,
+  "prompt_tokens": 132718,
+  "completion_tokens": 53441
  }
 }
