@@ -89,6 +89,7 @@ class MockPayPalClient:
         if note_to_payer:
             refund["note_to_payer"] = note_to_payer[:255]
         self.refunds_by_request[request_id] = refund
+        cap["status"] = "REFUNDED"  # full refund, as PayPal reports on GET capture
         return refund
 
     def verify_webhook_signature(self, headers, raw_body, webhook_id):

@@ -65,6 +65,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             current = next((c for c in cases if c["status"] != "NEW"), cases[0])
         pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR)
                    and (not current or c["id"] != current["id"])]
+        if current:
+            wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
         latest_a, latest_b = db.latest_case("A"), db.latest_case("B")
         ctx = {
             "pipeline": pipeline(db, current),

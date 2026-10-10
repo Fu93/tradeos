@@ -188,6 +188,9 @@
       <p class="muted small">Logged straight from PayPal responses and webhook deliveries, in call order. Decisions (policy, human) are in the case timeline. No tokens or credentials are stored or shown.</p>
     </details>
     {% elif current %}<p class="muted">No PayPal calls for this case yet.</p>{% endif %}
+    {% if current and current.capture_id %}
+    <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy"><button class="btn small ghost">Reconcile with PayPal (GET capture + refund)</button></form>
+    {% endif %}
   </section>
 
   <!-- AI understanding -->
