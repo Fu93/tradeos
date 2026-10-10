@@ -257,7 +257,9 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   25 over 3 days) get a new transmission time, so an old time alone isn't treated as a replay: an old event whose ID was
   already processed, or a future-dated one, is logged as *stale/replay rejected* with no change; an old, never-seen event
   is accepted as a late delivery, but its payload is not trusted for a state change, and TradeOS re-reads the refund
-  with `GET` instead. All of these return 200, because a non-2xx would only make PayPal resend the same message.
+  with `GET` instead (only that result counts, only for this case's own capture/refund IDs). If that GET fails, nothing
+  changes, the event ID is not consumed and the endpoint answers 500 so PayPal's retry can be processed later. The
+  rejections return 200, because a non-2xx would only make PayPal resend the same message.
   This limits replays; it is not complete replay protection.
 - **Unknown refund outcome.** If the refund call times out or PayPal returns 5xx, TradeOS GETs the capture in the
   background (5 s timeout, read-only) to see whether the refund went through, and refuses a retry (409) until that check
@@ -333,7 +335,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 233 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 249 tests (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 
