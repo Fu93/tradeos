@@ -661,6 +661,7 @@ def test_completed_note_only_after_paypal_completed(settings):
     assert case["refund_status"] == "PENDING"
     assert case["note"]["outcome"] == "PENDING_NOTE" and not makes_completion_claim(case["note"]["text"])
     assert not makes_completion_claim(case["payer_note"]["text"])  # what was sent WITH the refund call
+    paypal.complete_refund(case["refund_id"])  # PayPal settles the refund
     wf.refresh_refund(case_id)
     case = wf.db.get_case(case_id)
     assert case["refund_status"] == "COMPLETED" and case["note"]["outcome"] == "COMPLETED_NOTE"

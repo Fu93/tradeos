@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import threading
+from contextlib import contextmanager
 import time
 import uuid
 from datetime import date, datetime, timedelta, timezone
@@ -57,7 +58,8 @@ DECLINED = "DECLINED_BY_HUMAN"
 REFUND_COMPLETED = "REFUND_COMPLETED"
 REFUND_PENDING = "REFUND_PENDING"
 REFUND_FAILED = "REFUND_FAILED"
-REFUND_ERROR = "REFUND_ERROR"
+REFUND_ERROR = "REFUND_ERROR"            # PayPal answered with an error (4xx): it confirmed no refund was made
+REFUND_UNKNOWN = "REFUND_OUTCOME_UNKNOWN"  # timeout / network / 5xx: PayPal may or may not have refunded
 ERROR = "ERROR"
 
 
@@ -81,6 +83,11 @@ class Workflow:
         self._locks_guard = threading.Lock()
         self._reconciled: dict[str, float] = {}
         self._refund_checks: dict[str, str] = {}
+        self._inflight = 0              # money operations in progress (approve / refund / retry / recovery)
+        self._resetting = False         # demo reset in progress: money operations are refused
+        self._needs_check: set[str] = set()
+        self._pending_recovery: set[str] = set()
+        self._pending_recovery_requests: set[str] = set()
         # UTC, to match PayPal timestamps.
         self.today = today or (lambda: datetime.now(timezone.utc).date())
 
@@ -160,6 +167,31 @@ class Workflow:
                         break
                     del self._locks[key]
             return lock
+
+    @contextmanager
+    def _money_op(self):
+        """Marks a money operation in flight so a demo reset can't run underneath it."""
+        with self._locks_guard:
+            if self._resetting:
+                raise RefundNotAllowed("A demo reset is in progress — try again in a moment.")
+            self._inflight += 1
+        try:
+            yield
+        finally:
+            with self._locks_guard:
+                self._inflight -= 1
+
+    def begin_reset(self) -> bool:
+        """Demo reset may start only when no refund call is in flight and no case lock is held."""
+        with self._locks_guard:
+            if self._resetting or self._inflight or any(lock.locked() for lock in self._locks.values()):
+                return False
+            self._resetting = True
+            return True
+
+    def end_reset(self) -> None:
+        with self._locks_guard:
+            self._resetting = False
 
     def reset_runtime_state(self) -> None:
         """Demo reset: forget per-case in-memory state (idle locks) along with the database."""
@@ -389,14 +421,23 @@ class Workflow:
     # ------------------------------------------------------------------ human + money
     def approve(self, case_id: str, approver: str = "merchant") -> None:
         # Serialised per case: a double-click can never start two approvals.
-        with self._lock(case_id):
-            case = self._case(case_id)
-            if case["status"] != PENDING_APPROVAL or case["decision"] != "ELIGIBLE":
-                raise RefundNotAllowed(f"Case {case_id} is not awaiting approval (status {case['status']}, "
-                                       f"policy {case['decision']}).")
-            self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now())
-            self.db.audit(case_id, "human", "Human approved the refund", {"approver": approver})
-            self._execute_refund(case_id)
+        try:
+            with self._money_op(), self._lock(case_id):
+                case = self._case(case_id)
+                if case["status"] != PENDING_APPROVAL or case["decision"] != "ELIGIBLE":
+                    raise RefundNotAllowed(f"Case {case_id} is not awaiting approval (status {case['status']}, "
+                                           f"policy {case['decision']}).")
+                self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now())
+                self.db.audit(case_id, "human", "Human approved the refund", {"approver": approver})
+                self._execute_refund(case_id)
+        finally:
+            self._after_money(case_id)
+
+    def _after_money(self, case_id: str) -> None:
+        """Outside the case lock: start the PayPal check for an unknown refund outcome."""
+        if case_id in self._needs_check:
+            self._needs_check.discard(case_id)
+            self._start_refund_check(case_id)
 
     def approve_twice(self, case_id: str) -> None:
         """Failure-mode demo: a double-clicked Approve.
@@ -417,12 +458,12 @@ class Workflow:
         self.replay_refund_request(case_id, second_click)
 
     def replay_refund_request(self, case_id: str, second_click: str = "") -> dict:
-        with self._lock(case_id):
+        with self._money_op(), self._lock(case_id):
             case = self._case(case_id)
             self._guard_refund(case)
             if not case["refund_id"]:
                 raise RefundNotAllowed("No refund to replay.")
-            request_id = f"tradeos-refund-{case_id}"
+            request_id = self._request_id(case)
             note = (case.get("payer_note") or {}).get("text")
             again = self._pp(case_id, "refund_capture", case["capture_id"], request_id, note_to_payer=note)
             total = ((again.get("seller_payable_breakdown") or {}).get("total_refunded_amount") or {})
@@ -450,21 +491,71 @@ class Workflow:
             self.db.update_case(case_id, human_decision="DECLINED", human_at=self._now(), status=DECLINED)
             self.db.audit(case_id, "human", "Human declined — Refund API not called", {"approver": approver})
 
-    @staticmethod
-    def _guard_refund(case: dict) -> None:
+    def _guard_refund(self, case: dict) -> None:
         if case["decision"] != "ELIGIBLE":
             raise RefundNotAllowed(f"Policy decision is {case['decision'] or 'missing'}; refund refused.")
         if case["human_decision"] != "APPROVED":
             raise RefundNotAllowed("Human approval is required before any refund.")
         if not case["capture_id"]:
             raise RefundNotAllowed("No PayPal capture to refund.")
+        # The row alone is not enough: the decision and the approval must also be on the case's hash
+        # chain, and the chain must verify. A direct UPDATE of the cases table (no chain entry) is refused.
+        chain = self.db.verify_chain(case["id"])
+        if not chain["ok"]:
+            raise RefundNotAllowed(f"Audit trail BROKEN at entry {chain['broken_at']}; refund refused.")
+        chained = self.db.chained_case_state(case["id"])
+        if chained.get("decision") != "ELIGIBLE" or chained.get("human_decision") != "APPROVED":
+            raise RefundNotAllowed("No policy ELIGIBLE + human APPROVED entry on the audit chain; refund refused.")
+        if chained.get("capture_id") != case["capture_id"]:
+            raise RefundNotAllowed("Capture on the audit chain differs from the case record; refund refused.")
+
+    @staticmethod
+    def _request_id(case: dict) -> str:
+        return case.get("refund_request_id") or f"tradeos-refund-{case['id']}"
 
     def execute_refund(self, case_id: str) -> dict:
-        """Retry entry point (same guard, same lock)."""
-        with self._lock(case_id):
-            return self._execute_refund(case_id)
+        """Retry entry point after REFUND_ERROR / REFUND_OUTCOME_UNKNOWN (same guard, same lock,
+        same PayPal-Request-Id)."""
+        try:
+            with self._money_op(), self._lock(case_id):
+                return self._execute_refund(case_id)
+        finally:
+            self._after_money(case_id)
 
-    def _execute_refund(self, case_id: str) -> dict:
+    def retry_failed_refund(self, case_id: str) -> dict:
+        """REFUND_FAILED: re-sending the same PayPal-Request-Id would only return the same FAILED refund.
+        A new request id is used only when (1) PayPal confirms (GET) that refund is FAILED, (2) the policy
+        engine re-checks the case against a fresh GET of the capture, and (3) the human approval is still
+        on record (chain). The new id is derived from the failed refund id, so double clicks are idempotent."""
+        try:
+            with self._money_op(), self._lock(case_id):
+                case = self._case(case_id)
+                if case["status"] != REFUND_FAILED or not case.get("refund_id"):
+                    raise RefundNotAllowed("Only a refund that PayPal reported FAILED can be retried with a new request.")
+                self._guard_refund(case)
+                refund = self._pp(case_id, "get_refund", case["refund_id"], timeout=RECONCILE_READ_TIMEOUT)
+                if refund.get("status") != "FAILED":
+                    raise RefundNotAllowed(f"PayPal reports refund {case['refund_id']} as {refund.get('status')}, "
+                                           "not FAILED; no new refund request was sent.")
+                capture = self._pp(case_id, "get_capture", case["capture_id"], timeout=RECONCILE_READ_TIMEOUT)
+                from .intent import IntentResult
+                product = self.db.get_product(case["product_sku"])
+                result = self._evaluate(case, product, IntentResult.model_validate(case["intent"]), capture,
+                                        supplier_status=case.get("supplier_reply"), require_supplier=True)
+                self.db.audit(case_id, "policy", f"Policy re-check before a new refund request: {result.decision}",
+                              result.to_dict())
+                if not result.eligible:
+                    raise RefundNotAllowed("Policy re-check failed; no new refund request was sent.")
+                new_id = f"tradeos-refund-{case_id}-after-{case['refund_id']}"
+                self.db.update_case(case_id, refund_request_id=new_id)
+                self.db.audit(case_id, "paypal", "PayPal confirmed the refund FAILED — retrying with a NEW "
+                              "PayPal-Request-Id (policy re-checked, human approval on record)",
+                              {"failed_refund_id": case["refund_id"], "paypal_request_id": new_id})
+                return self._execute_refund(case_id, after_failed=True)
+        finally:
+            self._after_money(case_id)
+
+    def _execute_refund(self, case_id: str, after_failed: bool = False) -> dict:
         """The only code path that moves money. Refuses unless policy ELIGIBLE AND human APPROVED.
 
         Amount (full capture), capture ID and permission all come from the backend; nothing
@@ -475,8 +566,13 @@ class Workflow:
         self._guard_refund(case)
         if case["refund_status"] in ("COMPLETED", "PENDING"):
             return case["refund"] or {}
+        if case["refund_status"] == "FAILED" and not after_failed:
+            raise RefundNotAllowed("PayPal reported this refund FAILED; the same PayPal-Request-Id would only "
+                                   "return it again. Use 'Retry with a new request' (re-checks policy).")
 
-        request_id = f"tradeos-refund-{case_id}"  # idempotent: double clicks return the same refund
+        request_id = self._request_id(case)  # idempotent: double clicks return the same refund
+        if not case.get("refund_request_id"):
+            self.db.update_case(case_id, refund_request_id=request_id)
         note_text = self._payer_note(case_id)
         fault = case.get("refund_fault")
         kwargs = {"note_to_payer": note_text}
@@ -487,17 +583,55 @@ class Workflow:
         try:
             refund = self._pp(case_id, "refund_capture", case["capture_id"], request_id, **kwargs)
         except PayPalError as exc:
-            # The fault is injected exactly once, so "Retry" exercises a real recovery.
-            self.db.update_case(case_id, status=REFUND_ERROR, error=str(exc), refund_fault=None)
-            self.db.audit(case_id, "paypal", "Refund failed", {**exc.to_dict(), "paypal_request_id": request_id})
-            self._write_note(case_id, "FAILURE_NOTE", None, case.get("assist"))
             if exc.status_code is None or exc.status_code >= 500:
-                # Outcome unknown (timeout / network / 5xx): PayPal may have refunded anyway. Check with
-                # PayPal before a retry is allowed; the retry itself reuses the same PayPal-Request-Id.
-                self._start_refund_check(case_id)
+                # Outcome UNKNOWN (timeout / network / 5xx): PayPal may have refunded anyway, so the UI must
+                # not say "no money moved". A bounded GET check runs next (outside the lock); if PayPal shows
+                # the capture refunded, the same PayPal-Request-Id is re-sent once to recover the refund.
+                self.db.update_case(case_id, status=REFUND_UNKNOWN, error=str(exc), refund_fault=None)
+                self.db.audit(case_id, "paypal", "Refund outcome UNKNOWN — no reply from PayPal; checking",
+                              {**exc.to_dict(), "paypal_request_id": request_id})
+                self._needs_check.add(case_id)
+            else:
+                # PayPal answered with an error: it confirmed this request made no refund.
+                # The fault is injected exactly once, so "Retry" exercises a real recovery.
+                self.db.update_case(case_id, status=REFUND_ERROR, error=str(exc), refund_fault=None)
+                self.db.audit(case_id, "paypal", "Refund failed", {**exc.to_dict(), "paypal_request_id": request_id})
+                self._write_note(case_id, "FAILURE_NOTE", None, case.get("assist"))
             raise
-        self._record_refund(case_id, refund, request_id)
+        self._record_refund(case_id, refund, request_id, via="refund_api")
         return refund
+
+    def recover_unknown_refund(self, case_id: str, trigger: str) -> bool:
+        """REFUND_OUTCOME_UNKNOWN and PayPal shows the capture refunded: re-send the SAME request
+        (same PayPal-Request-Id, same body) once. PayPal returns the refund it already made, which is then
+        recorded through _record_refund. Same guard as any refund (policy + chained human approval)."""
+        with self._locks_guard:
+            if case_id in self._pending_recovery:
+                return False
+            self._pending_recovery.add(case_id)
+        try:
+            with self._money_op(), self._lock(case_id):
+                case = self._case(case_id)
+                if case["status"] != REFUND_UNKNOWN or case.get("refund_id"):
+                    return False
+                self._guard_refund(case)
+                request_id = self._request_id(case)
+                note = (case.get("payer_note") or {}).get("text")
+                try:
+                    refund = self._pp(case_id, "refund_capture", case["capture_id"], request_id, note_to_payer=note)
+                except PayPalError as exc:
+                    self.db.audit(case_id, "paypal", "Could not recover the refund from PayPal — outcome still "
+                                  "UNKNOWN, needs a human", {**exc.to_dict(), "trigger": trigger})
+                    return False
+                self.db.audit(case_id, "paypal", f"Recovered the refund from PayPal ({trigger}): same "
+                              "PayPal-Request-Id re-sent once, PayPal returned the refund it had already made",
+                              {"refund_id": refund.get("id"), "status": refund.get("status"),
+                               "paypal_request_id": request_id})
+                self._record_refund(case_id, refund, request_id, via="recovery")
+                return True
+        finally:
+            with self._locks_guard:
+                self._pending_recovery.discard(case_id)
 
     # ------------------------------------------------------------------ unknown refund outcome
     def refund_check_pending(self, case_id: str) -> bool:
@@ -526,20 +660,43 @@ class Workflow:
             status = capture.get("status")
             if status in ("REFUNDED", "PARTIALLY_REFUNDED"):
                 result = "REFUNDED_AT_PAYPAL"
-                title = (f"Checked with PayPal after the failed refund call: capture is {status} — the request "
-                         "probably went through. Retry reuses the same PayPal-Request-Id, so PayPal returns that "
-                         "refund instead of creating a new one.")
+                title = (f"Checked with PayPal after the unanswered refund call: capture is {status} — the "
+                         "request went through. Recovering the refund with the same PayPal-Request-Id.")
             else:
                 result = "NOT_REFUNDED"
-                title = (f"Checked with PayPal after the failed refund call: capture is {status}, no refund yet. "
-                         "Safe to retry with the same PayPal-Request-Id.")
+                title = (f"Checked with PayPal after the unanswered refund call: capture is {status}, no refund "
+                         "seen yet. Retry is safe: it reuses the same PayPal-Request-Id.")
             self.db.audit(case_id, "paypal", title, {"capture_status": status, "seq": next_seq()})
+            if result == "REFUNDED_AT_PAYPAL" and case["status"] == REFUND_UNKNOWN:
+                with self._locks_guard:
+                    self._refund_checks[case_id] = result  # lets the recovery (and a retry) through
+                self.recover_unknown_refund(case_id, "after the GET check")
         except Exception as exc:  # PayPal down / timeout: retry stays safe (same PayPal-Request-Id)
             self.db.audit(case_id, "paypal", "Could not check with PayPal after the failed refund call — retry "
                           "still uses the same PayPal-Request-Id", {"error": type(exc).__name__, "seq": next_seq()})
         finally:
             with self._locks_guard:
                 self._refund_checks[case_id] = result
+
+    def resume_unresolved_refunds(self) -> int:
+        """Startup with a kept database: reconcile every refund still PENDING or with an UNKNOWN outcome
+        (archived cases included, so a reset never strands an in-flight refund)."""
+        n = 0
+        for case in self.db.list_cases(include_archived=True):
+            if case.get("refund_status") == "PENDING" or case["status"] == REFUND_UNKNOWN:
+                n += self.auto_reconcile(case["id"], background=self.settings.reconcile_in_background)
+        return n
+
+    def retry_policy_check(self, case_id: str) -> None:
+        """ERROR after the payment was captured (PayPal GET failed during the policy step): run the
+        intent + policy step again. Nothing here can refund; approval is still required afterwards."""
+        with self._lock(case_id):
+            case = self._case(case_id)
+            if case["status"] != ERROR or not case.get("capture_id") or case.get("decision"):
+                raise RefundNotAllowed("Only a captured case that failed before the policy decision can be re-checked.")
+            self.db.update_case(case_id, status=NEW, error=None)
+            self.db.audit(case_id, "policy", "Retrying the policy check (PayPal could not be read last time)", {})
+        self._after_capture(case_id)
 
     def refresh_refund(self, case_id: str) -> None:
         """Manual 'Refresh status' button: a full reconciliation against PayPal."""
@@ -590,6 +747,13 @@ class Workflow:
             detail = {"error": str(exc), "debug_id": exc.debug_id or None, "seq": next_seq()}
             self.db.audit(case_id, "reconcile", "Reconciliation skipped — PayPal unreachable/error (no change)", detail)
             return {"ok": False, **detail}
+        if (case["status"] == REFUND_UNKNOWN and not refund_id
+                and capture.get("status") in ("REFUNDED", "PARTIALLY_REFUNDED")):
+            # The unanswered refund call went through at PayPal: recover it (same request id), then compare.
+            self.db.audit(case_id, "reconcile", f"Reconcile: PayPal shows the capture {capture.get('status')} "
+                          "while the refund outcome is UNKNOWN — recovering it", {"seq": next_seq()})
+            if self.recover_unknown_refund(case_id, "reconcile"):
+                return self.reconcile(case_id, timeout)
         with self._lock(case_id):
             case = self._case(case_id)  # state may have moved (webhook) while we waited on PayPal
             checks, advanced, needs_human = [], False, None
@@ -617,17 +781,16 @@ class Workflow:
                 pp_status = refund.get("status")
                 local_after = local_refund
                 if local_refund == "PENDING" and pp_status == "COMPLETED":
-                    self._record_refund(case_id, {**(case.get("refund") or {}), **refund}, None)
+                    self._record_refund(case_id, {**(case.get("refund") or {}), **refund}, None, via="reconcile")
                     advanced, local_after = True, "COMPLETED"
                 if pp_status in ("CANCELLED", "FAILED") and local_refund != pp_status:
                     needs_human = f"PayPal reports the refund {pp_status}"
                 checks.append({"field": "refund.status", "local": local_refund, "paypal": pp_status,
                                "match": local_after == pp_status, "advanced": advanced})
-                pp_amount = (refund.get("amount") or {}).get("value")
+                pp_amt = refund.get("amount") or {}
                 checks.append({"field": "refund.amount", "local": f"{case['amount']} {case['currency']}",
-                               "paypal": " ".join(str((refund.get("amount") or {}).get(k, "?"))
-                                                  for k in ("value", "currency_code")),
-                               "match": pp_amount in (None, case["amount"])})
+                               "paypal": " ".join(str(pp_amt.get(k, "?")) for k in ("value", "currency_code")),
+                               "match": _same_money(pp_amt, case["amount"], case["currency"])})
             ok = all(c["match"] for c in checks)
             if ok:
                 title = ("Reconciled with PayPal — refund PENDING → COMPLETED (from PayPal GET)" if advanced
@@ -646,7 +809,8 @@ class Workflow:
         per case per RECONCILE_MIN_INTERVAL seconds, in a background thread with short read timeouts
         so neither the page nor a webhook ever waits on PayPal. Everything else is button-only."""
         case = self.db.get_case(case_id)
-        if not case or case.get("refund_status") != "PENDING" or self.paypal_mode == "unconfigured":
+        if (not case or self.paypal_mode == "unconfigured"
+                or not (case.get("refund_status") == "PENDING" or case["status"] == REFUND_UNKNOWN)):
             return False
         now = time.monotonic()
         with self._locks_guard:
@@ -734,10 +898,21 @@ class Workflow:
             return None
         case_id = case["id"]
         age = self.transmission_age(transmission_time)
+        if age == "unknown" and self.paypal_mode != "mock":
+            age = "stale"  # fail closed: no signed transmission time -> payload never trusted directly
         info["transmission_time"], info["transmission_age"] = transmission_time, age
         if (verified and age == "stale" and event_id and not self.db.webhook_event_seen(event_id)
                 and self._webhook_would_change_state(self._case(case_id), etype, resource)):
             return self._late_event_recheck(case_id, etype, transmission_time, log, info)
+        result = self._record_webhook_locked(case_id, etype, resource, event_id, verified, age,
+                                             transmission_time, log, info)
+        if case_id in self._pending_recovery_requests:
+            self._pending_recovery_requests.discard(case_id)
+            self.recover_unknown_refund(case_id, "verified PayPal webhook")
+        return result
+
+    def _record_webhook_locked(self, case_id, etype, resource, event_id, verified, age, transmission_time,
+                               log, info) -> str:
         with self._lock(case_id):
             case = self._case(case_id)
             if verified and (age == "future" or (age == "stale" and event_id and self.db.webhook_event_seen(event_id))):
@@ -803,6 +978,13 @@ class Workflow:
             return ("WARNING_NEEDS_HUMAN",
                     f"Verified PayPal webhook {etype}: {resource.get('id')} is {res_status} — "
                     "needs a human (no automatic change)")
+        if (case["status"] == REFUND_UNKNOWN and not case.get("refund_id")
+                and etype in ("PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING")):
+            # Matched via the refund's "up" link to this case's own capture. The payload is not applied;
+            # TradeOS re-sends its own request id once and records what PayPal returns.
+            self._pending_recovery_requests.add(case_id)
+            return ("UNKNOWN_RECOVERY", f"Verified PayPal webhook {etype} for this case's capture while the refund "
+                    "outcome is UNKNOWN — recovering the refund from PayPal (same PayPal-Request-Id)")
         if not case.get("refund_id") or case["refund_id"] != resource.get("id"):
             return ("MISMATCH_IGNORED", "Verified PayPal webhook does not match this case's refund id "
                     "— logged, no state change")
@@ -810,7 +992,7 @@ class Workflow:
         merged = {**(case.get("refund") or {}), **resource}
         if res_status == "COMPLETED":
             if local == "PENDING":
-                self._record_refund(case_id, merged, None)
+                self._record_refund(case_id, merged, None, via="webhook")
                 self._confirm_webhook(case_id, info)
                 return "PENDING_TO_COMPLETED", "Verified PayPal webhook moved refund PENDING → COMPLETED"
             if local == "COMPLETED":
@@ -833,11 +1015,12 @@ class Workflow:
     def _confirm_webhook(self, case_id: str, info: dict) -> None:
         self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
 
-    def _record_refund(self, case_id: str, refund: dict, request_id: str | None) -> None:
+    def _record_refund(self, case_id: str, refund: dict, request_id: str | None, via: str | None = None) -> None:
         status = refund.get("status")
         case_status = {"COMPLETED": REFUND_COMPLETED, "PENDING": REFUND_PENDING}.get(status, REFUND_FAILED)
+        extra = {"completed_via": via} if status == "COMPLETED" and via else {}
         self.db.update_case(case_id, refund_id=refund.get("id"), refund_status=status,
-                            refund_json=json.dumps(refund), status=case_status, error=None)
+                            refund_json=json.dumps(refund), status=case_status, error=None, **extra)
         self.db.audit(case_id, "paypal", f"PayPal refund {status}",
                       {"refund_id": refund.get("id"), "status": status, "amount": refund.get("amount"),
                        "create_time": refund.get("create_time"), "paypal_request_id": request_id,
@@ -890,9 +1073,21 @@ def _evidence(operation: str, result: dict) -> dict:
     return {k: v for k, v in ev.items() if v}
 
 
+def _same_money(pp_amount: dict, local_value: str, local_currency: str) -> bool:
+    """Decimal value + currency comparison ("49.99" == "49.990"); a missing PayPal amount is not a mismatch."""
+    if not pp_amount or pp_amount.get("value") is None:
+        return True
+    try:
+        same_value = Decimal(str(pp_amount["value"])) == Decimal(str(local_value))
+    except ArithmeticError:
+        return False
+    return same_value and (pp_amount.get("currency_code") or local_currency) == local_currency
+
+
 def clean_message(message: str | None, max_chars: int) -> str:
     """Free text is data: strip control characters, collapse whitespace, hard length cap."""
-    text = "".join(ch if (ch.isprintable() or ch in "\n\t") else " " for ch in (message or ""))
+    keep = "\n\t\u200c\u200d"  # ZWNJ / ZWJ are meaningful (Persian, Indic scripts, emoji sequences)
+    text = "".join(ch if (ch.isprintable() or ch in keep) else " " for ch in (message or ""))
     lines = (" ".join(line.split()) for line in text.strip().splitlines())
     text = "\n".join(line for line in lines if line)
     return text[:max_chars]

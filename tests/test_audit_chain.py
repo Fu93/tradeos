@@ -139,8 +139,14 @@ def test_backfill_existing_db_marks_rows(tmp_path):
 def test_reset_rebuilds_cleanly(settings):
     client, pp, wf = app_with(settings)
     case_id = run_a(client)
+    before = wf.db.verify_chain(case_id)
     client.post("/demo/reset", follow_redirects=False)
-    assert wf.db.chain_entries(case_id) == []
+    # Reset archives the case: its chain is kept (append-only stays true) and gains one archive entry.
+    after = wf.db.verify_chain(case_id)
+    assert after["ok"] and after["entries"] == before["entries"] + 1
+    assert wf.db.chain_entries(case_id)[-1]["type"] == "case:update"
+    assert json.loads(wf.db.chain_entries(case_id)[-1]["payload_json"]).keys() == {"archived_at"}
+    assert case_id not in {c["id"] for c in wf.db.list_cases()}
     for c in wf.db.list_cases():
         assert wf.db.verify_chain(c["id"])["ok"]
 

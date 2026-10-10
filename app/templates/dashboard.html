@@ -2,7 +2,7 @@
 {% macro status_chip(status) -%}
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
                  "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
-                 "REFUND_FAILED": "bad", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
+                 "REFUND_FAILED": "bad", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
   <span class="chip {{ cls.get(status, 'neutral') }}">{{ status | replace('_', ' ') }}</span>
 {%- endmacro %}
 {% block content %}
@@ -74,12 +74,22 @@
             <form method="post" action="/cases/{{ current.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
           </div>
           <p class="muted small">Human approval is required before any financial action. Nothing is refunded automatically.</p>
-        {% elif current.status == "REFUND_ERROR" %}
-          <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy actions"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
+        {% elif current.status in ("REFUND_ERROR", "REFUND_OUTCOME_UNKNOWN") %}
+          <div class="row gap actions">
+            <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
+            {% if current.status == "REFUND_OUTCOME_UNKNOWN" %}<form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy"><button class="btn small">Check with PayPal</button></form>{% endif %}
+          </div>
+        {% elif current.status == "REFUND_FAILED" %}
+          <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy actions"><button class="btn">Retry with a new request (re-checks policy)</button></form>
+        {% elif current.status == "ERROR" and result.retry_policy %}
+          <form method="post" action="/cases/{{ current.id }}/retry-policy" class="js-busy actions"><button class="btn">Retry the policy check</button></form>
         {% elif current.status == "REFUND_PENDING" %}
           <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy actions"><button class="btn small">Refresh status</button></form>
         {% elif current.status == "AWAITING_BUYER_APPROVAL" and current.approve_url %}
-          <a class="btn actions" href="{{ current.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>
+          <div class="row gap actions">
+            <a class="btn" href="{{ current.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>
+            <form method="post" action="/cases/{{ current.id }}/paypal-return" class="js-busy"><button class="btn">Capture payment (after PayPal approval)</button></form>
+          </div>
         {% elif current.status == "NEW" %}
           {% if current.scenario in ("A", "B") %}<form method="post" action="/demo/run/{{ current.scenario }}" class="js-busy actions"><button class="btn primary">▶ Run {{ current.label }}</button></form>{% endif %}
         {% endif %}

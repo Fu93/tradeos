@@ -279,15 +279,16 @@ def test_timeout_or_5xx_triggers_paypal_check_then_retry_same_request_id(setting
     flaky_refund(pp, exc)
     case_id = run_a(client)
     case = wf.db.get_case(case_id)
-    assert case["status"] == "REFUND_ERROR"
     titles = [e["title"] for e in wf.db.timeline(case_id)]
-    assert any(t.startswith("Checked with PayPal after the failed refund call: capture is REFUNDED") for t in titles)
-    r = client.post(f"/cases/{case_id}/refund", follow_redirects=False)
-    assert r.status_code == 303
+    assert "Refund outcome UNKNOWN — no reply from PayPal; checking" in titles
+    assert any(t.startswith("Checked with PayPal after the unanswered refund call: capture is REFUNDED") for t in titles)
+    # PayPal had refunded: recovered automatically by re-sending the same request id once.
+    assert case["status"] == "REFUND_COMPLETED" and case["completed_via"] == "recovery"
     calls = wf.db.paypal_calls(case_id, "refund_capture")
     assert {c["request_id"] for c in calls} == {f"tradeos-refund-{case_id}"}  # same PayPal-Request-Id
     assert len(pp._mock_wraps.refunds_by_request) == 1                     # one refund at PayPal
-    assert wf.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+    r = client.post(f"/cases/{case_id}/refund", follow_redirects=False)
+    assert r.status_code == 409 and "Nothing to retry" in r.text
 
 
 def test_retry_blocked_while_check_is_running(settings):

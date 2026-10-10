@@ -21,19 +21,23 @@
 No new required variables. No database migration is needed (Render reseeds on start; kept databases get the new columns automatically).
 
 ## Sandbox check after deploy (about 2 minutes)
-`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount) and one Case B. It checks:
+`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B and one Case R (a forced 422 refund failure, then a retry that refunds). 22 checks:
 1. `/healthz`: PayPal mode `sandbox`, webhook configured.
 2. Case A: approved; refund COMPLETED (or PENDING); **exactly one** refund call; a **real** `PayPal-Debug-Id` (not `mock-…`); `PayPal-Request-Id` recorded; retry on the finished refund returns 409.
 3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK).
 4. "Check against PayPal": result "Reconciled with PayPal — all match".
-5. Case B: approve returns 409, the refund API is never called.
+5. Case B: approve returns 409, the refund API is never called; audit trails intact; badge rendered.
+6. Logic-review fixes: Case A's decision / human approval / status are on the hash chain (`chained_state` in `/cases/{id}/audit/verify`); Case A's `refund_request_id` and how COMPLETED was confirmed (`completed_via`); Case B's rejection on the chain with no approval; `GET /cases/{id}/paypal-return` changes nothing.
+7. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
+
+Not provable live without breaking PayPal on purpose (covered by tests in `tests/test_logic_review.py`): a refund whose reply times out (`REFUND_OUTCOME_UNKNOWN` → recovery), a refund PayPal reports `FAILED` (new request id after a confirmed failure), a reset during an in-flight refund.
 
 Manual steps:
 - Open Case A in the browser. In the **PayPal evidence** panel, check the 4 summary lines and "Show details".
 - Debug id lookup: in the PayPal Developer Dashboard (Sandbox), search the API call / event logs for the printed debug id.
 - Also confirm the dashboard shows **no** "MOCK PayPal" tag and no "Pending refund (MOCK)" tile.
 
-Expected on the local mock (dry run of the script, 2026-10-10): every check passes except the three that need real Sandbox (mode, real debug id, signed webhook).
+Expected on the local mock (dry run of the script, 2026-10-10): every check passes except the four that need real Sandbox (mode, real debug id, signed webhook + its method).
 
 ## After merging feat/paypal-hardening (webhook re-registration)
 1. Dry run: `python scripts/register_webhook.py https://<render-host>/webhooks/paypal` (needs `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET`). Expect `would update webhook <id> in place (ID unchanged)`.
