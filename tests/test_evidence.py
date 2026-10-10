@@ -10,7 +10,6 @@ from app.main import create_app
 from app.paypal_client import PayPalClient
 from app.paypal_mock import MockPayPalClient
 from app.views import evidence_log, evidence_summary, status_words
-from app.workflow import Workflow
 from tests.test_upgrade import FakeExtractor, app_ctx, case_from, refund_event  # noqa: F401
 from app.notes import TemplateNoteWriter
 

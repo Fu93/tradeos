@@ -20,7 +20,7 @@ from app.main import create_app
 from app.notes import TemplateNoteWriter
 from app.paypal_client import PayPalClient, PayPalError
 from app.paypal_mock import MockPayPalClient
-from tests.test_upgrade import FakeExtractor, case_from, make_wf
+from tests.test_upgrade import FakeExtractor, case_from
 
 CERT_URL = "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-test"
 WEBHOOK_ID = "WH-TEST"

@@ -20,7 +20,6 @@ import os
 import statistics
 import sys
 import time
-from collections import defaultdict
 from datetime import date, datetime, timezone
 from decimal import Decimal
 from pathlib import Path

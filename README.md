@@ -1,5 +1,7 @@
 # TradeOS
 
+[![CI](https://github.com/Fu93/tradeos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Fu93/tradeos/actions/workflows/ci.yml)
+
 > **PayPal moves the money. TradeOS moves the work.**
 >
 > Use AI where language is ambiguous. Use code where money is at stake.
@@ -285,6 +287,14 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   that is only detectable if the head hash was recorded outside the database beforehand (it is shown on the case page
   so it can be noted). The append-only rule is enforced in code and by SQLite triggers, which a database owner can drop.
   The demo database is reset on each restart, so chains do not outlive a deploy.
+- **Web hardening.** Rate limits key on the client address from `CF-Connecting-IP` (set by Cloudflare in front of
+  Render) or else the X-Forwarded-For entry `TRADEOS_TRUSTED_PROXY_HOPS` from the right, never the client-controlled
+  leftmost value; one address can use at most 30 of the 200 global runs per hour. "Reset demo" asks for confirmation
+  and has a per-address (60 s) and global (15 s) cooldown. Webhook requests without PayPal's signature headers are
+  rejected with 400 before any verification call (PayPal always sends them, so they can't be PayPal deliveries).
+  Every response carries CSP (`script-src 'self'`, no inline code), HSTS, `frame-ancestors 'none'` / X-Frame-Options,
+  nosniff and Referrer-Policy; state-changing POSTs from another origin (Origin/Referer check) get 403, the webhook is
+  exempt. Requests with neither header (scripts, curl) are allowed because they aren't a browser CSRF vector.
 - **Not covered:** partial refunds, disputes, automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
 
@@ -300,7 +310,7 @@ demo always runs.
 ```bash
 git clone https://github.com/Fu93/tradeos.git && cd tradeos
 python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
+pip install -r requirements-dev.txt   # app + pytest/ruff
 cp .env.example .env        # fill in PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET (Sandbox) and optionally LLM_API_KEY
 uvicorn app.main:app --reload
 # open http://localhost:8000 and click "Run Case A", approve it, then "Run Case B"
@@ -348,7 +358,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 269 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 285 tests, run by GitHub Actions CI on every push and PR together with `ruff` (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 

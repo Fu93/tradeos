@@ -59,7 +59,7 @@ class MockPayPalClient:
 
     def create_order(self, amount, currency, reference_id, description, request_id, return_url, cancel_url):
         order = {"id": self._id("ORDER"), "status": "PAYER_ACTION_REQUIRED", "_amount": (amount, currency),
-                 "links": [{"rel": "payer-action", "href": f"https://www.sandbox.paypal.com/checkoutnow?token=mock"}]}
+                 "links": [{"rel": "payer-action", "href": "https://www.sandbox.paypal.com/checkoutnow?token=mock"}]}
         self.orders[order["id"]] = order
         return order
 
