@@ -30,8 +30,12 @@ class MockPayPalClient:
         self.captures: dict[str, dict] = {}
         self.refunds_by_request: dict[str, dict] = {}
 
+    last_debug_id: str | None = None
+
     def _id(self, kind: str) -> str:
-        return f"MOCK-{kind}-{next(self._seq):04d}"
+        n = next(self._seq)
+        self.last_debug_id = f"mock-debug-{n:04d}"  # labelled fake, mirrors PayPal-Debug-Id
+        return f"MOCK-{kind}-{n:04d}"
 
     def _capture(self, amount: str, currency: str) -> dict:
         cap = {"id": self._id("CAPTURE"), "status": "COMPLETED", "create_time": _now(),

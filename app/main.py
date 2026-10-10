@@ -21,7 +21,7 @@ from .paypal_client import PayPalError
 from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import RateLimiter, client_key
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
-                    preset_for, result_card, timeline_view)
+                    preset_for, result_card, timeline_view, evidence_log, evidence_summary)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, CaseNotFound, RefundNotAllowed,
                        Workflow)
 
@@ -84,6 +84,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "cases": cases,
             "current": current,
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
+            "evidence_summary": evidence_summary(db, current, bool(settings.paypal_webhook_id)) if current else [],
+            "evidence": evidence_log(db, current["id"]) if current else [],
             "pending": pending,
             "economics": case_economics(settings.order_amount, settings.costs),
             "evidence_a": evidence_a(db, latest_a),

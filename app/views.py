@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 
 from .db import Database
@@ -306,7 +307,8 @@ def narrate(e: dict) -> str:
         return "The merchant approved the refund."
     if t.startswith("PayPal refund "):
         note = " The customer note was attached as note_to_payer." if d.get("note_to_payer") else ""
-        return f"PayPal returned refund {d.get('refund_id')} with status {d.get('status')} ({_money(d.get('amount'))}).{note}"
+        return (f"PayPal returned refund {d.get('refund_id')} with status "
+                f"{status_words(d.get('status'), d.get('status_details'))} ({_money(d.get('amount'))}).{note}")
     if t == "Refund failed":
         issue = ""
         if isinstance(d.get("details"), list) and d["details"]:
@@ -342,6 +344,112 @@ def narrate(e: dict) -> str:
     if t == "PayPal error":
         return f"PayPal error: {d.get('message')}" + (f" (debug_id {d.get('debug_id')})" if d.get("debug_id") else "")
     return t
+
+
+# ---------------------------------------------------------------- PayPal evidence timeline
+OPERATION_LABELS = {
+    "create_order_with_card": "Create order (Orders v2, card)", "create_order": "Create order (Orders v2)",
+    "capture_order": "Capture order", "get_capture": "Get capture details", "refund_capture": "Refund capture",
+    "get_refund": "Get refund status",
+}
+REFUND_STATUS_WORDS = {
+    "COMPLETED": "COMPLETED — money returned to the buyer",
+    "PENDING": "PENDING — not final yet; not shown as success",
+    "FAILED": "FAILED — PayPal could not complete the refund · needs a human",
+    "CANCELLED": "CANCELLED at PayPal — no money returned · needs a human to review",
+}
+STATUS_REASONS = {"ECHECK": "ECHECK (eCheck; settles in a few days)"}
+
+
+def status_words(status: str | None, details: dict | None = None) -> str:
+    words = REFUND_STATUS_WORDS.get(status or "", status or "")
+    reason = (details or {}).get("reason")
+    if reason and status in ("PENDING", "FAILED"):  # per Payments v2: reason explains PENDING/FAILED only
+        words += f" · reason {STATUS_REASONS.get(reason, reason)}"
+    return words
+
+
+def _call_row(c: dict) -> dict:
+    ev = json.loads(c["evidence_json"]) if c.get("evidence_json") else {}
+    op = c["operation"]
+    ids, status = [], ev.get("status")
+    if op in ("create_order_with_card", "create_order", "capture_order"):
+        ids += [("order", ev.get("id")), ("capture", ev.get("capture_id"))]
+        if ev.get("capture_status"):
+            status = f"order {ev.get('status')} · capture {ev['capture_status']}"
+            if (ev.get("capture_status_details") or {}).get("reason"):
+                status += f" ({ev['capture_status_details']['reason']})"
+    elif op == "get_capture":
+        ids.append(("capture", ev.get("id")))
+    elif op in ("refund_capture", "get_refund"):
+        ids.append(("refund", ev.get("id")))
+        if ev.get("status"):
+            status = ev["status"] + (f" ({ev['status_details']['reason']})"
+                                     if (ev.get("status_details") or {}).get("reason") else "")
+    if not c["ok"]:
+        status = "ERROR " + " ".join(str(x) for x in (f"HTTP {ev.get('http_status')}" if ev.get("http_status") else "",
+                                                      ev.get("name"), ev.get("issue")) if x)
+    return {"seq": int(c.get("seq") or 0), "id": c["id"], "ts": c["ts"], "source": "paypal",
+            "what": OPERATION_LABELS.get(op, op), "ok": bool(c["ok"]), "status": status,
+            "ids": [(k, v) for k, v in ids if v], "debug_id": c.get("debug_id"), "request_id": c.get("request_id")}
+
+
+WEBHOOK_OUTCOME_WORDS = {
+    "PENDING_TO_COMPLETED": "applied: refund PENDING → COMPLETED", "CONFIRMED": "verified ✓ (second confirmation)",
+    "NO_CHANGE": "verified, no state change", "DUPLICATE_IGNORED": "duplicate delivery ignored",
+    "MISMATCH_IGNORED": "refund id does not match — ignored", "UNVERIFIED_IGNORED": "NOT verified — ignored",
+    "UNMATCHED": "no matching case", "FAILED_WILL_RETRY": "processing failed — PayPal will retry",
+}
+
+
+def _webhook_row(w: dict) -> dict:
+    return {"seq": int(w.get("seq") or 0), "id": w["id"], "ts": w["ts"], "source": "webhook",
+            "what": f"Webhook {w.get('event_type')}",
+            "ok": bool(w["verified"]) or w["outcome"] == "DUPLICATE_IGNORED",
+            "status": f"{w.get('resource_status') or '—'} · {WEBHOOK_OUTCOME_WORDS.get(w['outcome'], w['outcome'])}",
+            "ids": [(k, v) for k, v in (("event", w.get("event_id")),) if v], "debug_id": None, "request_id": None}
+
+
+def evidence_log(db: Database, case_id: str) -> list[dict]:
+    """Full PayPal log for one case (API calls + webhook deliveries) in true call order.
+    Decisions (policy, human) are not repeated here; the case timeline already shows them."""
+    rows = [_call_row(c) for c in db.paypal_calls(case_id)] + [_webhook_row(w) for w in db.webhook_events(case_id)]
+    rows.sort(key=lambda r: (r["seq"], r["source"], r["id"]))
+    for r in rows:
+        r["time"] = fmt_time(r["ts"])
+    return rows
+
+
+def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) -> list[dict]:
+    """About four lines a judge can read in seconds: refund, debug id, webhook, (reconcile)."""
+    calls = db.paypal_calls(case["id"])
+    refund_calls = [c for c in calls if c["operation"] == "refund_capture"]
+    rows = []
+    if case.get("refund_id"):
+        refund = case.get("refund") or {}
+        amount = _money(refund.get("amount")) or f"${case['amount']} {case['currency']}"
+        rows.append({"label": "PayPal refund", "value": f"{case['refund_id']} · "
+                     f"{status_words(case.get('refund_status'), refund.get('status_details'))} · {amount}",
+                     "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status"), False)})
+    elif refund_calls:
+        rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
+    else:
+        rows.append({"label": "PayPal refund", "value": "No refund requested from PayPal", "ok": None})
+    last = (refund_calls or calls or [None])[-1]
+    if last and last.get("debug_id"):
+        rows.append({"label": "PayPal trace ID", "value": f"{last['debug_id']} — PayPal's debug id for the {OPERATION_LABELS.get(last['operation'], last['operation']).lower()} call; PayPal support can look it up",
+                     "ok": None})
+    if case.get("refund_id"):
+        events = db.webhook_events(case["id"])
+        verified = [e for e in events if e["verified"]]
+        dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
+        if verified:
+            value = f"signature verified with PayPal · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
+        else:
+            rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else
+                         "webhook not set up on this server", "ok": None})
+    return rows
 
 
 def timeline_view(events: list[dict]) -> list[dict]:

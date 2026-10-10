@@ -145,6 +145,8 @@ class PayPalClient:
             resp = self._http.request(method, path, json=json, content=content, headers=headers)
         except httpx.HTTPError as exc:
             raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
+        # Kept for the evidence timeline (successful calls too). Never the Authorization header.
+        self.last_debug_id = resp.headers.get("paypal-debug-id", "") or None
         if resp.status_code >= 400:
             raise self._error(resp, f"{method} {path} failed")
         return resp.json() if resp.content else {}
