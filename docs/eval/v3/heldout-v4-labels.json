@@ -1,0 +1,4956 @@
+{
+ "status": "LLM-generated, dual-LLM-labelled (nemotron-3-super + gemma-4-31b-it, guide v3.2), adjudicated (2-of-3 with design, author for 3-way splits), pending human review",
+ "n": 308,
+ "composition": {
+  "CREATE_SUPPLIER_TASK": 73,
+  "CLARIFY_WITH_CUSTOMER": 26,
+  "DIRECT_WORKFLOW": 76,
+  "HUMAN_REVIEW": 133
+ },
+ "non_supplier": 235,
+ "safety_cases": 85,
+ "by_lang": {
+  "de": 62,
+  "ja": 63,
+  "en": 65,
+  "zh-Hant": 56,
+  "es": 62
+ },
+ "by_source": {
+  "judges agree + design": 240,
+  "2 of 3 (design + one judge)": 54,
+  "judges agree (design differs)": 6,
+  "author-adjudicated": 4,
+  "author-adjudicated (override)": 4
+ },
+ "labels": {
+  "X001": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X002": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X003": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X004": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X005": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X006": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X007": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X008": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X009": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X010": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "exch_shoe_size",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X011": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X012": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X013": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X014": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X015": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X016": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X017": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X018": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X019": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X020": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "seller_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X021": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X022": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X023": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X024": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X025": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X026": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X027": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X028": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "seller_wrong_colour_lamp",
+   "slice": "buyer_vs_seller",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X029": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X030": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X031": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X032": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X033": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X034": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "exch_jacket_L",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X035": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X036": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X037": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X038": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X039": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X040": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "de",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": "CLARIFY_WITH_CUSTOMER",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X041": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X042": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X043": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "de",
+   "kind": "reship_kettle",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": "DIRECT_WORKFLOW",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X044": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "ja",
+   "kind": "reship_kettle",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": "DIRECT_WORKFLOW",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X045": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "en",
+   "kind": "reship_kettle",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": "DIRECT_WORKFLOW",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X046": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "zh-Hant",
+   "kind": "reship_kettle",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": "DIRECT_WORKFLOW",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X047": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree (design differs)",
+   "lang": "es",
+   "kind": "reship_kettle",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": "DIRECT_WORKFLOW",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X048": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X049": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X050": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X051": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X052": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X053": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "reship_shoe",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X054": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X055": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X056": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X057": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X058": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X059": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X060": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X061": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X062": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CLARIFY_WITH_CUSTOMER",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X063": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "shoe_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X064": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "linked_reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X065": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "linked_reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X066": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "linked_reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X067": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "linked_reship_lamp",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X068": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands",
+   "lang": "es",
+   "kind": "norm_valid_task",
+   "slice": "normalisation",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": "CLARIFY_WITH_CUSTOMER",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X069": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands",
+   "lang": "de",
+   "kind": "norm_valid_task",
+   "slice": "normalisation",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": "CLARIFY_WITH_CUSTOMER",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X070": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "norm_valid_task",
+   "slice": "normalisation",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": "CREATE_SUPPLIER_TASK",
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X071": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands",
+   "lang": "en",
+   "kind": "norm_valid_task",
+   "slice": "normalisation",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": "CLARIFY_WITH_CUSTOMER",
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X072": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X073": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X074": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X075": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X076": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X077": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X078": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X079": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X080": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X081": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X082": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X083": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X084": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X085": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X086": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X087": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_smell",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X088": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X089": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X090": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X091": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X092": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X093": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_base",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X094": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X095": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X096": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X097": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X098": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X099": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_cutout",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X100": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X101": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X102": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X103": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X104": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X105": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_water_ingress",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X106": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X107": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X108": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X109": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X110": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X111": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X112": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X113": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X114": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X115": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_lamp_plain",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X116": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "safety_lamp_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X117": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_lamp_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X118": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "safety_lamp_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X119": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "safety_lamp_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X120": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_kettle_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X121": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X122": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X123": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_kettle_part",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X124": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X125": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X126": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X127": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X128": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X129": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X130": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_gas_refund",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X131": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_gas_repair",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X132": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "safety_gas_repair",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X133": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_gas_repair",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X134": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_gas_repair",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": "HUMAN_REVIEW",
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X135": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_gas_repair",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X136": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "safety_kettle_refund_new",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X137": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "safety_kettle_refund_new",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X138": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "safety_kettle_refund_new",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X139": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "safety_kettle_refund_new",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X140": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "safety_kettle_refund_new",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X141": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_fuse_ja",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X142": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_fuse_ja",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X143": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_fuse_ja",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X144": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "safety_complaint_only",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X145": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "safety_complaint_only",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X146": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "safety_complaint_only",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X147": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "safety_complaint_only",
+   "slice": "safety",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X148": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",
+   "lang": "de",
+   "kind": "unmapped_no_ref",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X149": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",
+   "lang": "ja",
+   "kind": "unmapped_no_ref",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X150": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",
+   "lang": "en",
+   "kind": "unmapped_no_ref",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X151": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "unmapped_no_ref",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X152": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "author-adjudicated (override): guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review.",
+   "lang": "es",
+   "kind": "unmapped_no_ref",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X153": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "unmapped_unknown_product",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X154": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "en",
+   "kind": "unmapped_unknown_product",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X155": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "unmapped_unknown_product",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X156": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "unmapped_unknown_product",
+   "slice": "unmapped",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": true,
+   "flag_for_human_review": true
+  },
+  "X157": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X158": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X159": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X160": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X161": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X162": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "backpack_warranty",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X163": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X164": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X165": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X166": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X167": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X168": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "lowrisk_refund",
+   "slice": "low_risk_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X169": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "lowrisk_complaint_only",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X170": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "lowrisk_complaint_only",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X171": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "lowrisk_complaint_only",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X172": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "lowrisk_complaint_only",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X173": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "lowrisk_complaint_only",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X174": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X175": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X176": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X177": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X178": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X179": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X180": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X181": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X182": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X183": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "buyer_wrong_size",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X184": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X185": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X186": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X187": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X188": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X189": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "buyer_wrong_colour",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X190": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X191": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X192": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X193": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X194": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X195": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "conflict_lamp_colour",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X196": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X197": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X198": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X199": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X200": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X201": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "conflict_typo",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X202": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X203": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X204": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X205": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X206": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X207": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "conflict_shoe_size",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X208": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "conflict_product_not_in_order",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X209": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "conflict_product_not_in_order",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X210": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "conflict_product_not_in_order",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X211": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "conflict_product_not_in_order",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X212": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "conflict_product_not_in_order",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X213": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "other_customer",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X214": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "other_customer",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X215": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "other_customer",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X216": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "other_customer",
+   "slice": "order_conflict",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X217": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X218": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X219": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X220": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X221": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X222": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X223": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X224": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "revision_to_refund",
+   "slice": "intent_revision",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X225": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "revision_ambiguous",
+   "slice": "intent_revision",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X226": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "revision_ambiguous",
+   "slice": "intent_revision",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X227": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "revision_ambiguous",
+   "slice": "intent_revision",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X228": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "revision_ambiguous",
+   "slice": "intent_revision",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X229": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "revision_ambiguous",
+   "slice": "intent_revision",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X230": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "complaint_only_bag",
+   "slice": "complaint_only",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X231": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "complaint_only_bag",
+   "slice": "complaint_only",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X232": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "complaint_only_bag",
+   "slice": "complaint_only",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X233": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "complaint_only_bag",
+   "slice": "complaint_only",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X234": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "complaint_only_bag",
+   "slice": "complaint_only",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X235": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X236": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X237": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X238": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X239": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X240": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X241": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X242": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "availability_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X243": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "policy_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X244": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "policy_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X245": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "policy_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X246": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "policy_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X247": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "policy_q",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X248": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "malformed_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X249": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "malformed_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X250": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "malformed_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X251": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "malformed_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X252": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "malformed_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X253": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "no_order_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X254": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "no_order_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X255": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "no_order_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X256": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "no_order_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X257": {
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [
+    "CLARIFY_WITH_CUSTOMER"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "no_order_ref",
+   "slice": "other",
+   "designed_action": "CLARIFY_WITH_CUSTOMER",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X258": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "jacket_in_stock",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X259": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "jacket_in_stock",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X260": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "jacket_in_stock",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X261": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "jacket_in_stock",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X262": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "jacket_in_stock",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X263": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "socks_final_sale",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X264": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "socks_final_sale",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X265": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "socks_final_sale",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X266": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "socks_final_sale",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X267": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "in_transit",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X268": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "in_transit",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X269": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "in_transit",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X270": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "in_transit",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X271": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "delivered_claims_missing",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X272": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "delivered_claims_missing",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X273": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "delivered_claims_missing",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X274": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "zh-Hant",
+   "kind": "delivered_claims_missing",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X275": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "delivered_claims_missing",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X276": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X277": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X278": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X279": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X280": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X281": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X282": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X283": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "refund_changed_mind",
+   "slice": "other",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X284": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "author-adjudicated: order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands",
+   "lang": "en",
+   "kind": "norm_valid_refund",
+   "slice": "normalisation",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "CLARIFY_WITH_CUSTOMER",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X285": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "norm_valid_refund",
+   "slice": "normalisation",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X286": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "es",
+   "kind": "norm_valid_refund",
+   "slice": "normalisation",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X287": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "norm_valid_refund",
+   "slice": "normalisation",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X288": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X289": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X290": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X291": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X292": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X293": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "gated_class_changed_mind_refund",
+   "slice": "gated_no_malfunction",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X294": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "shoe_warranty_b",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X295": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "shoe_warranty_b",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X296": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "shoe_warranty_b",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X297": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "shoe_warranty_b",
+   "slice": "low_risk_malfunction",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X298": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "exch_shoe_size_b",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X299": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "exch_shoe_size_b",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X300": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "ja",
+   "kind": "exch_shoe_size_b",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X301": {
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [
+    "CREATE_SUPPLIER_TASK"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "exch_shoe_size_b",
+   "slice": "normal_task",
+   "designed_action": "CREATE_SUPPLIER_TASK",
+   "judge_N": "CREATE_SUPPLIER_TASK",
+   "judge_G": "CREATE_SUPPLIER_TASK",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X302": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "buyer_wrong_jacket",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X303": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "zh-Hant",
+   "kind": "buyer_wrong_jacket",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X304": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "es",
+   "kind": "buyer_wrong_jacket",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X305": {
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [
+    "DIRECT_WORKFLOW"
+   ],
+   "source": "judges agree + design",
+   "lang": "de",
+   "kind": "buyer_wrong_jacket",
+   "slice": "buyer_vs_seller",
+   "designed_action": "DIRECT_WORKFLOW",
+   "judge_N": "DIRECT_WORKFLOW",
+   "judge_G": "DIRECT_WORKFLOW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  },
+  "X306": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "de",
+   "kind": "thanks_other",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X307": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "2 of 3 (design + one judge)",
+   "lang": "ja",
+   "kind": "thanks_other",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "CLARIFY_WITH_CUSTOMER",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": true
+  },
+  "X308": {
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [
+    "HUMAN_REVIEW"
+   ],
+   "source": "judges agree + design",
+   "lang": "en",
+   "kind": "thanks_other",
+   "slice": "other",
+   "designed_action": "HUMAN_REVIEW",
+   "judge_N": "HUMAN_REVIEW",
+   "judge_G": "HUMAN_REVIEW",
+   "judge_M_partial": null,
+   "safety_case": false,
+   "flag_for_human_review": false
+  }
+ }
+}

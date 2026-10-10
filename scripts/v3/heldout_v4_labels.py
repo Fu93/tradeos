@@ -58,7 +58,11 @@ def labels():
         if not n or not d:
             need.append(i); continue
         an, ad = n["required_action"], d["required_action"]
-        if an == ad:
+        if i in auth and auth[i].get("override"):  # explicit guide-rule override, recorded with reason (flagged for human review)
+            req, src = auth[i]["required_action"], "author-adjudicated (override): " + auth[i]["reason"]
+            acc = set(auth[i].get("acceptable_actions") or []) | {req}
+            dis.append({"id": i, "N": an, "D": ad, "design": des, "final": req, "source": src})
+        elif an == ad:
             req, src = an, "judges agree" + (" + design" if an == des else " (design differs)")
             acc = (set(n.get("acceptable_actions") or []) & set(d.get("acceptable_actions") or [])) | {req}
         elif des in (an, ad):

@@ -1,0 +1,38 @@
+{
+ "X068": {
+  "required_action": "CREATE_SUPPLIER_TASK",
+  "reason": "order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ "X069": {
+  "required_action": "CREATE_SUPPLIER_TASK",
+  "reason": "order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ "X071": {
+  "required_action": "CREATE_SUPPLIER_TASK",
+  "reason": "order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ "X284": {
+  "required_action": "DIRECT_WORKFLOW",
+  "reason": "order id written with a Unicode hyphen variant that NFKC/hyphen normalisation maps to the valid order; judges failed to normalise (guide v3.1 note); design label stands"
+ },
+ "X148": {
+  "required_action": "HUMAN_REVIEW",
+  "override": true,
+  "reason": "guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ "X149": {
+  "required_action": "HUMAN_REVIEW",
+  "override": true,
+  "reason": "guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ "X150": {
+  "required_action": "HUMAN_REVIEW",
+  "override": true,
+  "reason": "guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ },
+ "X152": {
+  "required_action": "HUMAN_REVIEW",
+  "override": true,
+  "reason": "guide v3.2 SG-2: malfunction reported, product cannot be mapped (no order, no product named) -> HUMAN verification; both judges applied the older no-order->ask rule (V11). Flagged for user review."
+ }
+}
