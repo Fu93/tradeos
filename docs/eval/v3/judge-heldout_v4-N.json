@@ -8997,12 +8997,88 @@
    "required_action": "CREATE_SUPPLIER_TASK",
    "acceptable_actions": [],
    "_latency": 39.31
+  },
+  "X295": {
+   "speech_act_evidence": "請問能否安排 replacement？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "內底脫落且後跟內襯破裂",
+     "issue_type": "DEFECT",
+     "component": "insole and heel lining",
+     "goals": [
+      {
+       "evidence": "請問能否安排 replacement？",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96274",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer requests a replacement for a defective Trail Runner shoe (insole detached, heel lining cracked) under order TO-96274. The product is supplier-dropshipped with a 180‑day supplier warranty; the purchase was 60 days ago, so within warranty. No safety concerns, no order reference issues, and no data conflict. According to the responsibility table (V12), a warranty remedy for a defect with an active supplier warranty triggers a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 441.93
+  },
+  "X303": {
+   "speech_act_evidence": "可否幫我換貨？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "訂單TO-96282訂了M號City雨衣，實際想要S號",
+     "issue_type": "CUSTOMER_ORDERED_WRONG",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "可否幫我換貨？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "您好，我是Ulla，訂單TO-96282訂了M號City雨衣，實際想要S號，可否幫我換貨？謝謝。",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96282",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer admits ordering the wrong size (CUSTOMER_ORDERED_WRONG) and requests an exchange; V10 applies, giving DIRECT_WORKFLOW.",
+   "deciding_rule": "V10",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 24.64
+  },
+  "X307": {
+   "speech_act_evidence": "Zoeです。届くのが早くてびっくり。やかんも大好きです！ありがとう！",
+   "speech_act": "OTHER",
+   "items": [],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The message expresses thanks and positive feedback with no request, question, or problem; no order reference is provided, triggering V11 (no order reference) → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 20.05
   }
  },
  "stats": {
-  "calls": 95,
+  "calls": 98,
   "retries": 107,
-  "prompt_tokens": 621612,
-  "completion_tokens": 290123
+  "prompt_tokens": 641052,
+  "completion_tokens": 299515
  }
 }
