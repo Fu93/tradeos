@@ -8,7 +8,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / "scripts/v3"), str(ROOT / "scripts")]
 import judge_label as jl  # noqa: E402
 from nvclient import STATS, chat, content  # noqa: E402
 
-JUDGES = {"N": "nvidia/nemotron-3-super-120b-a12b", "D": "deepseek-ai/deepseek-v4.1-flash", "M": "meta/muse-glimmer-30b"}
+JUDGES = {"N": "nvidia/nemotron-3-super-120b-a12b", "D": "deepseek-ai/deepseek-v4.1-flash", "M": "meta/muse-glimmer-30b", "G": "google/gemma-4-31b-it"}
 GUIDE = (ROOT / "docs/eval/v3/labelling-guide-v3.2.md").read_text()
 SCHEMA = copy.deepcopy(jl.SCHEMA)
 SCHEMA["properties"]["deciding_rule"]["enum"] = [f"V{i}" for i in range(13)] + ["V4b", "V6b", "SG"]

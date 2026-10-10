@@ -1,0 +1,1439 @@
+{
+ "judge": {
+  "G": "google/gemma-4-31b-it"
+ },
+ "labels": {
+  "X003": {
+   "speech_act_evidence": "Can I swapp them for a size 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "feel a bit tight",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "swapp them for a size 42",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96003",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (feels tight) and requests an exchange for size 42. The order TO-96003 exists and contains the Trail Runner sneakers in size 41. The product is returnable, and the request is within the 30-day window (21 days ago). According to the responsibility table for EXCHANGE (SIZE_MISMATCH), since it is a supplier-dropshipped product and the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 64.44
+  },
+  "X005": {
+   "speech_act_evidence": "Quisiera cambiarlas por talla 39",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "no me quedan",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "cambiarlas por talla 39",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96005",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered size 40, wants size 39). The order TO-96005 exists, belongs to the customer, and contains the product. The product is returnable and the purchase was 9 days ago (within the 30-day window). According to the responsibility table for EXCHANGE (SIZE_MISMATCH), since it is a supplier-dropshipped product and the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 65.1
+  },
+  "X006": {
+   "speech_act_evidence": "Kann ich sie gegen Größe 40 tauschen?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "passen nicht",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "gegen Größe 40 tauschen",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96006",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered size 39, wants size 40). The order TO-96006 exists and contains the product in size 39. The product is supplier-dropshipped and the supplier confirms stock for variants. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), since it is a supplier-dropshipped product and the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 65.6
+  },
+  "X001": {
+   "speech_act_evidence": "Bitte tauschen Sie sie gegen die Größe 40 aus.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "passen leider nicht",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Bitte tauschen Sie sie gegen die Größe 40 aus.",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96001",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered 41, wants 40). The order TO-96001 is valid and contains the product. The product is returnable, the request is within the 30-day window (21 days old), and it is a supplier-dropshipped product. According to the responsibility table (V12), for an exchange of a supplier-dropshipped product where the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 69.41
+  },
+  "X004": {
+   "speech_act_evidence": "我想換成 EU 43，再麻煩你們協助處理換貨。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "尺寸是 EU 44，但試穿後發現不合",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "我想換成 EU 43",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96004",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered 44, wants 43). The order TO-96004 exists, belongs to the customer, and contains the product in size 44. The product is returnable and the purchase was 4 days ago (within the 30-day window). According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock for the target variant, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 71.61
+  },
+  "X002": {
+   "speech_act_evidence": "サイズ42に交換してもらうことは可能でしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "履いてみたのですが、残念ながらフィットしなくて…。",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "サイズ42に交換してもらうことは可能でしょうか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96002",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered 41, wants 42). The order TO-96002 is valid and contains the product. The product is supplier-dropshipped and the supplier confirms stock for variants. According to the responsibility table (V12), for an exchange of a supplier-dropshipped product where the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 96.52
+  },
+  "X007": {
+   "speech_act_evidence": "サイズを一つ上げて EU 41 に交換できればと思います。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "足が少し窮屈に感じてしまいました",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "サイズを一つ上げて EU 41 に交換できればと思います。",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96007",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (too tight) for the Trail Runner sneakers (TO-96007) and requests an exchange for size 41. The product is returnable, the purchase was 9 days ago (within 30 days), and it is a supplier-dropshipped product. According to the responsibility table (V12), for an exchange of a supplier-dropshipped product where the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 73.63
+  },
+  "X009": {
+   "speech_act_evidence": "我想請求將這雙EU尺碼39的Trail Runner換成同款式的EU尺碼38",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "走路時總覺得鞋子在前掌有一點空檔...讓我不太確定是不是尺寸真的合適",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "我想請求將這雙EU尺碼39的Trail Runner換成同款式的EU尺碼38",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96009",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (too large) for the Trail Runner sneakers (Order TO-96009) and requests an exchange for size 38. The product is a supplier-dropshipped item. According to the responsibility table (V12), for an exchange of a dropshipped product where the supplier confirms stock (which they do for this SKU), the required action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 72.89
+  },
+  "X008": {
+   "speech_act_evidence": "Can I swap them for size 40?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "don't fit",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "swap them for size 40",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96008",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the Trail Runner sneakers (ordered size 41, wants size 40). The order TO-96008 is valid and contains the product. The product is returnable and the request is within the 30-day window. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), since it is a supplier-dropshipped product and the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 80.26
+  },
+  "X011": {
+   "speech_act_evidence": "Le agradecería mucho si pudieran enviarme la talla correcta, es decir, la talla 40",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "encontré dentro una zapatilla de trail running, pero al revisar la etiqueta vi que estaba indicada como talla 42, cuando yo había solicitado explícitamente la talla 40",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "enviarme la talla correcta, es decir, la talla 40",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96011",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they received size 42 instead of the size 40 they ordered. Checking the MOCK records for TO-96011, the order contains TRAIL-RUNNER-42 variant 40. The customer's claim is consistent with the record (ordered 40, received 42), so it is a valid WRONG_ITEM_OR_VARIANT claim (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock, the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 73.79
+  },
+  "X012": {
+   "speech_act_evidence": "Bitte schickt mir die 39.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "im Karton war aber Größe 40 – euer Fehler",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Bitte schickt mir die 39.",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96012",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 39 but received size 40. Checking the MOCK records for TO-96012, the order contains TRAIL-RUNNER-42 variant 39. The customer's claim is consistent with the record (C1 v3.1), making it a valid WRONG_ITEM_OR_VARIANT case. The goal is to receive the correct variant (EXCHANGE_VARIANT). The product is supplier-dropshipped and the supplier confirms stock, which leads to a supplier task according to the responsibility table (V12).",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 61.76
+  },
+  "X010": {
+   "speech_act_evidence": "¿se podría hacer un cambio por la misma zapatilla en talla 43?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "me quedan un pelín justas",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "un cambio por la misma zapatilla en talla 43",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96010",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (too tight) and requests an exchange for size 43. The order TO-96010 is valid and contains the product. The product is supplier-dropshipped and the supplier confirms stock for variants. According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock, the action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 101.21
+  },
+  "X013": {
+   "speech_act_evidence": "size 44に交換していただけますか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "size 44を注文しましたが、届いたのはsize 45でした",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "size 44に交換していただけますか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96013",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 44 but received size 45. Checking the MOCK record for TO-96013, the order contains TRAIL-RUNNER-42 variant 44. The customer's claim that they ordered 44 is consistent with the record. The claim that they received 45 is a seller-error claim (WRONG_ITEM_OR_VARIANT). The product is supplier-dropshipped and the supplier confirms stock for the target variant (44). According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock, the action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 40.38
+  },
+  "X014": {
+   "speech_act_evidence": "Can you please send me the correct size 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "I received order TO-96014 for Trail Runner sneakers size 42, but the pair inside is size 41",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can you please send me the correct size 42?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96014",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims a seller error (received 41 instead of ordered 42). This is consistent with the MOCK record for TO-96014 (ordered size 42). The product is supplier-dropshipped and the supplier confirms stock. According to C1 and the responsibility table for EXCHANGE (WRONG_ITEM_OR_VARIANT), this requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 42.9
+  },
+  "X016": {
+   "speech_act_evidence": "¿Me pueden enviar la talla 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "pedí las Trail Runner en talla 42 y me llegó la talla 44. Fue un error de ustedes.",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Me pueden enviar la talla 42?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96016",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims a seller error (ordered 42, received 44). Checking MOCK records for TO-96016: the order contains TRAIL-RUNNER-42, which is consistent with the customer's claim of what they ordered. The product is supplier-dropshipped and the supplier confirms stock. According to C1 and the responsibility table for EXCHANGE (WRONG_ITEM_OR_VARIANT), this requires a supplier task to confirm the error and send the correct variant.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 51.1
+  },
+  "X018": {
+   "speech_act_evidence": "サイズ43の商品と交換いただけますでしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "注文いたしましたが、本日届いた商品はサイズ44となっておりました。お手違いかと存じます。",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "サイズ43の商品と交換いただけますでしょうか。",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96018",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 43 but received size 44. Checking the MOCK record for TO-96018, the order contains TRAIL-RUNNER-42 variant 43. The claim is consistent with the record (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a dropshipped product where the supplier confirms stock, the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 34.63
+  },
+  "X015": {
+   "speech_act_evidence": "麻煩能幫我換成正確的 41 號嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "我買了 Trail Runner 運動鞋尺寸 41，但收到的盒子裡竟然是尺寸 40（店家烏龍）",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "幫我換成正確的 41 號",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96015",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 41 but received size 40. Checking the MOCK record for TO-96015, the order contains TRAIL-RUNNER-42 variant 41. The customer's claim is consistent with the record (ordered 41, received something else). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT on a supplier-dropshipped product where the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 69.78
+  },
+  "X021": {
+   "speech_act_evidence": "could you send me the correct one and let me know how to return the white lamp?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "Ordené la lámpara LED de escritorio negra (order TO-96021) pero me llegó una blanca",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "quisiera cambiarla por la negra que solicité",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "let me know how to return the white lamp",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96021",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a black lamp but received a white one. Checking the MOCK records for TO-96021, the order contains a black DESK-LAMP. The claim is consistent with the record (C1 v3.1). The product is a supplier-dropshipped item. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a supplier-dropshipped product where the supplier confirms stock (which they do for DESK-LAMP), the action is to create a supplier task to confirm and send the correct variant.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 32.43
+  },
+  "X019": {
+   "speech_act_evidence": "Could you please send the correct size 43?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "ordered Trail Runner sneakers size 43 (order TO-96019) but received size 44",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Could you please send the correct size 43?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96019",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims a seller error (ordered 43, received 44). Checking MOCK records for TO-96019: the order contains TRAIL-RUNNER-42 variant 43. The claim is consistent with the record (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT on a supplier-dropshipped product where the supplier confirms stock, the action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 52.29
+  },
+  "X020": {
+   "speech_act_evidence": "可以幫我換成正確的 size 42 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "Trail Runner sneakers",
+     "issue_evidence": "我訂的是 Trail Runner 鞋款，尺寸 42，但收到的盒子裡卻是尺寸 41",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "可以幫我換成正確的 size 42 嗎？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96020",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 42 but received size 41. Checking MOCK records for TO-96020: the order contains TRAIL-RUNNER-42 (size 42), which is consistent with the customer's claim of what they ordered. The claim of receiving size 41 is a seller error (WRONG_ITEM_OR_VARIANT). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock, the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 51.29
+  },
+  "X022": {
+   "speech_act_evidence": "Könnten Sie mir bitte die bestellte schwarze Lampe zusenden?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "Bestellt hatte ich die LED-Schreibtischlampe in Schwarz, geliefert wurde mir jedoch die Lampe in Weiß.",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnten Sie mir bitte die bestellte schwarze Lampe zusenden?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96022",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a black lamp but received a white one. Checking the MOCK records for TO-96022, the order contains a black DESK-LAMP. The claim is consistent with the record (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), an exchange for a wrong variant of a supplier-dropshipped product where the supplier confirms stock requires a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 33.5
+  },
+  "X023": {
+   "speech_act_evidence": "ブラックのものに交換してもらえますか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "注文番号TO-96023でブラックのLEDデスクランプを注文したのですが、届いたのはホワイトのものでした。",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "ブラックのものに交換してもらえますか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96023",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a black lamp but received a white one. Checking the MOCK records for TO-96023, the order contains a black DESK-LAMP. The claim is consistent with the record (C1 v3.1). The product is a supplier-dropshipped item. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a supplier-dropshipped product where the supplier confirms stock (which they do for DESK-LAMP), the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 25.87
+  },
+  "X017": {
+   "speech_act_evidence": "Könntet ihr mir bitte das richtige Paar schicken?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "in Größe 40 bestellt, aber im Paket lag Größe 41",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könntet ihr mir bitte das richtige Paar schicken?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96017",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered size 40 but received size 41. Checking the MOCK records for TO-96017, the order contains TRAIL-RUNNER-42 variant 40. The claim is consistent with the record (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT on a supplier-dropshipped product where the supplier confirms stock, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 104.76
+  },
+  "X024": {
+   "speech_act_evidence": "Can you send me the black one?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "I ordered the black LED desk lamp but received a white one",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can you send me the black one?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96024",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered black but received white. Checking MOCK records for TO-96024: the order contains DESK-LAMP variant black. The claim is consistent with the record (C1 v3.1). The product is a DESK-LAMP (safety_class MAINS_ELECTRIC), but the issue is a wrong variant, not a malfunction, so SG-1 does not apply. The goal is EXCHANGE_VARIANT. According to the responsibility table (V12), for a supplier-dropshipped product where the supplier confirms stock (which they do for DESK-LAMP), the action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 35.82
+  },
+  "X028": {
+   "speech_act_evidence": "blackのものに交換していただけますか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "blackのLEDデスクランプを注文したのですが、届いたのはwhiteでした",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "blackのものに交換していただけますか？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96028",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a black lamp but received a white one. Checking MOCK records for TO-96028: the order contains DESK-LAMP variant black. The claim is consistent with the record (C1 v3.1). The product is a supplier-dropshipped item. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a supplier-dropshipped product, if the supplier confirms stock (which they do for DESK-LAMP), the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 27.53
+  },
+  "X027": {
+   "speech_act_evidence": "Könnt ihr mir bitte die richtige Farbe zusenden?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "habe ich die weiße LED‑Schreibtischlampe bestellt, aber eine schwarze bekommen",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "ich würde gern die weiße erhalten",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96027",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a white lamp but received a black one. Checking the MOCK records for TO-96027, the order contains a white DESK-LAMP. The claim is consistent with the record (C1 v3.1). The product is supplier-dropshipped and the supplier confirms stock for the target variant (white). According to the responsibility table (V12), this requires a supplier task to confirm and send the correct variant.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 33.85
+  },
+  "X030": {
+   "speech_act_evidence": "¿Se podría hacer un cambio por la talla L?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "me queda bastante ajustada, más de lo que esperaba",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Se podría hacer un cambio por la talla L?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96030",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the City rain jacket (ordered M, wants L). The order TO-96030 is valid and contains the product. The target variant (L) is currently out of stock in the merchant warehouse (0 units), but the catalogue indicates the supplier restocks this product on request. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), if the merchant is out of stock and the supplier restocks on request, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 33.0
+  },
+  "X031": {
+   "speech_act_evidence": "würde ich die Jacke sehr gerne gegen die gleiche Variante in Größe L austauschen",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "beim Anziehen doch irgendwie etwas eng sitzt, insbesondere über den Schultern und im Brustbereich",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "würde ich die Jacke sehr gerne gegen die gleiche Variante in Größe L austauschen",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96031",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (too tight) for the City rain jacket (CITY-JACKET) and requests an exchange for size L. The order TO-96031 is valid and contains the product. The product is a merchant-warehouse item. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), if the target variant (L) is in stock, the action is DIRECT_WORKFLOW. However, the merchant inventory shows CITY-JACKET/L=0. The responsibility table then states that if it is out of stock and the supplier restocks on request, the action is CREATE_SUPPLIER_TASK. The catalogue for CITY-JACKET confirms 'restocks on request=True'.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 30.1
+  },
+  "X029": {
+   "speech_act_evidence": "請問可以換成 L 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "穿起來偏緊",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "可以換成 L 嗎？",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96029",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (too tight) for the City rain jacket in order TO-96029 and requests an exchange for size L. The order exists and contains the product. The product is a merchant-warehouse item. According to the responsibility table (V12), for an exchange of a merchant-warehouse product, if the target variant (L) is in stock, the action is DIRECT_WORKFLOW. However, the merchant inventory shows CITY-JACKET/L=0. The responsibility table states that if it is out of stock and the supplier restocks on request, the action is CREATE_SUPPLIER_TASK. The catalogue confirms that for CITY-JACKET, 'restocks on request=True'.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 37.11
+  },
+  "X025": {
+   "speech_act_evidence": "請幫我換成白色的",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "訂購白色LED檯燈，卻收到黑色的",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請幫我換成白色的",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96025",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims they ordered a white lamp but received a black one. Checking the MOCK records for TO-96025, the order was indeed for the 'white' variant. The claim is consistent with the record (C1 v3.1). The product is a DESK-LAMP, which is a supplier-dropshipped product. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a supplier-dropshipped product where the supplier confirms stock (which they do for DESK-LAMP), the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 87.1
+  },
+  "X035": {
+   "speech_act_evidence": "Koennt ihr sie bitte nochmal schiicken?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "die is nie angekommen",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Koennt ihr sie bitte nochmal schiicken?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96035",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) for order TO-96035 and requests a reshipment. The order exists and belongs to the customer. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 33.79
+  },
+  "X033": {
+   "speech_act_evidence": "I was wondering if it would be possible to exchange the size M for a size L of the same City rain jacket.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "the fit felt a bit snug across the shoulders and the sleeves were a little short",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "exchange the size M for a size L of the same City rain jacket",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96033",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the City rain jacket (ordered M, wants L). The order TO-96033 is valid and contains the product. The target variant (L) is currently out of stock in the merchant warehouse (inventory = 0), but the catalogue indicates the supplier restocks this product on request. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), if the merchant is out of stock and the supplier restocks on request, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 36.76
+  },
+  "X032": {
+   "speech_act_evidence": "Lサイズに交換していただけますか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "サイズがかなりきつくて着られません",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Lサイズに交換していただけますか",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96032",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch for the City rain jacket (CITY-JACKET) and requests an exchange for size L. The order TO-96032 is valid and contains the product in size M. The target variant (L) is currently out of stock in the merchant warehouse (inventory = 0), but the catalogue indicates the supplier restocks this product on request. According to the responsibility table for EXCHANGE (SIZE_MISMATCH), if the merchant is out of stock and the supplier restocks on request, a supplier task is required.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 66.16
+  },
+  "X034": {
+   "speech_act_evidence": "想請問可以 exchange 成 L size 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CITY-JACKET",
+     "issue_evidence": "收到的 M size 穿起來有點太緊",
+     "issue_type": "SIZE_MISMATCH",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "exchange 成 L size",
+       "goal": "EXCHANGE_VARIANT"
+      },
+      {
+       "evidence": "麻煩幫我確認一下流程",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96034",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a size mismatch (M is too tight) and requests an exchange for size L. The order TO-96034 is valid and contains the City rain jacket in size M. The product is a merchant-warehouse item. According to the responsibility table (V12), for an exchange of a merchant-warehouse product, if the target variant (L) is in stock, it is a DIRECT_WORKFLOW. However, the merchant inventory shows CITY-JACKET/L=0. The table then states that if it is out of stock and the supplier restocks on request, it is a CREATE_SUPPLIER_TASK. The catalogue for CITY-JACKET confirms 'restocks on request=True'.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 45.23
+  },
+  "X026": {
+   "speech_act_evidence": "¿Se puede hacer el cambio por la correcta?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "Pedí la lámpara de escritorio LED negra y me mandaron la blanca",
+     "issue_type": "WRONG_ITEM_OR_VARIANT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "¿Se puede hacer el cambio por la correcta?",
+       "goal": "EXCHANGE_VARIANT"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "La lampara funciona bien",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96026",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer claims a wrong variant was sent (ordered black, received white). Checking MOCK records for TO-96026: the order contains DESK-LAMP variant black. The claim is consistent with the record (C1 v3.1). The product is a supplier-dropshipped item. According to the responsibility table (V12), for a WRONG_ITEM_OR_VARIANT claim on a supplier-dropshipped product where the supplier confirms stock (which they do for DESK-LAMP), the action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 114.83
+  },
+  "X038": {
+   "speech_act_evidence": "想請問是否能協助重新寄送",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "我訂購的桌燈至今尚未收到",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "協助重新寄送",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96038",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment for a missing desk lamp (TO-96038). The order exists and belongs to the customer. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships, the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 36.48
+  },
+  "X036": {
+   "speech_act_evidence": "同じデスクライトを再送していただくことは可能でしょうか。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "そのデスクライトがまだ手元に届いていません",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "同じデスクライトを再送していただくことは可能でしょうか",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96036",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) for order TO-96036 and requests a reshipment. The MOCK record for TO-96036 shows the logistics status as LOST. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is dropshipped (DESK-LAMP is SUPPLIER_DROPSHIP) and the status is LOST, the correct action is to create a supplier task for the supplier to reship.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 57.01
+  },
+  "X041": {
+   "speech_act_evidence": "再発送をお願いします。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "デスクランプが届きません。追跡が1週間前に止まっています。",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "再発送をお願いします。",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96041",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment of a desk lamp that has not arrived. The order TO-96041 exists and contains the DESK-LAMP. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), for a supplier-dropshipped product where the status is LOST and the supplier reships, the required action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 29.76
+  },
+  "X037": {
+   "speech_act_evidence": "Could you please arrange to send a replacement or investigate the delivery?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "The shipment has not arrived",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "arrange to send a replacement",
+       "goal": "RESHIP"
+      },
+      {
+       "evidence": "investigate the delivery",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96037",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) for order TO-96037. The MOCK record shows the logistics status is LOST. The product is supplier-dropshipped and the supplier reships (supplier reships=True). According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), if the status is LOST and it is dropshipped with supplier reshipping, the action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 71.7
+  },
+  "X040": {
+   "speech_act_evidence": "wäre es sehr hilfreich, wenn Sie mir die Lampe noch einmal zusenden könnten, alternativ auch eine Rückerstattung veranlassen könnten",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "zeigte das Tracking bereits eine Woche vor dem erwarteten Zustelldatum keinerlei Aktualisierung mehr an – es blieb einfach bei „Versand bestätigt“ stehen",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "wenn Sie mir die Lampe noch einmal zusenden könnten",
+       "goal": "RESHIP"
+      },
+      {
+       "evidence": "alternativ auch eine Rückerstattung veranlassen könnten",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96040",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (DESK-LAMP) for order TO-96040. The MOCK record confirms the order exists, belongs to the customer, and the logistics status is 'LOST'. The customer requests either a reshipment or a refund. Because the item is a DESK-LAMP (safety_class MAINS_ELECTRIC), I check the Safety Gate (SG-1). However, the issue is a missing item (fulfilment), not a malfunction/defect, so the safety gate does not trigger. The customer has provided two actionable goals from different families (FULFILMENT and REFUND), which triggers rule V7 (mixed goals).",
+   "deciding_rule": "V7",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 68.01
+  },
+  "X042": {
+   "speech_act_evidence": "Can you please send it again?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "never arrived and tracking stopped a week ago",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can you please send it again?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96042",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment of a desk lamp that never arrived. The order TO-96042 exists, belongs to the customer, and the logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships, the required action is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 41.4
+  },
+  "X043": {
+   "speech_act_evidence": "Könnt ihr mir bitte noch einen zusenden?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "er kommt einfach nicht an, das Tracking bleibt stehen",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könnt ihr mir bitte noch einen zusenden?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96043",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is reporting a missing item (kettle) for order TO-96043 and requesting a reshipment. The order exists and contains the BREW-KETTLE. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is from the merchant warehouse and there is stock (6 units), the action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 40.04
+  },
+  "X047": {
+   "speech_act_evidence": "les agradecería mucho si podrían enviarme una unidad de reemplazo lo antes posible",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "el seguimiento se quedó congelado y no hay actualizaciones desde que salió del almacén",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "enviarme una unidad de reemplazo lo antes posible",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96047",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (Electric kettle) for order TO-96047. The MOCK record for TO-96047 shows the logistics status as LOST. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), if the status is LOST and the product is a merchant warehouse product (BREW-KETTLE is MERCHANT_WAREHOUSE) with stock available (6 in stock), the required action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 13.63
+  },
+  "X048": {
+   "speech_act_evidence": "商品を再送してください。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "まだ届きません",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "商品を再送してください",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96048",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (sneakers) for order TO-96048 and requests a reshipment. The order exists and contains the Trail Runner sneakers. The logistics status is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the product is supplier-dropshipped and the supplier reships (supplier reships=True), the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 18.73
+  },
+  "X044": {
+   "speech_act_evidence": "代わりの電気ケトルを送ってください。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "まだ届いていません",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "代わりの電気ケトルを送ってください",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96044",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (Electric kettle) for order TO-96044 and requests a reshipment. The MOCK record for TO-96044 shows the item is 'LOST'. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the item is merchant-warehouse and there is stock (6 units), the action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 57.08
+  },
+  "X045": {
+   "speech_act_evidence": "Could you please send a replacement?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "hasn't arrived; tracking is frozen",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "send a replacement",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96045",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a missing item (Electric kettle) for order TO-96045. The MOCK record for TO-96045 shows the item is 'LOST'. The product is fulfilled by MERCHANT_WAREHOUSE and there is stock available (6 units). According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), if the status is LOST and it is a merchant warehouse product with stock, the action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V12",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 30.7
+  },
+  "X049": {
+   "speech_act_evidence": "Could you please resend them?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "TRAIL-RUNNER-42",
+     "issue_evidence": "still haven’t arrived—tracking has been stuck for ten days",
+     "issue_type": "MISSING_ITEM",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Could you please resend them?",
+       "goal": "RESHIP"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": null,
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96049",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer is requesting a reshipment of sneakers from order TO-96049 which have not arrived. The MOCK record for TO-96049 shows the item TRAIL-RUNNER-42 with logistics status LOST. According to the responsibility table for FULFILMENT (RESHIP of MISSING_ITEM), since the status is LOST and the product is supplier-dropshipped with 'supplier reships=True', the required action is to create a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 12.2
+  }
+ },
+ "stats": {
+  "calls": 47,
+  "retries": 0,
+  "prompt_tokens": 301942,
+  "completion_tokens": 18088
+ }
+}
