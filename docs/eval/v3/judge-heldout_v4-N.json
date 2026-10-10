@@ -2518,12 +2518,400 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 46.45
+  },
+  "X134": {
+   "speech_act_evidence": "Can you fix it?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "very uneven flame",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Can you fix it?",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "very uneven flame",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96134",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance defect (uneven flame) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 22.25
+  },
+  "X145": {
+   "speech_act_evidence": "Hola, soy Bea. El hervidor eléctrico que pedí (order TO-96145) tiene 150 días y ya no calienta, pura frustration, me deja sin café cada mañana, ugh.",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "ya no calienta",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "ya no calienta",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96145",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The product is a MAINS_HEATING kettle reporting malfunction (does not heat); safety gate SG-1 applies, leading to HUMAN_REVIEW per V1.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 26.07
+  },
+  "X131": {
+   "speech_act_evidence": "Necesito un reemplazo.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "El encendedor hace clic pero no enciende.",
+     "issue_type": "DEFECT",
+     "component": "igniter",
+     "goals": [
+      {
+       "evidence": "Necesito un reemplazo.",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "El encendedor hace clic pero no enciende.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96131",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance defect (igniter fails to light) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 21.01
+  },
+  "X141": {
+   "speech_act_evidence": "注文番号TO-96141の商品を交換品にしていただけますでしょうか。可能であれば同じ型番の新しいものを送っていただけると助かります。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "すぐにブレーカーが落ちてしまって、ふと見てみるとfuseが切れているのがわかりました。それ以来、何度試しても同じようにスイッチを入れるとすぐfuseが飛んでしまい",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "注文番号TO-96141の商品を交換品にしていただけますでしょうか。可能であれば同じ型番の新しいものを送っていただけると助かります。",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "すぐにブレーカーが落ちてしまって、ふと見てみるとfuseが切れているのがわかりました。それ以来、何度試しても同じようにスイッチを入れるとすぐfuseが飛んでしまい",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96141",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE (blown fuse/tripped breaker) triggers V1, requiring HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 27.87
+  },
+  "X140": {
+   "speech_act_evidence": "請幫我辦理退款",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "插電後燈會亮，但完全不會加熱，水一直都是冷的，根本沒辦法用",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請幫我辦理退款",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96140",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "According to decision table V8, the only action family is REFUND, so required_action is DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 38.22
+  },
+  "X146": {
+   "speech_act_evidence": "Inzwischen macht er einfach gar nichts mehr, wenn ich den Knopf drücke. Kein Heizen, kein Gluckern, nichts. Das Licht geht noch kurz an und dann ist wieder Stille.",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "Inzwischen macht er einfach gar nichts mehr, wenn ich den Knopf drücke. Kein Heizen, kein Gluckern, nichts. Das Licht geht noch kurz an und dann ist wieder Stille.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Inzwischen macht er einfach gar nichts mehr, wenn ich den Knopf drücke. Kein Heizen, kein Gluckern, nichts. Das Licht geht noch kurz an und dann ist wieder Stille.",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96146",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer describes a defective kettle with no explicit request or question, making the speech act COMPLAINT_ONLY. According to the decision table, rule V6b applies (complaint only → clarify what they want), so the required action is CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V6b",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 27.39
+  },
+  "X136": {
+   "speech_act_evidence": "Quisiera pedir un refund, por favor.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "La luz se enciende pero no pasa nada, no calienta.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Quisiera pedir un refund, por favor.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96136",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Only refund requested; safety NONE; no data conflict; matches V8 -> DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 62.44
+  },
+  "X117": {
+   "speech_act_evidence": "Ich würde Sie höflich bitten, mir ein Ersatzteil für das defekte LED-Modul zuzusenden.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP (LED desk lamp) variant white",
+     "issue_evidence": "das LED-Modul selbst (Teil DL-LED-5W) defekt ist",
+     "issue_type": "DEFECT",
+     "component": "DL-LED-5W",
+     "goals": [
+      {
+       "evidence": "mir ein Ersatzteil für das defekte LED-Modul zuzusenden",
+       "goal": "SEND_PART"
+      },
+      {
+       "evidence": "Falls Sie zusätzliche Informationen benötigen oder mir eventuell eine kurze Anleitung zum Austausch des Moduls zusenden könnten",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "das Licht plötzlich flackerte und schließlich ganz ausging; das LED-Modul selbst (Teil DL-LED-5W) defekt ist",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96117",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "DL-LED-5W"
+   ],
+   "reasoning": "Safety POSSIBLE due to mains electric defect (flickering LED module) triggers V1 (safety first) → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 73.16
+  },
+  "X121": {
+   "speech_act_evidence": "please send part KL-170-LID",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE lid",
+     "issue_evidence": "lid won’t lock",
+     "issue_type": "DEFECT",
+     "component": "KL-170-LID",
+     "goals": [
+      {
+       "evidence": "please send part KL-170-LID",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "lid won’t lock",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96121",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Safety POSSIBLE due to malfunction of gated product (MAINS_HEATING) triggers V1 -> HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 381.12
+  },
+  "X120": {
+   "speech_act_evidence": "できればフタだけを交換していただけると助かります。部品名は「KL-170-LID」とのことです。注文番号は「TO-96120」です。どうかよろしくお願いいたします。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "ケトルのフタがきちんとロックされなくなってしまいました。最初は軽く押せばカチッと音がしていたのですが、今では押してもすぐに浮いてしまうような状態です。そのせいで、お湯が沸騰しても自動で電源が切れず、そのまま加熱し続けてしまうことがあります。",
+     "issue_type": "DEFECT",
+     "component": "フタ",
+     "goals": [
+      {
+       "evidence": "できればフタだけを交換していただけると助かります。部品名は「KL-170-LID」とのことです。",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "一度、うっかり目を離してしまい、危うく空焚きしかけたこともあり、少し怖い思いをしました。安全面でも心配ですし",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96120",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "Safety POSSIBLE (risk of overheating due to lid not locking) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 62.48
+  },
+  "X153": {
+   "speech_act_evidence": "交換できるでしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "ドライヤー",
+     "issue_evidence": "急に壊れてしまって",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "交換できるでしょうか？",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer reports a defective hair dryer and asks for exchange, but provides no order reference, requiring clarification per V11.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 24.99
+  },
+  "X144": {
+   "speech_act_evidence": "嗨，我是 Akira，純粹來碎念一下，不用特別處理沒關係。我那台電熱水壺，訂單編號 TO-96144，大概買了 150 天左右，今天突然就不加熱了，按下去水還是冷吱吱，心也跟著涼了。本來還想說可以用久一點，結果這麼快就罷工，吼唷～真的有點阿雜。好，發洩完畢。",
+   "speech_act": "COMPLAINT_ONLY",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "今天突然就不加熱了，按下去水還是冷吱吱",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "今天突然就不加熱了，按下去水還是冷吱吱",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96144",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety gate applies: product BREW-KETTLE is MAINS_HEATING and customer reports malfunction (not heating), requiring human review despite complaint-only speech act and no explicit goals.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 104.2
+  },
+  "X128": {
+   "speech_act_evidence": "我只想要退款就好，再麻煩你們協助處理退貨退款事宜。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "瓦斯閥或控制旋鈕鬆鬆的，轉起來沒有很牢固，感覺會晃動。",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "我只想要退款就好，再麻煩你們協助處理退貨退款事宜。",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [
+    "EXCHANGE_VARIANT",
+    "REPAIR"
+   ],
+   "safety_evidence": "瓦斯閥或控制旋鈕鬆鬆的，轉起來沒有很牢固，感覺會晃動。",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96128",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas‑appliance defect (valve/knob loose) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 37.05
   }
  },
  "stats": {
-  "calls": 82,
-  "retries": 679,
-  "prompt_tokens": 538824,
-  "completion_tokens": 257535
+  "calls": 95,
+  "retries": 748,
+  "prompt_tokens": 624751,
+  "completion_tokens": 296247
  }
 }
