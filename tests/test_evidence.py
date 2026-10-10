@@ -127,3 +127,7 @@ def test_real_client_keeps_success_debug_id_never_token():
     pp = PayPalClient("id", "s", "https://api-m.sandbox.paypal.com", transport=httpx.MockTransport(handler))
     assert pp.get_refund("R1")["status"] == "COMPLETED"
     assert pp.last_debug_id == "dbg123"
+
+
+def test_reason_not_shown_once_completed():
+    assert status_words("COMPLETED", {"reason": "ECHECK"}).startswith("COMPLETED") and "ECHECK" not in status_words("COMPLETED", {"reason": "ECHECK"})

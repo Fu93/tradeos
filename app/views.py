@@ -364,7 +364,7 @@ STATUS_REASONS = {"ECHECK": "ECHECK (eCheck; settles in a few days)"}
 def status_words(status: str | None, details: dict | None = None) -> str:
     words = REFUND_STATUS_WORDS.get(status or "", status or "")
     reason = (details or {}).get("reason")
-    if reason:
+    if reason and status in ("PENDING", "FAILED"):  # per Payments v2: reason explains PENDING/FAILED only
         words += f" · reason {STATUS_REASONS.get(reason, reason)}"
     return words
 
