@@ -54,11 +54,12 @@ def test_log_is_in_call_order_and_summary_is_short(app_ctx):
     summary = {r["label"]: r["value"] for r in evidence_summary(wf.db, wf.db.get_case(case_id))}
     assert len(summary) <= 4
     assert summary["PayPal refund"].startswith(rid) and "COMPLETED" in summary["PayPal refund"]
-    assert summary["PayPal-Debug-Id"].startswith("mock-debug-")
-    assert summary["Signed webhook"].startswith("verified · event") and "1 duplicate ignored" in summary["Signed webhook"]
+    assert summary["PayPal trace ID"].startswith("mock-debug-")
+    assert summary["Signed PayPal notice"].startswith("signature verified with PayPal")
+    assert "1 duplicate ignored" in summary["Signed PayPal notice"]
     html = client.get(f"/?case={case_id}").text
     assert "PayPal evidence" in html and "Show details" in html and f"tradeos-refund-{case_id}" in html
-    assert "MOCK PayPal" in html
+    assert "MOCK PayPal" in html and "What PayPal itself reported for this case" in html
     section = html[html.index('id="evidence"'):html.index('<!-- AI understanding -->')]
     for s in SECRETS:
         assert s not in section
@@ -79,7 +80,7 @@ def test_blocked_case_shows_no_refund_call(app_ctx):
     rows = evidence_log(wf.db, case_id)
     assert not any(r["what"] == "Refund capture" for r in rows)
     summary = evidence_summary(wf.db, wf.db.get_case(case_id))
-    assert summary[0]["value"] == "Refund API not called"
+    assert summary[0]["value"] == "No refund requested from PayPal"
 
 
 def test_failed_refund_shows_debug_id_and_issue(app_ctx):

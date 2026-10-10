@@ -106,11 +106,11 @@ def test_view_does_not_reconcile_final_states(app_ctx):
         client.get(f"/?case={case_id}")
     pp.get_refund.assert_not_called()  # button-only for COMPLETED cases
     html = client.get(f"/?case={case_id}").text
-    assert "Reconcile with PayPal" in html and "not yet" in html
+    assert "Check against PayPal" in html and "not yet" in html
     client.post(f"/cases/{case_id}/refresh-refund", follow_redirects=False)
     assert pp.get_refund.call_count == 1 and pp.refund_capture.call_count == 1
     summary = {r["label"]: r for r in evidence_summary(wf.db, wf.db.get_case(case_id))}
-    assert summary["Reconciled with PayPal"]["ok"] and summary["Reconciled with PayPal"]["value"].startswith("all match")
+    assert summary["Checked against PayPal"]["ok"] and summary["Checked against PayPal"]["value"].startswith("all match")
 
 
 def test_view_reconciles_pending_at_most_every_30s(settings):
@@ -268,3 +268,17 @@ def test_pending_demo_and_mock_webhook_unavailable_outside_mock(settings):
     client = TestClient(create_app(settings=settings, extractor=KeywordIntentExtractor()))
     assert client.post("/demo/run/P", follow_redirects=False).status_code == 404
     assert client.post("/demo/mock-webhook/A-XXXX", follow_redirects=False).status_code == 404
+
+
+def test_reconcile_throttle_map_is_bounded_and_reset_clears_it(app_ctx, monkeypatch):
+    import app.workflow as w
+    client, _, wf = app_ctx
+    monkeypatch.setattr(w, "MAX_TRACKED_CASES", 3)
+    for i in range(10):
+        wf._reconciled[f"X{i}"] = float(i)
+    case_id = case_from(client.post("/demo/run/P", follow_redirects=False))
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    client.get(f"/?case={case_id}")  # PENDING -> view trigger records the case
+    assert len(wf._reconciled) <= 3 and case_id in wf._reconciled
+    client.post("/demo/reset", follow_redirects=False)
+    assert wf._reconciled == {}

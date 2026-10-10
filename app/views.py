@@ -447,30 +447,30 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
     elif refund_calls:
         rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
     else:
-        rows.append({"label": "PayPal refund", "value": "Refund API not called", "ok": None})
+        rows.append({"label": "PayPal refund", "value": "No refund requested from PayPal", "ok": None})
     last = (refund_calls or calls or [None])[-1]
     if last and last.get("debug_id"):
-        rows.append({"label": "PayPal-Debug-Id", "value": f"{last['debug_id']} ({OPERATION_LABELS.get(last['operation'], last['operation']).lower()})",
+        rows.append({"label": "PayPal trace ID", "value": f"{last['debug_id']} — PayPal's debug id for the {OPERATION_LABELS.get(last['operation'], last['operation']).lower()} call; PayPal support can look it up",
                      "ok": None})
     if case.get("refund_id"):
         events = db.webhook_events(case["id"])
         verified = [e for e in events if e["verified"]]
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
-            value = f"verified · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
-            rows.append({"label": "Signed webhook", "value": value, "ok": True})
+            value = f"signature verified with PayPal · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
         else:
-            rows.append({"label": "Signed webhook", "value": "waiting…" if webhook_configured else
-                         "not configured (PAYPAL_WEBHOOK_ID)", "ok": None})
+            rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else
+                         "webhook not set up on this server", "ok": None})
     recs = [e for e in db.timeline(case["id"]) if e["stage"] == "reconcile"]
     if recs:
         last_rec = recs[-1]
-        rows.append({"label": "Reconciled with PayPal",
+        rows.append({"label": "Checked against PayPal",
                      "value": last_rec["title"].replace("Reconciled with PayPal — ", "").replace("Reconciliation ", "")
                      + f" · {fmt_time(last_rec['ts'])}",
                      "ok": bool((last_rec.get("detail") or {}).get("ok"))})
     elif case.get("capture_id"):
-        rows.append({"label": "Reconciled with PayPal", "value": "not yet — press “Reconcile with PayPal”", "ok": None})
+        rows.append({"label": "Checked against PayPal", "value": "not yet — press “Check against PayPal”", "ok": None})
     return rows
 
 
@@ -527,7 +527,7 @@ def failure_modes(db: Database, mock: bool = False) -> list[dict]:
         tiles.append({
             "key": "P", "title": "Pending refund (MOCK)", "action": ("run", "P"),
             "expect": "MOCK PayPal only: the refund comes back PENDING (eCheck) and settles ~20 s later. "
-                      "Never shown as success until PayPal says COMPLETED — via “Reconcile with PayPal” or a signed webhook.",
+                      "Never shown as success until PayPal says COMPLETED — via “Check against PayPal” or a signed webhook.",
             "case": p,
             "result": None if not p or p["status"] == "NEW" else p["status"].replace("_", " "),
             "ok": bool(p) and p.get("refund_status") == "COMPLETED",

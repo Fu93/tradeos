@@ -154,7 +154,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/demo/reset")
     def reset_demo():
-        db.init(reset=True)
+        db.init(reset=True)  # drops cases, audit, PayPal call log and webhook_events
+        wf.reset_runtime_state()
         wf.seed_demo()
         return RedirectResponse("/", status_code=303)
 

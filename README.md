@@ -217,13 +217,40 @@ SQLite audit timeline + PayPal call log  ◄── signed PayPal webhook PAYMENT
 | `POST /v1/oauth2/token` | Client-credentials access token (cached) |
 | `POST /v2/checkout/orders` | Create a USD 49.99 order, `intent: CAPTURE`, paid with a PayPal **sandbox test card** (`payment_source.card`) so it captures without a buyer login |
 | `POST /v2/checkout/orders/{id}/capture` | Capture (fallback path when card capture is unavailable: the dashboard shows the buyer approve link, PayPal redirects back, TradeOS captures) |
-| `GET /v2/payments/captures/{id}` | Real capture status / amount / currency → policy engine input |
+| `GET /v2/payments/captures/{id}` | Real capture status / amount / currency → policy engine input (incl. what PayPal says is already refunded); also used by “Check against PayPal” |
 | `POST /v2/payments/captures/{id}/refund` | Full refund (no amount) with an idempotent `PayPal-Request-Id` derived from the case ID, plus `note_to_payer` (grounded customer note, ≤ 255 chars). Failure demo: `PayPal-Mock-Response` negative-testing header (sandbox only) |
-| `GET /v2/payments/refunds/{id}` | Refresh a `PENDING` refund (pending is never shown as success) |
+| `GET /v2/payments/refunds/{id}` | Refresh a `PENDING` refund and check the refund against PayPal (pending is never shown as success) |
 | `POST /v1/notifications/verify-webhook-signature` | Verify the `PAYMENT.CAPTURE.REFUNDED` webhook before trusting it |
 | `GET/POST /v1/notifications/webhooks` | One-off registration (`scripts/register_webhook.py`) |
 
 PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case and shown in the UI.
+
+### How TradeOS uses PayPal
+
+- **Money moves in one place only.** `POST /v2/payments/captures/{id}/refund` is called only after the policy engine says
+  ELIGIBLE *and* a human clicks Approve. The amount and capture ID come from PayPal's own capture, not from the customer
+  message or the AI.
+- **Idempotency.** Every create-order, capture and refund call sends a `PayPal-Request-Id` (`tradeos-<call>-<case id>`,
+  under PayPal's 38-character limit, different per call type). A retry or a double click gets PayPal's existing result
+  back instead of a second refund (shown live by the "Double-click approve" demo).
+- **Traceability.** For every PayPal call (success or failure) TradeOS stores the `PayPal-Debug-Id`, the
+  `PayPal-Request-Id` it sent, the IDs and status PayPal returned (incl. `status_details`, e.g. `ECHECK`). The case's
+  **PayPal evidence** panel shows a short summary; "Show details" lists every call. Tokens and credentials are never stored.
+- **Refund status.** Only PayPal `COMPLETED` is shown as success. `PENDING` waits; `FAILED` / `CANCELLED` are shown as
+  needing a human. TradeOS never downgrades a completed refund on its own.
+- **Signed webhook.** `PAYMENT.CAPTURE.REFUNDED` is verified with `verify-webhook-signature` before it is trusted, matched
+  by refund ID, and processed once per event ID (PayPal retries failed deliveries, so duplicates are expected). A verified
+  event can only move a `PENDING` refund to `COMPLETED`. Unverified, unknown, mismatched or duplicate deliveries are logged
+  and change nothing. If processing fails midway, the endpoint returns 500 so PayPal's retry is processed.
+- **Check against PayPal (reconciliation).** "Check against PayPal" reads `GET` capture + `GET` refund and compares them with
+  TradeOS. It can only move `PENDING` → `COMPLETED`; any other difference is flagged for a human. It also runs in the
+  background for `PENDING` refunds (at most every 30 s, 5 s timeouts), so webhooks are not the only source of truth.
+- **Mock vs Sandbox.** The deployed demo uses the real PayPal **Sandbox** (no real money). `PAYPAL_MOCK=1` swaps in an
+  in-process mock for local development and tests; the UI says "MOCK PayPal" whenever it is on, and mock IDs start with
+  `MOCK-` / `mock-debug-`. The "Pending refund (MOCK)" demo and its "Simulate signed PayPal webhook" button exist only in
+  mock mode. The webhook was verified live on Sandbox; the evidence panel and reconciliation were developed against the
+  mock and are verified on Sandbox with `docs/sandbox-verification.md`.
+- **Not covered:** partial refunds, disputes, `PAYMENT.CAPTURE.REVERSED` and other webhook events, production (live) PayPal.
 
 ### LLM provider
 
@@ -285,7 +312,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 195 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 198 tests (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 

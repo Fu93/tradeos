@@ -44,6 +44,7 @@ SCENARIOS = {
     # ~20 s later, so PENDING -> COMPLETED via reconcile or a signed webhook can be shown on screen.
     "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
 }
+MAX_TRACKED_CASES = 500  # cap for per-case in-memory maps (locks, reconcile throttle)
 RUNNABLE = ("A", "B", "R", "D", "P")
 MOCK_ONLY = ("P",)
 
@@ -150,7 +151,21 @@ class Workflow:
 
     def _lock(self, case_id: str) -> threading.Lock:
         with self._locks_guard:
-            return self._locks.setdefault(case_id, threading.Lock())
+            lock = self._locks.pop(case_id, None) or threading.Lock()
+            self._locks[case_id] = lock  # most recently used last
+            if len(self._locks) > MAX_TRACKED_CASES:  # bounded: evict idle locks, oldest first
+                for key in [k for k, v in self._locks.items() if k != case_id and not v.locked()]:
+                    if len(self._locks) <= MAX_TRACKED_CASES:
+                        break
+                    del self._locks[key]
+            return lock
+
+    def reset_runtime_state(self) -> None:
+        """Demo reset: forget per-case in-memory state (idle locks) along with the database."""
+        with self._locks_guard:
+            for key in [k for k, v in self._locks.items() if not v.locked()]:
+                del self._locks[key]
+            self._reconciled.clear()
 
     def _case(self, case_id: str) -> dict:
         case = self.db.get_case(case_id)
@@ -579,7 +594,10 @@ class Workflow:
         with self._locks_guard:
             if now - self._reconciled.get(case_id, -1e9) < RECONCILE_MIN_INTERVAL:
                 return False
+            self._reconciled.pop(case_id, None)
             self._reconciled[case_id] = now
+            while len(self._reconciled) > MAX_TRACKED_CASES:  # bounded: drop the oldest entry
+                self._reconciled.pop(next(iter(self._reconciled)))
         run = lambda: self._safe_reconcile(case_id)  # noqa: E731
         if background:
             threading.Thread(target=run, daemon=True).start()
