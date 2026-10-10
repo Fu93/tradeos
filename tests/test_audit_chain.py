@@ -165,3 +165,102 @@ def test_case_a_once_case_b_409_unchanged_and_badge(settings):
     page = client.get(f"/?case={a}").text
     assert "Audit trail intact:" in page and "Verify audit trail" in page
     assert client.get("/cases/NOPE/audit/verify").status_code == 404
+
+
+# ---- review round ----
+def test_truncated_last_entry_detected_when_record_remains(settings):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    last = wf.db.chain_entries(case_id)[-1]
+    raw(wf.db, "DROP TRIGGER audit_chain_no_delete")
+    raw(wf.db, "DELETE FROM audit_chain WHERE id=?", (last["id"],))
+    res = wf.db.verify_chain(case_id)
+    if last["source_table"] in chain.SOURCE_PAYLOAD:
+        assert res["ok"] is False and "missing from the chain" in res["reason"]
+
+
+def test_truncation_with_record_also_deleted_needs_external_head(settings):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    wf.db.audit(case_id, "note", "last")
+    head = wf.db.verify_chain(case_id)["head"]
+    last = wf.db.chain_entries(case_id)[-1]
+    raw(wf.db, "DROP TRIGGER audit_chain_no_delete")
+    raw(wf.db, "DELETE FROM audit_chain WHERE id=?", (last["id"],))
+    raw(wf.db, "DELETE FROM audit_events WHERE id=?", (last["source_id"],))
+    res = wf.db.verify_chain(case_id)
+    assert res["ok"] is True and res["head"] != head  # honest limit: only an anchored head shows it
+
+
+def test_mixed_concurrent_writers_one_consistent_chain(settings):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    go = threading.Barrier(30)
+
+    def w(i):
+        go.wait()
+        if i % 3 == 0:
+            wf.db.audit(case_id, "note", f"n{i}")
+        elif i % 3 == 1:
+            wf.db.log_paypal_call(case_id, "get_capture", True, "COMPLETED", debug_id=f"d{i}")
+        else:
+            wf.db.log_webhook_event(f"E{i}", "PAYMENT.CAPTURE.REFUNDED", "SUCCESS", True, case_id, "R", "COMPLETED",
+                                    "PROCESSING")
+            wf.db.set_webhook_outcome(f"E{i}", "CONFIRMED")
+    ths = [threading.Thread(target=w, args=(i,)) for i in range(30)]
+    [t.start() for t in ths]
+    [t.join(timeout=30) for t in ths]
+    assert not any(t.is_alive() for t in ths)  # no deadlock
+    res = wf.db.verify_chain(case_id)
+    seqs = [e["seq"] for e in wf.db.chain_entries(case_id)]
+    assert res["ok"] and seqs == list(range(1, len(seqs) + 1))
+
+
+def test_background_reconcile_vs_approve_vs_webhook(settings):
+    client, pp, wf = app_with(settings, reconcile_in_background=True)
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    ths = [threading.Thread(target=lambda: client.post(f"/cases/{case_id}/approve", follow_redirects=False)),
+           threading.Thread(target=lambda: wf.reconcile(case_id)),
+           threading.Thread(target=lambda: wf.auto_reconcile(case_id))]
+    [t.start() for t in ths]
+    [t.join(timeout=30) for t in ths]
+    rid = wf.db.get_case(case_id)["refund_id"]
+    client.post("/webhooks/paypal", content=json.dumps(refund_event(rid)), headers=SIG)
+    import time
+    time.sleep(0.5)
+    assert wf.db.verify_chain(case_id)["ok"] and pp.refund_capture.call_count == 1
+
+
+@pytest.mark.parametrize("payload", [{"f": 0.1, "big": 1e21, "neg": -0.0, "i": 10**20},
+                                     {"u": "退款 ÄÖÜ 日本語 🙂", "esc": "a\"b\\c\n"},
+                                     {"n": None, "l": [None, True, False], "nested": {"z": 1, "a": {"y": None}}}])
+def test_canonical_json_stable(settings, payload):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    wf.db.audit(case_id, "note", "edge", payload)
+    assert wf.db.verify_chain(case_id)["ok"]
+    a = chain.canonical(chain.normalize(payload))
+    assert a == chain.canonical(json.loads(json.dumps(chain.normalize(payload), sort_keys=True)))
+
+
+def test_no_secrets_in_chain(settings):
+    client, pp, wf = app_with(settings)
+    run_a(client)
+    blob = json.dumps([e["payload_json"] for c in wf.db.list_cases() for e in wf.db.chain_entries(c["id"])]).lower()
+    for bad in ("access_token", "bearer ", "client_secret", "authorization", "api_key"):
+        assert bad not in blob
+
+
+def test_verify_latency_reasonable(settings):
+    import time
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    for i in range(300):
+        wf.db.audit(case_id, "note", f"n{i}", {"i": i})
+    t0 = time.perf_counter()
+    assert wf.db.verify_chain(case_id)["ok"]
+    t1 = time.perf_counter()
+    client.get(f"/?case={case_id}")
+    t2 = time.perf_counter()
+    print(f"verify {len(wf.db.chain_entries(case_id))} entries: {1000*(t1-t0):.1f} ms; page {1000*(t2-t1):.1f} ms")
+    assert t1 - t0 < 1.0

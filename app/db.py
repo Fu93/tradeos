@@ -320,6 +320,14 @@ class Database:
                     if chain.normalize(src(dict(row))) != payload:
                         return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was modified")
                 prev = e["entry_hash"]
+            # Coverage: every immutable record of this case must be in the chain. Catches a deleted
+            # (truncated) chain entry whose record still exists. If the record was deleted too, only a
+            # head hash recorded outside the database reveals it.
+            chained = {(e["source_table"], e["source_id"]) for e in entries}
+            for table in chain.SOURCE_PAYLOAD:
+                for r in conn.execute(f"SELECT id FROM {table} WHERE case_id=? ORDER BY id", (case_id,)):
+                    if (table, r["id"]) not in chained:
+                        return broken(None, len(entries) + 1, f"record {table}#{r['id']} is missing from the chain")
         return {"ok": True, "case_id": case_id, "entries": len(entries), "broken_at": None, "reason": None,
                 "head": prev, "backfilled": n_back}
 
