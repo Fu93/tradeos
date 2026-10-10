@@ -19668,6 +19668,5241 @@
     "k3": "CLARIFY_WITH_CUSTOMER",
     "k5": "CLARIFY_WITH_CUSTOMER"
    }
+  },
+  "X166": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96157"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96157": "CONFIRMED"
+    },
+    "order_id": "TO-96157",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) BACKPACK-30L: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好：我是 Yuki，訂單編號 TO-96157 的 Daypack 30L 背包拉鍊已損壞，無法正常使用。請協助為此訂單辦理退款，謝謝。 Yuki",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L 背包拉鍊已損壞，無法正常使用",
+      "issue_evidence": "拉鍊已損壞",
+      "issue_type": "DEFECT",
+      "component_quote": "拉鍊已損壞",
+      "part_number_quote": null,
+      "current_variant_quote": "Daypack 30L",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "辦理退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96157",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 238.19,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X174": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96165"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96165": "CONFIRMED"
+    },
+    "order_id": "TO-96165",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "error mío al hacer el pedido, "
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, Mi pedido es el TO-96165. Son las Trail Runner en talla 43. Reconozco que fue error mío al hacer el pedido, yo uso 44 y lo puse mal. Me llegaron tal cual pedí pero obviamente no me sirven. ¿Se puede hacer un cambio a talla 44? Avísenme cómo gestionarlo. Gracias, Gonzalo",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Mi pedido es el TO-96165. Son las Trail Runner en talla 43. Reconozco que fue error mío al hacer el pedido, yo uso 44 y lo puse mal. Me llegaron tal cual pedí pero obviamente no me sirven. ¿Se puede hacer un cambio a talla 44? Avísenme cómo gestionarlo.",
+      "issue_evidence": "no me sirven",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 43",
+      "requested_variant_quote": "talla 44",
+      "goals": [
+       {
+        "evidence": "cambio a talla 44",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96165",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 199.26,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X175": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96166"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96166": "CONFIRMED"
+    },
+    "order_id": "TO-96166",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "versehentlich die Größe 41 aus"
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnten Sie bitte einen Umtausch auf Größe 42 veranlassen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner Sneaker",
+      "issue_evidence": "Beim Bestellen der Trail Runner Sneaker habe ich versehentlich die Größe 41 ausgewählt, obwohl ich Größe 42 trage.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "Größe 42",
+      "goals": [
+       {
+        "evidence": "Könnten Sie bitte einen Umtausch auf Größe 42 veranlassen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96166",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 216.89,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X185": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96176"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96176": "CONFIRMED"
+    },
+    "order_id": "TO-96176",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "me equivoqué al elegir el colo"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Sofía. Recibí la lámpara LED negra del pedido TO-96176, pero me equivoqué al elegir el color y la quería blanca. ¿Podríamos hacer un cambio? Gracias! (Perdón si hay algún error de escritura).",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "lámpara LED negra",
+      "issue_evidence": "Recibí la lámpara LED negra del pedido TO-96176, pero me equivoqué al elegir el color y la quería blanca.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "negra",
+      "requested_variant_quote": "blanca",
+      "goals": [
+       {
+        "evidence": "¿Podríamos hacer un cambio?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96176",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 27.83,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X178": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96169"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96169": "CONFIRMED"
+    },
+    "order_id": "TO-96169",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是 Kai，訂單 TO-96169 的 Trail Runner 慢跑鞋今天收到了。是我自己點錯尺寸了，我平常穿 40，結果不小心選 39，鞋子確實是照訂單寄的，請見諒。現在鞋子還沒穿過，可以幫我換成同款 size 40 嗎？需要我先把 39 寄回來再補寄，還是你們那邊有其他流程？麻煩請告知，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner 慢跑鞋",
+      "issue_evidence": "我平常穿 40，結果不小心選 39",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "39",
+      "requested_variant_quote": "size 40",
+      "goals": [
+       {
+        "evidence": "可以幫我換成同款 size 40 嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96169",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 204.28,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X180": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96171"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96171": "CONFIRMED"
+    },
+    "order_id": "TO-96171",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "versehentlich die Trail Runner"
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnt ihr das gegen Größe 40 umtaushen?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner",
+      "issue_evidence": "Ich hab versehentlich die Trail Runner in Groesse 39 bestellt, obwohl ich eigentlich 40 trage.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Groesse 39",
+      "requested_variant_quote": "Größe 40",
+      "goals": [
+       {
+        "evidence": "Könnt ihr das gegen Größe 40 umtaushen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96171",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 203.23,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X187": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96178"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96178": "CONFIRMED"
+    },
+    "order_id": "TO-96178",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは！先日TO-96178で黒いLEDデスクランプを注文したUllaです。自分で色を間違えてしまい、黒を選んでしまいましたが、やっぱり白がいいなと思いまして、交換できますでしょうか？よろしくお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "黒いLEDデスクランプ",
+      "issue_evidence": "自分で色を間違えてしまい、黒を選んでしまいましたが、やっぱり白がいいなと思いまして",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黒いLEDデスクランプ",
+      "requested_variant_quote": "白",
+      "goals": [
+       {
+        "evidence": "交換できますでしょうか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96178",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 30.01,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X188": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96179"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96179": "CONFIRMED"
+    },
+    "order_id": "TO-96179",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello,\n\nI received the white LED desk lamp from order TO-96179, but I realize I chose the wrong colour. I would like to exchange it for the black version. Please let me know how to proceed.\n\nThank you,\nValeria",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "white LED desk lamp",
+      "issue_evidence": "I realize I chose the wrong colour.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "white",
+      "requested_variant_quote": "black",
+      "goals": [
+       {
+        "evidence": "I would like to exchange it for the black version.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96179",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.73,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X190": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered black, but order TO-96181 shows white: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96181"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96181": "CONFIRMED"
+    },
+    "order_id": "TO-96181",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Yuki. Me llegó el pedido TO-96181 y en vez de la lámpara de escritorio LED negra que pedí, me llegó una blanca. Creo que mandaron el color equivocado. ¿Me pueden enviar la black? Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "lámpara de escritorio LED negra",
+      "issue_evidence": "en vez de la lámpara de escritorio LED negra que pedí, me llegó una blanca",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "LED negra",
+      "requested_variant_quote": "black",
+      "goals": [
+       {
+        "evidence": "¿Me pueden enviar la black?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96181",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 38.95,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X179": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96170"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96170": "CONFIRMED"
+    },
+    "order_id": "TO-96170",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Luis. Pedí por error las zapatillas Trail Runner talla 41 (uso 42) en el pedido TO-96170. ¿Podría cambiarme a talla 42? Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hola, soy Luis. Pedí por error las zapatillas Trail Runner talla 41 (uso 42) en el pedido TO-96170. ¿Podría cambiarme a talla 42? Gracias.",
+      "issue_evidence": "Pedí por error las zapatillas Trail Runner talla 41 (uso 42)",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 41",
+      "requested_variant_quote": "talla 42",
+      "goals": [
+       {
+        "evidence": "¿Podría cambiarme a talla 42?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96170",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 246.76,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X182": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96173"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96173": "CONFIRMED"
+    },
+    "order_id": "TO-96173",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I got order TO-96173 today, the Trail Runner sneakers in size 41.\n\nThat was my mistake, I wear a 42 and I ordered the wrong size by accident. I know you sent exactly what was ordered so it's on me.\n\nCan I exchange these for size 42? Let me know how to do that.\n\nOskar",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner sneakers in size 41",
+      "issue_evidence": "That was my mistake, I wear a 42 and I ordered the wrong size by accident.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 41",
+      "requested_variant_quote": "size 42",
+      "goals": [
+       {
+        "evidence": "Can I exchange these for size 42?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96173",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 231.08,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X181": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96172"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96172": "CONFIRMED"
+    },
+    "order_id": "TO-96172",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "交換できますか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "トレイルランナーのスニーカー",
+      "issue_evidence": "サイズ43で頼んじゃったんですが、実は自分はサイズ44なんだ",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズ43",
+      "requested_variant_quote": "サイズ44",
+      "goals": [
+       {
+        "evidence": "交換できますか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96172",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 252.22,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X193": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96184"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96184": "CONFIRMED"
+    },
+    "order_id": "TO-96184",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "by mistake? My order number is"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there,\n\nI hope you’re doing well. I wanted to take a moment to share a little about my recent experience with your store. I’ve been looking for a new desk lamp for my home office for weeks now, and after browsing through a few different models and reading a bunch of reviews, I finally decided on the sleek white LED desk lamp that seemed to fit perfectly with the minimalist vibe I’m going for. I placed the order on a rainy Tuesday afternoon while I was sipping tea and listening to some jazz, and I remember feeling pretty excited about finally getting something that would brighten up my workspace and help me stay focused during those long writing sessions.\n\nWhen the package arrived yesterday, I was eager to open it and set it up right away. I carefully unpacked everything, admiring the packaging and the little thank‑you card you included—such a nice touch! However, as I lifted the lamp out of the box, I noticed that the shade was a deep black instead of the crisp white I had selected. I double‑checked the order confirmation email and the website page I had bookmarked, and both clearly show the white version, so I’m pretty sure there was a mix‑up on the fulfillment side.\n\nI’m really hoping we can sort this out quickly, as I’ve been wanting to replace my old, flickering lamp for a while now, and the white one would really complete the look I’m aiming for. If possible, could you please arrange to send the correct white LED desk lamp and provide a return label for the black one that arrived by mistake? My order number is TO-96184, and I’d appreciate any updates you can share regarding the timeline for the replacement.\n\nThank you so much for your attention to this matter. I’ve always enjoyed shopping with your store and hope we can resolve this smoothly.\n\nWarm regards,\n\nBea",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the shade was a deep black instead of the crisp white I had selected",
+      "issue_evidence": "the shade was a deep black instead of the crisp white I had selected",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "sleek white LED desk lamp",
+      "requested_variant_quote": "white LED desk lamp",
+      "goals": [
+       {
+        "evidence": "If possible, could you please arrange to send the correct white LED desk lamp and provide a return label for the black one that arrived by mistake?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96184",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 22.65,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X147": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "SG",
+   "family": null,
+   "reason": "Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96147"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96147": "CONFIRMED"
+    },
+    "order_id": "TO-96147",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety_gate": {
+     "hit": true,
+     "class": "MAINS_HEATING",
+     "reason": "Safety Gate: Electric kettle 1.7 L is safety class MAINS_HEATING and a malfunction is reported (DEFECT): human safety review first."
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号TO-96147の電気ケトルが150日しか使ってないのに、急に加熱しなくなった。ほんと困った。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "電気ケトル",
+      "issue_evidence": "急に加熱しなくなった",
+      "issue_type": "DEFECT",
+      "component_quote": "加熱しなくなった",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96147",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 440.0,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X192": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96183 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96183"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96183": "CONFIRMED"
+    },
+    "order_id": "TO-96183",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは！アキラです。注文番号 TO-96183 の白いLEDデスクライトを注文したつもりなのに、黒いものが届いてしまいました…。間違えて黒を送ってしまったみたいなので、白いのに交換してもらえますか？よろしくお願いします！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "黒いものが届いてしまいました…",
+      "issue_evidence": "黒いものが届いてしまいました…",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黒いもの",
+      "requested_variant_quote": "白いLEDデスクライト",
+      "goals": [
+       {
+        "evidence": "白いのに交換してもらえますか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96183",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 56.66,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X186": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96177"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96177": "CONFIRMED"
+    },
+    "order_id": "TO-96177",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich habe soeben meine Bestellung mit der Bestellnummer TO-96177 erhalten. Es handelt sich um die weiße LED-Schreibtischlampe.\n\nLeider habe ich bei der Bestellung selbst die falsche Farbe gewählt. Ich hätte die Lampe gerne in Schwarz.\n\nIst ein Umtausch gegen die schwarze Variante möglich? Bitte teilen Sie mir mit, wie ich in diesem Fall vorgehen soll.\n\nVielen Dank im Voraus.\n\nFreundliche Grüße\nTaro",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "weiße LED-Schreibtischlampe",
+      "issue_evidence": "Leider habe ich bei der Bestellung selbst die falsche Farbe gewählt.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "weiße",
+      "requested_variant_quote": "Schwarz",
+      "goals": [
+       {
+        "evidence": "Ist ein Umtausch gegen die schwarze Variante möglich?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96177",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 106.87,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X195": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96186 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96186"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96186": "CONFIRMED"
+    },
+    "order_id": "TO-96186",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Diego. Pedí la lámpara LED de escritorio blanca (pedido TO-96186) pero me llegó negra. ¿Podéis enviarme la correcta?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la lámpara LED de escritorio blanca (pedido TO-96186) pero me llegó negra",
+      "issue_evidence": "me llegó negra",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "negra",
+      "requested_variant_quote": "blanca",
+      "goals": [
+       {
+        "evidence": "¿Podéis enviarme la correcta?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96186",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 22.17,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X197": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96188 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96188"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96188": "CONFIRMED"
+    },
+    "order_id": "TO-96188",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Por favor, envíenme la lámpara en el color correcto (blanco) y recojan la que está equivocada.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "una lámpara de escritorio LED",
+      "issue_evidence": "me enviaron una negra",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "negra",
+      "requested_variant_quote": "color blnaca (quería decir blanco)",
+      "goals": [
+       {
+        "evidence": "Por favor, envíenme la lámpara en el color correcto (blanco) y recojan la que está equivocada.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96188",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 20.01,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X196": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Wrong-item claim with a misspelt / uncertain variant (fuzzy match only): a human verifies against the order record.",
+   "derived": {
+    "order_refs": [
+     "TO-96187"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96187": "CONFIRMED"
+    },
+    "order_id": "TO-96187",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello,\n\nI am contacting you about order TO-96187. I believe I ordered the whte LED desk lamp, but I received a black one instead. Could you please send the correct white LED desk lamp and let me know how to return the incorrect item?\n\nThank you for your help.\n\nBest regards,\nEmma",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I believe I ordered the whte LED desk lamp, but I received a black one instead.",
+      "issue_evidence": "I believe I ordered the whte LED desk lamp, but I received a black one instead.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "black",
+      "requested_variant_quote": "whte",
+      "goals": [
+       {
+        "evidence": "Could you please send the correct white LED desk lamp",
+        "goal": "REPLACE_SAME"
+       },
+       {
+        "evidence": "let me know how to return the incorrect item",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96187",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.2,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X194": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered black, but order TO-96185 shows white: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96185"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96185": "CONFIRMED"
+    },
+    "order_id": "TO-96185",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好：\n\n我是 Chiara，訂單編號為 TO-96185。我當初訂購的是黑色的 LED 桌燈，但收到的商品是白色的，顏色似乎寄錯了。\n\n想請問是否可以協助更換為正確的黑色款式？麻煩告知後續的處理方式，謝謝您。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LED 桌燈",
+      "issue_evidence": "收到的商品是白色的，顏色似乎寄錯了",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的 LED 桌燈",
+      "requested_variant_quote": "正確的黑色款式",
+      "goals": [
+       {
+        "evidence": "想請問是否可以協助更換為正確的黑色款式？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96185",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 55.13,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X177": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41.",
+   "derived": {
+    "order_refs": [
+     "TO-96168"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96168": "CONFIRMED"
+    },
+    "order_id": "TO-96168",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "40",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "41"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",
+      "issue_evidence": "they don’t fit.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 40",
+      "requested_variant_quote": "size 41",
+      "goals": [
+       {
+        "evidence": "exchange them for size 41.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96168",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "DIRECT_WORKFLOW/EXCHANGE",
+     "DIRECT_WORKFLOW/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE",
+     "CREATE_SUPPLIER_TASK/EXCHANGE"
+    ],
+    "notes": [
+     "V10: Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+     "V10: Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41.",
+     "V12: Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 41."
+    ],
+    "extra_extractions": [
+     {
+      "speech_act_evidence": "Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "shoes",
+        "issue_evidence": "I made a mistake and ordered size 40 instead of my usual 41",
+        "issue_type": "CUSTOMER_ORDERED_WRONG",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": "size 40",
+        "requested_variant_quote": "size 41",
+        "goals": [
+         {
+          "evidence": "Please let me know how to exchange them for size 41",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96168",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 1.0
+     },
+     {
+      "speech_act_evidence": "Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "shoes",
+        "issue_evidence": "I made a mistake and ordered size 40 instead of my usual 41",
+        "issue_type": "CUSTOMER_ORDERED_WRONG",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": null,
+        "requested_variant_quote": "size 41",
+        "goals": [
+         {
+          "evidence": "Please let me know how to exchange them for size 41",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96168",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.95
+     },
+     {
+      "speech_act_evidence": "Please let me know how to exchange them for size 41.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "shoes",
+        "issue_evidence": "The shoes arrived as ordered, but they don’t fit",
+        "issue_type": "SIZE_MISMATCH",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": "size 40",
+        "requested_variant_quote": "size 41",
+        "goals": [
+         {
+          "evidence": "exchange them for size 41",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96168",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.9
+     },
+     {
+      "speech_act_evidence": "Hello, I made a mistake and ordered size 40 instead of my usual 41 (order TO-96168). The shoes arrived as ordered, but they don’t fit. Please let me know how to exchange them for size 41. Thank you.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "the shoes arrived as ordered, but they don’t fit",
+        "issue_evidence": "they don’t fit.",
+        "issue_type": "SIZE_MISMATCH",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": "size 40",
+        "requested_variant_quote": "size 41",
+        "goals": [
+         {
+          "evidence": "Please let me know how to exchange them for size 41.",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96168",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.95
+     }
+    ]
+   },
+   "latency_s": 311.17,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X198": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96189 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96189"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96189": "CONFIRMED"
+    },
+    "order_id": "TO-96189",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "ich wollte mich wegen meiner Bestellung TO-96189 melden. Ich habe die LED Schreibtischlampe in weiß bestellt, es ist aber eine schwarze Lampe angekommen. Das ist ärgerlich, denn ich habe bewusst die weis Variante gewählt. Könnten Sie mir bitte die korrekte weiße Lampe zusenden und sagen, wie ich die schwarze zurücksenden soll?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LED Schreibtischlampe",
+      "issue_evidence": "es ist aber eine schwarze Lampe angekommen",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "weiße Variante",
+      "requested_variant_quote": "weiße Lampe",
+      "goals": [
+       {
+        "evidence": "Könnten Sie mir bitte die korrekte weiße Lampe zusenden",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "sagen, wie ich die schwarze zurücksenden soll",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96189",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.93,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X184": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96175"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96175": "CONFIRMED"
+    },
+    "order_id": "TO-96175",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是 Rin，訂單號 TO-96175，我收到了黑色的 LED 桌燈，但我自己選錯顏色了，想請問能否換成白色的？Thanks！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "我自己選錯顏色了",
+      "issue_evidence": "我自己選錯顏色了",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色",
+      "requested_variant_quote": "白色",
+      "goals": [
+       {
+        "evidence": "想請問能否換成白色的？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96175",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 265.37,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X200": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96191 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96191"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96191": "CONFIRMED"
+    },
+    "order_id": "TO-96191",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "我訂的是 whte LED 檯燈，但收到黑色的。訂單編號：TO-96191，請幫我換成白色的，謝謝。 Isamu",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "我訂的是 whte LED 檯燈，但收到黑色的。訂單編號：TO-96191，請幫我換成白色的，謝謝。",
+      "issue_evidence": "我訂的是 whte LED 檯燈，但收到黑色的。",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黑色的",
+      "requested_variant_quote": "白色的",
+      "goals": [
+       {
+        "evidence": "請幫我換成白色的",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96191",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 29.65,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X202": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 39, but order TO-96193 shows 40: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96193"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96193": "CONFIRMED"
+    },
+    "order_id": "TO-96193",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Könnt ihr mir bitte die Größe 39 schicken?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Sneaker",
+      "issue_evidence": "Bei meiner Bestellung TO-96193 habe ich Sneaker in Größe 39 bestellt, im Karton war aber Größe 40 drin",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Größe 39",
+      "requested_variant_quote": "Größe 39",
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir bitte die Größe 39 schicken?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96193",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 23.83,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X205": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 42, but order TO-96196 shows 43: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96196"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96196": "CONFIRMED"
+    },
+    "order_id": "TO-96196",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "請幫我換成 42 號",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "運動鞋",
+      "issue_evidence": "收到的是 43 號",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "43 號",
+      "requested_variant_quote": "42 號",
+      "goals": [
+       {
+        "evidence": "請幫我換成 42 號",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96196",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 25.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X206": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 39, but order TO-96197 shows 40: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96197"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96197": "CONFIRMED"
+    },
+    "order_id": "TO-96197",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Oskar. El pedido TO-96197 era de sneakers talla 39 y me llego talla 40 en la caja. Creo que mandaron el tamaño mal, ¿me pueden enviar la talla 39? Gracias",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "sneakers",
+      "issue_evidence": "me llego talla 40 en la caja",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 40",
+      "requested_variant_quote": "talla 39",
+      "goals": [
+       {
+        "evidence": "¿me pueden enviar la talla 39?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96197",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 33.67,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X199": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1).",
+   "derived": {
+    "order_refs": [
+     "TO-96190"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96190": "CONFIRMED"
+    },
+    "order_id": "TO-96190",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "wrong_item_consistent": "ordered black (record), received white",
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "black",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "white"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I got a black one instead.",
+      "issue_evidence": "I got a black one instead.",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "could you please send the correct white lamp?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96190",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": {
+    "first": "CREATE_SUPPLIER_TASK/EXCHANGE",
+    "extras": [
+     "HUMAN_REVIEW/None",
+     "HUMAN_REVIEW/None",
+     "HUMAN_REVIEW/None",
+     "HUMAN_REVIEW/None"
+    ],
+    "notes": [
+     "V3: Customer says they ordered white, but order TO-96190 shows black: claim conflicts with the order record; a human verifie",
+     "V3: Customer says they ordered white, but order TO-96190 shows black: claim conflicts with the order record; a human verifie",
+     "V3: Customer says they ordered white, but order TO-96190 shows black: claim conflicts with the order record; a human verifie",
+     "V3: Wrong-item claim with a misspelt / uncertain variant (fuzzy match only): a human verifies against the order record."
+    ],
+    "extra_extractions": [
+     {
+      "speech_act_evidence": "Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "I got a black one instead.",
+        "issue_evidence": "I got a black one instead.",
+        "issue_type": "WRONG_ITEM_OR_VARIANT",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": "black",
+        "requested_variant_quote": "white",
+        "goals": [
+         {
+          "evidence": "could you please send the correct white lamp?",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96190",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.9
+     },
+     {
+      "speech_act_evidence": "Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "I got a black one instead",
+        "issue_evidence": "I got a black one instead",
+        "issue_type": "WRONG_ITEM_OR_VARIANT",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": null,
+        "requested_variant_quote": "white LED desk lamp",
+        "goals": [
+         {
+          "evidence": "could you please send the correct white lamp",
+          "goal": "REPLACE_SAME"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96190",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.9
+     },
+     {
+      "speech_act_evidence": "Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "white LED desk lamp",
+        "issue_evidence": "I got a black one instead",
+        "issue_type": "WRONG_ITEM_OR_VARIANT",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": null,
+        "requested_variant_quote": "white LED desk lamp",
+        "goals": [
+         {
+          "evidence": "could you please send the correct white lamp",
+          "goal": "EXCHANGE_VARIANT"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96190",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 0.9
+     },
+     {
+      "speech_act_evidence": "Hi, I placed order TO-96190 for a white LED desk lamp but I got a black one instead. I ordered the whte lamp, could you please send the correct white lamp? Thanks.",
+      "speech_act": "REQUEST",
+      "items": [
+       {
+        "item_quote": "white LED desk lamp",
+        "issue_evidence": "I got a black one instead.",
+        "issue_type": "WRONG_ITEM_OR_VARIANT",
+        "component_quote": null,
+        "part_number_quote": null,
+        "current_variant_quote": "white LED desk lamp",
+        "requested_variant_quote": "whte lamp",
+        "goals": [
+         {
+          "evidence": "could you please send the correct white lamp?",
+          "goal": "REPLACE_SAME"
+         }
+        ],
+        "goal_relation": "SINGLE"
+       }
+      ],
+      "negated_goals": [],
+      "order_ref_quote": "TO-96190",
+      "order_ref_hedge_quote": null,
+      "safety_evidence": null,
+      "safety_level": "NONE",
+      "confidence": 1.0
+     }
+    ]
+   },
+   "latency_s": 65.75,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X210": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "The message is about Trail Runner sneakers, which is not in order TO-96201.",
+   "derived": {
+    "order_refs": [
+     "TO-96201"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96201": "CONFIRMED"
+    },
+    "order_id": "TO-96201",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días,\n\nSoy Taro y les escribo respecto a mi pedido TO-96201. Las zapatillas Trail Runner que recibí llegaron con un rasgado y no se encuentran en buen estado.\n\n¿Sería posible gestionar un reemplazo? Quedo atento a su respuesta.\n\nMuchas gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Las zapatillas Trail Runner que recibí llegaron con un rasgado y no se encuentran en buen estado.",
+      "issue_evidence": "rasgado",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Sería posible gestionar un reemplazo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96201",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.79,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X209": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "The message is about City rain jacket, which is not in order TO-96200.",
+   "derived": {
+    "order_refs": [
+     "TO-96200"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96200": "CONFIRMED"
+    },
+    "order_id": "TO-96200",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是Sofia，訂單TO-96200的City雨衣有破損，請問能否安排換貨？謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City雨衣",
+      "issue_evidence": "破損",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "換貨",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96200",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 35.39,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X203": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 39, but order TO-96194 shows 40: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96194"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96194": "CONFIRMED"
+    },
+    "order_id": "TO-96194",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お手数ですが、サイズ39の商品への交換をお願いできますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "注文番号TO-96194にてサイズ39のスニーカーを注文いたしましたが、届いた箱にはサイズ40と記載されており、誤って異なるサイズが送付されたようです。",
+      "issue_evidence": "届いた箱にはサイズ40と記載されており、誤って異なるサイズが送付されたようです。",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズ40",
+      "requested_variant_quote": "サイズ39",
+      "goals": [
+       {
+        "evidence": "サイズ39の商品への交換をお願いできますでしょうか。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96194",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 67.37,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X201": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96192 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96192"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96192": "CONFIRMED"
+    },
+    "order_id": "TO-96192",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。 Julia です。先日、インターネットで注文したLEDデスクランプが届きましたので、ご連絡いたします。実は注文したのは白いランプだと考えていたのですが、届いた商品は黒いものでした。注文番号はTO-96192です。普段は仕事の合間に猫のミミと遊んだり、週末には近くの図書館で小説を読んだりしてリラックスしているのですが、今回のランプは読書灯として使いたくて、特に明るさと色温度にこだわって選びました。注文時に「whte」と入力してしまったのかもしれませんが、実際には白いLEDデスクランプを希望していました。お手数ですが、白いランプに交換していただけますでしょうか。在庫がある場合は早めに発送をお願いし、返品の手続きについてもご案内いただければ幸いです。それでは、よろしくお願いいたします。 Julia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LEDデスクランプ",
+      "issue_evidence": "届いた商品は黒いものでした",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "黒い",
+      "requested_variant_quote": "白いLEDデスクランプ",
+      "goals": [
+       {
+        "evidence": "白いランプに交換していただけますでしょうか",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96192",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 79.78,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X213": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-96204 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-96204"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96204": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-96204",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¿Podría indicarme el procedimiento para cambiarlas por la talla 43?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "zapatillas",
+      "issue_evidence": "resultan demasiado pequeñas",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "talla 43",
+      "goals": [
+       {
+        "evidence": "cambiarlas por la talla 43",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96204",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 26.79,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X183": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96174"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96174": "CONFIRMED"
+    },
+    "order_id": "TO-96174",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "請問能否協助換貨？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "訂單 TO-96174 中我誤訂了尺碼 42，實際需要尺碼 43",
+      "issue_evidence": "誤訂了尺碼 42，實際需要尺碼 43",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "尺碼 42",
+      "requested_variant_quote": "尺碼 43",
+      "goals": [
+       {
+        "evidence": "換貨",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96174",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 340.19,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X217": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96208"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "order_status": {
+     "TO-96208": "CONFIRMED"
+    },
+    "order_id": "TO-96208",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Fumikoです。注文TO-96208のスニーカーのソールがはがれたので、最初は交換を希望しましたが、結局返金だけでお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "スニーカー",
+      "issue_evidence": "ソールがはがれた",
+      "issue_type": "DEFECT",
+      "component_quote": "ソール",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金だけでお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "交換を希望しました",
+      "goal": "EXCHANGE_VARIANT"
+     }
+    ],
+    "order_ref_quote": "TO-96208",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.85,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X215": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-96206 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-96206"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96206": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-96206",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、注文番号 TO-96206 の Bea です。届いたスニーカーがサイズが小さすぎて履けません。サイズ 43 に交換したいのですが、対応可能でしょうか。よろしくお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "届いたスニーカーがサイズが小さすぎて履けません",
+      "issue_evidence": "サイズが小さすぎて履けません",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "サイズ 43",
+      "goals": [
+       {
+        "evidence": "サイズ 43 に交換したい",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96206",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 19.98,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X220": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96211"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "order_status": {
+     "TO-96211": "CONFIRMED"
+    },
+    "order_id": "TO-96211",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días:\n\nLes escribo en relación con mi pedido TO-96211. Al recibir las zapatillas nuevas, noté que la suela se había despegado. En primer lugar, quería solicitar un cambio por otro par en buen estado. Sin embargo, después de pensarlo, prefiero cambiar de idea y solicitar únicamente el reembolso del importe correspondiente, en lugar de un reemplazo.\n\nAgradecería que me indicaran cómo proceder para gestionar la devolución y el reembolso.\n\nMuchas gracias de antemano.\n\nAtentamente,\nIsamu",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "zapatillas nuevas",
+      "issue_evidence": "la suela se había despegado",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "solicitar únicamente el reembolso del importe correspondiente",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "Agradecería que me indicaran cómo proceder para gestionar la devolución y el reembolso",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "En primer lugar, quería solicitar un cambio por otro par en buen estado",
+      "goal": "EXCHANGE_VARIANT"
+     }
+    ],
+    "order_ref_quote": "TO-96211",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 10.27,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X212": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "The message is about City rain jacket, which is not in order TO-96203.",
+   "derived": {
+    "order_refs": [
+     "TO-96203"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96203": "CONFIRMED"
+    },
+    "order_id": "TO-96203",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "交換品を送っていただけますでしょうか",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "シティレインジャケット",
+      "issue_evidence": "破れておりました",
+      "issue_type": "DEFECT",
+      "component_quote": "破れておりました",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "交換品を送っていただけますでしょうか",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96203",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 58.12,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X218": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96209"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "order_status": {
+     "TO-96209": "CONFIRMED"
+    },
+    "order_id": "TO-96209",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi! I'm Gonzalo, order TO-96209. I just got my new sneakers and the sole came loose after a couple of wears, which is kind of a bummer.\n\nCould I get a replacement pair sent out please? Actually sorry, on second thought I'd rather just get a refund if that's easier. Thanks so much!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "new sneakers",
+      "issue_evidence": "the sole came loose after a couple of wears",
+      "issue_type": "DEFECT",
+      "component_quote": "sole",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Actually sorry, on second thought I'd rather just get a refund if that's easier",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Could I get a replacement pair sent out please?",
+      "goal": "REPLACE_SAME"
+     }
+    ],
+    "order_ref_quote": "TO-96209",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.64,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X221": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96212"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "order_status": {
+     "TO-96212": "CONFIRMED"
+    },
+    "order_id": "TO-96212",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, bei meiner Bestellung TO-96212 löste sich die Sohle der neuen Sneaker. Bitte schickt mir ein Ersatzpaar – ach nein, stattdessen erstattet mir bitte den Kaufpreis.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hallo, bei meiner Bestellung TO-96212 löste sich die Sohle der neuen Sneaker. Bitte schickt mir ein Ersatzpaar – ach nein, stattdessen erstattet mir bitte den Kaufpreis.",
+      "issue_evidence": "löste sich die Sohle der neuen Sneaker",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "erstattet mir bitte den Kaufpreis",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "Bitte schickt mir ein Ersatzpaar",
+      "goal": "REPLACE_SAME"
+     }
+    ],
+    "order_ref_quote": "TO-96212",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.24,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X216": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-96207 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-96207"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96207": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-96207",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Service,\n\nMy name is Diego, and I recently received an order from you. Unfortunately, the sneakers are too small for me. I would like to exchange them for the same model in size 43.\n\nMy order number is TO-96207. Could you please let me know how to proceed with the exchange?\n\nThank you for your help.\n\nBest regards,\nDiego",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the sneakers are too small for me.",
+      "issue_evidence": "the sneakers are too small for me.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "size 43",
+      "goals": [
+       {
+        "evidence": "I would like to exchange them for the same model in size 43.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96207",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 45.68,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X208": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "The message is about Trail Runner sneakers, which is not in order TO-96199.",
+   "derived": {
+    "order_refs": [
+     "TO-96199"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96199": "CONFIRMED"
+    },
+    "order_id": "TO-96199",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi customer service,\n\nI hope this finds you well. I’m writing about a pair of Trail Runner sneakers I ordered from you, and I’m sorry to say the right shoe has torn. I’ve been meaning to reach out for a few days but kept getting pulled into other things—my neighbor’s cat has been visiting every morning and I keep losing track of time, and work has been a bit of a whirlwind, so I apologize for the delay.\n\nThe order number is TO-96199. I ordered the Trail Runners because I wanted something for light trails and walks around the park, and I was really looking forward to using them. When they arrived, they looked fine, and I tried them on inside for a bit. But after a short walk, I noticed a tear along the side/upper area. It’s not something I did—no snag on branches or anything like that—it just seems to have split. I can send a photo if that helps, though I’m not sure if that’s needed.\n\nCould you please send me a replacement pair? I’d really appreciate it. I’m not looking for anything else, just a replacement for the torn Trail Runners from order TO-96199. Let me know what you need from me to get that started.\n\nThanks so much for your time, and sorry again for the ramble.\n\nBest,\nRin",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the right shoe has torn",
+      "issue_evidence": "the right shoe has torn",
+      "issue_type": "DEFECT",
+      "component_quote": "the right shoe has torn",
+      "part_number_quote": null,
+      "current_variant_quote": "Trail Runners",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Could you please send me a replacement pair?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96199",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 104.68,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X214": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Order TO-96205 belongs to a different customer (never auto-corrected).",
+   "derived": {
+    "order_refs": [
+     "TO-96205"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96205": "OTHER_CUSTOMER"
+    },
+    "order_id": "TO-96205",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nmein Name ist Zoe und ich beziehe mich auf meine Bestellung TO-96205. Die Sneaker, die ich erhalten habe, sind leider zu klein und passen nicht.\n\nKönnten Sie die Schuhe bitte gegen Größe 43 umtauschen? Ich wäre Ihnen dankbar für eine kurze Rückmeldung, wie ich das am besten veranlasse.\n\nMit freundlichen Grüßen\nZoe",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Die Sneaker, die ich erhalten habe, sind leider zu klein und passen nicht.",
+      "issue_evidence": "Die Sneaker, die ich erhalten habe, sind leider zu klein und passen nicht.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "Größe 43",
+      "goals": [
+       {
+        "evidence": "Könnten Sie die Schuhe bitte gegen Größe 43 umtauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96205",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 65.63,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X191": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96182 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96182"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96182": "CONFIRMED"
+    },
+    "order_id": "TO-96182",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe meine Bestellung TO-96182 aufgegeben und eine weiße LED-Schreibtischlampe bestellt. Leider ist eine schwarze Lampe angekommen. Bitte senden Sie mir die korrekte weiße Variante zu und teilen Sie mir mit, wie ich die falsche Farbe zurückschicken soll.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "eine schwarze Lampe angekommen",
+      "issue_evidence": "Leider ist eine schwarze Lampe angekommen",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "weiße",
+      "requested_variant_quote": "weiße",
+      "goals": [
+       {
+        "evidence": "Bitte senden Sie mir die korrekte weiße Variante zu",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "wie ich die falsche Farbe zurückschicken soll",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96182",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 195.07,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X223": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4b",
+   "family": null,
+   "reason": "The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want.",
+   "derived": {
+    "order_refs": [
+     "TO-96214"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96214": "CONFIRMED"
+    },
+    "order_id": "TO-96214",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Support Team,\n\nI am writing regarding my recent order TO-96214. The sole of the new sneakers I received has come loose. I would like to request a replacement pair, please. However, after further consideration, I have decided that I would prefer a refund instead. Could you please process a refund for the order? Thank you for your assistance.\n\nSincerely,\nLuis",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "The sole of the new sneakers I received has come loose.",
+      "issue_evidence": "The sole of the new sneakers I received has come loose.",
+      "issue_type": "DEFECT",
+      "component_quote": "sole",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96214",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 15.62,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X225": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, UNDECIDED): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-96216"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96216": "CONFIRMED"
+    },
+    "order_id": "TO-96216",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "シティレインジャケットのジッパーが壊れました。注文番号 TO-96216 です。修理をお願いしたいですが、返金の可能性も考えています。まだ決めていません。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "シティレインジャケット",
+      "issue_evidence": "ジッパーが壊れました",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いしたい",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "返金の可能性も考えています",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96216",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X226": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, EITHER_ACCEPTABLE): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-96217"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96217": "CONFIRMED"
+    },
+    "order_id": "TO-96217",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I'm Oskar. Order TO-96217. The zip on my City rain jacket broke. Can it be repaired? Is a refund possible? I'm not sure what to do.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "The zip on my City rain jacket broke.",
+      "issue_evidence": "The zip on my City rain jacket broke.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "City rain jacket",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can it be repaired?",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Is a refund possible?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96217",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 12.39,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X189": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96180"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96180": "CONFIRMED"
+    },
+    "order_id": "TO-96180",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好！我是Wen，訂單號是TO-96180，我買了白色LED檯燈，結果想換成黑色的，請問可以辦理換貨嗎？謝謝！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "白色LED檯燈",
+      "issue_evidence": "我買了白色LED檯燈，結果想換成黑色的",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "白色",
+      "requested_variant_quote": "黑色",
+      "goals": [
+       {
+        "evidence": "換貨",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96180",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 227.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X204": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 39, but order TO-96195 shows 40: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96195"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96195": "CONFIRMED"
+    },
+    "order_id": "TO-96195",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered size 39 sneakers but received size 40. Order number TO-96195. Please send me the correct size 39.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hi, I ordered size 39 sneakers but received size 40. Order number TO-96195. Please send me the correct size 39.",
+      "issue_evidence": "size 40",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": "size 39",
+      "goals": [
+       {
+        "evidence": "Please send me the correct size 39.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96195",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 132.53,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X232": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96223"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96223": "CONFIRMED"
+    },
+    "order_id": "TO-96223",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) BACKPACK-30L: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Service,\n\nI am writing to share my disappointment regarding a backpack I purchased from you, order number TO-96223. After only three weeks of normal use, the strap ripped. I had expected the item to be more durable, so this has been quite frustrating for me.\n\nI am not asking for anything; I simply wanted to let you know about my experience.\n\nKind regards,\nValeria",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "backpack",
+      "issue_evidence": "strap ripped",
+      "issue_type": "DEFECT",
+      "component_quote": "strap ripped",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96223",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 20.6,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X229": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, EITHER_ACCEPTABLE): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-96220"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96220": "CONFIRMED"
+    },
+    "order_id": "TO-96220",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, der Reißverschluss meiner City Regenjacke ist kaputt – könnt ihr das reparieren? Oder gibt’s vielleicht ne Rückerstattung? Ich bin mir noch nicht sicher, was ich machen soll. Danke. Order: TO-96220",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City Regenjacke",
+      "issue_evidence": "der Reißverschluss meiner City Regenjacke ist kaputt",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "könnt ihr das reparieren?",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "Oder gibt’s vielleicht ne Rückerstattung?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96220",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 31.37,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X234": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96225"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96225": "CONFIRMED"
+    },
+    "order_id": "TO-96225",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) BACKPACK-30L: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Yuki. La correa de la mochila del pedido TO-96225 se rompió después de tres semanas. Una decepción total.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "La correa de la mochila del pedido TO-96225 se rompió después de tres semanas.",
+      "issue_evidence": "se rompió después de tres semanas",
+      "issue_type": "DEFECT",
+      "component_quote": "La correa",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "La correa de la mochila del pedido TO-96225 se rompió después de tres semanas.",
+      "issue_evidence": "se rompió después de tres semanas",
+      "issue_type": "DEFECT",
+      "component_quote": "La correa",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96225",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.21,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X230": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96221"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96221": "CONFIRMED"
+    },
+    "order_id": "TO-96221",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) BACKPACK-30L: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nmein Name ist Taro und ich schreibe bezüglich meiner Bestellung TO-96221. Ich bin sehr enttäuscht, da der Trageriemen meines Rucksacks nach nur drei Wochen gerissen ist. Für solch ein Produkt hatte ich eigentlich eine deutlich längere Haltbarkeit erwartet.\n\nMit freundlichen Grüßen\nTaro",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "der Trageriemen meines Rucksacks nach nur drei Wochen gerissen ist.",
+      "issue_evidence": "der Trageriemen meines Rucksacks nach nur drei Wochen gerissen ist.",
+      "issue_type": "DEFECT",
+      "component_quote": "der Trageriemen meines Rucksacks nach nur drei Wochen gerissen ist.",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96221",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 46.32,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X233": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96224"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96224": "CONFIRMED"
+    },
+    "order_id": "TO-96224",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) BACKPACK-30L: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是文，訂單號 TO-96224 的背包在三週後肩帶就斷了，真的很失望。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "背包",
+      "issue_evidence": "肩帶就斷了",
+      "issue_type": "DEFECT",
+      "component_quote": "肩帶",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96224",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.94,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X227": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, UNDECIDED): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-96218"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96218": "CONFIRMED"
+    },
+    "order_id": "TO-96218",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "哈囉！我是 Paula，我最近收到的 City 防雨夾克（訂單號：TO-96218）拉鍊壞了，不知道能不能幫忙修理？或者如果修不好了，能否申請退款？我想先問問看修理的可能性，但又有點猶豫要不要直接退貨… 不知道您這邊有什麼建議？謝謝！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City 防雨夾克",
+      "issue_evidence": "拉鍊壞了",
+      "issue_type": "DEFECT",
+      "component_quote": "拉鍊壞了",
+      "part_number_quote": null,
+      "current_variant_quote": "City 防雨夾克",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "能不能幫忙修理？",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "能否申請退款？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96218",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 57.97,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X228": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "Goals span several remedy families (REFUND, WARRANTY_REMEDY, UNDECIDED): ask which outcome.",
+   "derived": {
+    "order_refs": [
+     "TO-96219"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96219": "CONFIRMED"
+    },
+    "order_id": "TO-96219",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) CITY-JACKET: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días:\n\nMe pongo en contacto con ustedes en relación con el pedido TO-96219. Se trata de la chaqueta City rain jacket y, lamentablemente, la cremallera se ha roto.\n\nEn principio, me gustaría saber si sería posible repararla. También me preguntaba si, en caso de que la reparación no fuera viable, cabría la posibilidad de solicitar un reembolso. La verdad es que no estoy del todo segura de qué opción prefiero, así que agradecería mucho su orientación.\n\nQuedo a la espera de su respuesta. Muchas gracias.\n\nUn saludo,\nRin",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la cremallera se ha roto",
+      "issue_evidence": "la cremallera se ha roto",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "chaqueta City rain jacket",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "me gustaría saber si sería posible repararla",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "en caso de que la reparación no fuera viable, cabría la posibilidad de solicitar un reembolso",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "UNDECIDED"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96219",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 58.03,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X238": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "ob Sie den Kessel-Entkalkungsfilter KL-170-FLT auch einzeln verkaufen und ob er derzeit auf Lager ist.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Kessel-Entkalkungsfilter KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ob Sie den Kessel-Entkalkungsfilter KL-170-FLT auch einzeln verkaufen und ob er derzeit auf Lager ist.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 7.59,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X222": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96213"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "order_status": {
+     "TO-96213": "CONFIRMED"
+    },
+    "order_id": "TO-96213",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "class": "NONE",
+     "reason": "malfunction on low-risk class product(s) TRAIL-RUNNER-42: gate passes"
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、Kaiです。注文番号 TO-96213 で購入したスニーカーなのですが、届いてから数回しか履いていないのにソールが剥がれてしまいました。まずは replacement をお願いできますか？ すみません、急いでないのでよく考えたら refund で大丈夫です。返金をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ソールが剥がれてしまいました",
+      "issue_evidence": "ソールが剥がれてしまいました",
+      "issue_type": "DEFECT",
+      "component_quote": "ソールが剥がれてしまいました",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "まずは replacement をお願いできますか？",
+      "goal": "REPLACE_SAME"
+     }
+    ],
+    "order_ref_quote": "TO-96213",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 85.89,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW",
+    "k3": "DIRECT_WORKFLOW",
+    "k5": "DIRECT_WORKFLOW"
+   }
+  },
+  "X236": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，請問貴店是否單獨販售水壺除垢濾芯 KL-170-FLT？目前是否有庫存？謝謝。",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "水壺除垢濾芯 KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "目前是否有庫存？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 28.85,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X241": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "請問貴店有單獨販售水壺除水垢濾芯 KL-170-FLT 嗎？有庫存嗎？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請問貴店有單獨販售水壺除水垢濾芯 KL-170-FLT 嗎？有庫存嗎？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 17.21,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X242": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días, Soy Gonzalo y quisiera consultar si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock. Muchas gracias por su atención.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 10.92,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X239": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "KL-170-FLTは別売りで在庫ありますか？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "KL-170-FLTは別売りで在庫ありますか？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 26.92,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X243": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，想請問貴店的退貨期限是多久？",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 7.1,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X240": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96226"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96226": "CONFIRMED"
+    },
+    "order_id": "TO-96226",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, I placed order TO-96226. Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk? Thanks!",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "kettle limescale filter KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96226",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 29.21,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X207": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered 43, but order TO-96198 shows 44: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96198"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96198": "CONFIRMED"
+    },
+    "order_id": "TO-96198",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, bei meiner Bestellung TO-96198 habe ich statt Größe 43 Größe 44 erhalten. Bitte tauschen Sie das gegen die richtige Größe 43 aus.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hallo, bei meiner Bestellung TO-96198 habe ich statt Größe 43 Größe 44 erhalten. Bitte tauschen Sie das gegen die richtige Größe 43 aus.",
+      "issue_evidence": "statt Größe 43 Größe 44 erhalten",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Größe 44",
+      "requested_variant_quote": "Größe 43",
+      "goals": [
+       {
+        "evidence": "Bitte tauschen Sie das gegen die richtige Größe 43 aus.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96198",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 200.46,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X247": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, just wondering how long the return wndow is? Thanks!",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 9.95,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X248": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “T0-96227” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "T0-96227"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、Minaです。Trail Runnerのスニーカー（サイズ42）が小さすぎて、サイズ43に交換したいです。注文番号はT0-96227です。よろしくお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runnerのスニーカー（サイズ42）が小さすぎて、サイズ43に交換したいです",
+      "issue_evidence": "Trail Runnerのスニーカー（サイズ42）が小さすぎて",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズ42",
+      "requested_variant_quote": "サイズ43",
+      "goals": [
+       {
+        "evidence": "サイズ43に交換したいです",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "T0-96227",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.52,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X245": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo! Ich wollte kurz nachfragen, wie lange ich denn die Rückgabefrist habe, falls ich etwas zurückschicken möchte. Danke und liebe Grüße, Julia!",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 20.86,
+   "actions": {
+    "k1": "HUMAN_REVIEW",
+    "k3": "HUMAN_REVIEW",
+    "k5": "HUMAN_REVIEW"
+   }
+  },
+  "X249": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “WO-96228” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "WO-96228"
+    ],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42",
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety_gate": {
+     "hit": false,
+     "reason": "no malfunction reported: gate not applicable",
+     "class": null
+    },
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "accidentally ordered a 42. I’v"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there,\n\nI hope you’re doing well. I wanted to touch base about my recent purchase of the Trail Runner sneakers. I ordered them a couple of weeks ago when I was finally getting back into my morning jog routine after a long break caused by a nagging knee issue that’s been on the mend thanks to some physio and a lot of stretching. I’ve been logging about 5‑k runs three times a week around the local park, and the shoes have been great for the most part—nice grip on the dirt trails, decent cushioning, and the breathable mesh keeps my feet from getting too sweaty even when the sun’s out strong in the afternoons.\n\nWhen they arrived, I was excited to try them out, but after wearing them for a couple of runs I noticed they felt a bit snug around the toe box, especially after the first mile when my feet start to swell a little. I measured my foot again just to be sure and it looks like I’m actually a half size larger than I thought—my usual size is 43, but I accidentally ordered a 42. I’ve tried loosening the laces and even wearing thinner socks, but it’s still uncomfortable and I’m worried it might lead to blisters if I keep pushing through.\n\nI’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color. My order number is WO-96228 (I think I might have typed it wrong when I placed the order, but hopefully that’s enough to locate it). If you need any additional info—like the receipt email or the tracking number—just let me know and I’ll forward it over.\n\nThanks so much for helping me sort this out. I’m looking forward to getting the right fit so I can keep enjoying my runs without any foot trouble.\n\nBest regards,\nNoah",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color.",
+      "issue_evidence": "I measured my foot again just to be sure and it looks like I’m actually a half size larger than I thought—my usual size is 43, but I accidentally ordered a 42.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 43",
+      "goals": [
+       {
+        "evidence": "I’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "WO-96228",
+    "order_ref_hedge_quote": "I think I might have typed it wrong when I placed the order",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.04,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER",
+    "k3": "CLARIFY_WITH_CUSTOMER",
+    "k5": "CLARIFY_WITH_CUSTOMER"
+   }
   }
  }
 }

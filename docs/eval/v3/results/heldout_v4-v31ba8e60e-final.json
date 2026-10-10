@@ -9081,6 +9081,2156 @@
    "actions": {
     "k1": "HUMAN_REVIEW"
    }
+  },
+  "X134": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S1 hazard words flame, S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96134"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96134": "CONFIRMED"
+    },
+    "order_id": "TO-96134",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [
+      "flame"
+     ],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": [],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I'm Oskar. Order TO-96134. Camping gas stove bought 100 days ago has very uneven flame. Can you fix it?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Camping gas stove",
+      "issue_evidence": "very uneven flame",
+      "issue_type": "DEFECT",
+      "component_quote": "very uneven flame",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you fix it?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96134",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 192.86,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X132": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96132"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96132": "CONFIRMED"
+    },
+    "order_id": "TO-96132",
+    "mentioned_skus": [
+     "CAMP-STOVE"
+    ],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": [],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo zusammen,\n\nentschuldigt, dass ich euch direkt anschreibe, aber ich bin gerade etwas ratlos. Ich habe vor ungefähr 40 Tagen bei euch einen Camping-Gaskocher gekauft – damals noch in der Annahme, dass wir über Ostern wegfahren, aber daraus wurde dann doch nichts, und so stand er eine Weile im Keller. Jetzt wollte ich ihn endlich ausprobieren, und leider funktioniert er nicht richtig: Wenn ich den Zündknopf drücke, höre ich zwar dieses Klicken, aber es kommt kein Feuer, egal wie oft ich es versuche. Die Gasflasche ist angeschlossen und aufgedreht, das habe ich mehrfach kontrolliert. Ich bin mir auch ziemlich sicher, dass ich nichts falsch mache – bei meinem alten Kocher hat das immer geklappt. Vielleicht habe ich ja etwas übersehen, aber ich vermute, dass irgendetwas an der Zündung defekt ist. Ich würde mich freuen, wenn ihr euch das mal ansehen und den Kocher reparieren könntet. Meine Bestellnummer ist TO-96132. Es wäre schön, wenn das noch vor unserem nächsten Campingwochenende klappt, aber ich weiß, dass ihr da nichts versprechen könnt.\n\nVielen Dank schon mal und viele Grüße\nMina",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Camping-Gaskocher",
+      "issue_evidence": "Wenn ich den Zündknopf drücke, höre ich zwar dieses Klicken, aber es kommt kein Feuer",
+      "issue_type": "DEFECT",
+      "component_quote": "Zündung",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ich würde mich freuen, wenn ihr euch das mal ansehen und den Kocher reparieren könntet",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96132",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 243.77,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X135": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S3 gas appliance): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96135"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96135": "CONFIRMED"
+    },
+    "order_id": "TO-96135",
+    "mentioned_skus": [],
+    "order_skus": [
+     "CAMP-STOVE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [
+      "CAMP-STOVE"
+     ],
+     "S4_mains": [],
+     "S5_electrical": []
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "請問能否幫我安排維修或更換？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "露天爐",
+      "issue_evidence": "火焰就是點不著",
+      "issue_type": "DEFECT",
+      "component_quote": "點火針",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "安排維修",
+        "goal": "REPAIR"
+       },
+       {
+        "evidence": "更換",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "EITHER_ACCEPTABLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96135",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 201.5,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X136": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96136"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96136": "CONFIRMED"
+    },
+    "order_id": "TO-96136",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Rin. Hace 20 días compré una tetera eléctrica de 1.7 L, pedido TO-96136. La luz se enciende pero no pasa nada, no calienta. Quisiera pedir un refund, por favor.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "La luz se enciende pero no pasa nada, no calienta.",
+      "issue_evidence": "La luz se enciende pero no pasa nada, no calienta.",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Quisiera pedir un refund, por favor.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96136",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 200.34,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X141": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) ブレーカー/fuse/fuse): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96141"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96141": "CONFIRMED"
+    },
+    "order_id": "TO-96141",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": [
+      "ブレーカー",
+      "fuse",
+      "fuse"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "毎朝、目が覚めたらまずお湯を沸かしてコーヒーを入れるのが日課なんです。昨日もいつも通り電気ポットのスイッチを入れたら、すぐにブレーカーが落ちてしまって、ふと見てみるとfuseが切れているのがわかりました。それ以来、何度試しても同じようにスイッチを入れるとすぐfuseが飛んでしまい、お湯が沸かせなくて困っています。キッチンの他の家電は問題なく使えているので、おそらくポット本体に何らかの不具合があるのではないかと思います。大変お手数ですが、注文番号TO-96141の商品を交換品にしていただけますでしょうか。可能であれば同じ型番の新しいものを送っていただけると助かります。お忙しいところ恐れ入りますが、よろしくお願いいたします。 Wen",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "fuseが切れている",
+      "issue_evidence": "fuseが切れている",
+      "issue_type": "DEFECT",
+      "component_quote": "fuse",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "同じ型番の新しいものを送っていただけると助かります",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96141",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.77,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X119": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Part requested without exactly one part number: ask (part models are never guessed).",
+   "derived": {
+    "order_refs": [
+     "TO-96119"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96119": "CONFIRMED"
+    },
+    "order_id": "TO-96119",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "Could you please send me a replacement part?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LED desk lamp",
+      "issue_evidence": "switch just snapped off",
+      "issue_type": "DEFECT",
+      "component_quote": "switch just snapped off",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Could you please send me a replacement part?",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96119",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 384.48,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X142": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S2 model POSSIBLE, S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) fuse): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96142"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96142": "CONFIRMED"
+    },
+    "order_id": "TO-96142",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "POSSIBLE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": [
+      "fuse"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "交換をお願いします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "電気ケトルを入れるたびに fuse が飛びます。TO-96142の交換をお願いします。",
+      "issue_evidence": "fuse が飛びます",
+      "issue_type": "DEFECT",
+      "component_quote": "fuse が飛びます",
+      "part_number_quote": "TO-96142",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "交換をお願いします",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "fuse が飛びます",
+    "safety_level": "POSSIBLE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 24.79,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X138": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96138"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96138": "CONFIRMED"
+    },
+    "order_id": "TO-96138",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。太郎と申します。\n\n20日前に購入した1.7L電気ケトルが、最近水を温めなくなりました。\n注文番号は TO-96138 です。\n\n初期不良かと思われますので、返金の手続きをお願いできますでしょうか。\nご確認のほど、よろしくお願いいたします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1.7L電気ケトル",
+      "issue_evidence": "水を温めなくなりました",
+      "issue_type": "DEFECT",
+      "component_quote": "水を温めなくなりました",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金の手続きをお願いできますでしょうか",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96138",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 201.84,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X140": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96140"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96140": "CONFIRMED"
+    },
+    "order_id": "TO-96140",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "你好，我 20 天前買的 1.7L 電熱水壺，訂單編號是 TO-96140。現在插電後燈會亮，但完全不會加熱，水一直都是冷的，根本沒辦法用。才買 20 天就遇到這種狀況，真的讓人很困擾。請幫我辦理退款，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1.7L 電熱水壺",
+      "issue_evidence": "燈會亮，但完全不會加熱",
+      "issue_type": "DEFECT",
+      "component_quote": "燈會亮，但完全不會加熱",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請幫我辦理退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96140",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 68.45,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X145": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96145"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96145": "CONFIRMED"
+    },
+    "order_id": "TO-96145",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "El hervidor eléctrico que pedí (order TO-96145) tiene 150 días y ya no calienta, pura frustration, me deja sin café cada mañana, ugh.",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "El hervidor eléctrico que pedí (order TO-96145) tiene 150 días y ya no calienta, pura frustration, me deja sin café cada mañana, ugh.",
+      "issue_evidence": "ya no calienta",
+      "issue_type": "DEFECT",
+      "component_quote": "ya no calienta",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96145",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 14.61,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X143": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V1",
+   "family": null,
+   "reason": "Possible safety issue (S4 mains-electric hazard, S5 electrical (burnt-plastic smell / power base / fuse) fuse): always a human first.",
+   "derived": {
+    "order_refs": [
+     "TO-96143"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96143": "CONFIRMED"
+    },
+    "order_id": "TO-96143",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [
+      "BREW-KETTLE"
+     ],
+     "S5_electrical": [
+      "fuse"
+     ]
+    }
+   },
+   "extraction": {
+    "speech_act_evidence": "TO-96143の交換をお願いします",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "電気ケトルを入れるたびにfuseが飛びます。TO-96143の交換をお願いします。",
+      "issue_evidence": "fuseが飛びます",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": "TO-96143",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "TO-96143の交換をお願いします",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "POSSIBLE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 44.88,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X146": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V9",
+   "family": null,
+   "reason": "No problem and no requested outcome: standard support reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-96146"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96146": "CONFIRMED"
+    },
+    "order_id": "TO-96146",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo,\n\nich schreibe das jetzt einfach mal hierhin, weil es mich gerade echt beschäftigt. Ich bin Chiara und ich habe bei euch vor ungefähr 150 Tagen einen elektrischen Wasserkocher bestellt, Bestellnummer TO-96146. Er stand seitdem brav auf meiner Küchenarbeitsplatte, direkt neben dem kleinen Kräutertopf mit Basilikum, den ich mir damals beim Umzug mitgenommen habe und der jetzt leider auch nicht mehr so gut aussieht.\n\nAnfangs war ich richtig zufrieden, das Wasser wurde schnell heiß und das Aussehen passte super zu meiner neuen weißen Küche. Inzwischen macht er einfach gar nichts mehr, wenn ich den Knopf drücke. Kein Heizen, kein Gluckern, nichts. Das Licht geht noch kurz an und dann ist wieder Stille. Ich finde das gerade total frustrierend, weil ich ihn eigentlich täglich benutzt habe und jetzt muss ich wieder mit dem alten Topf auf dem Herd hantieren, was viel länger dauert und die Küche volldunstet.\n\nIch weiß, das ist jetzt nur ein Ventil, ich erzähle nur, weil es mich gerade so ärgert.\n\nLiebe Grüße\nChiara",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96146",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1
+   },
+   "agreement": null,
+   "latency_s": 25.74,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X147": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96147"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96147": "CONFIRMED"
+    },
+    "order_id": "TO-96147",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号TO-96147の電気ケトルが150日しか使ってないのに、急に加熱しなくなった。ほんと困った。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "電気ケトル",
+      "issue_evidence": "急に加熱しなくなった",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "注文番号TO-96147",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96147",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 26.09,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X144": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V6b",
+   "family": null,
+   "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96144"
+    ],
+    "malformed_refs": [],
+    "hedged": true,
+    "speech_act": "COMPLAINT_ONLY",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96144": "CONFIRMED"
+    },
+    "order_id": "TO-96144",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "嗨，我是 Akira，純粹來碎念一下，不用特別處理沒關係。我那台電熱水壺，訂單編號 TO-96144，大概買了 150 天左右，今天突然就不加熱了，按下去水還是冷吱吱，心也跟著涼了。本來還想說可以用久一點，結果這麼快就罷工，吼唷～真的有點阿雜。好，發洩完畢。",
+    "speech_act": "COMPLAINT_ONLY",
+    "items": [
+     {
+      "item_quote": "電熱水壺",
+      "issue_evidence": "不加熱",
+      "issue_type": "DEFECT",
+      "component_quote": "不加熱",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96144",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 63.4,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X151": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V9",
+   "family": null,
+   "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "嗨～我最近買的東好像突然不工作了，能不能幫我看看要不要修理啊？謝謝～",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "嗨～我最近買的東好像突然不工作了，能不能幫我看看要不要修理啊？謝謝～",
+      "issue_evidence": "不工作了",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "要不要修理",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 26.9,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X153": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "交換できるでしょうか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ドライヤー",
+      "issue_evidence": "ドライヤーが急に壊れてしまって、全然使えなくて困ってます。",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "交換できるでしょうか？",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.56,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X148": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich wende mich an Sie, weil ein Artikel, den ich bei Ihnen erworben habe, leider nicht mehr funktioniert. Da ich mit der Qualität bislang sehr zufrieden war, möchte ich Sie bitten, mir eine Reparatur zu ermöglichen.\n\nKönnten Sie mir bitte mitteilen, wie ich am besten vorgehen soll und ob eine Einsendung zur Überprüfung möglich ist? Ich wäre Ihnen für eine kurze Rückmeldung sehr dankbar.\n\nMit freundlichen Grüßen\nEmma",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "ein Artikel, den ich bei Ihnen erworben habe, leider nicht mehr funktioniert",
+      "issue_evidence": "nicht mehr funktioniert",
+      "issue_type": "DEFECT",
+      "component_quote": "Artikel",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "mir eine Reparatur zu ermöglichen",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 108.58,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X139": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96139"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96139": "CONFIRMED"
+    },
+    "order_id": "TO-96139",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I'm Ulla. Order TO-96139 (1.7 L kettle, bought 20 days ago) now takes forever to boil. Please refund. Thanks.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1.7 L kettle",
+      "issue_evidence": "now takes forever to boil",
+      "issue_type": "DEFECT",
+      "component_quote": "1.7 L kettle",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Please refund.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96139",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 195.05,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X154": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Can you arrange a replacement for me?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "toaster",
+      "issue_evidence": "stopped working completely after only a couple of weeks of normal use",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Can you arrange a replacement for me?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 33.48,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X156": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¡Hola, equipo! Soy Mina. Compré una licuadora en vuestra tienda y hoy ha dejado de funcionar, ya no enciende ni hace nada. No encuentro el número de pedido por ningún lado, lo siento. ¿Podríais enviarme una de reemplazo? ¡Gracias y un saludo!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "una licuadora",
+      "issue_evidence": "ha dejado de funcionar, ya no enciende ni hace nada",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Podríais enviarme una de reemplazo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 7.51,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X157": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Inside our own 365-day warranty: merchant process.",
+   "derived": {
+    "order_refs": [
+     "TO-96148"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96148": "CONFIRMED"
+    },
+    "order_id": "TO-96148",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、私はNOAHです。注文番号TO-96148で購入したDaypack 30L（購入から約100日）のジッパーが壊れました。使えなくなり困っていますので、修理の対応をお願いできますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "ジッパーが壊れました",
+      "issue_type": "DEFECT",
+      "component_quote": "ジッパーが壊れました",
+      "part_number_quote": null,
+      "current_variant_quote": "Daypack 30L",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理の対応をお願いできますでしょうか。",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96148",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.6,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X158": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Inside our own 365-day warranty: merchant process.",
+   "derived": {
+    "order_refs": [
+     "TO-96149"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96149": "CONFIRMED"
+    },
+    "order_id": "TO-96149",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there!\\n\\nI'm Oskar, I bought a Daypack 30L about 100 days ago and the shoulder strap just snapped on me while I was using it. It's been great otherwise, really sad to see it go this soon.\\n\\nIs there a way to get it repaired? My order number is TO-96149.\\n\\nThanks a lot for your help!\\nOskar",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "shoulder strap just snapped",
+      "issue_type": "DEFECT",
+      "component_quote": "shoulder strap just snapped",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Is there a way to get it repaired?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96149",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 21.64,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X160": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Inside our own 365-day warranty: merchant process.",
+   "derived": {
+    "order_refs": [
+     "TO-96151"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96151": "CONFIRMED"
+    },
+    "order_id": "TO-96151",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Rin. Compré una Daypack 30L hace unos 100 días (pedido TO-96151) y se le rompió la hebilla. ¿Me pueden ayudar con un repair? Quisiera saber si es posible repararla y cómo proceder. Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "se le rompió la hebilla",
+      "issue_evidence": "se le rompió la hebilla",
+      "issue_type": "DEFECT",
+      "component_quote": "se le rompió la hebilla",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Me pueden ayudar con un repair?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96151",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 13.6,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X137": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96137"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96137": "CONFIRMED"
+    },
+    "order_id": "TO-96137",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe vor 12 Tagen einen 1,7 L elektrischen Wasserkocher mit der Bestellnummer TO-96137 bei Ihnen erworben. Seit einigen Tagen erhitzt das Gerät das Wasser nicht mehr. Da das Produkt noch innerhalb der Rückgabefrist liegt, bitte ich Sie höflich um eine Rückerstattung des Kaufpreises.\n\nVielen Dank für Ihre Bemühungen.\n\nMit freundlichen Grüßen  Sofia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1,7 L elektrischen Wasserkocher",
+      "issue_evidence": "erhitzt das Gerät das Wasser nicht mehr",
+      "issue_type": "DEFECT",
+      "component_quote": "erhitzt das Gerät das Wasser nicht mehr",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Rückerstattung des Kaufpreises",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96137",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 404.4,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X161": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Inside our own 365-day warranty: merchant process.",
+   "derived": {
+    "order_refs": [
+     "TO-96152"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96152": "CONFIRMED"
+    },
+    "order_id": "TO-96152",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, ich habe das Daypack 30L, das ich vor etwa 100 Tagen bestellt habe (Bestellnummer TO-96152), und der Verschluss ist gebrochen. Könnt ihr das bitte reparieren oder mir sagen, wie ich es einschicken soll? Danke!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "der Verschluss ist gebrochen",
+      "issue_type": "DEFECT",
+      "component_quote": "Verschluss",
+      "part_number_quote": null,
+      "current_variant_quote": "Daypack 30L",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr das bitte reparieren oder mir sagen, wie ich es einschicken soll?",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96152",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 31.34,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X163": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96154"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96154": "CONFIRMED"
+    },
+    "order_id": "TO-96154",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nbei meiner Bestellung mit der Auftragsnummer TO-96154 (Daypack 30L) ist der Reißverschluss beschädigt. Bitte erstatten Sie mir den Kaufpreis.\n\nMit freundlichen Grüßen\nUlla",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "Reißverschluss beschädigt",
+      "issue_type": "DEFECT",
+      "component_quote": "Reißverschluss beschädigt",
+      "part_number_quote": null,
+      "current_variant_quote": "Daypack 30L",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte erstatten Sie mir den Kaufpreis.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96154",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.86,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X149": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、ふみこです。買ったものが動かなくなりました。修理をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "買ったものが動かなくなりました",
+      "issue_evidence": "買ったものが動かなくなりました",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理をお願いします",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 209.81,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X164": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96155"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96155": "CONFIRMED"
+    },
+    "order_id": "TO-96155",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "返金をお願いしたいです",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "縫い目が裂けちゃってて",
+      "issue_type": "DEFECT",
+      "component_quote": "縫い目が裂けちゃってて",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金をお願いしたいです",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96155",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.7,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X162": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Inside our own 365-day warranty: merchant process.",
+   "derived": {
+    "order_refs": [
+     "TO-96153"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96153": "CONFIRMED"
+    },
+    "order_id": "TO-96153",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "BACKPACK-30L",
+    "product": "Daypack 30L",
+    "variant": "black",
+    "qty": 1,
+    "days": 100
+   },
+   "extraction": {
+    "speech_act_evidence": "修理の対応は可能でしょうか",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L",
+      "issue_evidence": "ショルダーストラップが破損してしまいました",
+      "issue_type": "DEFECT",
+      "component_quote": "ショルダーストラップが破損してしまいました",
+      "part_number_quote": null,
+      "current_variant_quote": "Daypack 30L",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "修理の対応は可能でしょうか",
+        "goal": "REPAIR"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96153",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 64.89,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X105": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V7",
+   "family": null,
+   "reason": "2 items need separate handling (D13): ask which first.",
+   "derived": {
+    "order_refs": [
+     "TO-96105"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96105": "CONFIRMED"
+    },
+    "order_id": "TO-96105",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello,\n\nI’m writing to you about an LED desk lamp I bought from your store a little while back. I actually placed the order on a rainy Tuesday afternoon back in early March—I remember because I was sipping a chamomile tea while browsing the site, and the lamp caught my eye with its sleek matte black finish and the promise of adjustable colour temperature. The order confirmation came through with the number TO-96105, and I received the package a few days later, well‑packed in a cardboard box with those little foam corners that always make me feel like I’m unboxing something special.\n\nI’ve been using the lamp on my home office desk for about five months now, mostly for late‑night reading and occasional video calls. It’s been really handy, especially the dimming feature that lets me lower the brightness when I’m watching a documentary. I even took it to a friend’s house once for a board‑game night, and it survived the trip in my backpack without a scratch—until a couple of weeks ago, when I accidentally knocked over a glass of water while reaching for my notebook. Some of the water seeped into the foot/base of the lamp, and I didn’t notice it right away because I was focused on finishing a report.\n\nSince then, the lamp has started to make a faint buzzing sound whenever it’s turned on, especially at the higher brightness settings. I’ve tried wiping the base dry and letting it air out for a couple of days, but the buzz persists and it’s a bit distracting when I’m trying to concentrate. I’ve also checked the plug and the cable, and everything else seems fine—it’s definitely the internal circuitry that’s gotten damp.\n\nGiven that the lamp is still within the warranty period (I believe it’s covered for a year from purchase), I was wondering if it would be possible to arrange a replacement unit. I’d be happy to return the faulty one if needed, and I can provide any photos or additional details you might require. I really like the model and would prefer to stick with the same one rather than switch to a different product.\n\nThank you very much for taking the time to look into this. I appreciate your help and look forward to hearing from you soon.\n\nBest regards,\n\nJulia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LED desk lamp",
+      "issue_evidence": "the lamp has started to make a faint buzzing sound whenever it’s turned on",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I was wondering if it would be possible to arrange a replacement unit",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96105",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 696.24,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X165": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96156"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96156": "CONFIRMED"
+    },
+    "order_id": "TO-96156",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Support Team,\n\nI am writing to request a refund for my City rain jacket (order number TO-96156) due to a torn seam. Thank you for your assistance.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "torn seam",
+      "issue_type": "DEFECT",
+      "component_quote": "torn seam",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "request a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96156",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 14.09,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X152": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V9",
+   "family": null,
+   "reason": "No problem and no requested outcome: standard support reads it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Isamu. Compré un artículo en su tienda y dejó de funcionar. ¿Me pueden ayudar con un repair? ¿Cómo puedo hacer para enviarlo? Gracias.",
+    "speech_act": "REQUEST",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 207.14,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X166": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96157"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96157": "CONFIRMED"
+    },
+    "order_id": "TO-96157",
+    "mentioned_skus": [
+     "BACKPACK-30L"
+    ],
+    "order_skus": [
+     "BACKPACK-30L"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "請協助為此訂單辦理退款",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Daypack 30L 背包",
+      "issue_evidence": "拉鍊已損壞",
+      "issue_type": "DEFECT",
+      "component_quote": "拉鍊已損壞",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "辦理退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96157",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 32.87,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
   }
  }
 }
