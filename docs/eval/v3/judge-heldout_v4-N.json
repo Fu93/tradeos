@@ -2084,12 +2084,446 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 172.42
+  },
+  "X111": {
+   "speech_act_evidence": "請問能否辦理 refund？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LED desk lamp",
+     "issue_evidence": "最近完全無法開啟",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "請問能否辦理 refund？",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "沒有冒煙、火花、異味或發熱的情況",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96111",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer describes a defect (LED desk lamp won't turn on) and requests a refund only; no safety hazards are present; the order reference TO-96111 is valid and matches the customer's account; with a single REFUND goal, the first matching decision rule is V8, which prescribes DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 17.25
+  },
+  "X116": {
+   "speech_act_evidence": "¿Podrían enviarme la pieza de repuesto?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LED desk lamp",
+     "issue_evidence": "se me rompió el interrumptor",
+     "issue_type": "DEFECT",
+     "component": "interruptor",
+     "goals": [
+      {
+       "evidence": "¿Podrían enviarme la pieza de repuesto?",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Hola, soy Valeria, compré una lámpara LED de escritorio hace como 100 días y se me rompió el interrumptor. ¿Podrían enviarme la pieza de repuesto? Mi pedido es TO-96116. Gracías!",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96116",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a broken switch (DEFECT) on a desk lamp and requests a spare part (SEND_PART). No safety hazards are mentioned. The order reference TO-96116 is valid, belongs to the customer, and contains the item. However, the request does not specify a part number, which triggers decision rule V11 (SEND_PART without exactly one part number) → CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 90.93
+  },
+  "X109": {
+   "speech_act_evidence": "修理対応をお願いできますでしょうか",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LEDデスクランプ",
+     "issue_evidence": "調光ボタンが反応しなくなりました",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "修理対応をお願いできますでしょうか",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "異音や発煙、発熱、異臭等は見られません",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96109",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The item is a DEFECT (dimming button non‑responsive) on a DESK‑LAMP (MAINS_ELECTRIC gated class). According to the responsibility table (V12) the product is supplier‑dropshipped with a supplier warranty of 730 days; the purchase was 300 days ago, so within warranty, which would yield CREATE_SUPPLIER_TASK. However the v3.2 safety gate (SG‑1) applies because the product is in a gated safety class (MAINS_ELECTRIC) and the customer reports a malfunction (button not working). Safety gate overrides the decision table and requires a human safety review, making the correct handling HUMAN_REVIEW.",
+   "deciding_rule": "V12",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 36.34
+  },
+  "X122": {
+   "speech_act_evidence": "想請問是否可以幫我更換一個新的蓋子，零件號是 KL-170-LID？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "蓋子鎖不起來，蓋子沒扣緊時水壺煮沸後不會自動關機",
+     "issue_type": "DEFECT",
+     "component": "lid",
+     "goals": [
+      {
+       "evidence": "想請問是否可以幫我更換一個新的蓋子，零件號是 KL-170-LID？",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "有點危險",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96122",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [
+    "KL-170-LID"
+   ],
+   "reasoning": "The product is a Brew‑Kettle (safety_class MAINS_HEATING). The customer reports a malfunction (lid not locking, preventing auto shut‑off). Under the v3.2 safety gate (SG‑1), any malfunction on a gated product requires HUMAN_REVIEW, so the required action is HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 67.56
+  },
+  "X102": {
+   "speech_act_evidence": "Quisiera saber si se puede reparar, cómo debería hacer para enviarla o si hay alguna indicación que pueda seguir antes.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "se me derramó un poco de agua cerca de la base y creo que terminó entrando dentro del pie de la lámpara. Desde entonces, cuando la enciendo hace un zumbido raro, como un vibrazo constante que antes no hacía.",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "quisiera saber si se puede reparar",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "cómo debería hacer para enviarla o si hay alguna indicación que pueda seguir antes",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "NONE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "se me derramó un poco de agua cerca de la base y creo que terminó entrando dentro del pie de la lámpara.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96102",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to water inside the power base of a mains‑electric desk lamp (MAINS_ELECTRIC) triggers rule V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 27.71
+  },
+  "X129": {
+   "speech_act_evidence": "Me gustaría solicitar el reembolso.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "estufa de camping",
+     "issue_evidence": "el perilla del gas se queda trabada y no cierra del todo.",
+     "issue_type": "DEFECT",
+     "component": "perilla del gas",
+     "goals": [
+      {
+       "evidence": "Me gustaría solicitar el reembolso.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "el perilla del gas se queda trabada y no cierra del todo.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96129",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance defect (gas knob stuck) triggers V1, requiring human review.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 23.63
+  },
+  "X132": {
+   "speech_act_evidence": "Ich würde mich freuen, wenn ihr euch das mal ansehen und den Kocher reparieren könntet.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "Wenn ich den Zündknopf drücke, höre ich zwar dieses Klicken, aber es kommt kein Feuer, egal wie oft ich es versuche.",
+     "issue_type": "DEFECT",
+     "component": "Zündung",
+     "goals": [
+      {
+       "evidence": "Ich würde mich freuen, wenn ihr euch das mal ansehen und den Kocher reparieren könntet.",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Wenn ich den Zündknopf drücke, höre ich zwar dieses Klicken, aber es kommt kein Feuer, egal wie oft ich es versuche.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96132",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a defect in the ignition of a camping gas stove (GAS_APPLIANCE). According to safety rule S3 gas appliance, any defect on a gas appliance is POSSIBLE safety, triggering V1 (safety first) → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 31.62
+  },
+  "X124": {
+   "speech_act_evidence": "solo quiero que me devolváis el dinero",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "el mando o la válvula del gas gira pero no hace absolutamente nada, como si no enganchara.",
+     "issue_type": "DEFECT",
+     "component": "gas valve or knob",
+     "goals": [
+      {
+       "evidence": "solo quiero que me devolváis el dinero",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "el mando o la válvula del gas gira pero no hace absolutamente nada, como si no enganchara.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96124",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance defect (valve/knob malfunction) triggers V1 (safety first) → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 23.85
+  },
+  "X108": {
+   "speech_act_evidence": "Könntet ihr sie bitte reparieren?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "DESK-LAMP",
+     "issue_evidence": "die Lampe nach ein paar Minuten einfach ausgeht",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Könntet ihr sie bitte reparieren?",
+       "goal": "REPAIR"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "Es raucht nicht, es funkt nicht, es riecht nicht und heiß wird sie auch nicht",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96108",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The desk lamp defect occurs within the supplier warranty period (730 days > 300 days), so per responsibility table the correct handling is a supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 26.89
+  },
+  "X135": {
+   "speech_act_evidence": "請問能否幫我安排維修或更換？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "CAMP-STOVE",
+     "issue_evidence": "點火時會有清脆的咔嗒聲，但火焰就是點不著",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "維修",
+       "goal": "REPAIR"
+      },
+      {
+       "evidence": "更換",
+       "goal": "REPLACE_SAME"
+      },
+      {
+       "evidence": "請告訴我寄送地址與流程",
+       "goal": "INFORMATION"
+      }
+     ],
+     "goal_relation": "EITHER_ACCEPTABLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "點火時會有清脆的咔嗒聲，但火焰就是點不著",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96135",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to gas appliance defect (ignition failure) triggers V1, requiring HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 25.11
+  },
+  "X106": {
+   "speech_act_evidence": "想請問可以幫我申請 refund 嗎？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LED desk lamp",
+     "issue_evidence": "dimmer 按鈕按了完全沒反應，燈本身還是會亮，但亮度調不動了",
+     "issue_type": "DEFECT",
+     "component": "dimmer button",
+     "goals": [
+      {
+       "evidence": "想請問可以幫我申請 refund 嗎？",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96106",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer requests a refund for a defective LED desk lamp (dimmer button non‑functional). No safety concerns, order reference is valid and matches the customer's account, the only goal is REFUND, so decision rule V8 applies → DIRECT_WORKFLOW.",
+   "deciding_rule": "V8",
+   "required_action": "DIRECT_WORKFLOW",
+   "acceptable_actions": [],
+   "_latency": 20.27
+  },
+  "X104": {
+   "speech_act_evidence": "交換してもらえませんか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LEDデスクライト",
+     "issue_evidence": "足の部分に水が入っちゃて、そこからブーンって音がするようになりました",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "交換してもらえませんか？",
+       "goal": "REPLACE_SAME"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "足の部分に水が入っちゃて、そこからブーンって音がするようになりました",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96104",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety POSSIBLE due to water inside electrical desk lamp (S4 mains electric) triggers V1 → HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 43.35
+  },
+  "X118": {
+   "speech_act_evidence": "もし可能であれば、スイッチの交換パーツを送っていただけないでしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "LEDデスクライト",
+     "issue_evidence": "スイッチがポキッと折れてしまって使えなくなってしまいました…",
+     "issue_type": "DEFECT",
+     "component": "スイッチ",
+     "goals": [
+      {
+       "evidence": "スイッチの交換パーツを送っていただけないでしょうか？",
+       "goal": "SEND_PART"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96118",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "The customer reports a broken switch (DEFECT) on a DESK-LAMP and requests a replacement part (SEND_PART) but does not provide a part number. According to decision table V11, SEND_PART without exactly one part number triggers CLARIFY_WITH_CUSTOMER.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 58.54
+  },
+  "X139": {
+   "speech_act_evidence": "Please refund.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_evidence": "now takes forever to boil",
+     "issue_type": "DEFECT",
+     "component": null,
+     "goals": [
+      {
+       "evidence": "Please refund.",
+       "goal": "REFUND"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "now takes forever to boil",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96139",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Safety gate applies: product is a mains heating appliance (BREW-KETTLE) and customer reports a malfunction (takes forever to boil), requiring human safety review despite refund request.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 46.45
   }
  },
  "stats": {
-  "calls": 68,
-  "retries": 530,
-  "prompt_tokens": 446721,
-  "completion_tokens": 216413
+  "calls": 82,
+  "retries": 679,
+  "prompt_tokens": 538824,
+  "completion_tokens": 257535
  }
 }

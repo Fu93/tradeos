@@ -1130,12 +1130,264 @@
    "required_action": "CREATE_SUPPLIER_TASK",
    "acceptable_actions": [],
    "_latency": 221.0
+  },
+  "X050": {
+   "speech_act_evidence": "請問是否能協助重新寄送？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "MISSING_ITEM",
+     "issue_type_evidence": "我訂購的運動鞋至今仍未收到",
+     "goals": [
+      {
+       "goal": "RESHIP",
+       "goal_evidence": "請問是否能協助重新寄送？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96050",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96050 belongs to the customer and contains TRAIL-RUNNER-42 variant 43 with logistics LOST. Customer reports non-receipt and asks for reship. Fulfilment is SUPPLIER_DROPSHIP with supplier reships = true, LOST case → V12 FULFILMENT responsibility table requires CREATE_SUPPLIER_TASK.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 58.31
+  },
+  "X054": {
+   "speech_act_evidence": "¿Habría posibilidad de que me manden un par de reemplazo?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Están con un problemita: se me salió un ojillo y además se me rasgó el upper.",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "goal_evidence": "¿Habría posibilidad de que me manden un par de reemplazo?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96054",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96054 belongs to customer and contains TRAIL-RUNNER-42 variant 39 delivered 100 days ago. Product is SUPPLIER_DROPSHIP with SUPPLIER 180d warranty. Defect reported within warranty window. No safety gate, no data conflict. Warranty remedy with supplier warranty within days → supplier task.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 49.02
+  },
+  "X065": {
+   "speech_act_evidence": "届いていないので、もう一度送っていただけませんか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "MISSING_ITEM",
+     "issue_type_evidence": "デスクライトがまだ届いていないみたいです",
+     "goals": [
+      {
+       "goal": "RESHIP",
+       "goal_evidence": "もう一度送っていただけませんか？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Linked order TO-96065 belongs to the customer and contains DESK-LAMP black qty1 with logistics LOST. Customer reports the desk lamp has not arrived and requests it be sent again. Issue is MISSING_ITEM with RESHIP goal. Product is SUPPLIER_DROPSHIP with supplier reships=True and logistics is LOST, so per V12 FULFILMENT responsibility table a supplier reship task is required. No safety malfunction is reported.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 56.14
+  },
+  "X048": {
+   "speech_act_evidence": "状況を確認して、商品を再送してください。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "MISSING_ITEM",
+     "issue_type_evidence": "注文番号 TO-96048 でスニーカーを注文しましたが、まだ届きません。追跡情報も10日間ずっと止まったままで",
+     "goals": [
+      {
+       "goal": "RESHIP",
+       "goal_evidence": "商品を再送してください。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96048",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96048 belongs to the customer and contains TRAIL-RUNNER-42 with logistics LOST. Customer reports non-delivery and explicitly requests reship. Fulfilment is SUPPLIER_DROPSHIP and supplier reships = true for a LOST item, so per V12 FULFILMENT responsibility table the action is CREATE_SUPPLIER_TASK. No safety gate applies; safety class NONE.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 135.18
+  },
+  "X066": {
+   "speech_act_evidence": "Could you please look into this and arrange for it to be sent again?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "MISSING_ITEM",
+     "issue_type_evidence": "I have not received it, and it does not appear to have been delivered.",
+     "goals": [
+      {
+       "goal": "RESHIP",
+       "goal_evidence": "arrange for it to be sent again"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Linked order TO-96066 belongs to the customer and contains DESK-LAMP variant black with logistics LOST. Customer reports non-delivery and requests reship. Product is SUPPLIER_DROPSHIP with supplier reships=True and logistics LOST, so fulfilment reship is a supplier task per V12 responsibility table. No malfunction is reported, so safety gate SG-1 does not apply.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 58.73
+  },
+  "X007": {
+   "speech_act_evidence": "サイズを一つ上げて EU 41 に交換できればと思います。",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "SIZE_MISMATCH",
+     "issue_type_evidence": "足が少し窮屈に感じてしまいました。",
+     "goals": [
+      {
+       "goal": "EXCHANGE_VARIANT",
+       "goal_evidence": "サイズを一つ上げて EU 41 に交換できればと思います。"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96007",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96007 belongs to the customer, bought 9 days ago, contains TRAIL-RUNNER-42 variant 40 delivered. Customer reports tight fit/size mismatch and requests exchange to EU 41. Product is returnable, within 30 days, fulfilment SUPPLIER_DROPSHIP with supplier confirms stock=True. Size mismatch exchange on supplier dropshipped item maps to CREATE_SUPPLIER_TASK per V12 responsibility table. No safety concern, no data conflict.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 108.88
+  },
+  "X069": {
+   "speech_act_evidence": "Könnt ihr mir die gegen Größe 41 tauschn?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "SIZE_MISMATCH",
+     "issue_type_evidence": "ich hab die Sneaker in Größe 40 bekommen, die sind mir leider zu klein.",
+     "goals": [
+      {
+       "goal": "EXCHANGE_VARIANT",
+       "goal_evidence": "Könnt ihr mir die gegen Größe 41 tauschn?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO–96069",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests an exchange from size 40 to 41 for sneakers received too small. Order reference TO–96069 is provided but mock records show no linked order and no order-like code found, so the order cannot be verified. Per V11 slots, missing/unverified order reference requires clarification before any workflow.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 66.81
+  },
+  "X068": {
+   "speech_act_evidence": "Las puedo cambiar por la talla 42?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "SIZE_MISMATCH",
+     "issue_type_quote": "las zapatillas son talla 41 y me quedan chicas, me aprientan bastante",
+     "goals": [
+      {
+       "goal": "EXCHANGE_VARIANT",
+       "quote": "Las puedo cambiar por la talla 42?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO‑96068",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Customer requests an exchange from size 41 to 42 for sneakers that are too small. Speech act is a request for EXCHANGE_VARIANT. No order is linked on the case and the order-like code in the message is not verified in the MOCK records, so the order cannot be confirmed and the product/variant in the order cannot be validated. Per V11 slots, missing/unverified order reference requires clarification before any workflow.",
+   "deciding_rule": "V11",
+   "required_action": "CLARIFY_WITH_CUSTOMER",
+   "acceptable_actions": [],
+   "_latency": 126.67
+  },
+  "X056": {
+   "speech_act_evidence": "replacement用の新しいペアを手配していただけますでしょうか？",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "片方のアイレットが取れてアッパーが破れました。",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "goal_evidence": "replacement用の新しいペアを手配していただけますでしょうか？"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "",
+   "safety": "NONE",
+   "order_ref_as_written": "TO-96056",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96056 belongs to the customer and contains TRAIL-RUNNER-42 variant 40 delivered 45 days ago, consistent with the description. The customer reports a defect (eyelet off / upper torn) and requests a replacement pair. Product safety_class NONE, no safety trigger. Warranty remedy for DEFECT with REPLACE_SAME on a supplier-dropshipped item with SUPPLIER 180d warranty, purchase 45 days ago → supplier warranty within days → CREATE_SUPPLIER_TASK per V12 responsibility table.",
+   "deciding_rule": "V12",
+   "required_action": "CREATE_SUPPLIER_TASK",
+   "acceptable_actions": [],
+   "_latency": 112.99
   }
  },
  "stats": {
-  "calls": 41,
-  "retries": 36,
-  "prompt_tokens": 246209,
-  "completion_tokens": 82346
+  "calls": 50,
+  "retries": 61,
+  "prompt_tokens": 299991,
+  "completion_tokens": 102091
  }
 }
