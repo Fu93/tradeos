@@ -441,11 +441,13 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged
-approval or a lying extractor — and the autonomy decision (off by default; the limit boundary; above the limit,
-an instruction-like message and an unreadable request all escalate; autonomy cannot override a policy NO; an auto
+approval or a lying extractor — the autonomy decision (off by default; the limit boundary; above the limit, an
+instruction-like message and an unreadable request all escalate; autonomy cannot override a policy NO; an auto
 approval is on the chain as `approval_source: auto`; and neither the timeline nor the UI ever calls an auto approval
-a human one). 352 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff` (incl.
-eval dataset checks and the fallback injection guard).
+a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`): a database from before
+`approval_source` existed gains the column, keeps its chain verifiable, and still refunds. 353 tests, run by GitHub
+Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset checks and the fallback
+injection guard).
 
 ## Demo flow (≈3 minutes)
 
