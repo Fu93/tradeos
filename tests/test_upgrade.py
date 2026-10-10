@@ -556,6 +556,9 @@ def test_healthz_reports_modes_without_secrets(app_ctx):
     data = client.get("/healthz").json()
     assert data["ok"] is True and data["paypal_mode"] == "mock"
     assert data["webhook_configured"] is True and "WH-TEST" not in json.dumps(data)
+    # scripts/sandbox_verify.py reads these to tell which configuration it is talking to
+    # instead of scraping the page. Neither value is a secret.
+    assert data["auto_enabled"] is False and data["auto_refund_max_amount"] == "50.00"
 
 
 def test_chinese_script_label_is_corrected_deterministically():

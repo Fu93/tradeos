@@ -139,7 +139,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.get("/healthz")
     def healthz():
         return {"ok": True, "paypal_mode": wf.paypal_mode, "llm_configured": settings.llm_configured,
-                "webhook_configured": bool(settings.paypal_webhook_id), "cases": len(db.list_cases())}
+                "webhook_configured": bool(settings.paypal_webhook_id), "cases": len(db.list_cases()),
+                # Autonomy, so a verification run can tell which configuration it is talking to
+                # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
+                "auto_enabled": settings.auto_enabled,
+                "auto_refund_max_amount": str(settings.auto_refund_max_amount)}
 
     @app.post("/demo/run/{scenario}")
     def run_demo(request: Request, scenario: str):
@@ -338,8 +342,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(404)
         result = db.verify_chain(case_id)
         chained = db.chained_case_state(case_id)
+        # approval_source belongs here: the point of chaining it is that a verifier outside this process
+        # can confirm WHO approved a refund (a person, or the merchant's own policy), not just that
+        # somebody did. Leaving it out made the guarantee only visible inside the app.
         result["chained_state"] = {k: chained.get(k) for k in ("status", "decision", "human_decision",
-                                                               "refund_status", "refund_id")}
+                                                               "approval_source", "refund_status", "refund_id")}
         return JSONResponse(result)
 
     @app.get("/api/cases/{case_id}")
