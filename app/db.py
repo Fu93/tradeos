@@ -74,7 +74,10 @@ CREATE TABLE IF NOT EXISTS paypal_calls (
     ts TEXT NOT NULL,
     operation TEXT NOT NULL,
     ok INTEGER NOT NULL,
-    result TEXT
+    result TEXT,
+    debug_id TEXT,                      -- PayPal-Debug-Id (success or failure)
+    request_id TEXT,                    -- PayPal-Request-Id we sent (idempotency key), if any
+    evidence_json TEXT                  -- ids / status / status_details / error name (never tokens)
 );
 
 -- Every PayPal webhook delivery we receive (verified or not, matched or not). A VERIFIED
@@ -133,6 +136,10 @@ class Database:
                         "webhook_status", "webhook_json", "payer_note_json"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
+            have = {r[1] for r in conn.execute("PRAGMA table_info(paypal_calls)")}
+            for col in ("debug_id", "request_id", "evidence_json"):
+                if col not in have:
+                    conn.execute(f"ALTER TABLE paypal_calls ADD COLUMN {col} TEXT")
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -215,11 +222,14 @@ class Database:
         return out
 
     # -- PayPal call log ---------------------------------------------------
-    def log_paypal_call(self, case_id: str, operation: str, ok: bool, result: str) -> None:
+    def log_paypal_call(self, case_id: str, operation: str, ok: bool, result: str, debug_id: str | None = None,
+                        request_id: str | None = None, evidence: dict | None = None) -> None:
         with self.connect() as conn:
             conn.execute(
-                "INSERT INTO paypal_calls (case_id, ts, operation, ok, result) VALUES (?,?,?,?,?)",
-                (case_id, utcnow(), operation, int(ok), result),
+                "INSERT INTO paypal_calls (case_id, ts, operation, ok, result, debug_id, request_id, evidence_json) "
+                "VALUES (?,?,?,?,?,?,?,?)",
+                (case_id, utcnow(), operation, int(ok), result, debug_id, request_id,
+                 json.dumps(evidence) if evidence is not None else None),
             )
 
     def paypal_calls(self, case_id: str, operation: str | None = None) -> list[dict]:

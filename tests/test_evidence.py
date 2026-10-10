@@ -1,0 +1,111 @@
+"""Item 2 (feat/paypal-evidence): per-case PayPal evidence timeline."""
+import json
+from unittest.mock import MagicMock
+
+import httpx
+from fastapi.testclient import TestClient
+
+from app.config import Settings
+from app.main import create_app
+from app.paypal_client import PayPalClient
+from app.paypal_mock import MockPayPalClient
+from app.views import evidence_view, status_words
+from app.workflow import Workflow
+from tests.test_upgrade import FakeExtractor, app_ctx, case_from, refund_event  # noqa: F401
+from app.notes import TemplateNoteWriter
+
+SECRETS = ("Bearer", "access_token", "client_secret", "PAYPAL_CLIENT_SECRET", "WH-TEST", "transmission_sig")
+
+
+def run_a(client):
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    return case_id
+
+
+def test_success_calls_record_debug_id_request_id_and_ids(app_ctx):
+    client, _, wf = app_ctx
+    case_id = run_a(client)
+    calls = {c["operation"]: c for c in wf.db.paypal_calls(case_id)}
+    refund = calls["refund_capture"]
+    assert refund["ok"] == 1 and refund["debug_id"].startswith("mock-debug-")
+    assert refund["request_id"] == f"tradeos-refund-{case_id}"
+    ev = json.loads(refund["evidence_json"])
+    case = wf.db.get_case(case_id)
+    assert ev["id"] == case["refund_id"] and ev["status"] == "COMPLETED"
+    order = json.loads(calls["create_order_with_card"]["evidence_json"])
+    assert order["capture_id"] == case["capture_id"] and order["capture_status"] == "COMPLETED"
+    assert calls["create_order_with_card"]["request_id"]
+    # debug ids are not carried over to a call that did not produce one
+    assert calls["get_capture"]["debug_id"] in (None, "")
+
+
+def test_timeline_orders_paypal_vs_tradeos_and_renders(app_ctx):
+    client, _, wf = app_ctx
+    case_id = run_a(client)
+    client.post("/webhooks/paypal", content=json.dumps(refund_event(wf.db.get_case(case_id)["refund_id"])),
+                headers={"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature"})
+    rows = evidence_view(wf.db, case_id)
+    order = [r["what"] for r in rows]
+    approved = next(i for i, r in enumerate(rows) if r["who"] == "Human decided" and "approved" in r["what"])
+    assert order.index("Create order (Orders v2, card)") < approved < order.index("Refund capture")
+    assert any(w.startswith("Policy final") for w in order)
+    assert rows[-1]["source"] == "webhook" and "event_id" in dict(rows[-1]["ids"])
+    assert {r["who"] for r in rows} >= {"PayPal returned", "TradeOS decided", "Human decided", "PayPal webhook"}
+    html = client.get(f"/?case={case_id}").text
+    assert "PayPal evidence" in html and "PayPal-Debug-Id" in html and f"tradeos-refund-{case_id}" in html
+    assert "MOCK PayPal" in html
+    section = html[html.index('id="evidence"'):html.index('<!-- AI understanding -->')]
+    for s in SECRETS:
+        assert s not in section
+
+
+def test_blocked_case_shows_no_refund_call(app_ctx):
+    client, _, wf = app_ctx
+    case_id = case_from(client.post("/demo/run/B", follow_redirects=False))
+    rows = evidence_view(wf.db, case_id)
+    assert not any(r["what"] == "Refund capture" for r in rows)
+    assert any(r["what"].startswith("Refund API NOT CALLED") for r in rows)
+
+
+def test_failed_refund_shows_debug_id_and_issue(app_ctx):
+    client, _, wf = app_ctx
+    case_id = case_from(client.post("/demo/run/R", follow_redirects=False))
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    bad = [r for r in evidence_view(wf.db, case_id) if r["what"] == "Refund capture" and not r["ok"]]
+    assert bad and bad[0]["debug_id"] == "mock-debug" and "HTTP 422" in bad[0]["status"]
+    assert bad[0]["request_id"] == f"tradeos-refund-{case_id}"
+
+
+def test_status_wording_echeck_and_cancelled_vs_failed():
+    assert "ECHECK" in status_words("PENDING", {"reason": "ECHECK"}) and "eCheck" in status_words("PENDING", {"reason": "ECHECK"})
+    c, f = status_words("CANCELLED"), status_words("FAILED")
+    assert c != f and "cancelled" in c and "not a processing failure" in c and "could not complete" in f
+
+
+def test_pending_echeck_refund_shows_reason(settings):
+    pp = MagicMock(wraps=MockPayPalClient(refund_status="PENDING"), is_mock=True)
+    s = Settings(db_path=settings.db_path, rate_limit_per_minute=100, rate_limit_per_hour=100)
+    app = create_app(settings=s, paypal=pp, extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
+    client = TestClient(app)
+    orig = pp._mock_wraps.refund_capture
+
+    def with_reason(*a, **k):
+        r = orig(*a, **k)
+        r["status_details"] = {"reason": "ECHECK"}
+        return r
+    pp.refund_capture.side_effect = with_reason
+    case_id = run_a(client)
+    row = [r for r in evidence_view(app.state.workflow.db, case_id) if r["what"] == "Refund capture"][0]
+    assert row["status"].startswith("PENDING") and "ECHECK" in row["status"]
+
+
+def test_real_client_keeps_success_debug_id_never_token():
+    def handler(request):
+        if request.url.path == "/v1/oauth2/token":
+            return httpx.Response(200, json={"access_token": "SECRET-TOKEN", "expires_in": 3600})
+        return httpx.Response(200, json={"id": "R1", "status": "COMPLETED"}, headers={"paypal-debug-id": "dbg123"})
+
+    pp = PayPalClient("id", "s", "https://api-m.sandbox.paypal.com", transport=httpx.MockTransport(handler))
+    assert pp.get_refund("R1")["status"] == "COMPLETED"
+    assert pp.last_debug_id == "dbg123"

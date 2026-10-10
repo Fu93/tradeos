@@ -159,6 +159,28 @@
     {% endif %}
   </section>
 
+  <!-- PayPal evidence -->
+  <section class="block" id="evidence">
+    <h2>PayPal evidence <span class="muted small">· what PayPal returned vs what TradeOS decided{% if paypal_mode == "mock" %} · <strong>MOCK PayPal (no sandbox credentials)</strong>{% endif %}</span></h2>
+    {% if evidence %}
+    <table class="evidence">
+      <thead><tr><th>Time (UTC)</th><th>Source</th><th>What</th><th>Status</th><th>IDs</th><th>PayPal-Debug-Id</th><th>PayPal-Request-Id</th></tr></thead>
+      <tbody>
+      {% for r in evidence %}
+        <tr class="src-{{ r.source }}{{ '' if r.ok else ' bad' }}">
+          <td>{{ r.time }}</td><td><span class="who who-{{ r.source }}">{{ r.who }}</span></td>
+          <td>{{ r.what }}</td><td>{{ r.status or "—" }}</td>
+          <td>{% for k, v in r.ids %}<code>{{ k }}={{ v }}</code><br>{% endfor %}</td>
+          <td>{% if r.debug_id %}<code>{{ r.debug_id }}</code>{% else %}—{% endif %}</td>
+          <td>{% if r.request_id %}<code>{{ r.request_id }}</code>{% else %}—{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <p class="muted small">PayPal rows are logged straight from PayPal responses (debug ids let PayPal support trace any call). TradeOS/Human rows are decisions made by the policy engine and the merchant; the AI never decides money. No tokens or credentials are stored or shown.</p>
+    {% elif current %}<p class="muted">No PayPal calls for this case yet.</p>{% endif %}
+  </section>
+
   <!-- AI understanding -->
   <section class="block" id="ai">
     <h2>What the AI understood</h2>

@@ -97,13 +97,23 @@ class Workflow:
 
     def _pp(self, case_id: str, operation: str, *args, **kwargs) -> dict:
         """Call PayPal and log every call (so 'Refund API: NOT CALLED' is provable from the log)."""
+        client = self.paypal()
+        request_id = kwargs.get("request_id")
+        pos = _REQUEST_ID_ARG.get(operation)
+        if request_id is None and pos is not None and len(args) > pos:
+            request_id = args[pos]
         try:
-            result = getattr(self.paypal(), operation)(*args, **kwargs)
+            result = getattr(client, operation)(*args, **kwargs)
         except PayPalError as exc:
-            self.db.log_paypal_call(case_id, operation, False, str(exc))
+            self.db.log_paypal_call(case_id, operation, False, str(exc), debug_id=exc.debug_id or None,
+                                    request_id=request_id,
+                                    evidence={"http_status": exc.status_code, "name": exc.name or None,
+                                              "issue": ((exc.details or [{}])[0] or {}).get("issue")
+                                              if isinstance(exc.details, list) else None})
             raise
         summary = {k: result.get(k) for k in ("id", "status") if isinstance(result, dict)}
-        self.db.log_paypal_call(case_id, operation, True, json.dumps(summary))
+        self.db.log_paypal_call(case_id, operation, True, json.dumps(summary), debug_id=_last_debug_id(client),
+                                request_id=request_id, evidence=_evidence(operation, result))
         return result
 
     # ------------------------------------------------------------------ seed
@@ -569,6 +579,35 @@ class Workflow:
     def _now() -> str:
         from .db import utcnow
         return utcnow()
+
+
+# Position of the PayPal-Request-Id argument per client operation (for the evidence log).
+_REQUEST_ID_ARG = {"create_order_with_card": 4, "create_order": 4, "capture_order": 1, "refund_capture": 1}
+
+
+def _last_debug_id(client) -> str | None:
+    inner = getattr(client, "_mock_wraps", None) or client  # tests wrap the mock in MagicMock
+    value = getattr(inner, "last_debug_id", None)
+    try:
+        inner.last_debug_id = None  # never attribute one call's debug id to the next call
+    except AttributeError:
+        pass
+    return value if isinstance(value, str) and value else None
+
+
+def _evidence(operation: str, result: dict) -> dict:
+    """Only identifiers and states PayPal returned. No tokens, no payer data."""
+    if not isinstance(result, dict):
+        return {}
+    ev = {"id": result.get("id"), "status": result.get("status"), "status_details": result.get("status_details")}
+    if operation in ("create_order_with_card", "capture_order"):
+        cap = first_capture(result)
+        if cap:
+            ev.update(capture_id=cap.get("id"), capture_status=cap.get("status"),
+                      capture_status_details=cap.get("status_details"))
+    if result.get("amount"):
+        ev["amount"] = result["amount"]
+    return {k: v for k, v in ev.items() if v}
 
 
 def clean_message(message: str | None, max_chars: int) -> str:

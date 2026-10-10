@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 
 from .db import Database
@@ -306,7 +307,8 @@ def narrate(e: dict) -> str:
         return "The merchant approved the refund."
     if t.startswith("PayPal refund "):
         note = " The customer note was attached as note_to_payer." if d.get("note_to_payer") else ""
-        return f"PayPal returned refund {d.get('refund_id')} with status {d.get('status')} ({_money(d.get('amount'))}).{note}"
+        return (f"PayPal returned refund {d.get('refund_id')} with status "
+                f"{status_words(d.get('status'), d.get('status_details'))} ({_money(d.get('amount'))}).{note}")
     if t == "Refund failed":
         issue = ""
         if isinstance(d.get("details"), list) and d["details"]:
@@ -342,6 +344,97 @@ def narrate(e: dict) -> str:
     if t == "PayPal error":
         return f"PayPal error: {d.get('message')}" + (f" (debug_id {d.get('debug_id')})" if d.get("debug_id") else "")
     return t
+
+
+# ---------------------------------------------------------------- PayPal evidence timeline
+OPERATION_LABELS = {
+    "create_order_with_card": "Create order (Orders v2, card)", "create_order": "Create order (Orders v2)",
+    "capture_order": "Capture order", "get_capture": "Get capture details", "refund_capture": "Refund capture",
+    "get_refund": "Get refund status",
+}
+REFUND_STATUS_WORDS = {
+    "COMPLETED": "COMPLETED — money returned to the buyer",
+    "PENDING": "PENDING — not final yet; not shown as success",
+    "FAILED": "FAILED — PayPal could not complete the refund",
+    "CANCELLED": "CANCELLED — the refund was cancelled at PayPal (no money returned; not a processing failure)",
+}
+STATUS_REASONS = {"ECHECK": "ECHECK — eCheck-funded; PayPal settles it after the bank clears (usually a few days)"}
+
+
+def status_words(status: str | None, details: dict | None = None) -> str:
+    words = REFUND_STATUS_WORDS.get(status or "", status or "")
+    reason = (details or {}).get("reason")
+    if reason:
+        words += f" · reason {STATUS_REASONS.get(reason, reason)}"
+    return words
+
+
+def _call_row(c: dict) -> dict:
+    ev = json.loads(c["evidence_json"]) if c.get("evidence_json") else {}
+    op = c["operation"]
+    ids, status = [], ev.get("status")
+    if op in ("create_order_with_card", "create_order", "capture_order"):
+        ids += [("order_id", ev.get("id")), ("capture_id", ev.get("capture_id"))]
+        if ev.get("capture_status"):
+            status = f"order {ev.get('status')} · capture {ev['capture_status']}"
+            if (ev.get("capture_status_details") or {}).get("reason"):
+                status += f" ({ev['capture_status_details']['reason']})"
+    elif op == "get_capture":
+        ids.append(("capture_id", ev.get("id")))
+    elif op in ("refund_capture", "get_refund"):
+        ids.append(("refund_id", ev.get("id")))
+        status = status_words(ev.get("status"), ev.get("status_details")) if ev.get("status") else None
+    if not c["ok"]:
+        status = "ERROR · " + " ".join(str(x) for x in (f"HTTP {ev.get('http_status')}" if ev.get("http_status") else "",
+                                                        ev.get("name"), ev.get("issue")) if x)
+    return {"ts": c["ts"], "source": "paypal", "who": "PayPal returned", "what": OPERATION_LABELS.get(op, op),
+            "ok": bool(c["ok"]), "status": status, "ids": [(k, v) for k, v in ids if v],
+            "debug_id": c.get("debug_id"), "request_id": c.get("request_id")}
+
+
+def _webhook_row(w: dict) -> dict:
+    words = {"PENDING_TO_COMPLETED": "applied: refund PENDING → COMPLETED", "CONFIRMED": "second confirmation",
+             "NO_CHANGE": "verified, no state change", "DUPLICATE_IGNORED": "duplicate delivery ignored",
+             "MISMATCH_IGNORED": "refund id does not match — ignored", "UNVERIFIED_IGNORED": "NOT verified — ignored",
+             "UNMATCHED": "no matching case"}
+    return {"ts": w["ts"], "source": "webhook", "who": "PayPal webhook",
+            "what": f"{w.get('event_type')} · signature {w.get('verification')}",
+            "ok": bool(w["verified"]) or w["outcome"] == "DUPLICATE_IGNORED",
+            "status": f"{w.get('resource_status') or '—'} · TradeOS: {words.get(w['outcome'], w['outcome'])}",
+            "ids": [(k, v) for k, v in (("event_id", w.get("event_id")), ("refund_id", w.get("resource_id"))) if v],
+            "debug_id": None, "request_id": None}
+
+
+DECISION_TITLES = ("Policy pre-check", "Policy final", "Human approved", "Human declined", "Waiting for human",
+                   "Refund API NOT CALLED", "Second Approve click")
+
+
+_FLOW = ["Policy pre-check", "Create order", "Capture order", "Get capture", "Policy final", "Refund API NOT CALLED",
+         "Waiting for human", "Human approved", "Human declined", "Refund capture", "Second Approve", "Get refund"]
+
+
+def _rank(r: dict) -> int:
+    if r["source"] == "webhook":
+        return len(_FLOW)
+    text = r["what"] if r["source"] == "paypal" else r.get("_title", "")
+    return next((i for i, k in enumerate(_FLOW) if text.startswith(k)), len(_FLOW))
+
+
+def evidence_view(db: Database, case_id: str) -> list[dict]:
+    """One chronological list: what PayPal returned (API + webhooks) vs what TradeOS decided."""
+    rows = [_call_row(c) for c in db.paypal_calls(case_id)]
+    rows += [_webhook_row(w) for w in db.webhook_events(case_id)]
+    for e in db.timeline(case_id):
+        if e["title"].startswith(DECISION_TITLES):
+            d = e.get("detail") or {}
+            rows.append({"ts": e["ts"], "source": "tradeos", "who": "Human decided"
+                         if e["title"].startswith(("Human approved", "Human declined")) else "TradeOS decided", "what": narrate(e), "ok": True,
+                         "status": d.get("decision"), "_title": e["title"], "ids": [], "debug_id": None, "request_id": None})
+    # Timestamps have 1 s resolution; within the same second order by the fixed flow of a case.
+    rows.sort(key=lambda r: (r["ts"], _rank(r)))
+    for r in rows:
+        r["time"] = fmt_time(r["ts"])
+    return rows
 
 
 def timeline_view(events: list[dict]) -> list[dict]:
