@@ -401,6 +401,7 @@ WEBHOOK_OUTCOME_WORDS = {
     "NO_CHANGE": "verified, no state change", "DUPLICATE_IGNORED": "duplicate delivery ignored",
     "MISMATCH_IGNORED": "refund id does not match — ignored", "UNVERIFIED_IGNORED": "NOT verified — ignored",
     "UNMATCHED": "no matching case", "FAILED_WILL_RETRY": "processing failed — PayPal will retry",
+    "STALE_REPLAY_REJECTED": "stale/replay rejected — no change", "STALE_GET_CHECK": "late delivery — re-checked with PayPal GET",
     "PENDING_CONFIRMED": "verified: still PENDING", "PENDING_TO_FAILED": "verified: refund FAILED — needs a human",
     "WARNING_NEEDS_HUMAN": "verified warning — needs a human", "NEEDS_HUMAN": "verified, differs — needs a human",
 }

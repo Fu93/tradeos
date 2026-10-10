@@ -603,6 +603,16 @@ class Workflow:
                 expected = {"COMPLETED", "REFUNDED", "PARTIALLY_REFUNDED"}
             checks.append({"field": "capture.status", "local": "/".join(sorted(expected)), "paypal": cap_status,
                            "match": cap_status in expected})
+            if capture.get("id") not in (None, case["capture_id"]):
+                checks.append({"field": "capture.id", "local": case["capture_id"], "paypal": capture.get("id"),
+                               "match": False})
+            if refund is not None and refund.get("id") not in (None, refund_id):
+                checks.append({"field": "refund.id", "local": refund_id, "paypal": refund.get("id"), "match": False})
+                refund = None  # never apply a status that belongs to another refund
+            up = [l.get("href", "") for l in (refund or {}).get("links") or [] if l.get("rel") == "up"]
+            if up and not any(h.rstrip("/").endswith("/captures/" + case["capture_id"]) for h in up):
+                checks.append({"field": "refund.capture", "local": case["capture_id"], "paypal": up[0], "match": False})
+                refund = None
             if refund is not None and case.get("refund_id") == refund_id:
                 pp_status = refund.get("status")
                 local_after = local_refund
@@ -661,7 +671,23 @@ class Workflow:
                           {"error": type(exc).__name__, "seq": next_seq()})
 
     # ------------------------------------------------------------------ webhook
-    def record_webhook(self, event: dict, verification: str, method: str = "postback") -> str | None:
+    def transmission_age(self, transmission_time: str | None) -> str:
+        """'fresh', 'stale' (older than the window), 'future' (beyond allowed clock skew) or 'unknown'."""
+        if not transmission_time:
+            return "unknown"
+        try:
+            sent = datetime.fromisoformat(transmission_time.replace("Z", "+00:00"))
+            if sent.tzinfo is None:
+                sent = sent.replace(tzinfo=timezone.utc)
+        except ValueError:
+            return "stale"  # unparseable: treat as untrusted-old
+        age = (datetime.now(timezone.utc) - sent).total_seconds()
+        if age < -self.settings.webhook_max_future_skew_s:
+            return "future"
+        return "stale" if age > self.settings.webhook_max_age_s else "fresh"
+
+    def record_webhook(self, event: dict, verification: str, method: str = "postback",
+                       transmission_time: str | None = None) -> str | None:
         """Signed PayPal webhook. Returns the matched case id.
 
         Refund events (resource = refund): PAYMENT.CAPTURE.REFUNDED, PAYMENT.REFUND.PENDING,
@@ -672,6 +698,13 @@ class Workflow:
         - Only a VERIFIED event can change anything. Unverified deliveries are logged only.
         - A verified event id is processed once (persisted in webhook_events); retries are no-ops.
         - Refund events must carry this case's own refund id; otherwise logged, no state change.
+        - Replay window on paypal-transmission-time (signed, so it cannot be altered). PayPal's docs do
+          not say whether its retries (up to 25 over 3 days) carry a new transmission time, so an old
+          time alone is not proof of a replay and must not lose a legitimate late delivery:
+            * future-dated beyond the skew, or old AND event id already processed -> "stale/replay
+              rejected": logged, no state change, 200 (a non-2xx would only make PayPal resend it);
+            * old but never seen -> accepted as a late delivery, but its payload is NOT trusted for a
+              state change: TradeOS re-reads the refund from PayPal (GET) and only that result counts.
         - Allowed state changes, all through _record_refund: PENDING -> COMPLETED; PENDING -> PENDING
           (new reason, e.g. ECHECK); PENDING -> FAILED (needs a human). COMPLETED is never
           downgraded, and nothing here ever calls the Refund API.
@@ -700,8 +733,18 @@ class Workflow:
             self.db.log_webhook_event(case_id=None, outcome="UNMATCHED", **log)
             return None
         case_id = case["id"]
+        age = self.transmission_age(transmission_time)
+        info["transmission_time"], info["transmission_age"] = transmission_time, age
+        if (verified and age == "stale" and event_id and not self.db.webhook_event_seen(event_id)
+                and self._webhook_would_change_state(self._case(case_id), etype, resource)):
+            return self._late_event_recheck(case_id, etype, transmission_time, log, info)
         with self._lock(case_id):
             case = self._case(case_id)
+            if verified and (age == "future" or (age == "stale" and event_id and self.db.webhook_event_seen(event_id))):
+                self.db.log_webhook_event(case_id=case_id, outcome="STALE_REPLAY_REJECTED", **{**log, "verified": False})
+                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} rejected as stale/replay "
+                              f"(transmission time {transmission_time}) — no state change", info)
+                return case_id
             if not verified:
                 # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
@@ -724,6 +767,32 @@ class Workflow:
                 self.db.release_webhook_event(event_id)
                 self.db.log_webhook_event(case_id=case_id, outcome="FAILED_WILL_RETRY", **{**log, "verified": False})
                 raise
+
+    def _late_event_recheck(self, case_id: str, etype: str, transmission_time: str | None, log: dict,
+                            info: dict) -> str:
+        """Old (outside the window), never-seen, would-change-state event. The body is NOT trusted:
+        PayPal's GET decides via reconcile() (own capture/refund ids, re-check under the lock, only
+        PENDING -> COMPLETED). The event id is claimed only after a successful GET; if PayPal can't
+        be reached, nothing changes, the id stays unclaimed and we raise so the endpoint answers 500
+        and PayPal's retry can be processed later."""
+        result = self.reconcile(case_id, timeout=RECONCILE_READ_TIMEOUT)
+        if not result or not result.get("checks"):
+            self.db.log_webhook_event(case_id=case_id, outcome="STALE_GET_FAILED_WILL_RETRY", **{**log, "verified": False})
+            self.db.audit(case_id, "webhook", f"Late PayPal webhook {etype}: could not re-check with PayPal — "
+                          "no change, not acknowledged (PayPal will retry)", info)
+            raise PayPalError("late webhook re-check failed")
+        if not self.db.log_webhook_event(case_id=case_id, outcome="STALE_GET_CHECK", **log):
+            self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED", **{**log, "verified": False})
+            return case_id
+        self.db.audit(case_id, "webhook", f"Late PayPal webhook {etype} (sent {transmission_time}) — payload not "
+                      "trusted for a state change; refund re-read from PayPal instead", info)
+        return case_id
+
+    @staticmethod
+    def _webhook_would_change_state(case: dict, etype: str, resource: dict) -> bool:
+        return (etype not in CAPTURE_WARNING_EVENTS and case.get("refund_status") == "PENDING"
+                and case.get("refund_id") == resource.get("id")
+                and resource.get("status") in ("COMPLETED", "PENDING", "FAILED"))
 
     def _apply_webhook(self, case: dict, etype: str, resource: dict, info: dict) -> tuple[str, str]:
         """Verified, first delivery, case lock held. Returns (outcome, audit title)."""

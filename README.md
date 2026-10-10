@@ -252,6 +252,15 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   a human only. Unverified, unknown, mismatched or duplicate deliveries are logged and change nothing. If processing fails
   midway, the endpoint returns 500 so PayPal's retry is processed. PayPal's Webhooks simulator signs mock events with the
   webhook ID `WEBHOOK_ID` and they cannot be postback-verified, so they show as *not verified* against our real ID.
+- **Replay window.** The signed `paypal-transmission-time` is checked (default window 10 min, `TRADEOS_WEBHOOK_MAX_AGE_S`;
+  up to 2 min future clock skew, `TRADEOS_WEBHOOK_MAX_FUTURE_SKEW_S`). PayPal's docs don't say whether retries (up to
+  25 over 3 days) get a new transmission time, so an old time alone isn't treated as a replay: an old event whose ID was
+  already processed, or a future-dated one, is logged as *stale/replay rejected* with no change; an old, never-seen event
+  is accepted as a late delivery, but its payload is not trusted for a state change, and TradeOS re-reads the refund
+  with `GET` instead (only that result counts, only for this case's own capture/refund IDs). If that GET fails, nothing
+  changes, the event ID is not consumed and the endpoint answers 500 so PayPal's retry can be processed later. The
+  rejections return 200, because a non-2xx would only make PayPal resend the same message.
+  This limits replays; it is not complete replay protection.
 - **Unknown refund outcome.** If the refund call times out or PayPal returns 5xx, TradeOS GETs the capture in the
   background (5 s timeout, read-only) to see whether the refund went through, and refuses a retry (409) until that check
   finishes. The retry reuses the same `PayPal-Request-Id`, so PayPal returns the existing refund instead of a second one.
@@ -326,7 +335,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 224 tests (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 249 tests (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 

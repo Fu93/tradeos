@@ -39,7 +39,8 @@ def _keypair(days_valid=30):
 KEY, PEM = _keypair()
 
 
-def signed_headers(raw: bytes, webhook_id=WEBHOOK_ID, key=KEY, cert_url=CERT_URL, tid="tid-1", ttime="2026-10-10T15:00:00Z"):
+def signed_headers(raw: bytes, webhook_id=WEBHOOK_ID, key=KEY, cert_url=CERT_URL, tid="tid-1", ttime=None):
+    ttime = ttime or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     msg = f"{tid}|{ttime}|{webhook_id}|{zlib.crc32(raw)}".encode()
     sig = key.sign(msg, padding.PKCS1v15(), hashes.SHA256())
     return {"paypal-transmission-id": tid, "paypal-transmission-time": ttime, "paypal-cert-url": cert_url,

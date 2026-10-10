@@ -280,6 +280,11 @@ class Database:
                 return False
         return True
 
+    def webhook_event_seen(self, event_id: str) -> bool:
+        with self.connect() as conn:
+            return conn.execute("SELECT 1 FROM webhook_events WHERE event_id=? AND verified=1",
+                                (event_id,)).fetchone() is not None
+
     def release_webhook_event(self, event_id: str) -> None:
         with self.connect() as conn:
             conn.execute("DELETE FROM webhook_events WHERE event_id=? AND verified=1", (event_id,))
