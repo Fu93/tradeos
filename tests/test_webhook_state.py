@@ -186,3 +186,32 @@ def test_webhook_handler_does_not_block_event_loop():
     from app import main
     src = inspect.getsource(main)
     assert "run_in_threadpool(handle)" in src
+
+
+def test_lock_map_is_bounded_and_reset_clears_state(app_ctx, monkeypatch):
+    import app.workflow as w
+    client, _, wf = app_ctx
+    monkeypatch.setattr(w, "MAX_TRACKED_CASES", 5)
+    held = wf._lock("HELD")
+    held.acquire()
+    try:
+        for i in range(20):
+            wf._lock(f"C{i}")
+        assert len(wf._locks) <= 6 and "HELD" in wf._locks  # a lock in use is never evicted
+    finally:
+        held.release()
+    case_id, refund_id = pending_case(client, wf)
+    post(client, event(refund_id))
+    assert wf.db.webhook_events()
+    client.post("/demo/reset", follow_redirects=False)
+    assert wf.db.webhook_events() == [] and wf._locks == {}
+
+
+def test_paypal_request_ids_fit_paypal_limit(app_ctx):
+    """PayPal recommends <= 38 single-byte chars for PayPal-Request-Id, unique per call type."""
+    client, _, wf = app_ctx
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    for prefix in ("order", "order-wallet", "capture", "refund"):
+        rid = f"tradeos-{prefix}-{case_id}"
+        assert len(rid) <= 38 and rid.isascii()
