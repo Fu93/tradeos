@@ -83,6 +83,7 @@ class Settings:
 
     # Failure-mode demo: PayPal sandbox negative testing code forced on ONE refund attempt.
     refund_failure_mock_code: str = "REFUND_FAILED_INSUFFICIENT_FUNDS"
+    mock_supplier_out_of_stock: bool = False  # MOCK supplier replies OUT_OF_STOCK (exchange -> needs a human)
 
     # PayPal webhook (second, independent confirmation). Not a secret; set via env, never committed.
     paypal_webhook_id: str = ""
@@ -132,6 +133,7 @@ class Settings:
             rate_limit_per_hour=int(_env("RATE_LIMIT_PER_HOUR", "30")),
             rate_limit_global_per_hour=int(_env("RATE_LIMIT_GLOBAL_PER_HOUR", "200")),
             refund_failure_mock_code=_env("REFUND_FAILURE_MOCK_CODE") or "REFUND_FAILED_INSUFFICIENT_FUNDS",
+            mock_supplier_out_of_stock=_env("MOCK_SUPPLIER_OUT_OF_STOCK") == "1",
             paypal_webhook_id=_env("PAYPAL_WEBHOOK_ID"),
             costs=CostAssumptions.from_env(),
         )

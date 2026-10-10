@@ -1,3 +1,5 @@
+> **Re-record flagged (return-vs-exchange change):** Case A is now a *return for a refund*; a size exchange (42 → 43) goes to the supplier with **no refund**. The v4 video is re-recorded to match; see the v4 script below once updated.
+
 # TradeOS demo video — v3 script (as recorded)
 
 Recorded 2026-10-10 on the LIVE PayPal Sandbox site (https://tradeos-s33z.onrender.com, main `6fefb0d`) with Playwright (CDP screencast, 1280x624 CSS px at 1.5x = 1920x936), subtitles in a dedicated 144 px black band (1920x1080 total). Narration: edge-tts `en-US-AndrewNeural`, rate +5%. Server waits (order/capture creation, LLM call, refund call, webhook delivery) are cut with 0.4 s crossfades; the webhook cut is labelled on screen with the measured delay. Cases R and D were run on the live site just before recording (same session; demo reset before and after).

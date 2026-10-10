@@ -2,8 +2,8 @@
 
     python scripts/sandbox_verify.py https://<your-render-host>
 
-Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B and ONE
-Case R (a forced 422 refund failure, then a retry that refunds).
+Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B, ONE exchange
+(0 refund calls) and ONE Case R (a forced 422 refund failure, then a retry that refunds).
 It needs no credentials: it only talks to the deployed app. Exit code 0 = all checks passed.
 """
 from __future__ import annotations
@@ -33,6 +33,7 @@ def main(base: str) -> int:
     check(c.post(f"/cases/{case_a}/approve").status_code == 303, f"Case A {case_a} approved")
     data = c.get(f"/api/cases/{case_a}").json()
     case, calls = data["case"], data["paypal_calls"]
+    check((case.get("intent") or {}).get("requested_action") == "REFUND", f"Case A is a return for a refund: {case.get('intent')}")
     check(case["refund_status"] in ("COMPLETED", "PENDING"), f"refund {case['refund_id']} status {case['refund_status']}")
     refund_calls = [x for x in calls if x["operation"] == "refund_capture"]
     check(len(refund_calls) == 1, "exactly one refund call")
@@ -92,6 +93,22 @@ def main(base: str) -> int:
     r = c.get(f"/cases/{case_a}/paypal-return")
     check(r.status_code == 200 and c.get(f"/api/cases/{case_a}").json()["case"]["status"] == before,
           "GET /paypal-return changes nothing")
+
+    # Exchange (size swap): supplier replacement (MOCK), human approval, Refund API NOT CALLED
+    r = c.post("/cases/free", data={"message": "The shoes are too small. Can I exchange size 42 for size 43?"})
+    case_x = r.headers["location"].split("case=")[1]
+    xc = c.get(f"/api/cases/{case_x}").json()["case"]
+    check(xc["status"] == "PENDING_APPROVAL" and xc["decision"] == "EXCHANGE_ELIGIBLE",
+          f"Exchange {case_x}: awaiting approval of the exchange (status {xc['status']}, decision {xc['decision']})")
+    c.post(f"/cases/{case_x}/approve")
+    data = c.get(f"/api/cases/{case_x}").json()
+    x_refunds = [x for x in data["paypal_calls"] if x["operation"] == "refund_capture"]
+    check(data["case"]["status"] == "EXCHANGE_ARRANGED" and not x_refunds and not data["case"]["refund_id"],
+          f"Exchange {case_x}: EXCHANGE_ARRANGED with 0 refund calls ({len(x_refunds)})")
+    check(c.post(f"/cases/{case_x}/refund").status_code == 409, "Exchange: refund endpoint refused (409)")
+    chain_x = c.get(f"/cases/{case_x}/audit/verify").json()
+    check(chain_x.get("ok") is True and (chain_x.get("chained_state") or {}).get("decision") == "EXCHANGE_ELIGIBLE",
+          f"Exchange audit trail intact: {chain_x.get('entries')} entries")
 
     # Refund failure (PayPal 422) -> 'PayPal refused, no money moved' -> retry COMPLETED (same request id)
     r = c.post("/demo/run/R")

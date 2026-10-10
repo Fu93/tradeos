@@ -8,6 +8,7 @@ from app.policy import PolicyInput, evaluate
 
 TODAY = date(2026, 10, 8)
 EXCHANGE = IntentResult(intent="EXCHANGE_REQUEST", reason="SIZE_MISMATCH", requested_action="EXCHANGE")
+RETURN = IntentResult(intent="REFUND_REQUEST", reason="SIZE_MISMATCH", requested_action="REFUND")
 
 
 def make(**over):
@@ -15,7 +16,7 @@ def make(**over):
         capture_status="COMPLETED", captured_amount=Decimal("49.99"), capture_currency="USD",
         expected_currency="USD", requested_refund=Decimal("49.99"), already_refunded=Decimal("0"),
         purchase_date=TODAY, today=TODAY, return_window_days=30, product_returnable=True,
-        product_name="Trail Runner", intent=EXCHANGE, supplier_status="REPLACEMENT_APPROVED",
+        product_name="Trail Runner", intent=RETURN, supplier_status="REPLACEMENT_APPROVED",
         require_supplier=True,
     )
     base.update(over)
@@ -66,14 +67,18 @@ def test_refundable_amount(over):
 
 
 def test_supplier_confirmation_required_in_final_stage():
-    assert failed(evaluate(make(supplier_status=None))) == {"supplier_confirmed"}
-    pre = evaluate(make(supplier_status=None, require_supplier=False))
+    assert failed(evaluate(make(intent=EXCHANGE, supplier_status=None))) == {"supplier_confirmed"}
+    assert failed(evaluate(make(intent=EXCHANGE, supplier_status="OUT_OF_STOCK"))) == {"supplier_confirmed"}
+    assert failed(evaluate(make(supplier_status=None))) == set()  # a return never needs the supplier
+    pre = evaluate(make(intent=EXCHANGE, supplier_status=None, require_supplier=False))
     assert pre.decision == "ELIGIBLE" and pre.stage == "pre-supplier"
 
 
 @pytest.mark.parametrize("intent", [
     IntentResult(intent="UNKNOWN", reason="UNKNOWN", requested_action="UNKNOWN"),
-    IntentResult(intent="REFUND_REQUEST", reason="CHANGED_MIND", requested_action="REFUND"),
+    IntentResult(intent="REFUND_REQUEST", reason="OTHER", requested_action="REFUND"),
+    IntentResult(intent="REFUND_REQUEST", reason="UNKNOWN", requested_action="REFUND"),
+    IntentResult(intent="EXCHANGE_REQUEST", reason="SIZE_MISMATCH", requested_action="REFUND"),
     IntentResult(intent="ORDER_STATUS", reason="OTHER", requested_action="INFO"),
 ])
 def test_unsupported_or_unknown_intent_is_rejected(intent):

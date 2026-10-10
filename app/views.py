@@ -53,7 +53,7 @@ def evidence_a(db: Database, case: dict | None) -> list[dict] | None:
         ("Refund ID", case.get("refund_id") or "—", bool(case.get("refund_id"))),
         ("Policy", (policy.get("decision") or "—").lower(), policy.get("decision") == "ELIGIBLE"),
         ("Supplier", "replacement approved (MOCK)" if case.get("supplier_reply") == "REPLACEMENT_APPROVED"
-         else (case.get("supplier_reply") or "—"), case.get("supplier_reply") == "REPLACEMENT_APPROVED"),
+         else (case.get("supplier_reply") or "not involved (return)"), True),
         ("Human", (case.get("human_decision") or "awaiting approval").lower(), case.get("human_decision") == "APPROVED"),
         ("Refund", refund_status or "not yet executed", refund_status == "COMPLETED"),
     ]
@@ -113,9 +113,20 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
                 ("done", "replacement approved (MOCK)")
             st["human"] = ("skipped", "nothing to approve")
             st["paypal"] = ("blocked", f"Refund API NOT CALLED · {calls} calls")
+        elif case.get("decision") in ("EXCHANGE_ELIGIBLE", "NEEDS_HUMAN"):
+            st["policy"] = ("done", "exchange · checks passed")
+            if case.get("decision") == "NEEDS_HUMAN":
+                st["supplier"] = ("failed", f"{_human(case.get('supplier_reply'))} (MOCK)")
+                st["human"] = ("waiting", "needs a human: offer a refund?")
+            else:
+                st["supplier"] = ("done", "replacement approved (MOCK)")
+                st["human"] = (("done", "exchange approved by merchant") if case.get("human_decision") == "APPROVED"
+                               else ("blocked", "declined by merchant") if case.get("human_decision") == "DECLINED"
+                               else ("waiting", "awaiting your approval"))
+            st["paypal"] = ("skipped", f"exchange · Refund API NOT CALLED · {calls} calls")
         elif case.get("decision") == "ELIGIBLE":
             st["policy"] = ("done", "ELIGIBLE · all checks passed")
-            st["supplier"] = ("done", "replacement approved (MOCK)")
+            st["supplier"] = ("skipped", "not needed — return for a refund")
             human = case.get("human_decision")
             if human == "APPROVED":
                 st["human"] = ("done", "approved by merchant")
@@ -224,13 +235,30 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     if status == "PENDING_APPROVAL":
         policy = case.get("policy") or {}
         checks = policy.get("checks", [])
-        return {**base, "kind": "warn", "icon": "⏸", "title": "Awaiting human approval",
-                "subtitle": "Policy ELIGIBLE. Nothing is refunded until a human approves.",
-                "rows": [("Request", f"{_human((case.get('intent') or {}).get('intent'))} · "
-                                     f"{_human((case.get('intent') or {}).get('reason'))}"),
-                         ("Policy", f"ELIGIBLE · {sum(c['passed'] for c in checks)}/{len(checks)} checks passed"),
-                         ("Supplier", "replacement approved (MOCK supplier)"),
+        request_row = ("Request", f"{_human((case.get('intent') or {}).get('intent'))} · "
+                                  f"{_human((case.get('intent') or {}).get('reason'))}")
+        policy_row = ("Policy", f"ELIGIBLE · {sum(c['passed'] for c in checks)}/{len(checks)} checks passed")
+        if case.get("decision") == "EXCHANGE_ELIGIBLE":
+            return {**base, "kind": "warn", "icon": "⏸", "title": "Awaiting human approval of the exchange",
+                    "subtitle": "Exchange: the supplier ships a replacement. No refund — the Refund API is not called.",
+                    "rows": [request_row, policy_row, ("Supplier", "replacement approved (MOCK supplier)"),
+                             ("Refund", "none — exchange")]}
+        return {**base, "kind": "warn", "icon": "⏸", "title": "Awaiting human approval of the refund",
+                "subtitle": "Return for a refund. Policy ELIGIBLE. Nothing is refunded until a human approves.",
+                "rows": [request_row, policy_row, ("Supplier", "not involved (return)"),
                          ("Refund amount", f"${case['amount']} {case['currency']} · full capture")]}
+    if status == "EXCHANGE_ARRANGED":
+        return {**base, "kind": "ok", "icon": "⇄", "title": "Exchange arranged — no refund",
+                "subtitle": "The merchant approved the exchange; the replacement comes from the supplier (MOCK reply, "
+                            "no real supplier). No money moved: the Refund API was NOT CALLED.",
+                "rows": [("Supplier", "replacement approved (MOCK supplier)"), ("Refund API calls", str(calls)),
+                         ("Refund ID", "none"), ("PayPal Order ID", case.get("order_id") or "—")]}
+    if status == "NEEDS_HUMAN":
+        return {**base, "kind": "warn", "icon": "!", "title": "Needs a human: replacement out of stock — offer a refund?",
+                "subtitle": "The (MOCK) supplier can't ship the requested replacement. TradeOS does not refund "
+                            "automatically; a person decides. Refund API NOT CALLED.",
+                "rows": [("Supplier", f"{_human(case.get('supplier_reply'))} (MOCK supplier)"),
+                         ("Refund API calls", str(calls)), ("Refund ID", "none")]}
     if status == "REFUND_PENDING":
         return {**base, "kind": "warn", "icon": "⏳", "title": "Refund PENDING at PayPal",
                 "subtitle": "Not shown as success until PayPal reports COMPLETED.",
@@ -271,6 +299,9 @@ def ai_panel(case: dict | None) -> dict | None:
             note_kind = "final"
             note_status = (f"FINAL — written only after the merchant approved and PayPal returned COMPLETED "
                            f"for refund {case.get('refund_id')}.")
+        elif outcome == "EXCHANGE_NOTE":
+            note_kind = "final"
+            note_status = "Written after the merchant approved the exchange. No refund involved. Not sent (demo)."
         elif outcome == "FAILURE_NOTE":
             note_kind = "draft"
             note_status = "DRAFT — the refund could not be completed yet. Not sent; no money moved."
@@ -344,8 +375,10 @@ def narrate(e: dict) -> str:
         return "TradeOS drafted a replacement request to the supplier."
     if t.startswith("Supplier replied"):
         return f"Supplier replied {d.get('status', '').replace('_', ' ').lower()} — MOCK reply, simulated for the demo."
-    if t == "Waiting for human approval":
+    if t == "Waiting for human approval of the refund":
         return f"Waiting for a human to approve the {d.get('amount', '')} refund. Nothing moves automatically."
+    if t.startswith("Waiting for human approval of the exchange"):
+        return "Waiting for a human to approve the exchange. No refund is involved."
     if t == "Human approved the refund":
         return "The merchant approved the refund."
     if t.startswith("PayPal refund "):

@@ -18,8 +18,18 @@ from .intent import IntentResult
 
 Decision = Literal["ELIGIBLE", "REJECTED"]
 
-SUPPORTED_INTENTS = {("EXCHANGE_REQUEST", "EXCHANGE")}
+# Two automated paths (and only these):
+#   return for a refund -> REFUND  (policy -> human approval -> PayPal refund)
+#   size exchange       -> EXCHANGE (supplier replacement, human approval, NO refund; Refund API never called)
+SUPPORTED_INTENTS = {("REFUND_REQUEST", "REFUND"): "REFUND", ("EXCHANGE_REQUEST", "EXCHANGE"): "EXCHANGE"}
+# A refund needs a stated reason; OTHER / UNKNOWN goes to a human.
+REFUND_REASONS = {"SIZE_MISMATCH", "DAMAGED", "WRONG_ITEM", "NOT_AS_DESCRIBED", "CHANGED_MIND"}
 REPLACEMENT_APPROVED = "REPLACEMENT_APPROVED"
+
+
+def action_for(intent: IntentResult) -> str | None:
+    """REFUND / EXCHANGE for a supported request, else None."""
+    return SUPPORTED_INTENTS.get((intent.intent, intent.requested_action))
 
 
 @dataclass(frozen=True)
@@ -38,6 +48,7 @@ class PolicyInput:
     intent: IntentResult
     supplier_status: str | None = None
     require_supplier: bool = True
+    injection_suspected: bool = False  # heuristic pattern check on the raw message (code, not AI)
 
 
 @dataclass(frozen=True)
@@ -52,6 +63,7 @@ class PolicyResult:
     decision: Decision
     checks: list[Check] = field(default_factory=list)
     stage: str = "final"
+    action: str | None = None  # REFUND / EXCHANGE
 
     @property
     def reasons(self) -> list[str]:
@@ -65,6 +77,7 @@ class PolicyResult:
         return {
             "decision": self.decision,
             "stage": self.stage,
+            "action": self.action,
             "checks": [asdict(c) for c in self.checks],
             "reasons": self.reasons,
         }
@@ -72,17 +85,23 @@ class PolicyResult:
 
 def evaluate(inp: PolicyInput) -> PolicyResult:
     checks: list[Check] = []
+    action = action_for(inp.intent)
 
-    # 1. Request understood and supported by this automated workflow.
-    key = (inp.intent.intent, inp.intent.requested_action)
-    checks.append(
-        Check(
-            "request_supported",
-            key in SUPPORTED_INTENTS,
-            f"Request understood as {inp.intent.intent} / {inp.intent.requested_action}"
-            + ("" if key in SUPPORTED_INTENTS else " — not supported by the automated workflow; route to a human"),
-        )
-    )
+    # 1. Request understood and supported by this automated workflow (return-for-refund or exchange).
+    supported = action is not None and (action != "REFUND" or inp.intent.reason in REFUND_REASONS)
+    why = ""
+    if action is None:
+        why = " — not supported by the automated workflow; route to a human"
+    elif not supported:
+        why = " — a refund needs a stated reason (size, damaged, wrong item, not as described, changed mind)"
+    checks.append(Check("request_supported", supported,
+                        f"Request understood as {inp.intent.intent} / {inp.intent.requested_action}"
+                        f" (reason {inp.intent.reason})" + why))
+
+    # 1b. Heuristic injection markers in the message: never automated, a human reads it.
+    if inp.injection_suspected:
+        checks.append(Check("no_injection_markers", False,
+                            "Message contains instruction-like text (heuristic check) — sent to a human"))
 
     # 2. Payment really captured (PayPal is the source of truth).
     paid = inp.capture_status == "COMPLETED"
@@ -95,7 +114,7 @@ def evaluate(inp: PolicyInput) -> PolicyResult:
         )
     )
 
-    # 3. Return window.
+    # 3. Return window (applies to returns and exchanges).
     days = (inp.today - inp.purchase_date).days
     in_window = 0 <= days <= inp.return_window_days
     checks.append(
@@ -108,41 +127,39 @@ def evaluate(inp: PolicyInput) -> PolicyResult:
     )
 
     # 4. Product eligibility.
+    what = "exchange" if action == "EXCHANGE" else "return"
     checks.append(
         Check(
             "product_eligible",
             inp.product_returnable,
-            f"{inp.product_name} is " + ("eligible for exchange" if inp.product_returnable else "final sale / not eligible"),
+            f"{inp.product_name} is " + (f"eligible for {what}" if inp.product_returnable else "final sale / not eligible"),
         )
     )
 
-    # 5. Refundable amount (computed from PayPal capture amount).
-    captured = inp.captured_amount or Decimal("0")
-    refundable = captured - inp.already_refunded
-    currency_ok = inp.capture_currency == inp.expected_currency
-    amount_ok = currency_ok and Decimal("0") < inp.requested_refund <= refundable
-    checks.append(
-        Check(
-            "refundable_amount",
-            amount_ok,
-            f"Requested {inp.requested_refund} {inp.expected_currency}; refundable "
-            f"{refundable} {inp.capture_currency or '?'}"
-            + ("" if amount_ok else " — amount or currency not refundable"),
-        )
-    )
-
-    # 6. Supplier confirmation (only once the supplier has been contacted).
-    stage = "pre-supplier"
-    if inp.require_supplier:
-        stage = "final"
-        ok = inp.supplier_status == REPLACEMENT_APPROVED
+    stage = "final"
+    if action == "EXCHANGE":
+        # 5x. Exchange: no money moves. Only the supplier must confirm a replacement (once contacted).
+        stage = "pre-supplier"
+        if inp.require_supplier:
+            stage = "final"
+            ok = inp.supplier_status == REPLACEMENT_APPROVED
+            checks.append(Check("supplier_confirmed", ok, f"Supplier status: {inp.supplier_status or 'none'}"
+                                + ("" if ok else " (needs REPLACEMENT_APPROVED)")))
+    else:
+        # 5. Refundable amount (computed from PayPal capture amount). No supplier step for a refund.
+        captured = inp.captured_amount or Decimal("0")
+        refundable = captured - inp.already_refunded
+        currency_ok = inp.capture_currency == inp.expected_currency
+        amount_ok = currency_ok and Decimal("0") < inp.requested_refund <= refundable
         checks.append(
             Check(
-                "supplier_confirmed",
-                ok,
-                f"Supplier status: {inp.supplier_status or 'none'}" + ("" if ok else " (needs REPLACEMENT_APPROVED)"),
+                "refundable_amount",
+                amount_ok,
+                f"Requested {inp.requested_refund} {inp.expected_currency}; refundable "
+                f"{refundable} {inp.capture_currency or '?'}"
+                + ("" if amount_ok else " — amount or currency not refundable"),
             )
         )
 
     decision: Decision = "ELIGIBLE" if all(c.passed for c in checks) else "REJECTED"
-    return PolicyResult(decision=decision, checks=checks, stage=stage)
+    return PolicyResult(decision=decision, checks=checks, stage=stage, action=action)

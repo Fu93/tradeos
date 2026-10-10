@@ -14,8 +14,8 @@
 
 TradeOS is an AI-powered operational bridge for cross-border commerce, built for the **PayPal AI Hackathon**.
 It sits *after* payment: it turns an unstructured customer request into a completed merchant operation —
-understand the request, check policy, coordinate the supplier, ask a human to approve, then execute
-(or block) the PayPal action.
+understand the request, check policy, ask a human to approve, then execute (or block) the PayPal refund — or,
+for a size exchange, arrange a replacement with the supplier without any refund.
 
 ![TradeOS dashboard — Case A: refund COMPLETED, confirmed by PayPal (live Sandbox)](docs/dashboard.png)
 
@@ -46,30 +46,35 @@ TradeOS is **not** a storefront, a consumer shopping agent, or a chatbot that an
 
 ## The one workflow
 
-| Step | Case A — eligible exchange | Case B — same request, rejected |
-| --- | --- | --- |
-| PayPal Sandbox order + capture | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID |
-| Customer: *"The shoes are too small. Can I exchange size 42 for size 43?"* | AI → `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` | same |
-| Deterministic policy (fed by `GET /v2/payments/captures/{id}`) | ELIGIBLE | **REJECTED** — purchased 45 days ago, 30-day window |
-| Supplier | Generated draft + **MOCK** reply `REPLACEMENT_APPROVED` | not contacted |
-| Human | Approves in the dashboard | — |
-| PayPal | `POST /v2/payments/captures/{id}/refund` → Refund ID, `COMPLETED` | **Refund API NOT CALLED**, Refund ID none |
+Only a **return** leads to a refund. A **size exchange** never does.
+
+| Step | Case A — eligible return | Case B — same return, rejected | Exchange (e.g. the 中文 preset, 42 → 43) |
+| --- | --- | --- | --- |
+| PayPal Sandbox order + capture | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID |
+| Customer | *"These sneakers are too small and don't fit. I'd like to return them and get my money back."* → AI: `REFUND_REQUEST / SIZE_MISMATCH / REFUND` | same | *"鞋子太小了，可以把42號換成43號嗎？"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
+| Deterministic policy (fed by `GET /v2/payments/captures/{id}`) | ELIGIBLE (return) | **REJECTED** — purchased 45 days ago, 30-day window | ELIGIBLE (exchange) |
+| Supplier | not involved | not contacted | Generated draft + **MOCK** reply `REPLACEMENT_APPROVED` |
+| Human | Approves the refund | — | Approves the exchange |
+| PayPal | `POST /v2/payments/captures/{id}/refund` → Refund ID, `COMPLETED` | **Refund API NOT CALLED**, Refund ID none | **Refund API NOT CALLED** → `EXCHANGE_ARRANGED` |
+
+If the (mock) supplier replies `OUT_OF_STOCK`, the exchange case shows **"Needs a human: replacement out of stock —
+offer a refund?"** and nothing is refunded automatically (tests; `MOCK_SUPPLIER_OUT_OF_STOCK=1` shows it locally).
 
 Case B's purchase date is **seeded demo data** (and labelled as such on screen): sandbox captures are always
 dated today, so the merchant's own order record simulates a purchase 45 days ago.
 
 ### Exchange vs refund
 
-PayPal has no exchange API, so the layers are kept separate:
+PayPal has no exchange API, and an exchange should not move money, so the two paths are separate:
 
-| Layer | Field | MVP value |
+| Request | Supplier | Money |
 | --- | --- | --- |
-| Customer intent | `EXCHANGE_REQUEST` | Size 42 → size 43 |
-| Supplier resolution | `REPLACEMENT_APPROVED` | Mock, clearly labelled |
-| Financial resolution | `ORIGINAL_PAYMENT_REFUNDED` | Real Sandbox refund |
+| Return for a refund (`REFUND_REQUEST / REFUND`, with a stated reason) | not involved | Real Sandbox refund after human approval |
+| Size exchange (`EXCHANGE_REQUEST / EXCHANGE`) | Replacement request; **MOCK** reply, clearly labelled | None — Refund API never called (the refund gate only accepts a refund decision) |
+| Exchange, supplier out of stock | `OUT_OF_STOCK` (MOCK) | None — a person decides whether to offer a refund |
 
-> For the hackathon MVP, the financial side of an exchange is simplified to a refund of the original PayPal
-> transaction. Replacement fulfilment is represented by the supplier confirmation.
+The supplier is a mock in this demo (no real supplier channel); its reply is labelled MOCK on screen and in the
+timeline, and the supplier check applies only to exchanges.
 
 ## What a judge sees
 
@@ -85,8 +90,8 @@ Human approval → PayPal), lit green / amber / red / grey for the selected case
 * **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`.
 * The three plan blocks are kept: **1 Pending action** (the result / approval card), **2 Case timeline** (plain English,
   raw JSON in a collapsible `raw` under every event, full JSON at `/api/cases/{id}`), **3 Case economics** (smaller,
-  still labelled *Illustrative cost model — assumptions configurable.*). The exchange-vs-refund copy and the
-  **MOCK supplier** label are unchanged.
+  still labelled *Illustrative cost model — assumptions configurable.*), plus the return-vs-exchange table and the
+  **MOCK supplier** label.
 
 ### Try it yourself — any language
 
@@ -119,10 +124,11 @@ One strict structured-output call returns two separately validated parts:
   | Case state | Customer note | UI label |
   | --- | --- | --- |
   | Policy ELIGIBLE, waiting for the merchant | “…has been reviewed and is awaiting merchant approval. No refund has been issued yet.” | DRAFT · not sent |
-  | Merchant pressed Approve → refund call | `note_to_payer` sent **with** the refund call: “This refund of 49.99 USD is for your exchange request…” (neutral) | shown as PayPal note_to_payer |
+  | Merchant pressed Approve → refund call | `note_to_payer` sent **with** the refund call: “This refund of 49.99 USD is for your returned item…” (neutral) | shown as PayPal note_to_payer |
   | PayPal returned `COMPLETED` | “…was approved and your refund of 49.99 USD has been completed by PayPal…” — the **only** note allowed to say approved/refunded | FINAL |
   | PayPal refused the refund | “…could not be completed yet. No money has been moved.” | DRAFT · not sent |
   | Policy REJECTED | “…No refund has been issued.” | DRAFT · not sent |
+  | Merchant approved an exchange | “Your exchange request (size 42 → 43) was approved… no refund is involved.” | not sent (demo) |
 
   Translation guard (deterministic): every number must survive, the text must fit PayPal's 255-character
   `note_to_payer` limit, and — for every state except COMPLETED — the translation must not contain approval /
@@ -130,9 +136,10 @@ One strict structured-output call returns two separately validated parts:
   “aprobado”, “genehmigt”). Otherwise the code-written English note is used.
 * AI never decides eligibility, amount, capture or permission.
 
-Live check with Groq `openai/gpt-oss-20b` (2026-10-08): all five language presets → `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE`,
-sizes 42 → 43, correct language (Traditional vs Simplified Chinese is double-checked deterministically from the script);
-the injection preset → `REFUND_REQUEST / OTHER / REFUND` → policy REJECTED, 0 refund calls. The keyword fallback returns
+Language presets: English, Español and 日本語 ask to **return for a refund**; 中文（繁體） and Deutsch ask to
+**exchange 42 → 43** (no refund). Language detection (Traditional vs Simplified Chinese is double-checked
+deterministically from the script) and the sizes come from the model. The injection preset is REJECTED with 0 refund
+calls: the model reads it as a refund request without a stated reason, and the heuristic marker check flags it. The keyword fallback returns
 `UNKNOWN` for the non-English presets, which is exactly why the model is there.
 
 ## Failure & safety modes
@@ -178,10 +185,15 @@ including 7 prompt-injection attempts). Full results, every miss and the limits:
 | Latency p50 / p95 | 0.63 s / 1.25 s | — |
 | Estimated cost per message (Groq list price) | $0.00013 | $0 |
 
+These numbers were measured before the return-vs-exchange change (when only exchanges were automated and a refund
+request was always rejected); the "policy-acceptable" row has not been re-run under the new rules. Intent accuracy
+is unaffected by the policy change.
+
 Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
 convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
-the policy still decides and only an eligible exchange reaches the human Approve button. Injection detection is
-heuristic (patterns), so it is a warning and a fallback guard, not the safety boundary. The keyword column was
+the policy still decides and only a human Approve can start a refund. Injection detection is heuristic (patterns):
+messages with instruction-like markers are never automated (the policy rejects them and a human reads them), but a
+cleverly worded message can avoid the patterns, so it is not the safety boundary. The keyword column was
 re-run after the **fallback injection guard**: before it, two injections containing the literal word "EXCHANGE" fooled
 the keyword rules. Now, when the LLM is unavailable and a message looks like a prompt injection, the fallback forces
 `UNKNOWN`. The case goes to a human with no Approve button, and the timeline says why. The LLM path is unchanged.
@@ -197,12 +209,13 @@ IntentExtractor (adapter) ──► {intent, reason, requested_action}   ← AI:
       │                         (LLM via any OpenAI-compatible API; keyword fallback)
       ▼
 Policy engine (pure Python) ◄── PayPal GET capture (status, amount, currency)
-      │   checks: request supported · capture COMPLETED · return window · product eligible ·
-      │           refundable amount · supplier confirmed            → ELIGIBLE / REJECTED + reasons
+      │   checks: request supported (return with a reason, or exchange) · no injection markers ·
+      │           capture COMPLETED · return window · product eligible ·
+      │           return: refundable amount | exchange: supplier confirmed  → ELIGIBLE / REJECTED + reasons
       ├── REJECTED ──► stop. Refund API is never called.
-      ▼
-Supplier draft + MOCK reply (REPLACEMENT_APPROVED)
-      ▼
+      ├── EXCHANGE ──► Supplier draft + MOCK reply ──► human approves the exchange ──► EXCHANGE_ARRANGED
+      │                (OUT_OF_STOCK ──► needs a human: offer a refund?)    Refund API never called
+      ▼ RETURN
 Human approval (dashboard)  ← required for every financial action
       ▼
 PayPal Refund API (idempotent PayPal-Request-Id = tradeos-refund-<case id>; note_to_payer = grounded customer note)
@@ -386,15 +399,17 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 316 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 329 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 
 1. Problem and audience: small cross-border merchants without an ops team.
-2. **Try it yourself → Español** (or 中文 / Deutsch / 日本語) → Run → real sandbox order + capture → the AI panel shows
-   the Spanish original, the English merchant summary and sizes 42 → 43 → pipeline lights up to *Human approval*.
+2. **Try it yourself → Español** (or English / 日本語) → Run → real sandbox order + capture → the AI panel shows
+   the Spanish original and the English merchant summary (a return) → pipeline lights up to *Human approval*.
 3. **Approve & refund** → `Refund COMPLETED`, confirmed by PayPal, with Order / Capture / Refund IDs; the Spanish
    note travels with the refund as `note_to_payer`.
+3b. **中文 preset (exchange 42 → 43)** → MOCK supplier approves a replacement → **Approve exchange (no refund)** →
+   `Exchange arranged — no refund`, Refund API calls 0.
 4. **Run Case B** (or the *Late request* preset) → policy REJECTED → `Refund not executed`, Refund API calls 0, Refund ID none.
 5. **Failure & safety modes**: the prompt-injection preset is rejected and can't change the amount; forced PayPal refund failure is shown as a failure and
    retried; a double-clicked approve yields one refund.

@@ -390,13 +390,18 @@ def test_F4_injection_phrased_as_exchange_reaches_human_with_fixed_amount(tmp_pa
     assert c["status"] == "PENDING_APPROVAL" and c["amount"] == "49.99" and len(pp.refunds_by_request) == 0
 
 
-def test_F4b_genuine_refund_request_rejected(tmp_path):
+def test_F4b_genuine_refund_request_follows_refund_path(tmp_path):
     db, wf = mk(tmp_path)
-    assert db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))["status"] == "REJECTED"
+    # Changed by the return-vs-exchange decision: a return with a stated reason now follows the refund path.
+    assert db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))["status"] == "PENDING_APPROVAL"
 
 
 def _intent():
     return IntentResult(intent="EXCHANGE_REQUEST", reason="SIZE_MISMATCH", requested_action="EXCHANGE")
+
+
+def _return_intent():
+    return IntentResult(intent="REFUND_REQUEST", reason="SIZE_MISMATCH", requested_action="REFUND")
 
 
 def test_F5_window_boundary_and_future():
@@ -412,7 +417,7 @@ def test_F6_currency_zero_negative_missing():
     base = dict(capture_status="COMPLETED", captured_amount=Decimal("49.99"), capture_currency="USD",
                 expected_currency="USD", requested_refund=Decimal("49.99"), already_refunded=Decimal("0"),
                 purchase_date=date(2026, 10, 10), today=date(2026, 10, 10), return_window_days=30,
-                product_returnable=True, product_name="x", intent=_intent(), supplier_status="REPLACEMENT_APPROVED")
+                product_returnable=True, product_name="x", intent=_return_intent(), supplier_status=None)
     for override in ({"capture_currency": "EUR"}, {"requested_refund": Decimal("0")},
                      {"requested_refund": Decimal("-1")}, {"captured_amount": None}):
         assert evaluate(PolicyInput(**{**base, **override})).decision == "REJECTED"

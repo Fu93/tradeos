@@ -199,6 +199,7 @@ Return ONLY a JSON object with exactly these keys:
   "requested_size": the size the customer wants instead, digits/letters only, or null
   "merchant_summary_en": one short neutral English sentence summarising the request for the merchant
 An exchange for a different size is EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE.
+Returning an item to get the money back is REFUND_REQUEST / <the reason, e.g. SIZE_MISMATCH> / REFUND.
 If unsure about intent, reason or requested_action, use UNKNOWN."""
 
 

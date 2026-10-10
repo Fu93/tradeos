@@ -2,7 +2,7 @@
 {% macro status_chip(status) -%}
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
                  "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
-                 "REFUND_FAILED": "bad", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
+                 "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "NEEDS_HUMAN": "warn", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
   <span class="chip {{ cls.get(status, 'neutral') }}">{{ status | replace('_', ' ') }}</span>
 {%- endmacro %}
 {% block content %}
@@ -13,8 +13,8 @@
     <p class="muted">Customer speaks naturally → AI reads the language → Python rules decide → a human approves → PayPal moves the money.</p>
   </div>
   <div class="buttons">
-    <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible exchange</button></form>
-    <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
+    <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible return (refund)</button></form>
+    <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same return request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
     <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
   </div>
 </section>
@@ -69,7 +69,11 @@
             {% if current.scenario == "D" %}
               <form method="post" action="/cases/{{ current.id }}/approve-twice" class="js-busy"><button class="btn primary">Approve twice (simulated double-click)</button></form>
             {% else %}
+              {% if current.decision == "EXCHANGE_ELIGIBLE" %}
+              <form method="post" action="/cases/{{ current.id }}/approve" class="js-busy"><button class="btn primary">Approve exchange (no refund)</button></form>
+              {% else %}
               <form method="post" action="/cases/{{ current.id }}/approve" class="js-busy"><button class="btn primary">Approve &amp; refund ${{ current.amount }}</button></form>
+              {% endif %}
             {% endif %}
             <form method="post" action="/cases/{{ current.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
           </div>
@@ -311,8 +315,8 @@
   <section class="block evidence">
     <h2>Demo evidence</h2>
     <div class="evidence-grid">
-      {% for title, rows, case in [("Case A — eligible exchange, refund executed", evidence_a, latest_a),
-                                   ("Case B — same request, rejected", evidence_b, latest_b)] %}
+      {% for title, rows, case in [("Case A — eligible return, refund executed", evidence_a, latest_a),
+                                   ("Case B — same return, outside the window", evidence_b, latest_b)] %}
         <div class="panel">
           <h3>{{ title }}</h3>
           {% if rows %}
@@ -330,9 +334,9 @@
     <table class="layers">
       <thead><tr><th>Layer</th><th>Field</th><th>MVP value</th></tr></thead>
       <tbody>
-        <tr><td>Customer intent</td><td><code>EXCHANGE_REQUEST</code></td><td>Size 42 → size 43</td></tr>
-        <tr><td>Supplier resolution</td><td><code>REPLACEMENT_APPROVED</code></td><td>Mock, clearly labelled <span class="chip mock">MOCK supplier</span></td></tr>
-        <tr><td>Financial resolution</td><td><code>ORIGINAL_PAYMENT_REFUNDED</code></td><td>Real Sandbox refund</td></tr>
+        <tr><td>Return for a refund</td><td><code>REFUND_REQUEST</code></td><td>Policy → human approval → real Sandbox refund. Supplier not involved.</td></tr>
+        <tr><td>Size exchange (e.g. 42 → 43)</td><td><code>EXCHANGE_REQUEST</code></td><td>Supplier replacement <span class="chip mock">MOCK supplier</span> → human approval → <strong>Refund API NOT CALLED</strong></td></tr>
+        <tr><td>Exchange, out of stock</td><td><code>OUT_OF_STOCK</code></td><td>Needs a human: offer a refund? (never automatic)</td></tr>
       </tbody>
     </table>
     <p class="note">{{ exchange_copy }}</p>

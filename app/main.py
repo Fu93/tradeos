@@ -29,8 +29,9 @@ from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FA
                        Workflow)
 
 BASE = Path(__file__).parent
-EXCHANGE_COPY = ("For the hackathon MVP, the financial side of an exchange is simplified to a refund of the "
-                 "original PayPal transaction. Replacement fulfilment is represented by the supplier confirmation.")
+EXCHANGE_COPY = ("Only a return leads to a refund. A size exchange goes to the supplier as a replacement request "
+                 "(MOCK supplier reply in this demo) and never calls the Refund API; if the supplier is out of stock, "
+                 "a person decides whether to offer a refund.")
 
 
 SIGNATURE_HEADERS = ("paypal-transmission-id", "paypal-transmission-time", "paypal-transmission-sig",
@@ -84,7 +85,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             flash = (f"Case {current['id']} was archived by a demo reset at {current['archived_at']} — kept with its "
                      "audit trail (it no longer appears in the case list).")
         pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR,
-                                                       REFUND_UNKNOWN, REFUND_FAILED, "ERROR")
+                                                       REFUND_UNKNOWN, REFUND_FAILED, "ERROR",
+                                                       "NEEDS_HUMAN")
                    and (not current or c["id"] != current["id"])]
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)

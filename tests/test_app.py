@@ -28,7 +28,7 @@ def test_dashboard_has_three_blocks_and_required_copy(ctx):
     for heading in ("Pending action", "Case timeline", "Case economics"):
         assert heading in html
     assert "Illustrative cost model — assumptions configurable." in html
-    assert "the financial side of an exchange is simplified to a refund" in html
+    assert "Only a return leads to a refund" in html and "never calls the Refund API" in html
     assert "$2.67" in html and "$0.39" in html and "$2.28" in html
     assert "Run Case A" in html and "Run Case B" in html
     assert "MOCK mode" in html  # mock PayPal is loudly labelled
