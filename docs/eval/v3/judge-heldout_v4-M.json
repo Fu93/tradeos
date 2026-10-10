@@ -2478,12 +2478,101 @@
    "required_action": "HUMAN_REVIEW",
    "acceptable_actions": [],
    "_latency": 62.19
+  },
+  "X091": {
+   "speech_act_evidence": "Could I please get a refund for it?",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "product": "BREW-KETTLE",
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "the power base has become really unreliable. The contacts wobble and the kettle just cuts out while it's boiling.",
+     "goals": [
+      {
+       "goal": "REFUND",
+       "goal_evidence": "Could I please get a refund for it?"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "the power base has become really unreliable. The contacts wobble and the kettle just cuts out while it's boiling.",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96091",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96091 belongs to the customer and contains BREW-KETTLE bought 200 days ago, delivered. The customer reports a malfunction of the power base / cut-out while boiling. BREW-KETTLE safety_class is MAINS_HEATING and the report is a malfunction of a mains heating product with a power base fault. Safety gate SG-1 and V1 safety POSSIBLE take precedence over the refund request, requiring human safety review.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 63.83
+  },
+  "X096": {
+   "speech_act_evidence": "Les agradecería que revisaran el caso y se encargaran de repararla.",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "Desde hace un tiempo, al encenderla, hace saltar el automático o el fusible y se corta la corriente, por lo que no puedo utilizarla con normalidad.",
+     "goals": [
+      {
+       "goal": "REPAIR",
+       "goal_evidence": "se encargaran de repararla"
+      }
+     ],
+     "goal_relation": "SINGLE"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "al encenderla, hace saltar el automático o el fusible y se corta la corriente",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96096",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Order TO-96096 belongs to the customer and contains BREW-KETTLE bought 120 days ago, delivered. The customer reports a malfunction of a MAINS_HEATING / MAINS_ELECTRIC product: tripping the automatic/fuse and cutting power. SG-1 gated class + malfunction applies and S5 electrical fuse/breaker tripping gives safety POSSIBLE. Safety takes precedence over repair, so human safety review is required before any workflow.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 84.14
+  },
+  "X097": {
+   "speech_act_evidence": "würde ich höflich bitten, mir einen austauschbaren Artikel zukommen zu lassen, idealerweise ebenfalls einen 1,7‑L‑Elektrokessel in derselben Ausführung",
+   "speech_act": "REQUEST",
+   "items": [
+    {
+     "issue_type": "DEFECT",
+     "issue_type_evidence": "beim Einschalten immer wieder die Sicherung auslöst bzw. den Stromkreis unterbricht",
+     "goals": [
+      {
+       "goal": "REPLACE_SAME",
+       "evidence": "würde ich höflich bitten, mir einen austauschbaren Artikel zukommen zu lassen, idealerweise ebenfalls einen 1,7‑L‑Elektrokessel in derselben Ausführung"
+      },
+      {
+       "goal": "REFUND",
+       "evidence": "Sollte ein Austausch nicht möglich sein, wäre ich auch für eine Rückerstattung offen"
+      }
+     ],
+     "goal_relation": "UNDECIDED"
+    }
+   ],
+   "negated_goals": [],
+   "safety_evidence": "beim Einschalten immer wieder die Sicherung auslöst bzw. den Stromkreis unterbricht",
+   "safety": "POSSIBLE",
+   "order_ref_as_written": "TO-96097",
+   "order_ref_hedged": false,
+   "part_numbers_as_written": [],
+   "reasoning": "Product BREW-KETTLE is safety_class MAINS_HEATING with a reported malfunction causing fuse/circuit breaker trips. S5 electrical safety applies and SG-1 gated-class malfunction triggers safety review. V1 safety precedence overrides refund/replacement flows, requiring HUMAN_REVIEW.",
+   "deciding_rule": "V1",
+   "required_action": "HUMAN_REVIEW",
+   "acceptable_actions": [],
+   "_latency": 117.61
   }
  },
  "stats": {
-  "calls": 39,
+  "calls": 42,
   "retries": 8,
-  "prompt_tokens": 234681,
-  "completion_tokens": 91602
+  "prompt_tokens": 253080,
+  "completion_tokens": 97878
  }
 }
