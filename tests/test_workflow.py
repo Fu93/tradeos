@@ -36,8 +36,8 @@ def test_case_a_full_loop(workflow, paypal):
     assert case["status"] == "REFUND_COMPLETED"
     assert case["refund_status"] == "COMPLETED" and case["refund_id"].startswith("MOCK-REFUND")
     assert case["human_decision"] == "APPROVED"
-    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "note", "human",
-                                       "note", "paypal", "note"]
+    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "human", "note",
+                                       "human", "note", "paypal", "note"]
 
 
 def test_case_a_double_approve_is_refused_and_refund_is_idempotent(workflow, paypal):
@@ -95,9 +95,9 @@ def test_ai_cannot_override_policy_no(settings, paypal):
     paypal.refund_capture.assert_not_called()
 
 
-def test_eligible_case_still_needs_human(workflow, paypal):
+def test_eligible_case_still_needs_an_approval(workflow, paypal):
     case_id = workflow.run_scenario("A")
-    with pytest.raises(RefundNotAllowed, match="Human approval"):
+    with pytest.raises(RefundNotAllowed, match="approval is required"):
         workflow.execute_refund(case_id)
     paypal.refund_capture.assert_not_called()
 

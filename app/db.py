@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS cases (
     supplier_reply TEXT,
     human_decision TEXT,
     human_at TEXT,
+    approval_source TEXT,               -- "human" (a person clicked Approve) / "auto" (the merchant's policy allowed it)
     refund_id TEXT,
     refund_status TEXT,
     refund_json TEXT,
@@ -113,8 +114,8 @@ CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
 TABLES = ("audit_chain", "webhook_events", "paypal_calls", "audit_events", "cases", "products")
 # Case columns whose every change is appended to the case's hash chain ("case:update" entries).
 # The refund gate re-derives decision / human approval from these chained entries, not from the row.
-CHAINED_CASE_FIELDS = ("status", "decision", "human_decision", "refund_id", "refund_status", "refund_request_id",
-                       "capture_id", "archived_at")
+CHAINED_CASE_FIELDS = ("status", "decision", "human_decision", "approval_source", "refund_id", "refund_status",
+                       "refund_request_id", "capture_id", "archived_at")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
 
@@ -164,7 +165,7 @@ class Database:
             have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
             for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
                         "webhook_status", "webhook_json", "payer_note_json", "refund_request_id", "completed_via",
-                        "archived_at"):
+                        "archived_at", "approval_source"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
             have = {r[1] for r in conn.execute("PRAGMA table_info(paypal_calls)")}

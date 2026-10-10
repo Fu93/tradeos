@@ -464,7 +464,7 @@ def test_dashboard_has_new_panels(app_ctx):
     for text in ("Try it yourself", "中文（繁體）", "Español", "Deutsch", "日本語", "Prompt injection",
                  "Late request (45 days)", "Purchased 45 days ago", "Failure &amp; safety modes",
                  "Refund API failure", "Double-click approve", "MOCK supplier", "Customer request",
-                 "AI intent", "Human approval", 'maxlength="500"'):
+                 "AI intent", "Approval", "Autonomy", 'maxlength="500"'):
         assert text in html, text
 
 
