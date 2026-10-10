@@ -40,6 +40,7 @@ SCENARIOS = {
     "R": {"customer_name": "Ana (failure test)", "seeded_days_ago": None, "label": "Refund API failure"},
     "D": {"customer_name": "Ken (failure test)", "seeded_days_ago": None, "label": "Double-click approve"},
 }
+MAX_TRACKED_CASES = 500  # cap for per-case in-memory maps (locks, reconcile throttle)
 RUNNABLE = ("A", "B", "R", "D")
 
 # Case statuses
@@ -144,7 +145,20 @@ class Workflow:
 
     def _lock(self, case_id: str) -> threading.Lock:
         with self._locks_guard:
-            return self._locks.setdefault(case_id, threading.Lock())
+            lock = self._locks.pop(case_id, None) or threading.Lock()
+            self._locks[case_id] = lock  # most recently used last
+            if len(self._locks) > MAX_TRACKED_CASES:  # bounded: evict idle locks, oldest first
+                for key in [k for k, v in self._locks.items() if k != case_id and not v.locked()]:
+                    if len(self._locks) <= MAX_TRACKED_CASES:
+                        break
+                    del self._locks[key]
+            return lock
+
+    def reset_runtime_state(self) -> None:
+        """Demo reset: forget per-case in-memory state (idle locks) along with the database."""
+        with self._locks_guard:
+            for key in [k for k, v in self._locks.items() if not v.locked()]:
+                del self._locks[key]
 
     def _case(self, case_id: str) -> dict:
         case = self.db.get_case(case_id)
