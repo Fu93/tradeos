@@ -1,4 +1,24 @@
-> **Re-record flagged (return-vs-exchange change):** Case A is now a *return for a refund*; a size exchange (42 → 43) goes to the supplier with **no refund**. The v4 video is re-recorded to match; see the v4 script below once updated.
+# TradeOS demo video v4 — script (return → refund; exchange → no refund)
+
+Recorded on the LIVE Sandbox site (main `331ab4a`), Playwright CDP screencast, edge-tts en-US-AndrewNeural, subtitles in a dedicated black band. Duration 2:48.
+
+| Time | Screen | Narration |
+| --- | --- | --- |
+| 0:00–0:22 | Overlays: the two customer messages (return + 42→43 exchange); manual-work steps; tagline. | A customer writes: these sneakers are too small, I want to return them. Another asks to swap a 42 for a 43. For a small merchant with no ops team, that's minutes of manual work: translate, check the date, find the PayPal capture, refund by hand. TradeOS turns it into one approval. PayPal moves the money. TradeOS moves the work. |
+| 0:22–0:35 | Tagline + four pills; Sandbox chip highlighted. | The rule is simple. AI understands, rules decide, humans approve, PayPal proves. Everything here runs live on PayPal Sandbox: real orders, captures and refunds. |
+| 0:35–0:51 | Try it yourself → 中文 preset → real sandbox order + capture → 'What the AI understood' (EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE, 42 → 43, English summary). | First, a size exchange in Traditional Chinese. TradeOS creates a sandbox order and capture, and the AI extracts only the intent: an exchange, size mismatch, 42 to 43, plus an English summary. It decides nothing. |
+| 0:51–1:03 | Pending card: supplier 'replacement approved (MOCK supplier)' → Approve exchange (no refund) → 'Exchange arranged — no refund', Refund API calls 0, pipeline PayPal 'Refund API NOT CALLED'. | An exchange never moves money. The supplier reply is a mock, labelled MOCK. A human approves the exchange: arranged, and the Refund API is not called. Zero refund calls. |
+| 1:03–1:17 | Run Case B (return, seeded 45 days ago) → REJECTED, Refund API calls 0, Refund ID none. | Only a return leads to a refund. Case B is a return, bought 45 days ago. The Python policy says the 30-day window is exceeded. Refund not executed: zero calls, no Refund ID. |
+| 1:17–1:33 | Run Case A (return for a refund) → Approve & refund $49.99 → Refund COMPLETED with real Sandbox Refund ID. | Case A is a return inside the window, so every check passes. A human approves, and only then does TradeOS call the PayPal Refund API. COMPLETED appears only after PayPal returns COMPLETED, with a real sandbox Refund ID. |
+| 1:33–1:46 | Honest cut, labelled: 'PayPal's signed webhook arrived 19 s after the refund' → Signed PayPal webhook: verified ✓ → evidence panel. | Then PayPal sends a signed webhook. We cut the wait. TradeOS checked the signature itself against PayPal's certificate: verified. The evidence panel shows the refund, PayPal's debug ID, and the signed notice. |
+| 1:46–2:04 | Check against PayPal → 'all match' → audit trail intact badge (27 entries). | Check against PayPal re-reads the capture and refund from PayPal. All match. Every step is in a SHA-256 hash-chained audit trail, and it's intact. That detects edits to stored records; it can't stop someone with database access rewriting the whole chain. |
+| 2:04–2:23 | Case R timeline: HTTP 422 refused → retry same PayPal-Request-Id COMPLETED; Case D double-click evidence: one refund. | Failures stay honest. A forced PayPal refund failure shows as failed, never as success, and the retry reuses the same PayPal-Request-Id. A double click: the second click is refused, and a replay with the same request ID gets the same Refund ID back. One refund. |
+| 2:23–2:38 | Overlay: basic web hardening; Sandbox not live money; hackathon demo. | Basic web hardening is in: a content security policy, cross-site request checks and rate limits. To be clear: PayPal Sandbox, not live money, and a hackathon demo, not an audited production system. |
+| 2:38–2:48 | Tagline, principle, live demo + GitHub links. | PayPal moves the money. TradeOS moves the work. The live demo and source code are linked below. |
+
+---
+
+## Previous version (v3, superseded: Case A was an exchange that ended in a refund)
 
 # TradeOS demo video — v3 script (as recorded)
 
