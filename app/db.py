@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import threading
+import time
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime, timezone
@@ -77,7 +79,8 @@ CREATE TABLE IF NOT EXISTS paypal_calls (
     result TEXT,
     debug_id TEXT,                      -- PayPal-Debug-Id (success or failure)
     request_id TEXT,                    -- PayPal-Request-Id we sent (idempotency key), if any
-    evidence_json TEXT                  -- ids / status / status_details / error name (never tokens)
+    evidence_json TEXT,                 -- ids / status / status_details / error name (never tokens)
+    seq INTEGER                         -- monotonic ordering key shared with webhook_events
 );
 
 -- Every PayPal webhook delivery we receive (verified or not, matched or not). A VERIFIED
@@ -92,7 +95,8 @@ CREATE TABLE IF NOT EXISTS webhook_events (
     case_id TEXT,
     resource_id TEXT,
     resource_status TEXT,
-    outcome TEXT NOT NULL
+    outcome TEXT NOT NULL,
+    seq INTEGER
 );
 CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
     ON webhook_events(event_id) WHERE verified = 1;
@@ -101,6 +105,19 @@ CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
 TABLES = ("webhook_events", "paypal_calls", "audit_events", "cases", "products")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
+
+
+_seq_lock = threading.Lock()
+_last_seq = 0
+
+
+def next_seq() -> int:
+    """Strictly increasing ordering key (ns wall clock, bumped on ties) so evidence rows from
+    different tables sort in true call order, not by 1-second timestamps."""
+    global _last_seq
+    with _seq_lock:
+        _last_seq = max(time.time_ns(), _last_seq + 1)
+        return _last_seq
 
 
 def utcnow() -> str:
@@ -137,9 +154,11 @@ class Database:
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
             have = {r[1] for r in conn.execute("PRAGMA table_info(paypal_calls)")}
-            for col in ("debug_id", "request_id", "evidence_json"):
+            for col in ("debug_id", "request_id", "evidence_json", "seq"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE paypal_calls ADD COLUMN {col} TEXT")
+            if "seq" not in {r[1] for r in conn.execute("PRAGMA table_info(webhook_events)")}:
+                conn.execute("ALTER TABLE webhook_events ADD COLUMN seq INTEGER")
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -226,10 +245,10 @@ class Database:
                         request_id: str | None = None, evidence: dict | None = None) -> None:
         with self.connect() as conn:
             conn.execute(
-                "INSERT INTO paypal_calls (case_id, ts, operation, ok, result, debug_id, request_id, evidence_json) "
-                "VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO paypal_calls (case_id, ts, operation, ok, result, debug_id, request_id, evidence_json, "
+                "seq) VALUES (?,?,?,?,?,?,?,?,?)",
                 (case_id, utcnow(), operation, int(ok), result, debug_id, request_id,
-                 json.dumps(evidence) if evidence is not None else None),
+                 json.dumps(evidence) if evidence is not None else None, next_seq()),
             )
 
     def paypal_calls(self, case_id: str, operation: str | None = None) -> list[dict]:
@@ -250,9 +269,9 @@ class Database:
             try:
                 conn.execute(
                     "INSERT INTO webhook_events (event_id, ts, event_type, verification, verified, case_id, "
-                    "resource_id, resource_status, outcome) VALUES (?,?,?,?,?,?,?,?,?)",
+                    "resource_id, resource_status, outcome, seq) VALUES (?,?,?,?,?,?,?,?,?,?)",
                     (event_id, utcnow(), event_type, verification, int(verified), case_id, resource_id,
-                     resource_status, outcome))
+                     resource_status, outcome, next_seq()))
             except sqlite3.IntegrityError:
                 return False
         return True
