@@ -57,10 +57,7 @@ def test_case_a_via_http(ctx):
     assert case["refund_id"] in html and "Refund COMPLETED" in html and "Confirmed by PayPal" in html
     data = client.get(f"/api/cases/{case_id}").json()
     assert data["case"]["refund_status"] == "COMPLETED"
-    ops = [c["operation"] for c in data["paypal_calls"]]
-    assert ops[:3] == ["create_order_with_card", "get_capture", "refund_capture"]
-    assert set(ops[3:]) <= {"get_capture", "get_refund"}  # read-only reconciliation on case view
-    assert ops.count("refund_capture") == 1
+    assert [c["operation"] for c in data["paypal_calls"]] == ["create_order_with_card", "get_capture", "refund_capture"]
 
 
 def test_reset_and_health(ctx):

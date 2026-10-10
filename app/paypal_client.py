@@ -89,7 +89,7 @@ class PayPalClient:
         self._lock = threading.Lock()
 
     # -- auth -------------------------------------------------------------
-    def _access_token(self) -> str:
+    def _access_token(self, timeout: float | None = None) -> str:
         with self._lock:
             if self._token and time.time() < self._token_expiry - 60:
                 return self._token
@@ -99,6 +99,7 @@ class PayPalClient:
                     data={"grant_type": "client_credentials"},
                     auth=(self._id, self._secret),
                     headers={"Accept": "application/json"},
+                    **({"timeout": timeout} if timeout is not None else {}),
                 )
             except httpx.HTTPError as exc:
                 raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
@@ -131,9 +132,10 @@ class PayPalClient:
         )
 
     def _request(self, method: str, path: str, *, json: Any = None, content: bytes | None = None,
-                 request_id: str | None = None, extra_headers: dict | None = None) -> dict:
+                 request_id: str | None = None, extra_headers: dict | None = None,
+                 timeout: float | None = None) -> dict:
         headers = {
-            "Authorization": f"Bearer {self._access_token()}",
+            "Authorization": f"Bearer {self._access_token(timeout)}",
             "Content-Type": "application/json",
             "Accept": "application/json",
             "Prefer": "return=representation",
@@ -142,7 +144,8 @@ class PayPalClient:
             headers["PayPal-Request-Id"] = request_id
         headers.update(extra_headers or {})
         try:
-            resp = self._http.request(method, path, json=json, content=content, headers=headers)
+            kw = {"timeout": timeout} if timeout is not None else {}
+            resp = self._http.request(method, path, json=json, content=content, headers=headers, **kw)
         except httpx.HTTPError as exc:
             raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
         # Kept for the evidence timeline (successful calls too). Never the Authorization header.
@@ -210,8 +213,8 @@ class PayPalClient:
                              request_id=request_id)
 
     # -- Payments v2 ------------------------------------------------------
-    def get_capture(self, capture_id: str) -> dict:
-        return self._request("GET", f"/v2/payments/captures/{capture_id}")
+    def get_capture(self, capture_id: str, timeout: float | None = None) -> dict:
+        return self._request("GET", f"/v2/payments/captures/{capture_id}", timeout=timeout)
 
     @property
     def is_sandbox(self) -> bool:
@@ -236,8 +239,8 @@ class PayPalClient:
         return self._request("POST", f"/v2/payments/captures/{capture_id}/refund", content=content,
                              request_id=request_id, extra_headers=extra)
 
-    def get_refund(self, refund_id: str) -> dict:
-        return self._request("GET", f"/v2/payments/refunds/{refund_id}")
+    def get_refund(self, refund_id: str, timeout: float | None = None) -> dict:
+        return self._request("GET", f"/v2/payments/refunds/{refund_id}", timeout=timeout)
 
     # -- Webhooks v1 ------------------------------------------------------
     def verify_webhook_signature(self, headers: dict, raw_body: bytes, webhook_id: str) -> str:

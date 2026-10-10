@@ -14,7 +14,7 @@ from decimal import Decimal
 from typing import Any, Callable
 
 from .config import Settings
-from .db import Database
+from .db import Database, next_seq
 from .intent import AssistFields, IntentExtractor
 from .notes import TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
@@ -40,8 +40,12 @@ SCENARIOS = {
     "F": {"customer_name": "Free-text customer", "seeded_days_ago": None, "label": "Free text"},
     "R": {"customer_name": "Ana (failure test)", "seeded_days_ago": None, "label": "Refund API failure"},
     "D": {"customer_name": "Ken (failure test)", "seeded_days_ago": None, "label": "Double-click approve"},
+    # Mock-only demo: same loop as A, but the (mock) PayPal refund starts PENDING (ECHECK) and completes
+    # ~20 s later, so PENDING -> COMPLETED via reconcile or a signed webhook can be shown on screen.
+    "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
 }
-RUNNABLE = ("A", "B", "R", "D")
+RUNNABLE = ("A", "B", "R", "D", "P")
+MOCK_ONLY = ("P",)
 
 # Case statuses
 NEW = "NEW"
@@ -484,7 +488,8 @@ class Workflow:
 
         GET capture has no refunded-total field, so: REFUNDED -> the whole captured amount;
         PARTIALLY_REFUNDED -> total_refunded_amount from our refund if we have one, otherwise the
-        whole capture (fail closed: never assume money is still refundable); anything else -> 0.
+        whole capture (fail closed, and the case says why: partial refund, amount unknown,
+        needs a human); anything else -> 0.
         """
         status = capture.get("status")
         captured = Decimal((capture.get("amount") or {}).get("value") or "0")
@@ -492,71 +497,84 @@ class Workflow:
             return captured
         if status == "PARTIALLY_REFUNDED":
             total = ((case.get("refund") or {}).get("seller_payable_breakdown") or {}).get("total_refunded_amount")
-            return Decimal(total["value"]) if total and total.get("value") else captured
+            if total and total.get("value"):
+                return Decimal(total["value"])
+            if case.get("id"):
+                self.db.audit(case["id"], "policy", "PayPal reports the capture PARTIALLY_REFUNDED by another refund "
+                              "— amount unknown here, treated as not refundable; needs a human",
+                              {"capture_status": status})
+            return captured
         return Decimal("0")
 
-    def reconcile(self, case_id: str) -> dict | None:
+    def reconcile(self, case_id: str, timeout: float | None = None) -> dict | None:
         """Compare local state with PayPal (GET capture + GET refund). Read-only towards PayPal.
 
-        - Never calls the Refund API.
+        - Never calls the Refund API; never holds the case lock while waiting on PayPal
+          (reads first with a short timeout, then lock -> compare -> write).
         - Only state change: refund PENDING -> COMPLETED when PayPal's GET says COMPLETED, via _record_refund.
-        - Never downgrades; any other difference is recorded as a mismatch for a human.
+        - Never downgrades and never overwrites local fields on a mismatch; mismatches are flagged.
         - PayPal unreachable: recorded, no state change.
         """
         case = self._case(case_id)
         if not case.get("capture_id"):
             return None
+        timeout = RECONCILE_READ_TIMEOUT if timeout is None else timeout
+        refund_id = case.get("refund_id")
+        try:
+            capture = self._pp(case_id, "get_capture", case["capture_id"], timeout=timeout)
+            refund = self._pp(case_id, "get_refund", refund_id, timeout=timeout) if refund_id else None
+        except PayPalError as exc:
+            detail = {"error": str(exc), "debug_id": exc.debug_id or None, "seq": next_seq()}
+            self.db.audit(case_id, "reconcile", "Reconciliation skipped — PayPal unreachable/error (no change)", detail)
+            return {"ok": False, **detail}
         with self._lock(case_id):
-            case = self._case(case_id)
-            checks, advanced = [], False
-            try:
-                capture = self._pp(case_id, "get_capture", case["capture_id"])
-                refund = self._pp(case_id, "get_refund", case["refund_id"]) if case.get("refund_id") else None
-            except PayPalError as exc:
-                detail = {"error": str(exc), "debug_id": exc.debug_id or None}
-                self.db.audit(case_id, "reconcile", "Reconciliation skipped — PayPal unreachable/error (no change)",
-                              detail)
-                return {"ok": False, **detail}
+            case = self._case(case_id)  # state may have moved (webhook) while we waited on PayPal
+            checks, advanced, needs_human = [], False, None
             cap_status = capture.get("status")
             local_refund = case.get("refund_status")
-            expect_cap = {"COMPLETED": "REFUNDED", "PENDING": "COMPLETED"}.get(local_refund or "", None)
             if not case.get("refund_id"):
-                expect_cap = "COMPLETED"
-            checks.append({"field": "capture.status", "local": expect_cap or "—", "paypal": cap_status,
-                           "match": expect_cap is None or cap_status == expect_cap
-                           or (expect_cap == "COMPLETED" and local_refund == "PENDING"
-                               and cap_status in ("COMPLETED", "REFUNDED"))})
-            if refund is not None:
+                expected = {"COMPLETED"}
+            elif local_refund == "COMPLETED":
+                expected = {"REFUNDED", "PARTIALLY_REFUNDED"}
+            else:
+                expected = {"COMPLETED", "REFUNDED", "PARTIALLY_REFUNDED"}
+            checks.append({"field": "capture.status", "local": "/".join(sorted(expected)), "paypal": cap_status,
+                           "match": cap_status in expected})
+            if refund is not None and case.get("refund_id") == refund_id:
                 pp_status = refund.get("status")
+                local_after = local_refund
                 if local_refund == "PENDING" and pp_status == "COMPLETED":
                     self._record_refund(case_id, {**(case.get("refund") or {}), **refund}, None)
-                    advanced = True
-                    local_after = "COMPLETED"
-                else:
-                    local_after = local_refund
+                    advanced, local_after = True, "COMPLETED"
+                if pp_status in ("CANCELLED", "FAILED") and local_refund != pp_status:
+                    needs_human = f"PayPal reports the refund {pp_status}"
                 checks.append({"field": "refund.status", "local": local_refund, "paypal": pp_status,
                                "match": local_after == pp_status, "advanced": advanced})
+                pp_amount = (refund.get("amount") or {}).get("value")
                 checks.append({"field": "refund.amount", "local": f"{case['amount']} {case['currency']}",
                                "paypal": " ".join(str((refund.get("amount") or {}).get(k, "?"))
                                                   for k in ("value", "currency_code")),
-                               "match": (refund.get("amount") or {}).get("value") in (None, case["amount"])})
+                               "match": pp_amount in (None, case["amount"])})
             ok = all(c["match"] for c in checks)
-            title = ("Reconciled with PayPal — refund PENDING → COMPLETED (from PayPal GET)" if advanced and ok else
-                     "Reconciled with PayPal — all match" if ok else
-                     "Reconciliation MISMATCH — local state differs from PayPal (no automatic change)")
-            self.db.audit(case_id, "reconcile", title, {"checks": checks, "ok": ok})
-            self.db.update_case(case_id, capture_status=cap_status)
-            return {"ok": ok, "checks": checks, "advanced": advanced}
+            if ok:
+                title = ("Reconciled with PayPal — refund PENDING → COMPLETED (from PayPal GET)" if advanced
+                         else "Reconciled with PayPal — all match")
+                self.db.update_case(case_id, capture_status=cap_status)  # only written when it agrees
+            elif needs_human:
+                title = f"Reconciliation MISMATCH — needs a human: {needs_human} (no automatic change)"
+            else:
+                title = "Reconciliation MISMATCH — local state differs from PayPal (no automatic change)"
+            self.db.audit(case_id, "reconcile", title, {"checks": checks, "ok": ok, "needs_human": needs_human,
+                                                         "seq": next_seq()})
+            return {"ok": ok, "checks": checks, "advanced": advanced, "needs_human": needs_human}
 
     def auto_reconcile(self, case_id: str, background: bool = True) -> bool:
-        """Bounded, idempotent trigger used on case view. At most once per case per
-        RECONCILE_MIN_INTERVAL seconds, only for cases that have a refund; runs in a background
-        thread so the page never waits on PayPal. Returns True if a run was started."""
+        """Case-view trigger, deliberately narrow: only refunds still PENDING locally, at most once
+        per case per RECONCILE_MIN_INTERVAL seconds, in a background thread with short read timeouts
+        so neither the page nor a webhook ever waits on PayPal. Everything else is button-only."""
         case = self.db.get_case(case_id)
-        if not case or not case.get("refund_id") or self.paypal_mode == "unconfigured":
+        if not case or case.get("refund_status") != "PENDING" or self.paypal_mode == "unconfigured":
             return False
-        if case.get("refund_status") != "PENDING" and case_id in self._reconciled:
-            return False  # final states: once per process is enough
         now = time.monotonic()
         with self._locks_guard:
             if now - self._reconciled.get(case_id, -1e9) < RECONCILE_MIN_INTERVAL:
@@ -574,7 +592,7 @@ class Workflow:
             self.reconcile(case_id)
         except Exception as exc:  # never let a background check break anything
             self.db.audit(case_id, "reconcile", "Reconciliation skipped — unexpected error (no change)",
-                          {"error": type(exc).__name__})
+                          {"error": type(exc).__name__, "seq": next_seq()})
 
     # ------------------------------------------------------------------ webhook
     def record_webhook(self, event: dict, verification: str) -> str | None:
@@ -674,6 +692,7 @@ class Workflow:
 
 
 RECONCILE_MIN_INTERVAL = 30.0  # seconds between automatic reconciliations of one case
+RECONCILE_READ_TIMEOUT = 5.0   # seconds per PayPal GET during reconciliation (demo must never hang)
 
 # Position of the PayPal-Request-Id argument per client operation (for the evidence log).
 _REQUEST_ID_ARG = {"create_order_with_card": 4, "create_order": 4, "capture_order": 1, "refund_capture": 1}
