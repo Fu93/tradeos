@@ -8,7 +8,7 @@ sys.path[:0] = [str(ROOT / "scripts/v3")]
 from eval_v3 import wilson  # noqa
 E = ROOT / "docs/eval/v3"; T = "CREATE_SUPPLIER_TASK"
 L = json.loads((E / "heldout-v4-labels.json").read_text())["labels"]
-JN = json.loads((E / "judge-heldout_v4-N.json").read_text())["labels"]; JM = json.loads((E / "judge-heldout_v4-M.json").read_text())["labels"]
+JN = json.loads((E / "judge-heldout_v4-N.json").read_text())["labels"]; JM = json.loads((E / "judge-heldout_v4-G.json").read_text())["labels"]
 noreq = {i for i, v in L.items() if v["slice"] == "complaint_only" or (JN[i]["speech_act"] == JM[i]["speech_act"] == "COMPLAINT_ONLY")}
 safety = {i for i, v in L.items() if v["safety_case"]}
 RUNS = {"v3.2 k1 (primary)": ("results/heldout_v4-v3-final.json", "k1"), "v3.2 k3": ("results/heldout_v4-v3-final.json", "k3"),

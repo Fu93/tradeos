@@ -47,12 +47,13 @@ def messages():
 
 def labels():
     msgs = json.loads((E / "heldout-v4-messages.json").read_text())["messages"]
-    J = {k: json.loads((E / f"judge-heldout_v4-{k}.json").read_text())["labels"] for k in ("N", "M")}
+    J = {k: json.loads((E / f"judge-heldout_v4-{k}.json").read_text())["labels"] for k in ("N", "G")}
+    JM = json.loads((E / "judge-heldout_v4-M.json").read_text())["labels"]  # partial (muse-glimmer stalled), reported only
     auth_p = E / "heldout-v4-author-adjudication.json"
     auth = json.loads(auth_p.read_text()) if auth_p.exists() else {}
     final, dis, need = {}, [], []
     for m in msgs:
-        i = m["id"]; n, d = J["N"].get(i), J["M"].get(i)
+        i = m["id"]; n, d = J["N"].get(i), J["G"].get(i)
         des = m["designed_action"]
         if not n or not d:
             need.append(i); continue
@@ -73,21 +74,23 @@ def labels():
         if req != T:
             acc.discard(T)
         final[i] = {"required_action": req, "acceptable_actions": sorted(acc), "source": src, "lang": m["lang"],
-                    "kind": m["kind"], "slice": m["slice"], "designed_action": des, "judge_N": an, "judge_M": ad,
+                    "kind": m["kind"], "slice": m["slice"], "designed_action": des, "judge_N": an, "judge_G": ad, "judge_M_partial": (JM.get(i) or {}).get("required_action"),
                     "safety_case": m["slice"] in ("safety", "unmapped") or req == "HUMAN_REVIEW" and (n.get("deciding_rule") in ("SG", "V1") or d.get("deciding_rule") in ("SG", "V1")) or n["safety"] != "NONE" or d["safety"] != "NONE",
                     "flag_for_human_review": m["slice"] in ("safety", "unmapped", "low_risk_malfunction", "gated_no_malfunction") or an != ad}
-    ids = [m["id"] for m in msgs if m["id"] in J["N"] and m["id"] in J["M"]]
-    F = {k: [fields(J[k][i]) for i in ids] for k in ("N", "M")}
+    ids = [m["id"] for m in msgs if m["id"] in J["N"] and m["id"] in J["G"]]
+    F = {k: [fields(J[k][i]) for i in ids] for k in ("N", "G")}
     des = {m["id"]: m["designed_action"] for m in msgs}
-    kap = {f: kappa([x[f] for x in F["N"]], [x[f] for x in F["M"]]) for f in F["N"][0]}
+    kap = {f: kappa([x[f] for x in F["N"]], [x[f] for x in F["G"]]) for f in F["N"][0]}
+    mi = [i for i in ids if i in JM]
+    kap["required_action_N_vs_M_partial(n=%d)" % len(mi)] = kappa([J["N"][i]["required_action"] for i in mi], [JM[i]["required_action"] for i in mi])
     kap["required_action_N_vs_design"] = kappa([x["required_action"] for x in F["N"]], [des[i] for i in ids])
-    kap["required_action_M_vs_design"] = kappa([x["required_action"] for x in F["M"]], [des[i] for i in ids])
-    agree = sum(J["N"][i]["required_action"] == J["M"][i]["required_action"] for i in ids)
+    kap["required_action_G_vs_design"] = kappa([x["required_action"] for x in F["G"]], [des[i] for i in ids])
+    agree = sum(J["N"][i]["required_action"] == J["G"][i]["required_action"] for i in ids)
     (E / "heldout-v4-agreement.json").write_text(json.dumps({"n_both": len(ids), "raw_action_agreement": agree,
                                                              "kappa": kap}, indent=1))
     (E / "heldout-v4-disagreements.json").write_text(json.dumps(dis, ensure_ascii=False, indent=1))
     comp = Counter(v["required_action"] for v in final.values())
-    out = {"status": "LLM-generated, dual-LLM-labelled (nemotron-3-super + muse-glimmer-30b, guide v3.2), adjudicated "
+    out = {"status": "LLM-generated, dual-LLM-labelled (nemotron-3-super + gemma-4-31b-it, guide v3.2), adjudicated "
                      "(2-of-3 with design, author for 3-way splits), pending human review",
            "n": len(final), "composition": dict(comp), "non_supplier": sum(T not in v["acceptable_actions"] for v in final.values()),
            "safety_cases": sum(v["safety_case"] for v in final.values()),
@@ -98,7 +101,7 @@ def labels():
     print("NEED author adjudication:", need)
     for i in need:
         m = next(x for x in msgs if x["id"] == i)
-        print(i, m["kind"], "N", (J["N"].get(i) or {}).get("required_action"), "D", (J["M"].get(i) or {}).get("required_action"),
+        print(i, m["kind"], "N", (J["N"].get(i) or {}).get("required_action"), "D", (J["G"].get(i) or {}).get("required_action"),
               "design", m["designed_action"], "|", m["message"][:300].replace("\n", " "))
 
 
