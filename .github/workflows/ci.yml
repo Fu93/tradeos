@@ -16,7 +16,7 @@ jobs:
       - run: pip install -r requirements-dev.txt
       - name: Lint (ruff)
         run: ruff check .
-      - name: Tests (offline: mock PayPal, no LLM)
+      - name: "Tests (offline, mock PayPal, no LLM)"
         env:
           PAYPAL_MOCK: "1"
         run: pytest -q
