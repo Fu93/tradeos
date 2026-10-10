@@ -1876,12 +1876,618 @@
    "attempts": 1,
    "reassigned_from": null,
    "log": []
+  },
+  "X223": {
+   "id": "X223",
+   "message": "Dear Support Team,\n\nI am writing regarding my recent order TO-96214. The sole of the new sneakers I received has come loose. I would like to request a replacement pair, please. However, after further consideration, I have decided that I would prefer a refund instead. Could you please process a refund for the order? Thank you for your assistance.\n\nSincerely,\nLuis",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X249": {
+   "id": "X249",
+   "message": "Hi there,\n\nI hope you’re doing well. I wanted to touch base about my recent purchase of the Trail Runner sneakers. I ordered them a couple of weeks ago when I was finally getting back into my morning jog routine after a long break caused by a nagging knee issue that’s been on the mend thanks to some physio and a lot of stretching. I’ve been logging about 5‑k runs three times a week around the local park, and the shoes have been great for the most part—nice grip on the dirt trails, decent cushioning, and the breathable mesh keeps my feet from getting too sweaty even when the sun’s out strong in the afternoons.\n\nWhen they arrived, I was excited to try them out, but after wearing them for a couple of runs I noticed they felt a bit snug around the toe box, especially after the first mile when my feet start to swell a little. I measured my foot again just to be sure and it looks like I’m actually a half size larger than I thought—my usual size is 43, but I accidentally ordered a 42. I’ve tried loosening the laces and even wearing thinner socks, but it’s still uncomfortable and I’m worried it might lead to blisters if I keep pushing through.\n\nI’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color. My order number is WO-96228 (I think I might have typed it wrong when I placed the order, but hopefully that’s enough to locate it). If you need any additional info—like the receipt email or the tracking number—just let me know and I’ll forward it over.\n\nThanks so much for helping me sort this out. I’m looking forward to getting the right fit so I can keep enjoying my runs without any foot trouble.\n\nBest regards,\nNoah",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X227": {
+   "id": "X227",
+   "message": "哈囉！我是 Paula，我最近收到的 City 防雨夾克（訂單號：TO-96218）拉鍊壞了，不知道能不能幫忙修理？或者如果修不好了，能否申請退款？我想先問問看修理的可能性，但又有點猶豫要不要直接退貨… 不知道您這邊有什麼建議？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X250": {
+   "id": "X250",
+   "message": "哈囉你好～\n我是 Oskar，我的訂單 #A96229 裡的 Trail Runner 42 號鞋子收到了，但穿起來有點太小包腳，腳趾會頂到。\n想請問可以換成 43 號嗎？麻煩幫我看看要怎麼換，謝謝你！",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X231": {
+   "id": "X231",
+   "message": "おっす！先日買ったバックパック（注文番号 TO-96222）のストラップが、たった3週間でビリッと切れちゃってさ…びっくり！ちょっとがっかりだね。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X253": {
+   "id": "X253",
+   "message": "Sorry, die City Rain Jacket in M ist mir zu klein. Könnte ich sie gegen die Größe L tauschen? Danke!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X235": {
+   "id": "X235",
+   "message": "Hi there, I hope you’re doing well. I was just thinking about my morning routine and how I enjoy a nice cup of tea while reading the newspaper, and I remembered that my kettle could use a bit of maintenance. I was wondering if you happen to carry the kettle limescale filter model KL-170-FLT as a separate part, and if it’s currently available in stock. Thanks for your time, and have a great day. Best regards, Zoe.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X254": {
+   "id": "X254",
+   "message": "こんにちは。太郎です。\n\n先日届いたCity rain jacketのMサイズですが、思っていたよりかなり小さく、着用できるサイズではありませんでした。\n交換でLサイズにしていただくことは可能でしょうか。\n可能であれば手続きを教えてください。\nよろしくお願いします。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X239": {
+   "id": "X239",
+   "message": "KL-170-FLTは別売りで在庫ありますか？",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X243": {
+   "id": "X243",
+   "message": "您好，想請問貴店的退貨期限是多久？",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X258": {
+   "id": "X258",
+   "message": "Hi! I'm Yuki, order TO-96237. I just got my City rain jacket in size S and unfortunately it's too small for me. Is it possible to exchange it for a size M? Thanks so much!",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X257": {
+   "id": "X257",
+   "message": "Estimado equipo de atención al cliente, mi nombre es Wen. Recibí la chaqueta para lluvia en talla M, pero resulta ser demasiado pequeña. ¿Podrían indicarme el procedimiento para cambiarla por una talla L? Agradezco su ayuda. Saludos cordiales, Wen.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X247": {
+   "id": "X247",
+   "message": "Hey, just wondering how long the return wndow is? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X261": {
+   "id": "X261",
+   "message": "Hey, ich hab die City Regenjacke in Größe S bestellt (Bestellnr TO-96240) und sie ist mir zu klein. Könnt ihr sie bitte gegen Größe M taushen? Dankse!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X252": {
+   "id": "X252",
+   "message": "Hey, ich hab die Trail Runner in 42 bestellt (Bestellnr. #A96231) und die sind mir leider nen bischen zu klein. Kann ich die vieleicht gegen Größe 43 tauschen? Wäre echt nett. Danke, Rin",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X262": {
+   "id": "X262",
+   "message": "注文番号 TO-96241 で購入した City rain jacket サイズSを受け取りましたが、想像以上に小さく全く着用できません。サイズ表を見て注文したのにこれは困ります。\n\nサイズMへの交換をお願いしたいです。返送方法と手続きを教えてください。\n\nChiara",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X251": {
+   "id": "X251",
+   "message": "Hola, soy Paula. Las zapatillas Trail Runner que pedí en size 42 me quedan muy ajustadas. ¿Podría hacer un exchange por la talla 43? El número de pedido es WO-96230. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X265": {
+   "id": "X265",
+   "message": "こんにちは、フミコです。注文TO-96244のメリノソックス（最終セール）Mサイズがおおきくて、Sサイズに交換できますっか？",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X266": {
+   "id": "X266",
+   "message": "Hi! It's Gonzalo here. I just got my merino socks from order TO-96245, size M, and they're a bit too big on me. I know they're final sale, but is there any way I could exchange them for a size S instead? Let me know what you'd need from me. Thanks!",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X256": {
+   "id": "X256",
+   "message": "你好，我是 Valeria。想麻煩你們一下，我之前買了一件 City rain jacket，尺寸是 M。其實我觀望這件外套有一段時間了，因為最近天氣真的很不穩定，一下子大太陽，一下子又突然下暴雨，想說有一件輕便的雨天外套應該會很方便，出門買東西或臨時去附近辦事都不用擔心被淋濕。收到之後我馬上試穿，結果發現 M 對我來說太小了。平常我上衣大多穿 M，原本也以為這件應該差不多，但實際穿起來肩膀和手臂那邊有點卡，裡面如果再多穿一件薄長袖，胸前和腋下會覺得緊繃，拉鍊雖然拉得起來，但就是不太舒服，活動也卡卡的。想請問能不能幫我換成 L 尺寸？我希望換 L 穿起來會比較剛好，也比較能搭我平常會穿的衣物。再麻煩你們告訴我後續要怎麼處理，例如需要我把原本這件寄回嗎？以及換貨大概需要多久？謝謝你們耐心看完，麻煩了。\n\nValeria 敬上",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X255": {
+   "id": "X255",
+   "message": "Hey there, I got the City rain jacket in M but its too small for me. Can I exchnage it for a L? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X269": {
+   "id": "X269",
+   "message": "お世話になっております。ジュリアです。先日、3日前にスニーカーを注文いたしまして、注文番号は TO-96248 でございます。そのときは早く届くのを楽しみにしており、届いたら友達と一緒に公園でジョギングをしようと考えていました。でも、まだ荷物が届かず、配達状況を確認しても「発送準備中」のままです。  \n\n実は今朝は雨が降っていたので、家の中でホットチョコレートを飲みながら新聞を読んでいたのですが、ふと「スニーカーがまだ届いていないな」と思い出し、改めて確認したところ、やはり届いていないことが分かりました。これでは外で走る計画も立てられず、少々がっかりしています。  \n\nつきましては、お手数ですが、注文番号 TO-96248 のスニーカーをもう一度ご送付いただけますでしょうか。できるだけ早くお手配いただけると助かります。何卒よろしくお願い申し上げます。  \n\nジュリア  \n（連絡先：〇〇〇-〇〇〇-〇〇〇）",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X270": {
+   "id": "X270",
+   "message": "Hi, I ordered sneakers 3 days ago, order TO-96249, and they haven't arrived yet. Can you please send them again? Thanks, Kai",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X260": {
+   "id": "X260",
+   "message": "Buenos días:\n\nMe pongo en contacto con ustedes porque he recibido la chaqueta City rain jacket en talla S, pero me queda demasiado pequeña. Me gustaría solicitar un cambio por la talla M.\n\nMi número de pedido es TO-96239.\n\nAgradecería que me indicaran cómo proceder para realizar el cambio. Quedo a la espera de su respuesta.\n\nMuchas gracias y un saludo,\nAkira",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X259": {
+   "id": "X259",
+   "message": "您好，我是 Zoe，訂單號 TO-96238 的 City rain jacket (S) 偏小，想換成 M 尺寸，請問可以怎麼處理？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X273": {
+   "id": "X273",
+   "message": "Hi, I ordered a desk lamp (order TO-96252) but it hasn't arrived. Could you please resend it? Thanks, Noah.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X274": {
+   "id": "X274",
+   "message": "您好，我是 Oskar，訂單 TO-96253 的桌燈至今未收到，請幫我重新寄送一次，謝謝。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X264": {
+   "id": "X264",
+   "message": "Hallo, ich bin die Emma und hab grad meine Merino-Socken in M bekommen (Bestellnummer TO-96243). Leider sind die mir viel zu groß. Auch wenn die im Final Sale sind – könnte ich sie vieleicht gegen S tauschen? Würde mich freuen. Liebe Grüße Emma",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X263": {
+   "id": "X263",
+   "message": "Hola, soy Diego, mi pedido TO-96242 las calzetines merino de talla M quedaron demasiado grandes, podria cambiarlos por talla S? Gracias",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X277": {
+   "id": "X277",
+   "message": "Hola,\n\nMi nombre es Sofia y hace aproximadamente una semana realicé una compra en su tienda online de unas zapatillas Trail Runner. El número de mi pedido es TO-96256. Cuando recibí el paquete, estaba muy emocionada porque había visto unas fotos muy bonitas en su catálogo y pensé que serían perfectas para mis salidas al parque los fines de semana. Resulta que, después de probarlas un par de veces en casa mientras mi gato se acurrucaba al lado del sofá y escuchaba de fondo la lluvia que golpeaba la ventana, me di cuenta de que el color no combina tan bien con la mayoría de mi ropa deportiva como había imaginado inicialmente. Además, recuerdo que ese mismo día también estaba pensando en cambiar mi rutina de ejercicios y quizá probar algo diferente, como el ciclismo indoor, así que al final las zapatillas no encajan con lo que ahora tengo en mente.\n\nPor todo lo anterior, he decidido que prefiero devolver el artículo y obtener el reembolso del importe pagado. Adjunto nuevamente el número de pedido TO-96256 para que puedan localizar la transacción sin problemas. Agradecería mucho que me indiquen los pasos a seguir para la devolución y el plazo estimado para que el dinero vuelva a mi tarjeta.\n\nQuedo a la espera de sus instrucciones y gracias de antemano por su atención.\n\nUn saludo,\nSofia",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X267": {
+   "id": "X267",
+   "message": "Hola, soy Hanna. Hice el pedido de unas zapatillas hace tres días con el número de orden TO-96246 y todavía no ha llegado. Por favor, envíenlo de nuevo o indiquen qué está pasando. Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 2,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+    "nvidia/nemotron-3-super-120b-a12b: order missing"
+   ]
+  },
+  "X271": {
+   "id": "X271",
+   "message": "Hallo, meine Schreibtischlampe (Bestellung TO-96250) ist nicht angekommen. Könnt ihr sie bitte noch einmal zusenden? Danke, Luis.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X275": {
+   "id": "X275",
+   "message": "Hola, soy Paula. Mi lámpara de escritorio del pedido TO-96254 no llegó. ¿Podrían enviarla de nuevo? Gracias.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X281": {
+   "id": "X281",
+   "message": "您好！我是 Wen，我剛才收到訂單 TO-96260 的 Trail Runner 運動鞋，但想了一下決定不想要了，能否幫我辦理退款呢？謝謝！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X282": {
+   "id": "X282",
+   "message": "Hola, soy Yuki. Hice el pedido TO-96261 por la City rain jacket y al final cambié de idea, no la voy a usar.\n\n¿Se puede hacer la devolucion y el reembolso? Gracias!",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X280": {
+   "id": "X280",
+   "message": "Hi, I’d like to request a refund for the Trail Runner sneakers from order TO-96259. I changed my mind about them. Can you tell me what I need to do next?",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X279": {
+   "id": "X279",
+   "message": "こんにちは。注文番号TO-96258のTrail Runnerスニーカーですが、気が変わったので返金をお願いします。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X285": {
+   "id": "X285",
+   "message": "您好，\n\n我叫Bea，訂單編號為ＴＯ－９６２６４的雨衣縫線出現破損，導致無法正常使用。請問能否協助辦理退款事宜？謝謝。\n\nBea",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X286": {
+   "id": "X286",
+   "message": "¡Hola! Soy Chiara, les escribo por la chaqueta de lluvia del pedido TO‑96265. La recibí hace unos días y al probármela vi que tiene la costura rota en un lateral. No la he usado casi nada y me da pena. ¿Se podría hacer un reembolso? Gracias por la ayuda, ¡que tengan lindo día!",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X284": {
+   "id": "X284",
+   "message": "Hi, I recieved my rain jacket today and the seam is torn. Its pretty bad, so I'd like a refund please. My order number is TO‐96263. Thanks, Akira",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X224": {
+   "id": "X224",
+   "message": "您好，我是 Mina。前陣子我在你們網站買了一雙新球鞋，訂單編號是 TO-96215，收到之後其實還滿開心的，因為那個顏色我找了一陣子，想說等天氣好一點再穿出門。結果上週末我第一次穿去附近買東西，走沒多久就發現鞋底側邊好像有點開開的，後來仔細看才確定是鞋底脫膠，走起來還會卡卡的，當下真的有點傻眼，畢竟才第一次穿而已。我本來想說，既然是新品就這樣，那應該可以麻煩你們幫我換一雙同款、同尺寸的新鞋，因為我真的很喜歡那雙的顏色，尺寸也很剛好。可是後來我又想了一下，換貨可能還要等來等去，加上我最近工作比較忙，實在不太想再花時間處理這些，所以想了想還是改變心意了。不用幫我換貨沒關係，我只要退款就好。再麻煩你們幫我處理退款，謝謝你們。對了，我媽還說新鞋買來要先檢查鞋底，結果我還真的遇到了，哈哈。總之再麻煩你們了。 Mina 敬上",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X289": {
+   "id": "X289",
+   "message": "哈囉，我是Fumiko，訂單TO-96268的LED檯燈運作正常，但我改變主意想申請退貨退款，請幫忙處理。謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X283": {
+   "id": "X283",
+   "message": "Sehr geehrte Damen und Herren,\n\nich habe meine Meinung zum City Regenjacke geändert und bitte um Erstattung des Kaufpreises für meine Bestellung TO-96262.\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüßen\nZoe",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X138": {
+   "id": "X138",
+   "message": "お世話になっております。太郎と申します。\n\n20日前に購入した1.7L電気ケトルが、最近水を温めなくなりました。\n注文番号は TO-96138 です。\n\n初期不良かと思われますので、返金の手続きをお願いできますでしょうか。\nご確認のほど、よろしくお願いいたします。",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X012": {
+   "id": "X012",
+   "message": "Hallo, ich bin Mina. Ich habe Trail Runner in Größe 39 bestellt (Bestellnr. TO-96012), im Karton war aber Größe 40 – euer Fehler. Bitte schickt mir die 39. Danke.",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X293": {
+   "id": "X293",
+   "message": "Dear Customer Service,\n\nI hope you are well. I recently purchased a 1.7 L electric kettle (order number TO-96272). Although the product works perfectly, I have changed my mind and would like to request a full refund. Please let me know the next steps.\n\nThank you for your assistance.\n\nKind regards,\nJulia",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X290": {
+   "id": "X290",
+   "message": "Hola, soy Gonzalo. Con el pedido TO-96269 me llegó la tetera eléctrica de 1.7 L y funciona perfecto, pero he cambiado de opinión. ¿Me pueden gestionar la devolución y el reembolso? Gracias.",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X287": {
+   "id": "X287",
+   "message": "Guten Tag,\n\nich hoffe, Sie befinden sich wohl und das Wetter ist bei Ihnen genauso wechselhaft wie hier im Ruhrgebiet, wo ich letzte Woche beim Spaziergang entlang des Rheinufers plötzlich einem plötzlichen Regenschauer ausgesetzt war. Dabei fiel mir auf, dass die Naht an der linken Schulter meines Regenjackets, das ich erst vor einigen Wochen erworben habe, plötzlich aufgegangen ist – das Material reißt sich an der Stelle, wo ich die Jacke beim Anziehen immer leicht ziehe, und es zieht nun Wasser durch, obwohl die Jacke sonst noch ganz intakt wirkt.\n\nDa ich die Jacke hauptsächlich für meine täglichen Fahrradtouren zur Arbeit und für gelegentliche Wanderungen im Sauerland benutze, ist es besonders ärgerlich, dass gerade jetzt, wo die Herbstsaison beginnt und ich auf zuverlässigen Wetterschutz angewiesen bin, dieses Problem auftritt. Ich habe das Kleidungsstück sorgfältig gepflegt, nur gemäß den Waschinstruktionen gewaschen und nie im Trockner getrocknet, sodass ich eigentlich keine unsachgemäße Behandlung vorwerfen kann.\n\nAus diesem Grund würde ich höflich bitten, mir den Kaufpreis für das defekte Produkt zurückzuerstatten. Meine Bestellung lautet exakt auf die Auftragsnummer TO–96266, die ich damals bei der Bestellung per E-Mail erhalten habe und die auch in meiner Kontoübersicht bei Ihnen zu finden ist. Sollten Sie zusätzliches Bildmaterial oder weitere Informationen benötigen, lassen Sie es mich bitte wissen – ich kann gern Fotos vom beschädigten Bereich zusenden oder das Kleidungsstück zurücksenden, falls das erforderlich wäre.\n\nVielen Dank im Voraus für Ihre Unterstützung und das Verständnis für die Umstände. Ich freue mich auf eine rasche Rückmeldung und hoffe, dass wir eine zufriedenstellende Lösung finden können.\n\nMit freundlichen Grüßen  \nDiego",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X291": {
+   "id": "X291",
+   "message": "Hallo, ich habe meine Bestellung TO-96270 erhalten, der Wasserkocher funktioniert einwandfrei, aber ich habe meine Meinung geändert und möchte eine Rückerstattung. Thanks.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X297": {
+   "id": "X297",
+   "message": "Hallo, die Einlegesohle meiner Trail Runner Sneaker (Bestellung TO-96276, 120 Tage alt) ist auseinandergegangen und das Fersenfutter ist gerissen. Bitte senden Sie mir ein Ersatzpaar zu. Danke.",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X296": {
+   "id": "X296",
+   "message": "Hola, soy Mina. Mis Trail Runner tienen 120 días y la plantilla se despegó y el forro del talón se rasgó. ¿Me pueden mandar un par de reemplazo? Pedido TO-96275. Gracias.",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X295": {
+   "id": "X295",
+   "message": "您好，我是 Luis。訂單號 TO-96274 的 Trail Runner 運動鞋已使用 60 天，發現內底脫落且後跟內襯破裂。請問能否安排 replacement？謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X298": {
+   "id": "X298",
+   "message": "Holaa, soy Oskar. Mi pedido es TO-96277. Las sneakers talla 43 me quedan un poco grandes despues de probarmelas. Se podria hacer el cambio a talla 42? Gracias",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X301": {
+   "id": "X301",
+   "message": "Hey, I got my sneakers from order TO-96280 but they're size 42 and they feell a bit big on me. Could I swapp them for a size 41? Thanks!",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X302": {
+   "id": "X302",
+   "message": "Hello,\n\nI hope you are doing well. I am writing about an order I placed recently. My name is Taro and my order number is TO-96281.\n\nI ordered the City rain jacket in size M, but I actually meant to order size S. It was entirely my mistake. I was ordering late at night on my phone while my cat was jumping on the keyboard and I was also trying to keep an eye on the rain coming down outside the window, and I think I just tapped the wrong size without really noticing. I only realized this morning when I tried it on and it feels a bit loose on me, I usually wear S in your jackets.\n\nThe jacket looks really nice otherwise and I love the colour, so I would like to exchange the size M for size S if that is possible. Please let me know how to proceed with the exchange and if you need anything from me.\n\nThank you very much for your help.\n\nBest regards,\nTaro",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X300": {
+   "id": "X300",
+   "message": "こんにちは！Rinです。注文番号 TO-96279 でスニーカーを購入したんですが、サイズ43だとちょっと大きめでした。できればサイズ42に交換してもらえたら嬉しいです。交換の手順を教えてください。よろしくお願いします！",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X299": {
+   "id": "X299",
+   "message": "Hallo Kundenservice,\n\nich hoffe, es geht Ihnen gut. Mein Name ist Paula und ich habe vor ein paar Tagen ein Paar Sneaker in Größe 39 bei Ihnen bestellt – die Bestellnummer lautet genau TO-96278. Die Schuhe sind wirklich schön und das Design gefällt mir sehr, aber beim Anziehen merke ich, dass sie leider ein bisschen zu groß sind; beim Laufen rutschen sie leicht nach vorne und ich muss die Schnürung etwas fester ziehen, damit sie nicht verrutschen. Ich dachte zunächst, vielleicht liegt es an den Socken, die ich trug, doch auch mit dünneren Socken sitzen sie nicht optimal. Deshalb würde ich gern die Schuhe gegen die gleiche Modellvariante in Größe 38 austauschen, falls das noch möglich ist. \n\nZwischendurch musste ich noch kurz über das wechselhafte Wetter nachdenken – heute Morgen regnete es leicht, dann kam die Sonne heraus und später zog ein leichter Wind auf, sodass ich beim Spazierengehen im Park sowohl meinen Regenschirm als auch meine Sonnenbrille brauchte. Das hat mich irgendwie daran erinnert, wie wichtig gut sitzende Schuhe sind, besonders wenn man viel unterwegs ist.\n\nKönnten Sie bitte den Austausch veranlassen und mir mitteilen, wie ich die Rücksendung organisieren soll? Eventuell fallen dabei Kosten an oder es gibt ein Rücksendeetikett, das ich verwenden sollte? Ich wäre Ihnen sehr dankbar für eine rasche Rückmeldung, damit ich die passende Größe bald tragen kann.\n\nVielen Dank im Voraus für Ihre Hilfe und Ihr Verständnis.\n\nMit freundlichen Grüßen,\nPaula",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 2,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}",
+    "nvidia/nemotron-3-super-120b-a12b: order missing"
+   ]
+  },
+  "X198": {
+   "id": "X198",
+   "message": "Guten Tag,\n\nich wollte mich wegen meiner Bestellung TO-96189 melden. Ich habe die LED Schreibtischlampe in weiß bestellt, es ist aber eine schwarze Lampe angekommen.\n\nDas ist ärgerlich, denn ich habe bewusst die weis Variante gewählt. Könnten Sie mir bitte die korrekte weiße Lampe zusenden und sagen, wie ich die schwarze zurücksenden soll?\n\nVielen Dank im Voraus\nGonzalo",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X305": {
+   "id": "X305",
+   "message": "Hey Team, ich hab leider die City Regenjacke in M bestellt, aber ich wollte eigentlich S haben (mein Fehlerr). Könnt ihr das bitte auf S umtauschen? Dankie! Wen (Bestellnr: TO-96284)",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X306": {
+   "id": "X306",
+   "message": "Hallo,\n\nich wollte mich nur ganz kurz melden und ein großes Dankeschön sagen. Die Lieferung kam wirklich super schnell an, das hätte ich so nicht erwartet. Ich habe gerade erst online bestellt und schon am nächsten Tag war das Paket da, dabei war es sogar noch regnerisch und ich war mir nicht sicher ob der Zusteller es schafft.\n\nDer Wasserkocher ist angekommen und ich liebe ihn einfach. Er sieht richtig schön aus in meiner Küche und funktioniert perfekt. Ich koche jetzt jeden Morgen sehr gern damit Wasser auf, während mein Kater auf dem Fensterbrett liegt und zusieht.\n\nNochmals vielen Dank für den tollen Service.\n\nLiebe Grüße\nYuki",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X278": {
+   "id": "X278",
+   "message": "Hallo,\n\nich melde mich wegen meiner Bestellung TO-96257. Ich habe da die City Regenjacke bestellt und muss ehrlich sagen, ich habe mich jetzt doch anders entschieden.\n\nEigentlich hatte ich die Jacke bestellt, weil es hier letzte Woche jeden Tag geregnet hat und ich dachte, das ist gerade genau das Richtige. Inzwischen hat sich das Wetter aber komplett gedreht, es ist jeden Tag sonnig und ich bin sogar letzte Woche spontan mit dem Fahrrad zur Arbeit gefahren, da hätte ich die Jacke eh nicht gebraucht. Außerdem habe ich beim Aufräumen im Schrank festgestellt, dass ich noch eine alte Regenjacke habe, die ich komplett vergessen hatte und die eigentlich noch ganz gut passt.\n\nKönnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten? Die Jacke wurde noch gar nicht getragen, liegt noch original verpackt hier.\n\nVielen Dank schon mal und einen schönen Tag euch.\n\nViele Grüße\nTaro",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X176": {
+   "id": "X176",
+   "message": "注文番号 TO-96167 のイサムです。\nTrail Runner をサイズ41で注文しましたが、私の間違いでした。普段は42を履いています。届いた商品は注文どおり41でした。\nお手数ですが、サイズ42に交換していただけないでしょうか。",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X303": {
+   "id": "X303",
+   "message": "您好，我是Ulla，訂單TO-96282訂了M號City雨衣，實際想要S號，可否幫我換貨？謝謝。",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X307": {
+   "id": "X307",
+   "message": "Zoeです。届くのが早くてびっくり。やかんも大好きです！ありがとう！",
+   "generator": "nvidia/nemotron-3-super-120b-a12b",
+   "attempts": 1,
+   "reassigned_from": "z-ai/glm-5.3",
+   "log": [
+    "z-ai/glm-5.3: failed after retries: HTTP 429: {\"status\":429,\"title\":\"Too Many Requests\"}"
+   ]
+  },
+  "X132": {
+   "id": "X132",
+   "message": "Hallo zusammen,\n\nentschuldigt, dass ich euch direkt anschreibe, aber ich bin gerade etwas ratlos. Ich habe vor ungefähr 40 Tagen bei euch einen Camping-Gaskocher gekauft – damals noch in der Annahme, dass wir über Ostern wegfahren, aber daraus wurde dann doch nichts, und so stand er eine Weile im Keller. Jetzt wollte ich ihn endlich ausprobieren, und leider funktioniert er nicht richtig: Wenn ich den Zündknopf drücke, höre ich zwar dieses Klicken, aber es kommt kein Feuer, egal wie oft ich es versuche. Die Gasflasche ist angeschlossen und aufgedreht, das habe ich mehrfach kontrolliert. Ich bin mir auch ziemlich sicher, dass ich nichts falsch mache – bei meinem alten Kocher hat das immer geklappt. Vielleicht habe ich ja etwas übersehen, aber ich vermute, dass irgendetwas an der Zündung defekt ist. Ich würde mich freuen, wenn ihr euch das mal ansehen und den Kocher reparieren könntet. Meine Bestellnummer ist TO-96132. Es wäre schön, wenn das noch vor unserem nächsten Campingwochenende klappt, aber ich weiß, dass ihr da nichts versprechen könnt.\n\nVielen Dank schon mal und viele Grüße\nMina",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X294": {
+   "id": "X294",
+   "message": "Hi there,\n\nI’m Kai and I’m writing about a pair of Trail Runner sneakers I ordered from you. The order number is TO-96273. I got them about 60 days ago now and I’ve been really happy with them for the most part, I’ve been wearing them for my weekend walks and a couple of hikes when the weather finally turned nice.\n\nI’m reaching out because the insole came apart on one shoe and the heel lining ripped. It happened after a walk last Saturday when it was raining on and off and my dog was pulling me a bit more than usual because he spotted a squirrel near the creek behind my house. I didn’t notice it right away but when I took them off that evening the insole was basically folded up in the toe and the heel lining was torn open on the same shoe.\n\nI know 60 days is just past the typical return window so I’m not sure what the policy is, but I was hoping it might be possible to get a replacement pair since it feels like a defect rather than wear and tear. I’ve kept the shoes clean and I haven’t done anything extreme with them.\n\nPlease let me know what you can do. Thanks a lot for your help.\n\nBest regards,\nKai",
+   "generator": "meta/muse-glimmer-30b",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X228": {
+   "id": "X228",
+   "message": "Buenos días:\n\nMe pongo en contacto con ustedes en relación con el pedido TO-96219. Se trata de la chaqueta City rain jacket y, lamentablemente, la cremallera se ha roto.\n\nEn principio, me gustaría saber si sería posible repararla. También me preguntaba si, en caso de que la reparación no fuera viable, cabría la posibilidad de solicitar un reembolso. La verdad es que no estoy del todo segura de qué opción prefiero, así que agradecería mucho su orientación.\n\nQuedo a la espera de su respuesta. Muchas gracias.\n\nUn saludo,\nRin",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X232": {
+   "id": "X232",
+   "message": "Dear Customer Service,\n\nI am writing to share my disappointment regarding a backpack I purchased from you, order number TO-96223. After only three weeks of normal use, the strap ripped. I had expected the item to be more durable, so this has been quite frustrating for me.\n\nI am not asking for anything; I simply wanted to let you know about my experience.\n\nKind regards,\nValeria",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X136": {
+   "id": "X136",
+   "message": "Hola, soy Rin. Hace 20 días compré una tetera eléctrica de 1.7 L, pedido TO-96136. La luz se enciende pero no pasa nada, no calienta. Quisiera pedir un refund, por favor.",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
+  },
+  "X036": {
+   "id": "X036",
+   "message": "こんにちは。いつもお世話になっております。突然のご連絡ですみません。先日そちらでデスクライトを注文したミナです。注文番号は TO-96036 です。\n\n実は、そのデスクライトがまだ手元に届いていません。注文してからずっと楽しみに待っていたのですが、いくら待っても届かず、配送状況を確認してみたところ、追跡情報が一週間前から止まってしまっています。そこからまったく動きがないので、もしかしたらどこかで荷物が止まってしまっているのかな、と少し心配になりました。家族にも「ライトはまだ届かないの？」と何度か聞かれていて、私も首を長くして待っている状態です。\n\n最近は日が暮れるのが早くなって、夜に本を読んだり、手帳に予定を書き込んだりする時間が増えました。それで、ちょうどいい明るさのデスクライトが欲しかったんです。届いたらさっそく使おうと思っていたので、届かないままだと、さすがにちょっと困ってしまって。問い合わせるのも遅くなってしまいましたが、一週間も追跡が止まっているなら、一度ご確認いただいたほうがいいのかと思い、ご連絡しました。\n\nお手数をおかけして本当に申し訳ないのですが、同じデスクライトを再送していただくことは可能でしょうか。注文番号は TO-96036 です。できれば早めに手配していただけると嬉しいです。寒くなってきたので、部屋で温かい飲み物を飲みながら読書するのが最近の楽しみで、そのお供にと思っていました。関係ない話ですみません。\n\nそれでは、ご確認のほどよろしくお願いいたします。\n\nミナ",
+   "generator": "deepseek-ai/deepseek-v4.1-flash",
+   "attempts": 1,
+   "reassigned_from": null,
+   "log": []
   }
  },
  "stats": {
-  "calls": 236,
-  "retries": 332,
-  "prompt_tokens": 39207,
-  "completion_tokens": 108807
+  "calls": 308,
+  "retries": 475,
+  "prompt_tokens": 50639,
+  "completion_tokens": 142026
  }
 }
