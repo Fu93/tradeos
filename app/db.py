@@ -96,7 +96,8 @@ CREATE TABLE IF NOT EXISTS webhook_events (
     resource_id TEXT,
     resource_status TEXT,
     outcome TEXT NOT NULL,
-    seq INTEGER
+    seq INTEGER,
+    verify_method TEXT                  -- self (cert + CRC32) / postback (PayPal API) / none
 );
 CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
     ON webhook_events(event_id) WHERE verified = 1;
@@ -157,8 +158,11 @@ class Database:
             for col in ("debug_id", "request_id", "evidence_json", "seq"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE paypal_calls ADD COLUMN {col} TEXT")
-            if "seq" not in {r[1] for r in conn.execute("PRAGMA table_info(webhook_events)")}:
+            have_we = {r[1] for r in conn.execute("PRAGMA table_info(webhook_events)")}
+            if "seq" not in have_we:
                 conn.execute("ALTER TABLE webhook_events ADD COLUMN seq INTEGER")
+            if "verify_method" not in have_we:
+                conn.execute("ALTER TABLE webhook_events ADD COLUMN verify_method TEXT")
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -262,16 +266,16 @@ class Database:
     # -- PayPal webhook log --------------------------------------------------
     def log_webhook_event(self, event_id: str | None, event_type: str | None, verification: str, verified: bool,
                           case_id: str | None, resource_id: str | None, resource_status: str | None,
-                          outcome: str) -> bool:
+                          outcome: str, verify_method: str | None = None) -> bool:
         """Insert one delivery. For verified events returns False if that event id was already
         claimed (duplicate delivery); unverified rows are never deduplicated and never block."""
         with self.connect() as conn:
             try:
                 conn.execute(
                     "INSERT INTO webhook_events (event_id, ts, event_type, verification, verified, case_id, "
-                    "resource_id, resource_status, outcome, seq) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                    "resource_id, resource_status, outcome, seq, verify_method) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                     (event_id, utcnow(), event_type, verification, int(verified), case_id, resource_id,
-                     resource_status, outcome, next_seq()))
+                     resource_status, outcome, next_seq(), verify_method))
             except sqlite3.IntegrityError:
                 return False
         return True

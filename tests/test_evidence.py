@@ -55,7 +55,7 @@ def test_log_is_in_call_order_and_summary_is_short(app_ctx):
     assert len(summary) <= 4
     assert summary["PayPal refund"].startswith(rid) and "COMPLETED" in summary["PayPal refund"]
     assert summary["PayPal trace ID"].startswith("mock-debug-")
-    assert summary["Signed PayPal notice"].startswith("signature verified with PayPal")
+    assert summary["Signed PayPal notice"].startswith("signature verified by PayPal's API")
     assert "1 duplicate ignored" in summary["Signed PayPal notice"]
     html = client.get(f"/?case={case_id}").text
     assert "PayPal evidence" in html and "Show details" in html and f"tradeos-refund-{case_id}" in html

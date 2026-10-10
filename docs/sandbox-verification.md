@@ -12,7 +12,7 @@
 |---|---|---|
 | `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` | all PayPal calls | Sandbox REST app |
 | `PAYPAL_BASE_URL` | all PayPal calls | `https://api-m.sandbox.paypal.com` |
-| `PAYPAL_WEBHOOK_ID` | signed webhook verification | the existing registration; **no re-registration needed** |
+| `PAYPAL_WEBHOOK_ID` | signed webhook verification | unchanged if `register_webhook.py --apply` reports `updated ... (unchanged)`; only a `created` result needs a new value |
 | `PAYPAL_MOCK` | must be unset or `0` on Render | `1` switches to the mock (UI then says "MOCK PayPal") |
 | `TRADEOS_DB_PATH`, `TRADEOS_RESET_ON_START` | SQLite, reset + reseed on start | unchanged |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | optional, default on | background check of PENDING refunds only |
@@ -24,7 +24,7 @@ No new required variables. No database migration is needed (Render reseeds on st
 `python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount) and one Case B. It checks:
 1. `/healthz`: PayPal mode `sandbox`, webhook configured.
 2. Case A: approved; refund COMPLETED (or PENDING); **exactly one** refund call; a **real** `PayPal-Debug-Id` (not `mock-…`); `PayPal-Request-Id` recorded; retry on the finished refund returns 409.
-3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s).
+3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK).
 4. "Check against PayPal": result "Reconciled with PayPal — all match".
 5. Case B: approve returns 409, the refund API is never called.
 
@@ -34,3 +34,9 @@ Manual steps:
 - Also confirm the dashboard shows **no** "MOCK PayPal" tag and no "Pending refund (MOCK)" tile.
 
 Expected on the local mock (dry run of the script, 2026-10-10): every check passes except the three that need real Sandbox (mode, real debug id, signed webhook).
+
+## After merging feat/paypal-hardening (webhook re-registration)
+1. Dry run: `python scripts/register_webhook.py https://<render-host>/webhooks/paypal` (needs `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET`). Expect `would update webhook <id> in place (ID unchanged)`.
+2. Apply: same command with `--apply`. Expect `updated PAYPAL_WEBHOOK_ID=<same id> (unchanged)` and five events: `PAYMENT.CAPTURE.REFUNDED`, `PAYMENT.REFUND.PENDING`, `PAYMENT.REFUND.FAILED`, `PAYMENT.CAPTURE.REVERSED`, `PAYMENT.CAPTURE.DECLINED`. If it says `created`, set the new ID as `PAYPAL_WEBHOOK_ID` on Render and redeploy.
+3. Deploy (adds the `cryptography` dependency), then run `sandbox_verify.py`; it reports the verification method.
+4. `PAYMENT.REFUND.PENDING` / `FAILED` cannot be forced on a Sandbox card refund (they complete instantly), so they are covered by tests, not by the live check. The Webhooks simulator can deliver them, but its events are signed for `WEBHOOK_ID` and will correctly show as *not verified*.

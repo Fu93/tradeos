@@ -476,7 +476,7 @@ def test_webhook_verified_is_second_confirmation(app_ctx):
     refund_id = wf.db.get_case(case_id)["refund_id"]
     r = client.post("/webhooks/paypal", content=json.dumps(refund_event(refund_id)),
                     headers={"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature", "Content-Type": "application/json"})
-    assert r.json() == {"ok": True, "handled": True, "verified": True, "case": case_id}
+    assert r.json() == {"ok": True, "handled": True, "verified": True, "case": case_id, "method": "postback"}
     case = wf.db.get_case(case_id)
     assert case["webhook_status"] == "VERIFIED" and case["webhook"]["event_id"] == "WH-EVT-1"
     html = client.get(f"/?case={case_id}").text

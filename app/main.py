@@ -18,6 +18,7 @@ from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
 from .paypal_client import PayPalError
+from .webhook_verify import SelfVerifyUnavailable, self_verify
 from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import RateLimiter, client_key
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
@@ -30,7 +31,8 @@ EXCHANGE_COPY = ("For the hackathon MVP, the financial side of an exchange is si
                  "original PayPal transaction. Replacement fulfilment is represented by the supplier confirmation.")
 
 
-WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED"}
+WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING", "PAYMENT.REFUND.FAILED",
+                  "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED"}
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
@@ -186,6 +188,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, case_id, status_code=409,
                                     flash=f"Nothing to retry: refund {case['refund_id']} is already "
                                           f"{case['refund_status']} at PayPal. No new refund request was sent.")
+        if wf.refund_check_pending(case_id):
+            return render_dashboard(request, case_id, status_code=409,
+                                    flash="Checking with PayPal whether the last refund request went through — "
+                                          "retry in a few seconds (it will reuse the same PayPal-Request-Id).")
         return guarded(request, case_id, wf.execute_refund)
 
     @app.post("/demo/mock-webhook/{case_id}")
@@ -218,6 +224,20 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(404, "Only available on the double-click test case")
         return guarded(request, case_id, wf.approve_twice)
 
+    def verify_webhook(headers: dict, raw: bytes) -> tuple[str, str]:
+        """Self-check first (PayPal's preferred method); PayPal's verify-webhook-signature API as
+        the fallback when the self-check cannot run. A self-check that runs and fails is final."""
+        if not settings.paypal_webhook_id:
+            return "NO_WEBHOOK_ID", "none"
+        try:
+            return self_verify(headers, raw, settings.paypal_webhook_id), "self"
+        except SelfVerifyUnavailable:
+            pass
+        try:
+            return wf.paypal().verify_webhook_signature(headers, raw, settings.paypal_webhook_id), "postback"
+        except PayPalError:
+            return "ERROR", "postback"
+
     @app.post("/webhooks/paypal")
     async def paypal_webhook(request: Request):
         """Second, independent confirmation: PayPal pushes PAYMENT.CAPTURE.REFUNDED; we verify the
@@ -233,22 +253,16 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
         def handle() -> str | None:
             # Runs in the threadpool: the verification call and DB work never block the event loop.
-            if not settings.paypal_webhook_id:
-                verification = "NO_WEBHOOK_ID"
-            else:
-                try:
-                    verification = wf.paypal().verify_webhook_signature(headers, raw, settings.paypal_webhook_id)
-                except PayPalError:
-                    verification = "ERROR"
-            return verification, wf.record_webhook(event, verification)
+            verification, method = verify_webhook(headers, raw)
+            return verification, method, wf.record_webhook(event, verification, method)
 
         try:
-            verification, case_id = await run_in_threadpool(handle)
+            verification, method, case_id = await run_in_threadpool(handle)
         except Exception:
             # Not acknowledged: PayPal retries the delivery (the event id was released, see record_webhook).
             return JSONResponse({"ok": False, "handled": False, "retry": True}, status_code=500)
         return JSONResponse({"ok": True, "handled": True, "verified": verification == "SUCCESS",
-                             "case": case_id})
+                             "case": case_id, "method": method})
 
     @app.post("/cases/{case_id}/refresh-refund")
     def refresh_refund(request: Request, case_id: str):
