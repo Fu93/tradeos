@@ -11,6 +11,10 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterator
 
+from . import audit_chain as chain  # noqa: E402
+
+_chain_lock = threading.RLock()  # one writer at a time for chain appends (single-process app)
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS products (
     sku TEXT PRIMARY KEY,
@@ -103,7 +107,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
     ON webhook_events(event_id) WHERE verified = 1;
 """
 
-TABLES = ("webhook_events", "paypal_calls", "audit_events", "cases", "products")
+TABLES = ("audit_chain", "webhook_events", "paypal_calls", "audit_events", "cases", "products")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
 
@@ -148,6 +152,7 @@ class Database:
                 for t in TABLES:
                     conn.execute(f"DROP TABLE IF EXISTS {t}")
             conn.executescript(SCHEMA)
+            conn.executescript(chain.SCHEMA)
             # Lightweight forward migration for a kept database (TRADEOS_RESET_ON_START=0).
             have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
             for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
@@ -163,6 +168,7 @@ class Database:
                 conn.execute("ALTER TABLE webhook_events ADD COLUMN seq INTEGER")
             if "verify_method" not in have_we:
                 conn.execute("ALTER TABLE webhook_events ADD COLUMN verify_method TEXT")
+        self._backfill_chain()
 
     # -- products ---------------------------------------------------------
     def upsert_product(self, sku: str, name: str, category: str, returnable: bool, price: str, supplier: str) -> None:
@@ -226,11 +232,96 @@ class Database:
 
     # -- audit ------------------------------------------------------------
     def audit(self, case_id: str, stage: str, title: str, detail: Any = None) -> None:
-        with self.connect() as conn:
-            conn.execute(
+        with _chain_lock, self.connect() as conn:
+            ts = utcnow()
+            cur = conn.execute(
                 "INSERT INTO audit_events (case_id, ts, stage, title, detail_json) VALUES (?,?,?,?,?)",
-                (case_id, utcnow(), stage, title, json.dumps(detail, default=str) if detail is not None else None),
+                (case_id, ts, stage, title, json.dumps(detail, default=str) if detail is not None else None),
             )
+            row = dict(conn.execute("SELECT * FROM audit_events WHERE id=?", (cur.lastrowid,)).fetchone())
+            self._chain_append(conn, case_id, f"audit:{stage}", ts, chain.audit_row_payload(row),
+                               "audit_events", cur.lastrowid)
+
+    # -- hash chain (append-only) ---------------------------------------------
+    @staticmethod
+    def _chain_append(conn, case_id: str, type_: str, ts: str, payload: Any, source_table: str | None,
+                      source_id: int | None, backfilled: bool = False) -> None:
+        """Only write path for audit_chain. Caller holds _chain_lock and is inside one transaction
+        together with the source row, so the entry and its source commit or roll back together."""
+        last = conn.execute("SELECT seq, entry_hash FROM audit_chain WHERE case_id=? ORDER BY seq DESC LIMIT 1",
+                            (case_id,)).fetchone()
+        seq, prev = (last["seq"] + 1, last["entry_hash"]) if last else (1, chain.GENESIS)
+        payload = chain.normalize(payload)
+        h = chain.entry_hash(case_id, seq, type_, ts, payload, prev)
+        conn.execute("INSERT INTO audit_chain (case_id, seq, type, ts, payload_json, prev_hash, entry_hash, "
+                     "source_table, source_id, backfilled) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                     (case_id, seq, type_, ts, json.dumps(payload, sort_keys=True), prev, h, source_table,
+                      source_id, int(backfilled)))
+
+    def _chain_webhook(self, conn, row_id: int, type_: str) -> None:
+        row = conn.execute("SELECT * FROM webhook_events WHERE id=?", (row_id,)).fetchone()
+        if row is not None and row["case_id"]:
+            row = dict(row)
+            self._chain_append(conn, row["case_id"], type_, utcnow(), chain.webhook_row_payload(row),
+                               "webhook_events", row_id)
+
+    def _backfill_chain(self) -> None:
+        """Existing databases: build the chain for cases that have records but no chain yet, in their
+        original order, marked backfilled=1 (hashed now, so they prove nothing about earlier edits)."""
+        with _chain_lock, self.connect() as conn:
+            chained = {r[0] for r in conn.execute("SELECT DISTINCT case_id FROM audit_chain")}
+            rows = []
+            for r in conn.execute("SELECT * FROM audit_events"):
+                rows.append((r["ts"], 0, r["id"], "audit_events", dict(r)))
+            for r in conn.execute("SELECT * FROM paypal_calls"):
+                rows.append((r["ts"], 1, r["id"], "paypal_calls", dict(r)))
+            for r in conn.execute("SELECT * FROM webhook_events WHERE case_id IS NOT NULL"):
+                rows.append((r["ts"], 2, r["id"], "webhook_events", dict(r)))
+            rows.sort(key=lambda x: (x[0], x[1], x[2]))
+            for ts, _, rid, table, row in rows:
+                if row["case_id"] in chained:
+                    continue
+                if table == "audit_events":
+                    t_, p_ = f"audit:{row['stage']}", chain.audit_row_payload(row)
+                elif table == "paypal_calls":
+                    t_, p_ = f"paypal:{row['operation']}", chain.paypal_row_payload(row)
+                else:
+                    t_, p_ = "webhook:received", chain.webhook_row_payload(row)
+                self._chain_append(conn, row["case_id"], t_, ts, p_, table, rid, backfilled=True)
+
+    def chain_entries(self, case_id: str) -> list[dict]:
+        with self.connect() as conn:
+            return [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
+                                                  (case_id,)).fetchall()]
+
+    def verify_chain(self, case_id: str) -> dict:
+        """Recompute every hash; report the first broken link (1-based seq)."""
+        entries = self.chain_entries(case_id)
+        prev, n_back = chain.GENESIS, 0
+
+        def broken(e, k, reason):
+            return {"ok": False, "case_id": case_id, "entries": len(entries), "broken_at": k, "reason": reason,
+                    "head": entries[-1]["entry_hash"] if entries else chain.GENESIS, "backfilled": n_back}
+        with self.connect() as conn:
+            for k, e in enumerate(entries, start=1):
+                n_back += e["backfilled"]
+                if e["seq"] != k:
+                    return broken(e, k, f"sequence gap: expected {k}, found {e['seq']}")
+                if e["prev_hash"] != prev:
+                    return broken(e, k, "prev_hash does not match the previous entry")
+                payload = json.loads(e["payload_json"])
+                if chain.entry_hash(case_id, e["seq"], e["type"], e["ts"], payload, e["prev_hash"]) != e["entry_hash"]:
+                    return broken(e, k, "entry content does not match its hash")
+                src = chain.SOURCE_PAYLOAD.get(e["source_table"] or "")
+                if src is not None:
+                    row = conn.execute(f"SELECT * FROM {e['source_table']} WHERE id=?", (e["source_id"],)).fetchone()
+                    if row is None:
+                        return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was deleted")
+                    if chain.normalize(src(dict(row))) != payload:
+                        return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was modified")
+                prev = e["entry_hash"]
+        return {"ok": True, "case_id": case_id, "entries": len(entries), "broken_at": None, "reason": None,
+                "head": prev, "backfilled": n_back}
 
     def timeline(self, case_id: str) -> list[dict]:
         with self.connect() as conn:
@@ -247,13 +338,17 @@ class Database:
     # -- PayPal call log ---------------------------------------------------
     def log_paypal_call(self, case_id: str, operation: str, ok: bool, result: str, debug_id: str | None = None,
                         request_id: str | None = None, evidence: dict | None = None) -> None:
-        with self.connect() as conn:
-            conn.execute(
+        with _chain_lock, self.connect() as conn:
+            ts = utcnow()
+            cur = conn.execute(
                 "INSERT INTO paypal_calls (case_id, ts, operation, ok, result, debug_id, request_id, evidence_json, "
                 "seq) VALUES (?,?,?,?,?,?,?,?,?)",
-                (case_id, utcnow(), operation, int(ok), result, debug_id, request_id,
+                (case_id, ts, operation, int(ok), result, debug_id, request_id,
                  json.dumps(evidence) if evidence is not None else None, next_seq()),
             )
+            row = dict(conn.execute("SELECT * FROM paypal_calls WHERE id=?", (cur.lastrowid,)).fetchone())
+            self._chain_append(conn, case_id, f"paypal:{operation}", ts, chain.paypal_row_payload(row),
+                               "paypal_calls", cur.lastrowid)
 
     def paypal_calls(self, case_id: str, operation: str | None = None) -> list[dict]:
         sql, args = "SELECT * FROM paypal_calls WHERE case_id=?", [case_id]
@@ -269,15 +364,16 @@ class Database:
                           outcome: str, verify_method: str | None = None) -> bool:
         """Insert one delivery. For verified events returns False if that event id was already
         claimed (duplicate delivery); unverified rows are never deduplicated and never block."""
-        with self.connect() as conn:
+        with _chain_lock, self.connect() as conn:
             try:
-                conn.execute(
+                cur = conn.execute(
                     "INSERT INTO webhook_events (event_id, ts, event_type, verification, verified, case_id, "
                     "resource_id, resource_status, outcome, seq, verify_method) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                     (event_id, utcnow(), event_type, verification, int(verified), case_id, resource_id,
                      resource_status, outcome, next_seq(), verify_method))
             except sqlite3.IntegrityError:
                 return False
+            self._chain_webhook(conn, cur.lastrowid, "webhook:received")
         return True
 
     def webhook_event_seen(self, event_id: str) -> bool:
@@ -286,12 +382,17 @@ class Database:
                                 (event_id,)).fetchone() is not None
 
     def release_webhook_event(self, event_id: str) -> None:
-        with self.connect() as conn:
+        with _chain_lock, self.connect() as conn:
+            for r in conn.execute("SELECT id FROM webhook_events WHERE event_id=? AND verified=1", (event_id,)).fetchall():
+                self._chain_webhook(conn, r["id"], "webhook:released_for_retry")
             conn.execute("DELETE FROM webhook_events WHERE event_id=? AND verified=1", (event_id,))
 
     def set_webhook_outcome(self, row_event_id: str, outcome: str) -> None:
-        with self.connect() as conn:
+        with _chain_lock, self.connect() as conn:
             conn.execute("UPDATE webhook_events SET outcome=? WHERE event_id=? AND verified=1", (outcome, row_event_id))
+            for r in conn.execute("SELECT id FROM webhook_events WHERE event_id=? AND verified=1",
+                                  (row_event_id,)).fetchall():
+                self._chain_webhook(conn, r["id"], "webhook:outcome")
 
     def webhook_events(self, case_id: str | None = None) -> list[dict]:
         sql, args = "SELECT * FROM webhook_events", []

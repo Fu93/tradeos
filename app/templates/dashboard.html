@@ -156,6 +156,17 @@
         <p class="muted">Case seeded, not run yet.</p>
       {% endif %}
       <p class="muted small">Times in UTC. Full raw JSON incl. every PayPal call: <a href="/api/cases/{{ current.id }}">/api/cases/{{ current.id }}</a></p>
+      {% if audit_chain %}
+      <div class="chain-row">
+        {% if audit_chain.ok %}
+        <span class="chain-badge ok" title="Full head hash: {{ audit_chain.head }}">Audit trail intact: {{ audit_chain.entries }} entries, head <code>{{ audit_chain.head[:12] }}</code>{% if audit_chain.backfilled %} ({{ audit_chain.backfilled }} backfilled){% endif %}</span>
+        {% else %}
+        <span class="chain-badge bad">Audit trail BROKEN at entry {{ audit_chain.broken_at }}: {{ audit_chain.reason }}</span>
+        {% endif %}
+        <a class="btn small ghost" href="/cases/{{ current.id }}/audit/verify">Verify audit trail</a>
+      </div>
+      <p class="muted small">Each record is SHA-256 hash-chained to the one before. This detects edits to stored records; it cannot stop someone with database access from rewriting the whole chain unless the head hash was noted elsewhere.</p>
+      {% endif %}
     {% endif %}
   </section>
 
