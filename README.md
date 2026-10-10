@@ -6,12 +6,24 @@
 >
 > Use AI where language is ambiguous. Use code where money is at stake.
 
+**Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; free tier, first load may take ~1 min to wake) · **Video:** _YouTube URL TBD_
+
+1. A customer writes in any language; an LLM only extracts intent into a strict schema.
+2. Deterministic Python policy decides eligibility; a human approves; only then is the PayPal Refund API called.
+3. Success is shown only when PayPal says COMPLETED, confirmed by a signed webhook and GET reconciliation, with a hash-chained audit trail.
+
 TradeOS is an AI-powered operational bridge for cross-border commerce, built for the **PayPal AI Hackathon**.
 It sits *after* payment: it turns an unstructured customer request into a completed merchant operation —
 understand the request, check policy, coordinate the supplier, ask a human to approve, then execute
 (or block) the PayPal action.
 
-![TradeOS dashboard — Case A: refund COMPLETED, confirmed by PayPal](docs/dashboard.png)
+![TradeOS dashboard — Case A: refund COMPLETED, confirmed by PayPal (live Sandbox)](docs/dashboard.png)
+
+More live-Sandbox screenshots (1440x900, taken 2026-10-10): [evidence panel](docs/screenshots/caseA-evidence-live.png),
+[evidence details](docs/screenshots/caseA-evidence-details-live.png), [reconcile + audit badge](docs/screenshots/caseA-reconcile-audit-live.png),
+[refund failure then retry](docs/screenshots/refund-failure-retry-live.png), [double click](docs/screenshots/double-click-live.png),
+[prompt injection](docs/screenshots/injection-live.png), [late request](docs/screenshots/late-request-live.png), [mobile 375px](docs/screenshots/mobile-375-live.png).
+Images under `docs/screenshots/mock/` were taken with the offline MOCK PayPal client and are not used as evidence for any claim.
 
 ## The problem
 
@@ -358,7 +370,7 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged human
-approval or a lying extractor. 285 tests, run by GitHub Actions CI on every push and PR together with `ruff` (incl. eval dataset checks and the fallback injection guard).
+approval or a lying extractor. 285 tests (passing in GitHub Actions CI on main `89f8fc3`), run by CI on every push and PR together with `ruff` (incl. eval dataset checks and the fallback injection guard).
 
 ## Demo flow (≈3 minutes)
 
