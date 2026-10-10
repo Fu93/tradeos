@@ -20,8 +20,9 @@ from .intent import AssistFields, IntentExtractor
 from .notes import TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
+from .intent import looks_like_injection
 from .policy import PolicyInput, PolicyResult, evaluate
-from .supplier import draft_supplier_message, mock_supplier_reply
+from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
 DEMO_PRODUCT = {
     "sku": "TRAIL-RUNNER-42",
@@ -31,7 +32,10 @@ DEMO_PRODUCT = {
     "price": "49.99",
     "supplier": "Stride Footwear Co. (fictional demo supplier)",
 }
-DEMO_MESSAGE = "The shoes are too small. Can I exchange size 42 for size 43?"
+# Case A (and R / D / P): a return for money back -> the refund path.
+DEMO_MESSAGE = "These sneakers are too small and don't fit. I'd like to return them and get my money back."
+# Exchange showcase: a size swap -> supplier replacement, NO refund (Refund API never called).
+EXCHANGE_MESSAGE = "The shoes are too small. Can I exchange size 42 for size 43?"
 # A/B are the two proof paths (plan §3). F = free text / presets. R and D are failure-mode
 # demos of the SAME loop: R forces one PayPal refund error (sandbox negative testing),
 # D sends the refund request twice to show idempotency.
@@ -61,6 +65,8 @@ REFUND_FAILED = "REFUND_FAILED"
 REFUND_ERROR = "REFUND_ERROR"            # PayPal answered with an error (4xx): it confirmed no refund was made
 REFUND_UNKNOWN = "REFUND_OUTCOME_UNKNOWN"  # timeout / network / 5xx: PayPal may or may not have refunded
 ERROR = "ERROR"
+EXCHANGE_ARRANGED = "EXCHANGE_ARRANGED"  # human approved the exchange; supplier ships a replacement; no refund
+NEEDS_HUMAN = "NEEDS_HUMAN"              # e.g. exchange but the supplier is out of stock: offer a refund?
 
 
 class RefundNotAllowed(Exception):
@@ -326,13 +332,33 @@ class Workflow:
             self._reject(case_id, pre, extraction)
             return
 
-        # Step 5: supplier draft + clearly labelled mock reply.
+        if pre.action == "REFUND":
+            # Return for a refund: no supplier step. Policy is final; a human must approve the refund.
+            self.db.audit(case_id, "policy", "Policy final: ELIGIBLE — return for a refund (supplier not involved)",
+                          pre.to_dict())
+            self.db.update_case(case_id, policy_json=json.dumps(pre.to_dict()), decision="ELIGIBLE",
+                                status=PENDING_APPROVAL)
+            self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
+            self.db.audit(case_id, "human", "Waiting for human approval of the refund",
+                          {"amount": f"{case['amount']} {case['currency']}"})
+            return
+
+        # Step 5 (exchange only): supplier draft + clearly labelled mock reply. No money moves on this path.
         draft = draft_supplier_message(self._case(case_id), product, intent)
         self.db.update_case(case_id, supplier_draft=draft)
         self.db.audit(case_id, "supplier", "Supplier draft generated", {"draft": draft})
-        reply = mock_supplier_reply(case)
+        reply = mock_supplier_reply(case, out_of_stock=self.settings.mock_supplier_out_of_stock)
         self.db.update_case(case_id, supplier_reply=reply["status"])
         self.db.audit(case_id, "supplier", f"Supplier replied: {reply['status']} (MOCK)", reply)
+        if reply["status"] == OUT_OF_STOCK:
+            # Never an automatic refund: a person decides whether to offer one.
+            result = self._evaluate(case, product, extraction.result, capture, supplier_status=reply["status"],
+                                    require_supplier=True)
+            self.db.update_case(case_id, policy_json=json.dumps(result.to_dict()), decision="NEEDS_HUMAN",
+                                status=NEEDS_HUMAN)
+            self.db.audit(case_id, "human", "Needs a human: replacement out of stock (MOCK) — offer a refund? "
+                          "Refund API NOT CALLED", {"supplier": reply["status"], "refund_id": None})
+            return
 
         final = self._evaluate(case, product, extraction.result, capture, supplier_status=reply["status"],
                                require_supplier=True)
@@ -340,11 +366,13 @@ class Workflow:
         if not final.eligible:
             self._reject(case_id, final, extraction)
             return
-        self.db.update_case(case_id, policy_json=json.dumps(final.to_dict()), decision=final.decision,
+        # EXCHANGE_ELIGIBLE (not ELIGIBLE): the refund gate refuses anything but ELIGIBLE, so an exchange
+        # can never reach the Refund API.
+        self.db.update_case(case_id, policy_json=json.dumps(final.to_dict()), decision="EXCHANGE_ELIGIBLE",
                             status=PENDING_APPROVAL)
-        # Not approved yet: the draft says so. Approval wording only exists after PayPal COMPLETED.
         self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
-        self.db.audit(case_id, "human", "Waiting for human approval", {"amount": f"{case['amount']} {case['currency']}"})
+        self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
+                      {"refund": "none — exchange"})
 
     def _evaluate(self, case: dict, product: dict, intent, capture: dict, supplier_status: str | None,
                   require_supplier: bool) -> PolicyResult:
@@ -369,6 +397,7 @@ class Workflow:
             intent=intent,
             supplier_status=supplier_status,
             require_supplier=require_supplier,
+            injection_suspected=looks_like_injection(case.get("customer_message") or ""),
         ))
 
     def _reject(self, case_id: str, result: PolicyResult, extraction=None) -> None:
@@ -384,6 +413,7 @@ class Workflow:
         "COMPLETED_NOTE": "Final customer note written after PayPal COMPLETED",
         "FAILURE_NOTE": "Customer note drafted: refund could not be completed yet (not sent)",
         "REJECTION_NOTE": "Customer decision note drafted (no refund issued)",
+        "EXCHANGE_NOTE": "Customer note written after the human approved the exchange (no refund)",
     }
 
     def _write_note(self, case_id: str, outcome: str, policy: dict | None, assist) -> dict | None:
@@ -424,6 +454,9 @@ class Workflow:
         try:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
+                if case["status"] == PENDING_APPROVAL and case["decision"] == "EXCHANGE_ELIGIBLE":
+                    self._approve_exchange(case_id, approver)
+                    return
                 if case["status"] != PENDING_APPROVAL or case["decision"] != "ELIGIBLE":
                     raise RefundNotAllowed(f"Case {case_id} is not awaiting approval (status {case['status']}, "
                                            f"policy {case['decision']}).")
@@ -432,6 +465,15 @@ class Workflow:
                 self._execute_refund(case_id)
         finally:
             self._after_money(case_id)
+
+    def _approve_exchange(self, case_id: str, approver: str) -> None:
+        """Exchange path: the human approves the replacement. No money moves: Refund API NOT CALLED."""
+        self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(), status=EXCHANGE_ARRANGED)
+        self.db.audit(case_id, "human", "Human approved the exchange", {"approver": approver})
+        self.db.audit(case_id, "paypal", "Refund API NOT CALLED — exchange arranged (replacement via the MOCK "
+                      "supplier), no refund", {"refund_id": None})
+        case = self._case(case_id)
+        self._write_note(case_id, "EXCHANGE_NOTE", None, case.get("assist"))
 
     def _after_money(self, case_id: str) -> None:
         """Outside the case lock: start the PayPal check for an unknown refund outcome."""

@@ -22,9 +22,8 @@ def test_case_a_full_loop(workflow, paypal):
     assert case["status"] == "PENDING_APPROVAL"
     assert case["decision"] == "ELIGIBLE"
     assert case["order_id"].startswith("MOCK-ORDER") and case["capture_id"].startswith("MOCK-CAPTURE")
-    assert case["intent"] == {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}
-    assert case["supplier_reply"] == "REPLACEMENT_APPROVED"
-    assert "Replacement request" in case["supplier_draft"]
+    assert case["intent"] == {"intent": "REFUND_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "REFUND"}
+    assert case["supplier_reply"] is None and case["supplier_draft"] is None  # a return never contacts the supplier
     paypal.get_capture.assert_called_once_with(case["capture_id"])  # policy fed by PayPal data
     paypal.refund_capture.assert_not_called()  # no money moves before a human says yes
 
@@ -37,7 +36,7 @@ def test_case_a_full_loop(workflow, paypal):
     assert case["status"] == "REFUND_COMPLETED"
     assert case["refund_status"] == "COMPLETED" and case["refund_id"].startswith("MOCK-REFUND")
     assert case["human_decision"] == "APPROVED"
-    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "supplier", "policy", "note", "human",
+    assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "note", "human",
                                        "note", "paypal", "note"]
 
 

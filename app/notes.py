@@ -37,9 +37,11 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from .intent import LLM_ERRORS, AssistFields, ChatJSONClient
 
 NOTE_TO_PAYER_LIMIT = 255  # PayPal Payments v2 refund: note_to_payer maxLength 255
-Outcome = Literal["PENDING_NOTE", "REFUND_NOTE", "COMPLETED_NOTE", "FAILURE_NOTE", "REJECTION_NOTE"]
-# Only this outcome may claim that the request was approved or the refund was completed.
-CLAIMS_ALLOWED: set[str] = {"COMPLETED_NOTE"}
+Outcome = Literal["PENDING_NOTE", "REFUND_NOTE", "COMPLETED_NOTE", "FAILURE_NOTE", "REJECTION_NOTE",
+                  "EXCHANGE_NOTE"]
+# Only these outcomes may claim approval: COMPLETED_NOTE (human Approve + PayPal COMPLETED) and
+# EXCHANGE_NOTE (human approved the exchange; it never mentions a refund).
+CLAIMS_ALLOWED: set[str] = {"COMPLETED_NOTE", "EXCHANGE_NOTE"}
 
 # Past-tense approval / refund-completed claims, per language (lower-cased substring match).
 COMPLETION_CLAIMS: dict[str, tuple[str, ...]] = {
@@ -62,7 +64,8 @@ CHECK_REASONS = {
     "return_window": "the {window}-day return window has passed (purchased {days} days ago)",
     "request_supported": "this type of request cannot be handled automatically and needs a manual review",
     "payment_captured": "the payment for this order is not completed",
-    "product_eligible": "this product is not eligible for exchange",
+    "product_eligible": "this product is not eligible for return or exchange",
+    "no_injection_markers": "this message needs a manual review",
     "refundable_amount": "the amount is not refundable",
     "supplier_confirmed": "the supplier could not confirm a replacement",
 }
@@ -102,17 +105,24 @@ def reason_text(policy: dict) -> str:
 def english_note(outcome: Outcome, *, amount: str, currency: str, policy: dict,
                  assist: AssistFields | None) -> str:
     sizes = _sizes(assist)
+    exchange = (policy or {}).get("action") == "EXCHANGE"
     if outcome == "PENDING_NOTE":
-        return (f"Your exchange request{sizes} has been reviewed and is awaiting merchant approval. "
-                f"No refund has been issued yet.")
+        if exchange:
+            return (f"Your exchange request{sizes} has been reviewed and is awaiting merchant approval. "
+                    f"No refund is involved in an exchange.")
+        return ("Your return request has been reviewed and is awaiting merchant approval. "
+                "No refund has been issued yet.")
+    if outcome == "EXCHANGE_NOTE":  # only after the human approved the exchange; no refund
+        return (f"Your exchange request{sizes} was approved. The replacement is being arranged with our "
+                f"supplier; no refund is involved. Thank you!")
     if outcome == "REFUND_NOTE":  # travels WITH the refund call as note_to_payer: neutral wording
-        return (f"This refund of {amount} {currency} is for your exchange request{sizes}. "
-                f"Your replacement ships separately. Thank you for your patience!")
+        return (f"This refund of {amount} {currency} is for your returned item. "
+                f"Thank you for your patience!")
     if outcome == "COMPLETED_NOTE":  # only after human Approve AND PayPal COMPLETED
-        return (f"Your exchange request{sizes} was approved and your refund of {amount} {currency} "
-                f"has been completed by PayPal. Your replacement ships separately. Thank you!")
+        return (f"Your return was approved and your refund of {amount} {currency} "
+                f"has been completed by PayPal. Thank you!")
     if outcome == "FAILURE_NOTE":
-        return (f"We're sorry, the refund of {amount} {currency} for your exchange request{sizes} "
+        return (f"We're sorry, the refund of {amount} {currency} for your return "
                 f"could not be completed yet. No money has been moved.")
     return (f"We're sorry, we can't approve your request: {reason_text(policy)}. "
             f"No refund has been issued. Please reply if you have any questions.")

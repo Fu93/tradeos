@@ -21,14 +21,15 @@
 No new required variables. No database migration is needed (Render reseeds on start; kept databases get the new columns automatically).
 
 ## Sandbox check after deploy (about 2 minutes)
-`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B and one Case R (a forced 422 refund failure, then a retry that refunds). 22 checks:
+`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B, one exchange (size 42 → 43, no refund) and one Case R (a forced 422 refund failure, then a retry that refunds). 27 checks:
 1. `/healthz`: PayPal mode `sandbox`, webhook configured.
 2. Case A: approved; refund COMPLETED (or PENDING); **exactly one** refund call; a **real** `PayPal-Debug-Id` (not `mock-…`); `PayPal-Request-Id` recorded; retry on the finished refund returns 409.
 3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK).
 4. "Check against PayPal": result "Reconciled with PayPal — all match".
 5. Case B: approve returns 409, the refund API is never called; audit trails intact; badge rendered.
 6. Logic-review fixes: Case A's decision / human approval / status are on the hash chain (`chained_state` in `/cases/{id}/audit/verify`); Case A's `refund_request_id` and how COMPLETED was confirmed (`completed_via`); Case B's rejection on the chain with no approval; `GET /cases/{id}/paypal-return` changes nothing.
-7. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
+7. Exchange: awaiting approval of the exchange → approve → `EXCHANGE_ARRANGED` with **0** refund calls; refund endpoint 409; audit chain intact. Case A's intent is a return (`REFUND`).
+8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
 
 Not provable live without breaking PayPal on purpose (covered by tests in `tests/test_logic_review.py`): a refund whose reply times out (`REFUND_OUTCOME_UNKNOWN` → recovery), a refund PayPal reports `FAILED` (new request id after a confirmed failure), a reset during an in-flight refund.
 

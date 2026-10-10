@@ -23,7 +23,7 @@ from app.ratelimit import RateLimiter
 from app.views import pipeline, result_card
 from app.workflow import RefundNotAllowed, Workflow, clean_message
 
-CORE = {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}
+CORE = {"intent": "REFUND_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "REFUND"}  # return for a refund
 ASSIST = {"language": "Spanish", "language_code": "es", "current_size": "42", "requested_size": "43",
           "merchant_summary_en": "Customer wants to exchange size 42 for 43."}
 
@@ -108,7 +108,8 @@ def test_llm_failure_falls_back_and_marks_assist_unavailable():
     ex = LLMIntentExtractor("k", "https://llm.example/v1", "m",
                             transport=httpx.MockTransport(lambda r: httpx.Response(503)))
     out = ex.extract("The shoes are too small. Can I exchange size 42 for size 43?")
-    assert out.result.model_dump() == CORE and out.assist is None
+    assert out.result.model_dump() == {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH",
+                                       "requested_action": "EXCHANGE"} and out.assist is None
     assert "unavailable" in out.assist_note and "LLM unavailable" in out.extractor
 
 
@@ -140,7 +141,10 @@ def test_english_note_is_grounded_in_outcome():
     assert "No refund has been issued" in rej and "45 days" in rej and "30-day" in rej
     assert "This refund" not in rej
     ok = english_note("REFUND_NOTE", amount="49.99", currency="USD", policy={}, assist=AssistFields(**ASSIST))
-    assert ok.startswith("This refund of 49.99 USD") and "size 42 → 43" in ok
+    assert ok.startswith("This refund of 49.99 USD") and "returned item" in ok and "exchange" not in ok
+    ex = english_note("EXCHANGE_NOTE", amount="49.99", currency="USD", policy={"action": "EXCHANGE"},
+                      assist=AssistFields(**ASSIST))
+    assert "size 42 → 43" in ex and "no refund" in ex
     assert len(ok) <= 255 and len(rej) <= 255
     assert "manual review" in reason_text({"checks": [{"name": "request_supported", "passed": False, "detail": ""}]})
 
@@ -295,25 +299,27 @@ def test_injection_changes_nothing(app_ctx):
     case_id = case_from(client.post("/cases/free", data={"preset": "injection"}, follow_redirects=False))
     case = wf.db.get_case(case_id)
     assert case["status"] == "REJECTED" and case["amount"] == "49.99"
-    assert "not supported" in case["policy"]["reasons"][0]
+    assert "a refund needs a stated reason" in case["policy"]["reasons"][0]
+    assert any("instruction-like" in r for r in case["policy"]["reasons"])  # heuristic marker check
     html = client.get(f"/?case={case_id}").text
     assert "Instruction-like text detected" in html and "Controlled by the backend" in html
     pp.refund_capture.assert_not_called()
 
 
 def test_injection_even_with_a_compromised_model_needs_human_and_uses_backend_amount(settings):
-    """Worst case: the model is fooled into a valid exchange intent. Amount + approval still come from code."""
+    """Worst case: the model is fooled into a valid return-for-refund intent. The heuristic marker check sends
+    this message to a human (REJECTED for automation); the amount stays the backend's either way."""
     wf, pp = make_wf(settings, FakeExtractor())
     case_id = wf.run_free_text(BY_KEY["injection"]["message"], label="Preset: Prompt injection")
     case = wf.db.get_case(case_id)
-    assert case["status"] == "PENDING_APPROVAL"  # never auto-refunded
+    assert case["status"] == "REJECTED" and case["amount"] == "49.99"
+    assert "no_injection_markers" in {c["name"] for c in case["policy"]["checks"] if not c["passed"]}
     pp.refund_capture.assert_not_called()
     with pytest.raises(RefundNotAllowed):
         wf.execute_refund(case_id)
-    wf.approve(case_id)
-    _, kwargs = pp.refund_capture.call_args
-    assert "500" not in (kwargs.get("note_to_payer") or "")
-    assert wf.db.get_case(case_id)["refund"]["amount"]["value"] == "49.99"
+    with pytest.raises(RefundNotAllowed):
+        wf.approve(case_id)
+    pp.refund_capture.assert_not_called()
 
 
 def test_looks_like_injection():
@@ -428,7 +434,7 @@ def test_pipeline_states(settings):
     wf, _ = make_wf(settings)
     a = wf.run_scenario("A")
     states = {s["key"]: s["state"] for s in pipeline(wf.db, wf.db.get_case(a))}
-    assert states == {"request": "done", "intent": "done", "policy": "done", "supplier": "done",
+    assert states == {"request": "done", "intent": "done", "policy": "done", "supplier": "skipped",
                       "human": "waiting", "paypal": "todo"}
     wf.approve(a)
     assert pipeline(wf.db, wf.db.get_case(a))[-1]["state"] == "done"
