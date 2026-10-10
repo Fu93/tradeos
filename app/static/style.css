@@ -175,7 +175,7 @@ table.evidence tr.bad td{background:#fef2f2}
   .tabs { flex-wrap: wrap; overflow-x: visible; }
   .tabs .tab { max-width: 100%; overflow-wrap: anywhere; }
   .grid-top > *, .grid-mid > *, .grid-bottom > * { min-width: 0; }
-  table.econ { table-layout: fixed; width: 100%; }
-  table.econ td, table.econ th { overflow-wrap: anywhere; }
+  table:not(.evidence) { table-layout: fixed; width: 100%; }
+  table:not(.evidence) td, table:not(.evidence) th { overflow-wrap: anywhere; }
   code, pre { overflow-wrap: anywhere; white-space: pre-wrap; }
 }
