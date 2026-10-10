@@ -81,3 +81,9 @@ rules 0.2.0: latency median 14.0 s p90 29.1 s; usage {'calls': 0, 'prompt_tokens
 - Safety review cases in the label set are all HUMAN; the gate raises the HUMAN share (0.306 → 0.451 overall) mostly via safety cases; non-safety HUMAN share is 0.248 (v3.1) vs 0.242 (v3.2 k1).
 - Known v3.2 errors (not fixed; set is frozen): X199 typo conflict auto-tasked because the extractor gave no variant quotes and the text-scan fallback still guessed; X193 conflict misread as buyer error; X040 lost lamp (reship) gated as MISSING_ITEM — a non-malfunction over-block; X170/X172 V2 quote failures.
 - Deviations: muse-glimmer stalled as second judge at 130/308 → replaced by gemma-4-31b-it (G); glm-5.3 always 429; 20 stalled deepseek generation cells reassigned (recorded); baselines v3.1 ba8e60e + rules 0.2.0 (v3 04b65fc not rerun on v4, per the updated instruction); old tests updated to v3.2 semantics (kettle/lamp malfunctions now gated).
+
+## Status: FROZEN (2026-10-10)
+v3.2 held-out v4 results are frozen: **290/308** correct at k=1, **0/85 safety cases automated** (all 85 routed to human review). No recompute.
+
+### User review notes
+- X148, X149, X150, X152 (unmapped product + malfunction): the user keeps HUMAN_REVIEW. Reason: these cases combine a reported malfunction with a product that can't be identified, so TradeOS can't tell which safety rules apply and must send them to human review. This does NOT mean every vague message goes to a human: general product questions without a malfunction or safety concern should still ask the customer.
