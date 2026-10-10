@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
 from .config import Settings
@@ -198,15 +199,24 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(400, "Invalid JSON")
         if not isinstance(event, dict) or event.get("event_type") not in WEBHOOK_EVENTS:
             return JSONResponse({"ok": True, "handled": False})
-        if not settings.paypal_webhook_id:
-            verification = "NO_WEBHOOK_ID"
-        else:
-            try:
-                verification = wf.paypal().verify_webhook_signature(dict(request.headers), raw,
-                                                                     settings.paypal_webhook_id)
-            except PayPalError:
-                verification = "ERROR"
-        case_id = wf.record_webhook(event, verification)
+        headers = dict(request.headers)
+
+        def handle() -> str | None:
+            # Runs in the threadpool: the verification call and DB work never block the event loop.
+            if not settings.paypal_webhook_id:
+                verification = "NO_WEBHOOK_ID"
+            else:
+                try:
+                    verification = wf.paypal().verify_webhook_signature(headers, raw, settings.paypal_webhook_id)
+                except PayPalError:
+                    verification = "ERROR"
+            return verification, wf.record_webhook(event, verification)
+
+        try:
+            verification, case_id = await run_in_threadpool(handle)
+        except Exception:
+            # Not acknowledged: PayPal retries the delivery (the event id was released, see record_webhook).
+            return JSONResponse({"ok": False, "handled": False, "retry": True}, status_code=500)
         return JSONResponse({"ok": True, "handled": True, "verified": verification == "SUCCESS",
                              "case": case_id})
 

@@ -154,3 +154,35 @@ def test_already_completed_is_confirmation_only(app_ctx):
     assert after["refund_json"] == before["refund_json"] and after["status"] == "REFUND_COMPLETED"
     assert after["webhook_status"] == "VERIFIED" and outcomes(wf, case_id) == ["CONFIRMED"]
     assert pp.refund_capture.call_count == 1
+
+
+def test_unverified_on_fresh_case_changes_no_display(app_ctx):
+    client, _, wf = app_ctx
+    case_id, refund_id = pending_case(client, wf)
+    post(client, event(refund_id), SIG_BAD)
+    case = wf.db.get_case(case_id)
+    assert case["webhook_status"] is None and case["webhook"] is None
+
+
+def test_failure_midway_releases_event_for_retry(app_ctx, monkeypatch):
+    client, _, wf = app_ctx
+    case_id, refund_id = pending_case(client, wf)
+    real = wf._record_refund
+
+    def boom(*a, **k):
+        raise RuntimeError("db hiccup")
+    monkeypatch.setattr(wf, "_record_refund", boom)
+    r = client.post("/webhooks/paypal", content=json.dumps(event(refund_id)), headers=SIG_OK)
+    assert r.status_code == 500 and r.json()["retry"] is True  # PayPal will retry
+    assert wf.db.get_case(case_id)["status"] == "REFUND_PENDING"
+    monkeypatch.setattr(wf, "_record_refund", real)
+    assert post(client, event(refund_id))["verified"] is True  # the retry is processed, not a duplicate
+    assert wf.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+    assert outcomes(wf, case_id) == ["FAILED_WILL_RETRY", "PENDING_TO_COMPLETED"]
+
+
+def test_webhook_handler_does_not_block_event_loop():
+    import inspect
+    from app import main
+    src = inspect.getsource(main)
+    assert "run_in_threadpool(handle)" in src

@@ -247,6 +247,10 @@ class Database:
                 return False
         return True
 
+    def release_webhook_event(self, event_id: str) -> None:
+        with self.connect() as conn:
+            conn.execute("DELETE FROM webhook_events WHERE event_id=? AND verified=1", (event_id,))
+
     def set_webhook_outcome(self, row_event_id: str, outcome: str) -> None:
         with self.connect() as conn:
             conn.execute("UPDATE webhook_events SET outcome=? WHERE event_id=? AND verified=1", (outcome, row_event_id))

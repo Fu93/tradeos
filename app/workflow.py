@@ -479,8 +479,8 @@ class Workflow:
         """Signed PayPal webhook (PAYMENT.CAPTURE.REFUNDED). Returns the matched case id.
 
         Trust rules:
-        - Only a VERIFIED event can change anything. Unverified deliveries are logged only and
-          never overwrite a VERIFIED confirmation or any refund/case state.
+        - Only a VERIFIED event can change anything. Unverified deliveries are logged only (in
+          webhook_events + audit) and never change the case, including its displayed webhook status.
         - A verified event id is processed once (persisted in webhook_events); retries are no-ops.
         - The event's refund id must equal the case's own refund id; otherwise (unknown refund,
           refund we never created, case not yet refunded) it is logged with no state change.
@@ -510,9 +510,8 @@ class Workflow:
         with self._lock(case_id):
             case = self._case(case_id)
             if not verified:
+                # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
-                if not case.get("webhook_status"):  # display only; never replaces VERIFIED
-                    self.db.update_case(case_id, webhook_status="UNVERIFIED", webhook_json=json.dumps(info))
                 self.db.audit(case_id, "webhook", f"PayPal webhook {event.get('event_type')} received but NOT "
                               "verified — ignored (no state change)", info)
                 return case_id
@@ -522,26 +521,33 @@ class Workflow:
                 self.db.audit(case_id, "webhook", "Duplicate PayPal webhook delivery ignored (event already processed)",
                               info)
                 return case_id
-            if not case.get("refund_id") or case["refund_id"] != refund_id:
-                self.db.set_webhook_outcome(event_id, "MISMATCH_IGNORED")
-                self.db.audit(case_id, "webhook", "Verified PayPal webhook does not match this case's refund id "
-                              "— logged, no state change", {**info, "case_refund_id": case.get("refund_id")})
+            try:
+                if not case.get("refund_id") or case["refund_id"] != refund_id:
+                    self.db.set_webhook_outcome(event_id, "MISMATCH_IGNORED")
+                    self.db.audit(case_id, "webhook", "Verified PayPal webhook does not match this case's refund id "
+                                  "— logged, no state change", {**info, "case_refund_id": case.get("refund_id")})
+                    return case_id
+                outcome = "CONFIRMED"
+                if res_status == "COMPLETED" and case.get("refund_status") == "PENDING":
+                    self._record_refund(case_id, {**(case.get("refund") or {}), **resource}, None)
+                    outcome = "PENDING_TO_COMPLETED"
+                    self.db.audit(case_id, "webhook", "Verified PayPal webhook moved refund PENDING → COMPLETED", info)
+                elif res_status != "COMPLETED":
+                    outcome = "NO_CHANGE"
+                self.db.set_webhook_outcome(event_id, outcome)
+                if res_status == "COMPLETED":
+                    self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
+                self.db.audit(case_id, "webhook",
+                              f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
+                              if res_status == "COMPLETED" else
+                              f"Verified PayPal webhook reports refund {res_status} — no state change", info)
                 return case_id
-            outcome = "CONFIRMED"
-            if res_status == "COMPLETED" and case.get("refund_status") == "PENDING":
-                self._record_refund(case_id, {**(case.get("refund") or {}), **resource}, None)
-                outcome = "PENDING_TO_COMPLETED"
-                self.db.audit(case_id, "webhook", "Verified PayPal webhook moved refund PENDING → COMPLETED", info)
-            elif res_status != "COMPLETED":
-                outcome = "NO_CHANGE"
-            self.db.set_webhook_outcome(event_id, outcome)
-            if res_status == "COMPLETED":
-                self.db.update_case(case_id, webhook_status="VERIFIED", webhook_json=json.dumps(info))
-            self.db.audit(case_id, "webhook",
-                          f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
-                          if res_status == "COMPLETED" else
-                          f"Verified PayPal webhook reports refund {res_status} — no state change", info)
-            return case_id
+            except Exception:
+                # Failed midway: release the claim so PayPal's retry of this event is processed, not
+                # discarded as a duplicate. Logged as FAILED for the record.
+                self.db.release_webhook_event(event_id)
+                self.db.log_webhook_event(case_id=case_id, outcome="FAILED_WILL_RETRY", **{**log, "verified": False})
+                raise
 
     def _record_refund(self, case_id: str, refund: dict, request_id: str | None) -> None:
         status = refund.get("status")
