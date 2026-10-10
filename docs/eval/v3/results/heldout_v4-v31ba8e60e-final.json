@@ -1,5 +1,22 @@
 {
- "meta": {},
+ "meta": {
+  "set": "heldout_v4",
+  "pipeline": "v3",
+  "tag": "final",
+  "model": "openai/gpt-oss-20b",
+  "provider": "NVIDIA",
+  "rules": "supplier-routing-rules/3.1.0 (taxonomy v3.1 experiment)",
+  "k": 1,
+  "agreement_temp": 0.6,
+  "labels": "judgeB",
+  "usage": {
+   "calls": 308,
+   "prompt_tokens": 383147,
+   "completion_tokens": 443150
+  },
+  "retries": 81,
+  "wall_s": 5338.9
+ },
  "results": {
   "X004": {
    "action1": "CREATE_SUPPLIER_TASK",
@@ -20565,6 +20582,980 @@
    "actions": {
     "k1": "DIRECT_WORKFLOW"
    }
+  },
+  "X303": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96282"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96282": "CONFIRMED"
+    },
+    "order_id": "TO-96282",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是Ulla，訂單TO-96282訂了M號City雨衣，實際想要S號，可否幫我換貨？謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "您好，我是Ulla，訂單TO-96282訂了M號City雨衣，實際想要S號，可否幫我換貨？謝謝。",
+      "issue_evidence": "訂了M號City雨衣，實際想要S號",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M號",
+      "requested_variant_quote": "S號",
+      "goals": [
+       {
+        "evidence": "可否幫我換貨？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96282",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 208.09,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X308": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "No request and no problem to route: standard support reads it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "OTHER",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE",
+     "CAMP-STOVE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there,\n\nI just wanted to drop a quick line to let you know how pleased I am with the recent purchase. The kettle arrived this morning, and I have to say the delivery was surprisingly swift—much faster than I had anticipated, especially given how busy the postal service seems to have been lately with all the holiday shipments swirling around. I actually woke up a bit earlier than usual, made myself a cup of tea while listening to the rain patter against the window, and the kettle whistled just as the sun peeked through the clouds, which made the whole moment feel rather nice and cozy.\n\nI’ve been using it every day since it arrived, and I really impressed with how quickly it brings water to a boil; it’s saved me a few precious minutes during my rushed morning routine when I’m trying to get out the door for work. The design is sleek, the handle feels comfortable, and it doesn’t wobble on the stove like my old one used to. Even my roommate has commented on how nice it looks sitting on the countertop, and we’ve both been enjoying a few extra cups of herbal tea in the evenings while we catch up on our favorite shows.\n\nThank you for making the whole process so smooth and for delivering a product that lives up to the hype. It’s little things like this that make online shopping a pleasure rather than a chore.\n\nThanks again,\n\nAkira",
+    "speech_act": "OTHER",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 200.29,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X292": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96271"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96271": "CONFIRMED"
+    },
+    "order_id": "TO-96271",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "すいません、注文TO-96271の1.7Lの電気ケトル、ちゃんと動くんだけど気が変わっちゃって返品返金お願いします。よろしくおねがいします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1.7Lの電気ケトル",
+      "issue_evidence": "気が変わっちゃって返品返金お願いします",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返品返金お願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96271",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 423.85,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  }
+ },
+ "score": {
+  "k1": {
+   "n": 308,
+   "strict": 233,
+   "strict_ci": [
+    70.6,
+    80.1
+   ],
+   "lenient": 233,
+   "lenient_ci": [
+    70.6,
+    80.1
+   ],
+   "task_pred": 82,
+   "task_true": 73,
+   "task_tp": 59,
+   "task_precision": 0.72,
+   "task_recall": 0.808,
+   "false_triggers": [
+    "X072",
+    "X074",
+    "X075",
+    "X073",
+    "X077",
+    "X079",
+    "X089",
+    "X081",
+    "X080",
+    "X104",
+    "X100",
+    "X108",
+    "X110",
+    "X102",
+    "X115",
+    "X121",
+    "X113",
+    "X123",
+    "X192",
+    "X190",
+    "X194",
+    "X200",
+    "X201"
+   ],
+   "non_supplier_n": 235,
+   "errors": [
+    {
+     "id": "X007",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "X003",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12b",
+     "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+    },
+    {
+     "id": "X013",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V3",
+     "reason": "Customer says the wrong variant arrived, but what they describe receiving (44) is what order TO-96013 shows: a human verifies."
+    },
+    {
+     "id": "X011",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V3",
+     "reason": "Customer says they have 42, the order shows 40."
+    },
+    {
+     "id": "X012",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V3",
+     "reason": "Customer says the wrong variant arrived, but what they describe receiving (39) is what order TO-96012 shows: a human verifies."
+    },
+    {
+     "id": "X015",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V3",
+     "reason": "Customer says the wrong variant arrived, but what they describe receiving (41) is what order TO-96015 shows: a human verifies."
+    },
+    {
+     "id": "X019",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V11",
+     "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+    },
+    {
+     "id": "X021",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (item1.goal EXCHANGE_VARIANT): a human reads it."
+    },
+    {
+     "id": "X023",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "X028",
+     "pred": "HUMAN_REVIEW",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V3",
+     "reason": "Customer says the wrong variant arrived, but what they describe receiving (black) is what order TO-96028 shows: a human verifies."
+    },
+    {
+     "id": "X044",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V10",
+     "reason": "Outcome requested but the problem is unclear: ask for a description."
+    },
+    {
+     "id": "X047",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "X055",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V9",
+     "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like."
+    },
+    {
+     "id": "X052",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12b",
+     "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+    },
+    {
+     "id": "X062",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V11",
+     "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+    },
+    {
+     "id": "X072",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X074",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X076",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X075",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X073",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X077",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X079",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X078",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X089",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X081",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X080",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X103",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X104",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X100",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X101",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X086",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X111",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X108",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X110",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X102",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X115",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X106",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X118",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+    },
+    {
+     "id": "X117",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12b",
+     "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+    },
+    {
+     "id": "X121",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X113",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 730-day supplier warranty: Lumina Lighting (MOCK supplier) decides."
+    },
+    {
+     "id": "X116",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+    },
+    {
+     "id": "X123",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Outside our 30-day window, inside the 365-day supplier warranty: Kettleworks Ltd. (MOCK supplier) decides."
+    },
+    {
+     "id": "X136",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X119",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "Part requested without exactly one part number: ask (part models are never guessed)."
+    },
+    {
+     "id": "X138",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X140",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X145",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V6b",
+     "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task."
+    },
+    {
+     "id": "X147",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V6b",
+     "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task."
+    },
+    {
+     "id": "X144",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V6b",
+     "reason": "Problem described but no explicit remedy request (complaint only): ask what the customer would like. No supplier task."
+    },
+    {
+     "id": "X151",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V9",
+     "reason": "Problem (DEFECT) but no requested outcome: ask what the customer would like."
+    },
+    {
+     "id": "X153",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X148",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X139",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X154",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X156",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X137",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V8",
+     "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task."
+    },
+    {
+     "id": "X149",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X105",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V7",
+     "reason": "2 items need separate handling (D13): ask which first."
+    },
+    {
+     "id": "X150",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X170",
+     "pred": "HUMAN_REVIEW",
+     "label": "CLARIFY_WITH_CUSTOMER",
+     "acceptable": [
+      "CLARIFY_WITH_CUSTOMER"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (speech_act): a human reads it."
+    },
+    {
+     "id": "X155",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X187",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "X189",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V9",
+     "reason": "No problem and no requested outcome: standard support reads it."
+    },
+    {
+     "id": "X192",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+    },
+    {
+     "id": "X193",
+     "pred": "DIRECT_WORKFLOW",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V10",
+     "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3)."
+    },
+    {
+     "id": "X186",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V3",
+     "reason": "Customer says they ordered black, but order TO-96177 shows white: claim conflicts with the order record; a human verifies."
+    },
+    {
+     "id": "X190",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+    },
+    {
+     "id": "X194",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of black and what was shipped (C1)."
+    },
+    {
+     "id": "X200",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+    },
+    {
+     "id": "X201",
+     "pred": "CREATE_SUPPLIER_TASK",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V12",
+     "reason": "Drop-shipped by Lumina Lighting (MOCK supplier): the supplier confirms stock of white and what was shipped (C1)."
+    },
+    {
+     "id": "X224",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V4b",
+     "reason": "The customer revises their request towards a refund, but the extracted intent disagrees: ask which outcome they want."
+    },
+    {
+     "id": "X235",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "HUMAN_REVIEW",
+     "acceptable": [
+      "HUMAN_REVIEW"
+     ],
+     "rule": "V11",
+     "reason": "No order number in the message and no linked order: ask for it."
+    },
+    {
+     "id": "X301",
+     "pred": "CLARIFY_WITH_CUSTOMER",
+     "label": "CREATE_SUPPLIER_TASK",
+     "acceptable": [
+      "CREATE_SUPPLIER_TASK"
+     ],
+     "rule": "V12b",
+     "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like."
+    },
+    {
+     "id": "X287",
+     "pred": "HUMAN_REVIEW",
+     "label": "DIRECT_WORKFLOW",
+     "acceptable": [
+      "DIRECT_WORKFLOW"
+     ],
+     "rule": "V2",
+     "reason": "Evidence quote not found in the message (item1.goal REFUND): a human reads it."
+    }
+   ]
   }
  }
 }

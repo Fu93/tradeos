@@ -295,3 +295,7 @@ Next (not done): human review of `heldout-v2-review.csv`; a fresh human-written 
   - non-canonicalisable variant claims → human;
   - run V3 "variant differs" only after C1;
   - user spot-check of `heldout-v3-review.csv`.
+
+
+## Round 5 — v3.2 final pre-hackathon round, feature scope frozen
+Safety Gate (catalogue safety_class + extracted malfunction, before every workflow; unmappable+malfunction → human). Held-out v4 (308, safety-heavy): v3.2 k1 290/308 [91.0–96.3], safety automated 0/85, task precision 0.969 recall 0.863, false triggers 2 (X177, X199). v3.1: 233/308, 30 safety automated. See docs/eval/v3/heldout-v4-results.md and heldout-v4-review.csv (44 rows, safety first). Pending: the user's review of safety labels.
