@@ -15933,6 +15933,4638 @@
    "actions": {
     "k1": "HUMAN_REVIEW"
    }
+  },
+  "X235": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "WARRANTY_REMEDY",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there, I hope you’re doing well. I was just thinking about my morning routine and how I enjoy a nice cup of tea while reading the newspaper, and I remembered that my kettle could use a bit of maintenance. I was wondering if you happen to carry the kettle limescale filter model KL-170-FLT as a separate part, and if it’s currently available in stock. Thanks for your time, and have a great day. Best regards, Zoe.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "kettle limescale filter model KL-170-FLT",
+      "issue_evidence": "kettle limescale filter model KL-170-FLT",
+      "issue_type": "PART_NEED",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "carry the kettle limescale filter model KL-170-FLT as a separate part",
+        "goal": "SEND_PART"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 59.08,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X238": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nmein Name ist Chiara. Ich wollte kurz nachfragen, ob Sie den Kessel-Entkalkungsfilter KL-170-FLT auch einzeln verkaufen und ob er derzeit auf Lager ist.\n\nVielen Dank im Voraus für Ihre Rückmeldung.\n\nMit freundlichen Grüßen\nChiara",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Kessel-Entkalkungsfilter KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ob Sie den Kessel-Entkalkungsfilter KL-170-FLT auch einzeln verkaufen und ob er derzeit auf Lager ist.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 36.22,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X240": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96226"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96226": "CONFIRMED"
+    },
+    "order_id": "TO-96226",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, I placed order TO-96226. Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk? Thanks!",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk?",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Just wonderng if you sell the kettle limescale filter KL-170-FLT on its own and if you have it in stockk?",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96226",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 29.84,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X241": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "請問貴店有單獨販售水壺除水垢濾芯 KL-170-FLT 嗎？有庫存嗎？",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "水壺除水垢濾芯 KL-170-FLT",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": "KL-170-FLT",
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請問貴店有單獨販售水壺除水垢濾芯 KL-170-FLT 嗎？有庫存嗎？",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 30.7,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X243": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，想請問貴店的退貨期限是多久？",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 11.99,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X244": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¡Hola! Quería preguntar cuánto tiempo tengo para hacer una devolución. Gracias.",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 10.09,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X245": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo! Ich wollte kurz nachfragen, wie lange ich denn die Rückgabefrist habe, falls ich etwas zurückschicken möchte. Danke und liebe Grüße, Julia!",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.99
+   },
+   "agreement": null,
+   "latency_s": 16.78,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X248": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “T0-96227” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "T0-96227"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、Minaです。Trail Runnerのスニーカー（サイズ42）が小さすぎて、サイズ43に交換したいです。注文番号はT0-96227です。よろしくお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runnerのスニーカー（サイズ42）が小さすぎて、サイズ43に交換したいです。",
+      "issue_evidence": "サイズ42が小さすぎて",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズ42",
+      "requested_variant_quote": "サイズ43",
+      "goals": [
+       {
+        "evidence": "サイズ43に交換したいです。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "T0-96227",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 19.85,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X242": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días,\n\nSoy Gonzalo y quisiera consultar si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock.\n\nMuchas gracias por su atención.",
+    "speech_act": "QUESTION",
+    "items": [
+     {
+      "item_quote": "si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock.",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "si venden el filtro antical para hervidor KL-170-FLT por separado y si actualmente se encuentra en stock.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 47.96,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X191": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V3",
+   "family": null,
+   "reason": "Customer says they ordered white, but order TO-96182 shows black: claim conflicts with the order record; a human verifies.",
+   "derived": {
+    "order_refs": [
+     "TO-96182"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96182": "CONFIRMED"
+    },
+    "order_id": "TO-96182",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe meine Bestellung TO-96182 aufgegeben und eine weiße LED-Schreibtischlampe bestellt. Leider ist eine schwarze Lampe angekommen. Bitte senden Sie mir die korrekte weiße Variante zu und teilen Sie mir mit, wie ich die falsche Farbe zurückschicken soll.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "eine schwarze Lampe angekommen",
+      "issue_evidence": "eine schwarze Lampe angekommen",
+      "issue_type": "WRONG_ITEM_OR_VARIANT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "schwarze",
+      "requested_variant_quote": "weiße",
+      "goals": [
+       {
+        "evidence": "Bitte senden Sie mir die korrekte weiße Variante zu",
+        "goal": "EXCHANGE_VARIANT"
+       },
+       {
+        "evidence": "teilen Sie mir mit, wie ich die falsche Farbe zurückschicken soll",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96182",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1
+   },
+   "agreement": null,
+   "latency_s": 553.5,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X247": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "Information question: support answers it. No supplier task.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, just wondering how long the return wndow is? Thanks!",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 28.83,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X246": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (speech_act): a human reads it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "QUESTION",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [
+     "speech_act"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "お手数ですが、返品の受付期間について教えていただけますでしょうか。何日以内となるかご確認いただけますと幸いです。",
+    "speech_act": "QUESTION",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 33.1,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X253": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sorry, die City Rain Jacket in M ist mir zu klein. Könnte ich sie gegen die Größe L tauschen? Danke!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City Rain Jacket",
+      "issue_evidence": "die City Rain Jacket in M ist mir zu klein",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M",
+      "requested_variant_quote": "L",
+      "goals": [
+       {
+        "evidence": "Könnte ich sie gegen die Größe L tauschen",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 7.06,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X254": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "先日届いたCity rain jacketのMサイズですが、思っていたよりかなり小さく、着用できるサイズではありませんでした。交換でLサイズにしていただくことは可能でしょうか。可能であれば手続きを教えてください。よろしくお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "先日届いたCity rain jacketのMサイズですが、思っていたよりかなり小さく、着用できるサイズではありませんでした。交換でLサイズにしていただくことは可能でしょうか。",
+      "issue_evidence": "思っていたよりかなり小さく、着用できるサイズではありませんでした。",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Mサイズ",
+      "requested_variant_quote": "Lサイズ",
+      "goals": [
+       {
+        "evidence": "交換でLサイズにしていただくことは可能でしょうか。",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 7.65,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X252": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “#A96231” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "#A96231"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, ich hab die Trail Runner in 42 bestellt (Bestellnr. #A96231) und die sind mir leider nen bischen zu klein. Kann ich die vieleicht gegen Größe 43 tauschen? Wäre echt nett. Danke, Rin",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hey, ich hab die Trail Runner in 42 bestellt (Bestellnr. #A96231) und die sind mir leider nen bischen zu klein. Kann ich die vieleicht gegen Größe 43 tauschen? Wäre echt nett. Danke, Rin",
+      "issue_evidence": "die sind mir leider nen bischen zu klein.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "42",
+      "requested_variant_quote": "43",
+      "goals": [
+       {
+        "evidence": "Kann ich die vieleicht gegen Größe 43 tauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "#A96231",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 26.46,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X249": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “WO-96228” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "WO-96228"
+    ],
+    "hedged": true,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42",
+     "SALE-SOCKS"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "buyer_error_cue": "accidentally ordered a 42. I’v"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi there,\n\nI hope you’re doing well. I wanted to touch base about my recent purchase of the Trail Runner sneakers. I ordered them a couple of weeks ago when I was finally getting back into my morning jog routine after a long break caused by a nagging knee issue that’s been on the mend thanks to some physio and a lot of stretching. I’ve been logging about 5‑k runs three times a week around the local park, and the shoes have been great for the most part—nice grip on the dirt trails, decent cushioning, and the breathable mesh keeps my feet from getting too sweaty even when the sun’s out strong in the afternoons.\n\nWhen they arrived, I was excited to try them out, but after wearing them for a couple of runs I noticed they felt a bit snug around the toe box, especially after the first mile when my feet start to swell a little. I measured my foot again just to be sure and it looks like I’m actually a half size larger than I thought—my usual size is 43, but I accidentally ordered a 42. I’ve tried loosening the laces and even wearing thinner socks, but it’s still uncomfortable and I’m worried it might lead to blisters if I keep pushing through.\n\nI’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color. My order number is WO-96228 (I think I might have typed it wrong when I placed the order, but hopefully that’s enough to locate it). If you need any additional info—like the receipt email or the tracking number—just let me know and I’ll forward it over.\n\nThanks so much for helping me sort this out. I’m looking forward to getting the right fit so I can keep enjoying my runs without any foot trouble.\n\nBest regards,\nNoah",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color.",
+      "issue_evidence": "they felt a bit snug around the toe box",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 43",
+      "goals": [
+       {
+        "evidence": "I’d really like to exchange the pair I received (size 42) for the correct size 43 in the same model and color.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "WO-96228",
+    "order_ref_hedge_quote": "I think I might have typed it wrong when I placed the order",
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 42.18,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X250": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “#A96229” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "#A96229"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "哈囉你好～ 我是 Oskar，我的訂單 #A96229 裡的 Trail Runner 42 號鞋子收到了，但穿起來有點太小包腳，腳趾會頂到。想請問可以換成 43 號嗎？麻煩幫我看看要怎麼換，謝謝你！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "哈囉你好～ 我是 Oskar，我的訂單 #A96229 裡的 Trail Runner 42 號鞋子收到了，但穿起來有點太小包腳，腳趾會頂到。想請問可以換成 43 號嗎？麻煩幫我看看要怎麼換，謝謝你！",
+      "issue_evidence": "太小包腳，腳趾會頂到",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "42 號",
+      "requested_variant_quote": "43 號",
+      "goals": [
+       {
+        "evidence": "換成 43 號嗎？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "#A96229",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 34.64,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X255": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Can I exchnage it for a L?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "its too small for me.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "in M",
+      "requested_variant_quote": "for a L",
+      "goals": [
+       {
+        "evidence": "Can I exchnage it for a L?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 24.19,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X251": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V4",
+   "family": null,
+   "reason": "Order reference uncertain: “WO-96230” is not a valid order number. Ask (never guessed).",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [
+     "WO-96230"
+    ],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Paula. Las zapatillas Trail Runner que pedí en size 42 me quedan muy ajustadas. ¿Podría hacer un exchange por la talla 43? El número de pedido es WO-96230. Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Las zapatillas Trail Runner que pedí en size 42 me quedan muy ajustadas",
+      "issue_evidence": "me quedan muy ajustadas",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "talla 43",
+      "goals": [
+       {
+        "evidence": "¿Podría hacer un exchange por la talla 43?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "WO-96230",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 43.06,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X258": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "5 × M in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-96237"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96237": "CONFIRMED"
+    },
+    "order_id": "TO-96237",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "M"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi! I'm Yuki, order TO-96237. I just got my City rain jacket in size S and unfortunately it's too small for me. Is it possible to exchange it for a size M? Thanks so much!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "it's too small for me",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size S",
+      "requested_variant_quote": "size M",
+      "goals": [
+       {
+        "evidence": "exchange it for a size M",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96237",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.34,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X257": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Estimado equipo de atención al cliente, mi nombre es Wen. Recibí la chaqueta para lluvia en talla M, pero resulta ser demasiado pequeña. ¿Podrían indicarme el procedimiento para cambiarla por una talla L? Agradezco su ayuda. Saludos cordiales, Wen.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Estimado equipo de atención al cliente, mi nombre es Wen. Recibí la chaqueta para lluvia en talla M, pero resulta ser demasiado pequeña. ¿Podrían indicarme el procedimiento para cambiarla por una talla L? Agradezco su ayuda. Saludos cordiales, Wen.",
+      "issue_evidence": "demasiado pequeña",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla M",
+      "requested_variant_quote": "talla L",
+      "goals": [
+       {
+        "evidence": "cambiarla por una talla L",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 25.88,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X220": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96211"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "EXCHANGE_VARIANT"
+    ],
+    "order_status": {
+     "TO-96211": "CONFIRMED"
+    },
+    "order_id": "TO-96211",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Les escribo en relación con mi pedido TO-96211. Al recibir las zapatillas nuevas, noté que la suela se había despegado. En primer lugar, quería solicitar un cambio por otro par en buen estado. Sin embargo, después de pensarlo, prefiero cambiar de idea y solicitar únicamente el reembolso del importe correspondiente, en lugar de un reemplazo.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "zapatillas nuevas",
+      "issue_evidence": "la suela se había despegado",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "prefiero cambiar de idea y solicitar únicamente el reembolso del importe correspondiente",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "En primer lugar, quería solicitar un cambio por otro par en buen estado.",
+      "goal": "EXCHANGE_VARIANT"
+     }
+    ],
+    "order_ref_quote": "TO-96211",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 416.76,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X260": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "5 × M in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-96239"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96239": "CONFIRMED"
+    },
+    "order_id": "TO-96239",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "M"
+   },
+   "extraction": {
+    "speech_act_evidence": "Buenos días:\n\nMe pongo en contacto con ustedes porque he recibido la chaqueta City rain jacket en talla S, pero me queda demasiado pequeña. Me gustaría solicitar un cambio por la talla M.\n\nMi número de pedido es TO-96239.\n\nAgradecería que me indicaran cómo proceder para realizar el cambio. Quedo a la espera de su respuesta.\n\nMuchas gracias y un saludo,\nAkira",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Me pongo en contacto con ustedes porque he recibido la chaqueta City rain jacket en talla S, pero me queda demasiado pequeña. Me gustaría solicitar un cambio por la talla M.",
+      "issue_evidence": "me queda demasiado pequeña",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla S",
+      "requested_variant_quote": "talla M",
+      "goals": [
+       {
+        "evidence": "me gustaría solicitar un cambio por la talla M.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96239",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 21.45,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X262": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "5 × M in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-96241"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96241": "CONFIRMED"
+    },
+    "order_id": "TO-96241",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "M"
+   },
+   "extraction": {
+    "speech_act_evidence": "注文番号 TO-96241 で購入した City rain jacket サイズSを受け取りましたが、想像以上に小さく全く着用できません。サイズMへの交換をお願いしたいです。返送方法と手続きを教えてください。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "サイズSを受け取りましたが、想像以上に小さく全く着用できません",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズS",
+      "requested_variant_quote": "サイズM",
+      "goals": [
+       {
+        "evidence": "サイズMへの交換をお願いしたいです",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96241",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 11.58,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X264": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Final-sale item: the existing policy decides (no exchange); supplier not needed.",
+   "derived": {
+    "order_refs": [
+     "TO-96243"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96243": "CONFIRMED"
+    },
+    "order_id": "TO-96243",
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "S"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, ich bin die Emma und hab grad meine Merino-Socken in M bekommen (Bestellnummer TO-96243). Leider sind die mir viel zu groß. Auch wenn die im Final Sale sind – könnte ich sie vieleicht gegen S tauschen? Würde mich freuen. Liebe Grüße Emma",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Merino-Socken in M",
+      "issue_evidence": "Leider sind die mir viel zu groß.",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M",
+      "requested_variant_quote": "S",
+      "goals": [
+       {
+        "evidence": "könnte ich sie vieleicht gegen S tauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96243",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.01,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X259": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "5 × M in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-96238"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96238": "CONFIRMED"
+    },
+    "order_id": "TO-96238",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "M"
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是 Zoe，訂單號 TO-96238 的 City rain jacket (S) 偏小，想換成 M 尺寸，請問可以怎麼處理？謝謝！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket (S) 偏小",
+      "issue_evidence": "City rain jacket (S) 偏小",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "City rain jacket (S)",
+      "requested_variant_quote": "M",
+      "goals": [
+       {
+        "evidence": "想換成 M 尺寸",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96238",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 36.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X266": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Final-sale item: the existing policy decides (no exchange); supplier not needed.",
+   "derived": {
+    "order_refs": [
+     "TO-96245"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96245": "CONFIRMED"
+    },
+    "order_id": "TO-96245",
+    "mentioned_skus": [
+     "SALE-SOCKS"
+    ],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "S"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi! It's Gonzalo here. I just got my merino socks from order TO-96245, size M, and they're a bit too big on me. I know they're final sale, but is there any way I could exchange them for a size S instead? Let me know what you'd need from me. Thanks!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "merino socks from order TO-96245, size M, and they're a bit too big on me",
+      "issue_evidence": "a bit too big on me",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size M",
+      "requested_variant_quote": "size S",
+      "goals": [
+       {
+        "evidence": "exchange them for a size S",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96245",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 9.11,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X222": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96213"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [
+     "REPLACE_SAME"
+    ],
+    "order_status": {
+     "TO-96213": "CONFIRMED"
+    },
+    "order_id": "TO-96213",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "まずは replacement をお願いできますか？ すみません、急いでないのでよく考えたら refund で大丈夫です。返金をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "スニーカー",
+      "issue_evidence": "ソールが剥がれてしまいました。",
+      "issue_type": "DEFECT",
+      "component_quote": "ソールが剥がれてしまいました。",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金をお願いします。",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [
+     {
+      "evidence": "replacement をお願いできますか？",
+      "goal": "REPLACE_SAME"
+     }
+    ],
+    "order_ref_quote": "TO-96213",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 302.12,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X267": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows IN_TRANSIT: share tracking MP99887766, nothing to reship yet.",
+   "derived": {
+    "order_refs": [
+     "TO-96246"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96246": "CONFIRMED"
+    },
+    "order_id": "TO-96246",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "44",
+    "qty": 1,
+    "days": 3
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Hanna. Hice el pedido de unas zapatillas hace tres días con el número de orden TO-96246 y todavía no ha llegado. Por favor, envíenlo de nuevo o indiquen qué está pasando. Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "zapatillas",
+      "issue_evidence": "todavía no ha llegado",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "envíenlo de nuevo",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96246",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 8.91,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X265": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Final-sale item: the existing policy decides (no exchange); supplier not needed.",
+   "derived": {
+    "order_refs": [
+     "TO-96244"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96244": "CONFIRMED"
+    },
+    "order_id": "TO-96244",
+    "mentioned_skus": [],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "S"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは、フミコです。注文TO-96244のメリノソックス（最終セール）Mサイズがおおきくて、Sサイズに交換できますっか？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "メリノソックス（最終セール）Mサイズ",
+      "issue_evidence": "Mサイズがおおきくて",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Mサイズ",
+      "requested_variant_quote": "Sサイズ",
+      "goals": [
+       {
+        "evidence": "Sサイズに交換できますっか？",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96244",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 22.85,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X256": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V11",
+   "family": "EXCHANGE",
+   "reason": "No order number in the message and no linked order: ask for it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "想請問能不能幫我換成 L 尺寸？",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "M 對我來說太小了",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M",
+      "requested_variant_quote": "L",
+      "goals": [
+       {
+        "evidence": "換成 L 尺寸",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 69.15,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X271": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows delivered in full; the claim conflicts with our data.",
+   "derived": {
+    "order_refs": [
+     "TO-96250"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96250": "CONFIRMED"
+    },
+    "order_id": "TO-96250",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, meine Schreibtischlampe (Bestellung TO-96250) ist nicht angekommen. Könnt ihr sie bitte noch einmal zusenden? Danke, Luis.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Schreibtischlampe",
+      "issue_evidence": "ist nicht angekommen",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr sie bitte noch einmal zusenden",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96250",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 11.56,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X273": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows delivered in full; the claim conflicts with our data.",
+   "derived": {
+    "order_refs": [
+     "TO-96252"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96252": "CONFIRMED"
+    },
+    "order_id": "TO-96252",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered a desk lamp (order TO-96252) but it hasn't arrived. Could you please resend it? Thanks, Noah.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "desk lamp",
+      "issue_evidence": "but it hasn't arrived.",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Could you please resend it?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     },
+     {
+      "item_quote": null,
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96252",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 6.87,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X272": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows delivered in full; the claim conflicts with our data.",
+   "derived": {
+    "order_refs": [
+     "TO-96251"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96251": "CONFIRMED"
+    },
+    "order_id": "TO-96251",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。注文番号 TO-96251 のデスクランプが未着のようです。再送をお願いできますでしょうか。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "デスクランプ",
+      "issue_evidence": "デスクランプが未着のようです",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "再送をお願いできますでしょうか",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96251",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 12.04,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X263": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Final-sale item: the existing policy decides (no exchange); supplier not needed.",
+   "derived": {
+    "order_refs": [
+     "TO-96242"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96242": "CONFIRMED"
+    },
+    "order_id": "TO-96242",
+    "mentioned_skus": [],
+    "order_skus": [
+     "SALE-SOCKS"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "SALE-SOCKS",
+    "product": "Merino socks (final sale)",
+    "variant": "M",
+    "qty": 1,
+    "days": 6,
+    "requested_variant": "S"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Diego, mi pedido TO-96242 las calzetines merino de talla M quedaron demasiado grandes, podria cambiarlos por talla S? Gracias",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "las calzetines merino de talla M quedaron demasiado grandes",
+      "issue_evidence": "las calzetines merino de talla M quedaron demasiado grandes",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": "las calzetines merino",
+      "current_variant_quote": "talla M",
+      "requested_variant_quote": "talla S",
+      "goals": [
+       {
+        "evidence": "cambiarlos por talla S",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96242",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 41.3,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X269": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows IN_TRANSIT: share tracking MP99887766, nothing to reship yet.",
+   "derived": {
+    "order_refs": [
+     "TO-96248"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96248": "CONFIRMED"
+    },
+    "order_id": "TO-96248",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "44",
+    "qty": 1,
+    "days": 3
+   },
+   "extraction": {
+    "speech_act_evidence": "お世話になっております。ジュリアです。先日、3日前にスニーカーを注文いたしまして、注文番号は TO-96248 でございます。そのときは早く届くのを楽しみにしており、届いたら友達と一緒に公園でジョギングをしようと考えていました。でも、まだ荷物が届かず、配達状況を確認しても「発送準備中」のままです。  \n\n実は今朝は雨が降っていたので、家の中でホットチョコレートを飲みながら新聞を読んでいたのですが、ふと「スニーカーがまだ届いていないな」と思い出し、改めて確認したところ、やはり届いていないことが分かりました。これでは外で走る計画も立てられず、少々がっかりしています。  \n\nつきましては、お手数ですが、注文番号 TO-96248 のスニーカーをもう一度ご送付いただけますでしょうか。できるだけ早くお手配いただけると助かります。何卒よろしくお願い申し上げます。  \n\nジュリア  \n（連絡先：〇〇〇-〇〇〇-〇〇〇）",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "お世話になっております。ジュリアです。先日、3日前にスニーカーを注文いたしまして、注文番号は TO-96248 でございます。そのときは早く届くのを楽しみにしており、届いたら友達と一緒に公園でジョギングをしようと考えていました。でも、まだ荷物が届かず、配達状況を確認しても「発送準備中」のままです。  \n\n実は今朝は雨が降っていたので、家の中でホットチョコレートを飲みながら新聞を読んでいたのですが、ふと「スニーカーがまだ届いていないな」と思い出し、改めて確認したところ、やはり届いていないことが分かりました。これでは外で走る計画も立てられず、少々がっかりしています。  \n\nつきましては、お手数ですが、注文番号 TO-96248 のスニーカーをもう一度ご送付いただけますでしょうか。できるだけ早くお手配いただけると助かります。何卒よろしくお願い申し上げます。  \n\nジュリア  \n（連絡先：〇〇〇-〇〇〇-〇〇〇）",
+      "issue_evidence": "まだ荷物が届かず、配達状況を確認しても「発送準備中」のままです。",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "もう一度ご送付いただけますでしょうか",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96248",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 28.52,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X276": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96255"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96255": "CONFIRMED"
+    },
+    "order_id": "TO-96255",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是Rin，訂單TO-96255的City雨衣改變主意，想申請退款。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City雨衣",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "想申請退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96255",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.65,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X275": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows delivered in full; the claim conflicts with our data.",
+   "derived": {
+    "order_refs": [
+     "TO-96254"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96254": "CONFIRMED"
+    },
+    "order_id": "TO-96254",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Paula. Mi lámpara de escritorio del pedido TO-96254 no llegó. ¿Podrían enviarla de nuevo? Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Mi lámpara de escritorio del pedido TO-96254 no llegó.",
+      "issue_evidence": "Mi lámpara de escritorio del pedido TO-96254 no llegó.",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Podrían enviarla de nuevo?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96254",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 15.81,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X274": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows delivered in full; the claim conflicts with our data.",
+   "derived": {
+    "order_refs": [
+     "TO-96253"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96253": "CONFIRMED"
+    },
+    "order_id": "TO-96253",
+    "mentioned_skus": [],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "DESK-LAMP",
+    "product": "LED desk lamp",
+    "variant": "white",
+    "qty": 1,
+    "days": 9
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是 Oskar，訂單 TO-96253 的桌燈至今未收到，請幫我重新寄送一次，謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "桌燈至今未收到",
+      "issue_evidence": "桌燈至今未收到",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請幫我重新寄送一次",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96253",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 22.58,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X278": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96257"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96257": "CONFIRMED"
+    },
+    "order_id": "TO-96257",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo,\n\nich melde mich wegen meiner Bestellung TO-96257. Ich habe da die City Regenjacke bestellt und muss ehrlich sagen, ich habe mich jetzt doch anders entschieden.\n\nEigentlich hatte ich die Jacke bestellt, weil es hier letzte Woche jeden Tag geregnet hat und ich dachte, das ist gerade genau das Richtige. Inzwischen hat sich das Wetter aber komplett gedreht, es ist jeden Tag sonnig und ich bin sogar letzte Woche spontan mit dem Fahrrad zur Arbeit gefahren, da hätte ich die Jacke eh nicht gebraucht. Außerdem habe ich beim Aufräumen im Schrank festgestellt, dass ich noch eine alte Regenjacke habe, die ich komplett vergessen hatte und die eigentlich noch ganz gut passt.\n\nKönnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten? Die Jacke wurde noch gar nicht getragen, liegt noch original verpackt hier.\n\nVielen Dank schon mal und einen schönen Tag euch.\n\nViele Grüße\nTaro",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Könnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten?",
+      "issue_evidence": "ich habe mich jetzt doch anders entschieden.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könnt ihr mir daher bitte den Kaufpreis für die City Regenjacke aus der Bestellung TO-96257 erstatten?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96257",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 17.2,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X268": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows IN_TRANSIT: share tracking MP99887766, nothing to reship yet.",
+   "derived": {
+    "order_refs": [
+     "TO-96247"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96247": "CONFIRMED"
+    },
+    "order_id": "TO-96247",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "44",
+    "qty": 1,
+    "days": 3
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, ich bin Isamu. Meine Sneaker, die ich vor drei Tagen bestellt habe (Bestellnummer TO-96247), sind noch nicht angekommen. Könntet ihr sie bitte noch einmal zusenden? Thanks!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Meine Sneaker, die ich vor drei Tagen bestellt habe (Bestellnummer TO-96247), sind noch nicht angekommen.",
+      "issue_evidence": "Meine Sneaker, die ich vor drei Tagen bestellt habe (Bestellnummer TO-96247), sind noch nicht angekommen.",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Könntet ihr sie bitte noch einmal zusenden?",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96247",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 51.17,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X281": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96260"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96260": "CONFIRMED"
+    },
+    "order_id": "TO-96260",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好！我是 Wen，我剛才收到訂單 TO-96260 的 Trail Runner 運動鞋，但想了一下決定不想要了，能否幫我辦理退款呢？謝謝！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner 運動鞋",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Trail Runner 運動鞋",
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "能否幫我辦理退款呢？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96260",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 12.45,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X279": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96258"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96258": "CONFIRMED"
+    },
+    "order_id": "TO-96258",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは。注文番号TO-96258のTrail Runnerスニーカーですが、気が変わったので返金をお願いします。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runnerスニーカー",
+      "issue_evidence": "気が変わったので返金をお願いします",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "返金をお願いします",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96258",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 14.58,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X277": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96256"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96256": "CONFIRMED"
+    },
+    "order_id": "TO-96256",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola,\n\nMi nombre es Sofia y hace aproximadamente una semana realicé una compra en su tienda online de unas zapatillas Trail Runner. El número de mi pedido es TO-96256. Cuando recibí el paquete, estaba muy emocionada porque había visto unas fotos muy bonitas en su catálogo y pensé que serían perfectas para mis salidas al parque los fines de semana. Resulta que, después de probarlas un par de veces en casa mientras mi gato se acurrucaba al lado del sofá y escuchaba de fondo la lluvia que golpeaba la ventana, me di cuenta de que el color no combina tan bien con la mayoría de mi ropa deportiva como había imaginado inicialmente. Además, recuerdo que ese mismo día también estaba pensando en cambiar mi rutina de ejercicios y quizá probar algo diferente, como el ciclismo indoor, así que al final las zapatillas no encajan con lo que ahora tengo en mente.\n\nPor todo lo anterior, he decidido que prefiero devolver el artículo y obtener el reembolso del importe pagado. Adjunto nuevamente el número de pedido TO-96256 para que puedan localizar la transacción sin problemas. Agradecería mucho que me indiquen los pasos a seguir para la devolución y el plazo estimado para que el dinero vuelva a mi tarjeta.\n\nQuedo a la espera de sus instrucciones y gracias de antemano por su atención.\n\nUn saludo,\nSofia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "zapatillas Trail Runner",
+      "issue_evidence": "prefiero devolver el artículo y obtener el reembolso del importe pagado.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "prefiero devolver el artículo y obtener el reembolso del importe pagado.",
+        "goal": "REFUND"
+       },
+       {
+        "evidence": "me indiquen los pasos a seguir para la devolución y el plazo estimado para que el dinero vuelva a mi tarjeta.",
+        "goal": "INFORMATION"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96256",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 27.32,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X283": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96262"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96262": "CONFIRMED"
+    },
+    "order_id": "TO-96262",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Sehr geehrte Damen und Herren,\n\nich habe meine Meinung zum City Regenjacke geändert und bitte um Erstattung des Kaufpreises für meine Bestellung TO-96262.\n\nVielen Dank im Voraus.\n\nMit freundlichen Grüßen\nZoe",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City Regenjacke",
+      "issue_evidence": "ich habe meine Meinung zum City Regenjacke geändert",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "bitte um Erstattung des Kaufpreises",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96262",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 22.2,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X285": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96264"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96264": "CONFIRMED"
+    },
+    "order_id": "TO-96264",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "您好， 我叫Bea，訂單編號為ＴＯ－９６２６４的雨衣縫線出現破損，導致無法正常使用。請問能否協助辦理退款事宜？謝謝。 Bea",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "雨衣縫線出現破損",
+      "issue_evidence": "縫線出現破損",
+      "issue_type": "DEFECT",
+      "component_quote": "縫線出現破損",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "請問能否協助辦理退款事宜？",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "ＴＯ－９６２６４",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 32.45,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X286": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96265"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96265": "CONFIRMED"
+    },
+    "order_id": "TO-96265",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "¡Hola! Soy Chiara, les escribo por la chaqueta de lluvia del pedido TO‑96265. La recibí hace unos días y al probármela vi que tiene la costura rota en un lateral. No la he usado casi nada y me da pena. ¿Se podría hacer un reembolso? Gracias por la ayuda, ¡que tengan lindo día!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "la costura rota",
+      "issue_evidence": "la costura rota",
+      "issue_type": "DEFECT",
+      "component_quote": "la costura rota",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Se podría hacer un reembolso?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO‑96265",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": "NONE",
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 45.05,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X289": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96268"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96268": "CONFIRMED"
+    },
+    "order_id": "TO-96268",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "哈囉，我是Fumiko，訂單TO-96268的LED檯燈運作正常，但我改變主意想申請退貨退款，請幫忙處理。謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "訂單TO-96268的LED檯燈運作正常，但我改變主意想申請退貨退款",
+      "issue_evidence": "改變主意想申請退貨退款",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "改變主意想申請退貨退款",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96268",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 24.27,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X284": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96263"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96263": "CONFIRMED"
+    },
+    "order_id": "TO-96263",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I recieved my rain jacket today and the seam is torn. Its pretty bad, so I'd like a refund please. My order number is TO‐96263. Thanks, Akira",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "rain jacket",
+      "issue_evidence": "seam is torn",
+      "issue_type": "DEFECT",
+      "component_quote": "seam is torn",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I'd like a refund please.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO‐96263",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 75.6,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X290": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96269"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96269": "CONFIRMED"
+    },
+    "order_id": "TO-96269",
+    "mentioned_skus": [],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Gonzalo. Con el pedido TO-96269 me llegó la tetera eléctrica de 1.7 L y funciona perfecto, pero he cambiado de opinión. ¿Me pueden gestionar la devolución y el reembolso? Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hola, soy Gonzalo. Con el pedido TO-96269 me llegó la tetera eléctrica de 1.7 L y funciona perfecto, pero he cambiado de opinión. ¿Me pueden gestionar la devolución y el reembolso? Gracias.",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Me pueden gestionar la devolución y el reembolso?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96269",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 28.82,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X280": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96259"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96259": "CONFIRMED"
+    },
+    "order_id": "TO-96259",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I’d like to request a refund for the Trail Runner sneakers from order TO-96259. I changed my mind about them. Can you tell me what I need to do next?",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner sneakers",
+      "issue_evidence": "I changed my mind about them.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I’d like to request a refund",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96259",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 120.86,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X291": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96270"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96270": "CONFIRMED"
+    },
+    "order_id": "TO-96270",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, ich habe meine Bestellung TO-96270 erhalten, der Wasserkocher funktioniert einwandfrei, aber ich habe meine Meinung geändert und möchte eine Rückerstattung. Thanks.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Wasserkocher",
+      "issue_evidence": "ich habe meine Meinung geändert und möchte eine Rückerstattung.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "ich habe meine Meinung geändert und möchte eine Rückerstattung.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96270",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 36.63,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X294": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-96273"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96273": "CONFIRMED"
+    },
+    "order_id": "TO-96273",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 60,
+    "warranty_basis": "60 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "the insole came apart on one shoe and the heel lining ripped",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "the insole came apart on one shoe and the heel lining ripped",
+      "issue_evidence": "the insole came apart on one shoe and the heel lining ripped",
+      "issue_type": "DEFECT",
+      "component_quote": "insole",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "replacement pair",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96273",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 16.59,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X261": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "5 × M in our warehouse: exchange from own stock.",
+   "derived": {
+    "order_refs": [
+     "TO-96240"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96240": "CONFIRMED"
+    },
+    "order_id": "TO-96240",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "CITY-JACKET",
+    "product": "City rain jacket",
+    "variant": "S",
+    "qty": 1,
+    "days": 8,
+    "requested_variant": "M"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, ich hab die City Regenjacke in Größe S bestellt (Bestellnr TO-96240) und sie ist mir zu klein. Könnt ihr sie bitte gegen Größe M taushen? Dankse!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City Regenjacke in Größe S",
+      "issue_evidence": "sie ist mir zu klein",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "Größe S",
+      "requested_variant_quote": "Größe M",
+      "goals": [
+       {
+        "evidence": "Könnt ihr sie bitte gegen Größe M taushen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96240",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 208.58,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X288": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96267"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96267": "CONFIRMED"
+    },
+    "order_id": "TO-96267",
+    "mentioned_skus": [
+     "DESK-LAMP"
+    ],
+    "order_skus": [
+     "DESK-LAMP"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey there, I got my LED desk lamp (order TO-96267) and it works fine, but I’ve changed my mind and would like to return it for a refund. Let me know what I need to do. Thanks! 😊 (sorry for the typo)",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "LED desk lamp",
+      "issue_evidence": "I’ve changed my mind and would like to return it for a refund.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I’ve changed my mind and would like to return it for a refund.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96267",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 103.92,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X293": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96272"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96272": "CONFIRMED"
+    },
+    "order_id": "TO-96272",
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [
+     "BREW-KETTLE"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Dear Customer Service,\n\nI hope you are well. I recently purchased a 1.7 L electric kettle (order number TO-96272). Although the product works perfectly, I have changed my mind and would like to request a full refund. Please let me know the next steps.\n\nThank you for your assistance.\n\nKind regards,\nJulia",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "1.7 L electric kettle",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "I have changed my mind and would like to request a full refund.",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96272",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 39.62,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X295": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-96274"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96274": "CONFIRMED"
+    },
+    "order_id": "TO-96274",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "41",
+    "qty": 1,
+    "days": 60,
+    "warranty_basis": "60 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "您好，我是 Luis。訂單號 TO-96274 的 Trail Runner 運動鞋已使用 60 天，發現內底脫落且後跟內襯破裂。請問能否安排 replacement？謝謝。",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Trail Runner 運動鞋",
+      "issue_evidence": "內底脫落且後跟內襯破裂",
+      "issue_type": "DEFECT",
+      "component_quote": "內底脫落且後跟內襯破裂",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "replacement",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96274",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 20.03,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X298": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42.",
+   "derived": {
+    "order_refs": [
+     "TO-96277"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96277": "CONFIRMED"
+    },
+    "order_id": "TO-96277",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 7,
+    "requested_variant": "42"
+   },
+   "extraction": {
+    "speech_act_evidence": "Holaa, soy Oskar. Mi pedido es TO-96277. Las sneakers talla 43 me quedan un poco grandes despues de probarmelas. Se podria hacer el cambio a talla 42? Gracias",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Las sneakers talla 43 me quedan un poco grandes",
+      "issue_evidence": "Las sneakers talla 43 me quedan un poco grandes",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla 43",
+      "requested_variant_quote": "talla 42",
+      "goals": [
+       {
+        "evidence": "Se podria hacer el cambio a talla 42?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96277",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 13.9,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X299": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 38.",
+   "derived": {
+    "order_refs": [
+     "TO-96278"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96278": "CONFIRMED"
+    },
+    "order_id": "TO-96278",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "39",
+    "qty": 1,
+    "days": 7,
+    "requested_variant": "38"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo Kundenservice,\n\nich hoffe, es geht Ihnen gut. Mein Name ist Paula und ich habe vor ein paar Tagen ein Paar Sneaker in Größe 39 bei Ihnen bestellt – die Bestellnummer lautet genau TO-96278. Die Schuhe sind wirklich schön und das Design gefällt mir sehr, aber beim Anziehen merke ich, dass sie leider ein bisschen zu groß sind; beim Laufen rutschen sie leicht nach vorne und ich muss die Schnürung etwas fester ziehen, damit sie nicht verrutschen. Ich dachte zunächst, vielleicht liegt es an den Socken, die ich trug, doch auch mit dünneren Socken sitzen sie nicht optimal. Deshalb würde ich gern die Schuhe gegen die gleiche Modellvariante in Größe 38 austauschen, falls das noch möglich ist. \n\nZwischendurch musste ich noch kurz über das wechselhafte Wetter nachdenken – heute Morgen regnete es leicht, dann kam die Sonne heraus und später zog ein leichter Wind auf, sodass ich beim Spazierengehen im Park sowohl meinen Regenschirm als auch meine Sonnenbrille brauchte. Das hat mich irgendwie daran erinnert, wie wichtig gut sitzende Schuhe sind, besonders wenn man viel unterwegs ist.\n\nKönnten Sie bitte den Austausch veranlassen und mir mitteilen, wie ich die Rücksendung organisieren soll? Eventuell fallen dabei Kosten an oder es gibt ein Rücksendeetikett, das ich verwenden sollte? Ich wäre Ihnen sehr dankbar für eine rasche Rückmeldung, damit ich die passende Größe bald tragen kann.\n\nVielen Dank im Voraus für Ihre Hilfe und Ihr Verständnis.\n\nMit freundlichen Grüßen,\nPaula",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Paar Sneaker in Größe 39",
+      "issue_evidence": "sie sind leider ein bisschen zu groß",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": "sie sind leider ein bisschen zu groß",
+      "part_number_quote": null,
+      "current_variant_quote": "Größe 39",
+      "requested_variant_quote": "Größe 38",
+      "goals": [
+       {
+        "evidence": "würde ich gern die Schuhe gegen die gleiche Modellvariante in Größe 38 austauschen",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96278",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 38.26,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X300": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "EXCHANGE",
+   "reason": "Drop-shipped by Stride Footwear Co. (MOCK supplier): the supplier confirms stock of 42.",
+   "derived": {
+    "order_refs": [
+     "TO-96279"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96279": "CONFIRMED"
+    },
+    "order_id": "TO-96279",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 7,
+    "requested_variant": "42"
+   },
+   "extraction": {
+    "speech_act_evidence": "こんにちは！Rinです。注文番号 TO-96279 でスニーカーを購入したんですが、サイズ43だとちょっと大きめでした。できればサイズ42に交換してもらえたら嬉しいです。交換の手順を教えてください。よろしくお願いします！",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "スニーカー",
+      "issue_evidence": "サイズ43だとちょっと大きめでした",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "サイズ43",
+      "requested_variant_quote": "サイズ42",
+      "goals": [
+       {
+        "evidence": "サイズ42に交換してもらえたら嬉しいです",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96279",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.24,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X297": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-96276"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96276": "CONFIRMED"
+    },
+    "order_id": "TO-96276",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "40",
+    "qty": 1,
+    "days": 120,
+    "warranty_basis": "120 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo, die Einlegesohle meiner Trail Runner Sneaker (Bestellung TO-96276, 120 Tage alt) ist auseinandergegangen und das Fersenfutter ist gerissen. Bitte senden Sie mir ein Ersatzpaar zu. Danke.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Einlegesohle ... ist auseinandergegangen und das Fersenfutter ist gerissen.",
+      "issue_evidence": "Einlegesohle ... ist auseinandergegangen und das Fersenfutter ist gerissen.",
+      "issue_type": "DEFECT",
+      "component_quote": "Einlegesohle ... ist auseinandergegangen und das Fersenfutter ist gerissen.",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "Bitte senden Sie mir ein Ersatzpaar zu.",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96276",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 58.87,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X296": {
+   "action1": "CREATE_SUPPLIER_TASK",
+   "rule1": "V12",
+   "family": "WARRANTY_REMEDY",
+   "reason": "Outside our 30-day window, inside the 180-day supplier warranty: Stride Footwear Co. (MOCK supplier) decides.",
+   "derived": {
+    "order_refs": [
+     "TO-96275"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96275": "CONFIRMED"
+    },
+    "order_id": "TO-96275",
+    "mentioned_skus": [],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "43",
+    "qty": 1,
+    "days": 120,
+    "warranty_basis": "120 of 180 supplier warranty days"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Mina. Mis Trail Runner tienen 120 días y la plantilla se despegó y el forro del talón se rasgó. ¿Me pueden mandar un par de reemplazo? Pedido TO-96275. Gracias.",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Mis Trail Runner",
+      "issue_evidence": "la plantilla se despegó y el forro del talón se rasgó",
+      "issue_type": "DEFECT",
+      "component_quote": "plantilla",
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Me pueden mandar un par de reemplazo?",
+        "goal": "REPLACE_SAME"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96275",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 95.74,
+   "actions": {
+    "k1": "CREATE_SUPPLIER_TASK"
+   }
+  },
+  "X270": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V12",
+   "family": "FULFILMENT",
+   "reason": "Carrier shows IN_TRANSIT: share tracking MP99887766, nothing to reship yet.",
+   "derived": {
+    "order_refs": [
+     "TO-96249"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96249": "CONFIRMED"
+    },
+    "order_id": "TO-96249",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "44",
+    "qty": 1,
+    "days": 3
+   },
+   "extraction": {
+    "speech_act_evidence": "Hi, I ordered sneakers 3 days ago, order TO-96249, and they haven't arrived yet. Can you please send them again? Thanks, Kai",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "sneakers",
+      "issue_evidence": "they haven't arrived yet",
+      "issue_type": "MISSING_ITEM",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "send them again",
+        "goal": "RESHIP"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96249",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 277.08,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X301": {
+   "action1": "CLARIFY_WITH_CUSTOMER",
+   "rule1": "V12b",
+   "family": "EXCHANGE",
+   "reason": "Would be a supplier task, but the text contains no explicit remedy request: ask what the customer would like.",
+   "derived": {
+    "order_refs": [
+     "TO-96280"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96280": "CONFIRMED"
+    },
+    "order_id": "TO-96280",
+    "mentioned_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "order_skus": [
+     "TRAIL-RUNNER-42"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [],
+    "sku": "TRAIL-RUNNER-42",
+    "product": "Trail Runner sneakers",
+    "variant": "42",
+    "qty": 1,
+    "days": 7,
+    "requested_variant": "41"
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey, I got my sneakers from order TO-96280 but they're size 42 and they feell a bit big on me. Could I swapp them for a size 41? Thanks!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Hey, I got my sneakers from order TO-96280 but they're size 42 and they feell a bit big on me. Could I swapp them for a size 41? Thanks!",
+      "issue_evidence": "they're size 42 and they feell a bit big on me",
+      "issue_type": "SIZE_MISMATCH",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size 42",
+      "requested_variant_quote": "size 41",
+      "goals": [
+       {
+        "evidence": "Could I swapp them for a size 41?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96280",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 45.47,
+   "actions": {
+    "k1": "CLARIFY_WITH_CUSTOMER"
+   }
+  },
+  "X302": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96281"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96281": "CONFIRMED"
+    },
+    "order_id": "TO-96281",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hello,\n\nI hope you are doing well. I am writing about an order I placed recently. My name is Taro and my order number is TO-96281.\n\nI ordered the City rain jacket in size M, but I actually meant to order size S. It was entirely my mistake. I was ordering late at night on my phone while my cat was jumping on the keyboard and I was also trying to keep an eye on the rain coming down outside the window, and I think I just tapped the wrong size without really noticing. I only realized this morning when I tried it on and it feels a bit loose on me, I usually wear S in your jackets.\n\nThe jacket looks really nice otherwise and I love the colour, so I would like to exchange the size M for size S if that is possible. Please let me know how to proceed with the exchange and if you need anything from me.\n\nThank you very much for your help.\n\nBest regards,\nTaro",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "I ordered the City rain jacket in size M, but I actually meant to order size S.",
+      "issue_evidence": "I ordered the City rain jacket in size M, but I actually meant to order size S.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "size M",
+      "requested_variant_quote": "size S",
+      "goals": [
+       {
+        "evidence": "I would like to exchange the size M for size S if that is possible.",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96281",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 41.87,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X282": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V8",
+   "family": "REFUND",
+   "reason": "Refund wish: the existing refund policy flow (policy checks, human approval, PayPal) owns it. Never a supplier task.",
+   "derived": {
+    "order_refs": [
+     "TO-96261"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96261": "CONFIRMED"
+    },
+    "order_id": "TO-96261",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hola, soy Yuki. Hice el pedido TO-96261 por la City rain jacket y al final cambié de idea, no la voy a usar. ¿Se puede hacer la devolucion y el reembolso? Gracias!",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City rain jacket",
+      "issue_evidence": "no la voy a usar.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "¿Se puede hacer la devolucion y el reembolso?",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96261",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 242.71,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X287": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V2",
+   "family": null,
+   "reason": "Evidence quote not found in the message (item1.goal REFUND): a human reads it.",
+   "derived": {
+    "order_refs": [
+     "TO-96266"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96266": "CONFIRMED"
+    },
+    "order_id": "TO-96266",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": [
+     "item1.goal REFUND"
+    ]
+   },
+   "extraction": {
+    "speech_act_evidence": "Guten Tag,\n\nich hoffe, Sie befinden sich wohl und das Wetter ist bei Ihnen genauso wechselhaft wie hier im Ruhrgebiet, wo ich letzte Woche beim Spaziergang entlang des Rheinufers plötzlich einem plötzlichen Regenschauer ausgesetzt war. Dabei fiel mir auf, dass die Naht an der linken Schulter meines Regenjackets, das ich erst vor einigen Wochen erworben habe, plötzlich aufgegangen ist – das Material reißt sich an der Stelle, wo ich die Jacke beim Anziehen immer leicht ziehe, und es zieht nun Wasser durch, obwohl die Jacke sonst noch ganz intakt wirkt.\n\nDa ich die Jacke hauptsächlich für meine täglichen Fahrradtouren zur Arbeit und für gelegentliche Wanderungen im Sauerland benutze, ist es besonders ärgerlich, dass gerade jetzt, wo die Herbstsaison beginnt und ich auf zuverlässigen Wetterschutz angewiesen bin, dieses Problem auftritt. Ich habe das Kleidungsstück sorgfältig gepflegt, nur gemäß den Waschinstruktionen gewaschen und nie im Trockner getrocknet, sodass ich eigentlich keine unsachgemäße Behandlung vorwerfen kann.\n\nAus diesem Grund würde ich höflich bitten, mir den Kaufpreis für das defekte Produkt zurückzuerstatten. Meine Bestellung lautet exakt auf die Auftragsnummer TO–96266, die ich damals bei der Bestellung per E-Mail erhalten habe und die auch in meiner Kontoübersicht bei Ihnen zu finden ist. Sollten Sie zusätzliches Bildmaterial oder weitere Informationen benötigen, lassen Sie es mich bitte wissen – ich kann gern Fotos vom beschädigten Bereich zusenden oder das Kleidungsstück zurücksenden, falls das erforderlich wäre.\n\nVielen Dank im Voraus für Ihre Unterstützung und das Verständnis für die Umstände. Ich freue mich auf eine rasche Rückmeldung und hoffe, dass wir eine zufriedenstellende Lösung finden können.\n\nMit freundlichen Grüßen\nDiego",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "Naht an der linken Schulter meines Regenjackets, das ich erst vor einigen Wochen erworben habe, plötzlich aufgegangen ist – das Material reißt sich an der Stelle, wo ich die Jacke beim Anziehen immer leicht ziehe, und es zieht nun Wasser durch",
+      "issue_evidence": "Naht an der linken Schulter meines Regenjackets, das ich erst vor einigen Wochen erworben habe, plötzlich aufgegangen ist – das Material reißt sich an der Stelle, wo ich die Jacke beim Anziehen immer leicht ziehe, und es zieht nun Wasser durch",
+      "issue_type": "DEFECT",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [
+       {
+        "evidence": "möchte mir den Kaufpreis für das defekte Produkt zurückzuerstatten",
+        "goal": "REFUND"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO–96266",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 224.47,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X307": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "No request and no problem to route: standard support reads it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "OTHER",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Zoeです。届くのが早くてびっくり。やかんも大好きです！ありがとう！",
+    "speech_act": "OTHER",
+    "items": [],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.0
+   },
+   "agreement": null,
+   "latency_s": 22.23,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X305": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96284"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96284": "CONFIRMED"
+    },
+    "order_id": "TO-96284",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hey Team, ich hab leider die City Regenjacke in M bestellt, aber ich wollte eigentlich S haben (mein Fehlerr). Könnt ihr das bitte auf S umtauschen? Dankie! Wen (Bestellnr: TO-96284)",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "City Regenjacke",
+      "issue_evidence": "City Regenjacke in M",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "M",
+      "requested_variant_quote": "S",
+      "goals": [
+       {
+        "evidence": "Könnt ihr das bitte auf S umtauschen?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96284",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.9
+   },
+   "agreement": null,
+   "latency_s": 30.05,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
+  },
+  "X306": {
+   "action1": "HUMAN_REVIEW",
+   "rule1": "V6",
+   "family": null,
+   "reason": "No request and no problem to route: standard support reads it.",
+   "derived": {
+    "order_refs": [],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "OTHER",
+    "negated_goals": [],
+    "order_status": {},
+    "order_id": null,
+    "mentioned_skus": [
+     "BREW-KETTLE"
+    ],
+    "order_skus": [],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Hallo,\n\nich wollte mich nur ganz kurz melden und ein großes Dankeschön sagen. Die Lieferung kam wirklich super schnell an, das hätte ich so nicht erwartet. Ich habe gerade erst online bestellt und schon am nächsten Tag war das Paket da, dabei war es sogar noch regnerisch und ich war mir nicht sicher ob der Zusteller es schafft.\n\nDer Wasserkocher ist angekommen und ich liebe ihn einfach. Er sieht richtig schön aus in meiner Küche und funktioniert perfekt. Ich koche jetzt jeden Morgen sehr gern damit Wasser auf, während mein Kater auf dem Fensterbrett liegt und zusieht.\n\nNochmals vielen Dank für den tollen Service.\n\nLiebe Grüße\nYuki",
+    "speech_act": "OTHER",
+    "items": [
+     {
+      "item_quote": "Der Wasserkocher",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     },
+     {
+      "item_quote": "Der Wasserkocher",
+      "issue_evidence": null,
+      "issue_type": "NO_ISSUE",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": null,
+      "requested_variant_quote": null,
+      "goals": [],
+      "goal_relation": "NONE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": null,
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 1.0
+   },
+   "agreement": null,
+   "latency_s": 29.1,
+   "actions": {
+    "k1": "HUMAN_REVIEW"
+   }
+  },
+  "X304": {
+   "action1": "DIRECT_WORKFLOW",
+   "rule1": "V10",
+   "family": "EXCHANGE",
+   "reason": "Customer ordered wrong / changed mind: return-exchange policy flow; never a supplier task (D3).",
+   "derived": {
+    "order_refs": [
+     "TO-96283"
+    ],
+    "malformed_refs": [],
+    "hedged": false,
+    "speech_act": "REQUEST",
+    "negated_goals": [],
+    "order_status": {
+     "TO-96283": "CONFIRMED"
+    },
+    "order_id": "TO-96283",
+    "mentioned_skus": [
+     "CITY-JACKET"
+    ],
+    "order_skus": [
+     "CITY-JACKET"
+    ],
+    "safety": {
+     "S1_words": [],
+     "S2_model": "NONE",
+     "S3_gas": [],
+     "S4_mains": [],
+     "S5_electrical": []
+    },
+    "evidence_failures": []
+   },
+   "extraction": {
+    "speech_act_evidence": "Estimado equipo,\n\nSoy Valeria y realizé el pedido TO-96283, en el cual solicité la chaqueta City rain en talla M. Por error, necesitaba la talla S. ¿Podrían cambiar el artículo por la talla S? Agradezco su atención.\n\nQuedo atenta a su respuesta.\n\nSaludos cordiales,\nValeria",
+    "speech_act": "REQUEST",
+    "items": [
+     {
+      "item_quote": "en el cual solicité la chaqueta City rain en talla M. Por error, necesitaba la talla S.",
+      "issue_evidence": "en el cual solicité la chaqueta City rain en talla M. Por error, necesitaba la talla S.",
+      "issue_type": "CUSTOMER_ORDERED_WRONG",
+      "component_quote": null,
+      "part_number_quote": null,
+      "current_variant_quote": "talla M",
+      "requested_variant_quote": "talla S",
+      "goals": [
+       {
+        "evidence": "¿Podrían cambiar el artículo por la talla S?",
+        "goal": "EXCHANGE_VARIANT"
+       }
+      ],
+      "goal_relation": "SINGLE"
+     }
+    ],
+    "negated_goals": [],
+    "order_ref_quote": "TO-96283",
+    "order_ref_hedge_quote": null,
+    "safety_evidence": null,
+    "safety_level": "NONE",
+    "confidence": 0.95
+   },
+   "agreement": null,
+   "latency_s": 91.17,
+   "actions": {
+    "k1": "DIRECT_WORKFLOW"
+   }
   }
  }
 }
