@@ -55,7 +55,7 @@ def test_log_is_in_call_order_and_summary_is_short(app_ctx):
     assert len(summary) <= 4
     assert summary["PayPal refund"].startswith(rid) and "COMPLETED" in summary["PayPal refund"]
     assert summary["PayPal-Debug-Id"].startswith("mock-debug-")
-    assert "verified ✓" in summary["Signed webhook"] and "1 duplicate ignored" in summary["Signed webhook"]
+    assert summary["Signed webhook"].startswith("verified · event") and "1 duplicate ignored" in summary["Signed webhook"]
     html = client.get(f"/?case={case_id}").text
     assert "PayPal evidence" in html and "Show details" in html and f"tradeos-refund-{case_id}" in html
     assert "MOCK PayPal" in html
@@ -94,7 +94,7 @@ def test_failed_refund_shows_debug_id_and_issue(app_ctx):
 
 
 def test_status_wording_echeck_and_cancelled_vs_failed():
-    assert "ECHECK" in status_words("PENDING", {"reason": "ECHECK"}) and "eCheck" in status_words("PENDING", {"reason": "ECHECK"})
+    assert "ECHECK (eCheck; settles in a few days)" in status_words("PENDING", {"reason": "ECHECK"})
     c, f = status_words("CANCELLED"), status_words("FAILED")
     assert c != f and "CANCELLED at PayPal" in c and "needs a human" in c and "could not complete" in f
 
@@ -115,7 +115,7 @@ def test_pending_echeck_refund_shows_reason(settings):
     row = [r for r in evidence_log(app.state.workflow.db, case_id) if r["what"] == "Refund capture"][0]
     assert row["status"].startswith("PENDING") and "ECHECK" in row["status"]
     summary = evidence_summary(app.state.workflow.db, app.state.workflow.db.get_case(case_id))
-    assert "PENDING" in summary[0]["value"] and "eCheck" in summary[0]["value"] and summary[0]["ok"] is False
+    assert "PENDING" in summary[0]["value"] and "eCheck" in summary[0]["value"] and summary[0]["ok"] is None
 
 
 def test_real_client_keeps_success_debug_id_never_token():

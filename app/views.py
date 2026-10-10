@@ -358,7 +358,7 @@ REFUND_STATUS_WORDS = {
     "FAILED": "FAILED — PayPal could not complete the refund · needs a human",
     "CANCELLED": "CANCELLED at PayPal — no money returned · needs a human to review",
 }
-STATUS_REASONS = {"ECHECK": "ECHECK (eCheck-funded; settles after the bank clears, usually a few days)"}
+STATUS_REASONS = {"ECHECK": "ECHECK (eCheck; settles in a few days)"}
 
 
 def status_words(status: str | None, details: dict | None = None) -> str:
@@ -430,7 +430,7 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         amount = _money(refund.get("amount")) or f"${case['amount']} {case['currency']}"
         rows.append({"label": "PayPal refund", "value": f"{case['refund_id']} · "
                      f"{status_words(case.get('refund_status'), refund.get('status_details'))} · {amount}",
-                     "ok": case.get("refund_status") == "COMPLETED"})
+                     "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status"), False)})
     elif refund_calls:
         rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
     else:
@@ -444,7 +444,7 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         verified = [e for e in events if e["verified"]]
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
-            value = f"verified ✓ · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            value = f"verified · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
             rows.append({"label": "Signed webhook", "value": value, "ok": True})
         else:
             rows.append({"label": "Signed webhook", "value": "waiting…" if webhook_configured else
