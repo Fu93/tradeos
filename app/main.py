@@ -44,6 +44,9 @@ ADMIN_COOKIE = "tradeos_admin"
 
 WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING", "PAYMENT.REFUND.FAILED",
                   "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED"}
+# Real PayPal refund events are ~2 KB. Anything bigger is not a PayPal delivery; reject it before
+# any verification call or DB write so a spammer cannot grow webhook_events / the audit chain.
+WEBHOOK_MAX_BODY = 64 * 1024
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
@@ -58,6 +61,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                   note_writer=note_writer or build_note_writer(settings, extractor), **kwargs)
     limiter = RateLimiter(settings.rate_limit_per_minute, settings.rate_limit_per_hour,
                           settings.rate_limit_global_per_hour)
+    # Separate, higher budget for the money actions: a demo walkthrough (approve, retry, refresh)
+    # must not be throttled by the 5/min order-creation limit, but refund attempts and reconcile
+    # refreshes still stay bounded per address.
+    money_limiter = RateLimiter(settings.money_rate_limit_per_minute, settings.money_rate_limit_per_hour,
+                                settings.money_rate_limit_global_per_hour)
 
     # Render's free tier wipes the filesystem: reset + seed the demo on every start.
     db.init(reset=settings.reset_on_start)
@@ -134,6 +142,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     def limited(request: Request) -> HTMLResponse | None:
         reason = limiter.check(ip(request))
+        if reason:
+            return render_dashboard(request, flash=reason, status_code=429)
+        return None
+
+    def money_limited(request: Request) -> HTMLResponse | None:
+        reason = money_limiter.check(ip(request))
         if reason:
             return render_dashboard(request, flash=reason, status_code=429)
         return None
@@ -272,20 +286,20 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/cases/{case_id}/approve")
     def approve(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
             return refused
         return guarded(request, case_id, wf.approve)
 
     @app.post("/cases/{case_id}/decline")
     def decline(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
             return refused
         return guarded(request, case_id, wf.decline)
 
     @app.post("/cases/{case_id}/refund")
     def refund(request: Request, case_id: str, admin_token: str = Form("")):
         """Retry endpoint. Same hard guard as approve: policy ELIGIBLE + human APPROVED."""
-        if (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
             return refused
         case = db.get_case(case_id)
         if case and case.get("refund_status") in ("COMPLETED", "PENDING"):
@@ -330,7 +344,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/cases/{case_id}/approve-twice")
     def approve_twice(request: Request, case_id: str, admin_token: str = Form("")):
         """Failure-mode demo (scenario D only): simulates a double-clicked Approve."""
-        if (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
             return refused  # approve-twice calls approve(); leaving it open would bypass the guard above
         case = db.get_case(case_id)
         if not case:
@@ -358,6 +372,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Second, independent confirmation: PayPal pushes PAYMENT.CAPTURE.REFUNDED; we verify the
         signature with PayPal's verify-webhook-signature API before trusting it."""
         raw = await request.body()
+        if len(raw) > WEBHOOK_MAX_BODY:
+            return JSONResponse({"ok": False, "handled": False, "error": "payload too large"}, status_code=400)
         try:
             event = json.loads(raw)
         except ValueError:
@@ -391,6 +407,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/cases/{case_id}/refresh-refund")
     def refresh_refund(request: Request, case_id: str):
+        if (refused := money_limited(request)) is not None:
+            return refused  # each click is two PayPal GETs: keep it bounded like the money actions
         return guarded(request, case_id, wf.refresh_refund)
 
     @app.get("/cases/{case_id}/paypal-return")
@@ -403,7 +421,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/cases/{case_id}/paypal-return")
     def paypal_return_capture(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
             return refused  # capture moves money, so it is behind the same token as approve/refund
         return guarded(request, case_id, wf.complete_buyer_approval)
 
