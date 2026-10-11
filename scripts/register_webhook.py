@@ -63,5 +63,6 @@ if __name__ == "__main__":
     if len(args) != 1 or not args[0].startswith("https://"):
         sys.exit("usage: register_webhook.py https://<public-host>/webhooks/paypal [--apply]")
     client = PayPalClient(os.environ["PAYPAL_CLIENT_ID"], os.environ["PAYPAL_CLIENT_SECRET"],
-                          os.environ.get("PAYPAL_BASE_URL") or SANDBOX_BASE_URL)
+                          os.environ.get("PAYPAL_BASE_URL") or SANDBOX_BASE_URL,
+                          allow_live=os.environ.get("TRADEOS_ALLOW_LIVE", "").lower() in ("1", "true", "yes", "on"))
     main(client, args[0], "--apply" in sys.argv)

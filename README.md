@@ -391,6 +391,11 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   Every response carries CSP (`script-src 'self'`, no inline code), HSTS, `frame-ancestors 'none'` / X-Frame-Options,
   nosniff and Referrer-Policy; state-changing POSTs from another origin (Origin/Referer check) get 403, the webhook is
   exempt. Requests with neither header (scripts, curl) are allowed because they aren't a browser CSRF vector.
+- **Admin token:** the money actions (approve / decline / refund / buyer capture / demo reset) are guarded by
+  `TRADEOS_ADMIN_TOKEN` when it is set — visitors unlock once via the page's *Unlock admin* form (HttpOnly session
+  cookie, constant-time token compare), scripts send an `X-Admin-Token` header. The PayPal client also refuses any
+  base URL that is not the sandbox unless `TRADEOS_ALLOW_LIVE=1`, so a mistyped `PAYPAL_BASE_URL` cannot point a
+  card payload or a refund at the live API.
 - **Not covered:** partial refunds, disputes, automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
 
@@ -440,6 +445,8 @@ reconciled against PayPal in the background at startup.
 | `LLM_MODEL` | no | `openai/gpt-oss-20b` | |
 | `TRADEOS_DB_PATH` | no | `tradeos.db` | |
 | `TRADEOS_RESET_ON_START` | no | `1` | archive old cases and reseed demo data at boot |
+| `TRADEOS_ADMIN_TOKEN` | no (recommended on Render) | — | guards the money actions (approve / decline / refund / capture / reset). Visitors unlock once via the page's *Unlock admin* form (HttpOnly session cookie); scripts send the token as an `X-Admin-Token` header. Empty ⇒ open, as before |
+| `TRADEOS_ALLOW_LIVE` | no | `0` | the PayPal client refuses any base URL that is not the sandbox unless this is explicitly `1` |
 | `PUBLIC_BASE_URL` | no | `RENDER_EXTERNAL_URL` or `http://localhost:8000` | PayPal return URL for the approval fallback |
 | `RETURN_WINDOW_DAYS` | no | `30` | |
 | `FREE_TEXT_MAX_CHARS` | no | `500` | free-text length cap |
@@ -536,6 +543,12 @@ restart are acknowledged and ignored.
 Out of scope for this MVP: product sourcing, scraping, multichannel commerce, live supplier chat, logistics/customs/
 invoicing, autonomous financial decisions, partial refunds, real fulfilment, extra agents. The customer note is a
 translated refund/decision note, not a chatbot.
+
+Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces). What the
+MVP does have is a single shared `TRADEOS_ADMIN_TOKEN` (recommended on a public deployment) that guards the
+money-action endpoints — approve, decline, refund, buyer capture, demo reset — with an in-page *Unlock admin*
+form (HttpOnly session cookie) or an `X-Admin-Token` header for scripts. Running cases and viewing the dashboard
+stay public by design; case creation is protected by per-IP/global rate limits.
 
 ## License
 

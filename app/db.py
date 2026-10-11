@@ -119,6 +119,21 @@ CHAINED_CASE_FIELDS = ("status", "decision", "human_decision", "approval_source"
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
 
+# Statuses that are final: a completed refund, a policy rejection, a human decline and an arranged
+# exchange. update_case refuses to move a case OUT of one of them (same-status writes stay legal, so
+# webhook confirmations of an already-COMPLETED refund keep working), and refuses to change the
+# money fields frozen on a finalized case. This is what keeps a slow duplicate run of the same case
+# (a double-clicked Run button, two tabs) from flipping a completed refund back to PENDING_APPROVAL.
+TERMINAL_CASE_STATUSES = ("REFUND_COMPLETED", "REJECTED", "DECLINED_BY_HUMAN", "EXCHANGE_ARRANGED")
+# Chained money fields whose value must never change once the case is final — they are the evidence
+# the refund gate re-derives its decision from (_guard_refund compares the row against the chain).
+FROZEN_ON_TERMINAL = ("capture_id", "refund_id", "refund_status", "refund_request_id", "decision",
+                      "human_decision", "approval_source")
+
+
+class CaseFinalized(Exception):
+    """update_case was asked to overwrite a finalized case's status or money fields."""
+
 
 _seq_lock = threading.Lock()
 _last_seq = 0
@@ -217,15 +232,43 @@ class Database:
             conn.execute(f"INSERT INTO cases ({cols}) VALUES ({marks})", tuple(fields.values()))
             self._chain_case(conn, fields["id"], fields, fields["updated_at"])
 
-    def update_case(self, case_id: str, **fields: Any) -> None:
+    def update_case(self, case_id: str, force: bool = False, **fields: Any) -> None:
         """Every write of a CHAINED_CASE_FIELDS column is appended to the case's hash chain in the
-        same transaction, so a decision / approval / refund state can't change without a chain entry."""
+        same transaction, so a decision / approval / refund state can't change without a chain entry.
+
+        A case in a terminal status (TERMINAL_CASE_STATUSES) is frozen: writes that would change its
+        status or any FROZEN_ON_TERMINAL field raise CaseFinalized instead of writing. The check runs
+        on the same connection, inside the same _chain_lock-held transaction as the write, so two
+        concurrent writers can never both pass it.
+
+        force=True skips that guard. Not used by any runtime path — it exists for the test suite,
+        which deliberately sets up impossible states (an eCheck PENDING refund, a tampered row) to
+        prove the layers above it. It still writes the chain entry, so the audit trail shows it."""
         fields["updated_at"] = utcnow()
         sets = ",".join(f"{k}=?" for k in fields)
         with _chain_lock, self.connect() as conn:
+            if not force and (frozen := self._frozen_check(conn, case_id, fields)):
+                raise CaseFinalized(frozen)
             cur = conn.execute(f"UPDATE cases SET {sets} WHERE id=?", (*fields.values(), case_id))
             if cur.rowcount:
                 self._chain_case(conn, case_id, fields, fields["updated_at"])
+
+    @staticmethod
+    def _frozen_check(conn: sqlite3.Connection, case_id: str, fields: dict) -> str | None:
+        """Reason this write is forbidden on a finalized case, or None if it may proceed.
+        Runs inside the caller's transaction, so the status it reads cannot change underneath it."""
+        row = conn.execute("SELECT * FROM cases WHERE id=?", (case_id,)).fetchone()
+        if row is None or row["status"] not in TERMINAL_CASE_STATUSES:
+            return None
+        new_status = fields.get("status")
+        if new_status is not None and new_status != row["status"]:
+            return (f"case {case_id} is {row['status']} (final); refusing to move it to {new_status}. "
+                    "A completed refund, a rejection, a decline and an arranged exchange are final.")
+        for key in FROZEN_ON_TERMINAL:
+            if key in fields and fields[key] != row[key]:
+                return (f"case {case_id} is {row['status']} (final); refusing to change {key} "
+                        f"from {row[key]!r} to {fields[key]!r}.")
+        return None
 
     def _chain_case(self, conn, case_id: str, fields: dict, ts: str, backfilled: bool = False) -> None:
         changed = {k: fields[k] for k in CHAINED_CASE_FIELDS if k in fields}

@@ -77,12 +77,16 @@ class PayPalClient:
     is_mock = False
 
     def __init__(self, client_id: str, client_secret: str, base_url: str, timeout: float = 30.0,
-                 transport: httpx.BaseTransport | None = None) -> None:
+                 transport: httpx.BaseTransport | None = None, allow_live: bool = False) -> None:
         if not client_id or not client_secret:
             raise PayPalError("PayPal credentials are not configured (PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET).")
         self._id = client_id
         self._secret = client_secret
         self.base_url = base_url.rstrip("/")
+        if not self.is_sandbox and not allow_live:
+            # Fail at construction, before any card payload or refund can reach a live account.
+            raise PayPalError("PAYPAL_BASE_URL is not the PayPal Sandbox — refusing to continue. "
+                              "Point it at https://api-m.sandbox.paypal.com or set TRADEOS_ALLOW_LIVE=1.")
         self._http = httpx.Client(base_url=self.base_url, timeout=timeout, transport=transport)
         self._token: str | None = None
         self._token_expiry = 0.0
@@ -167,6 +171,10 @@ class PayPalClient:
                                request_id: str) -> dict:
         """Create an order paid with a sandbox test card. With intent CAPTURE PayPal
         normally captures immediately (order status COMPLETED)."""
+        if not self.is_sandbox:
+            # Same fail-closed rule as PayPal-Mock-Response below: the hard-coded test card
+            # must never reach a live endpoint.
+            raise PayPalError("The sandbox test card is only allowed against the PayPal Sandbox.")
         expiry = f"{date.today().year + 3}-12"
         body = {
             "intent": "CAPTURE",
