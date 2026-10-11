@@ -1,11 +1,14 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
 ## Pre-merge checklist
-- [ ] `pytest -q` is green on each branch: `feat/paypal-depth` 168, `feat/paypal-evidence` 177, `feat/paypal-reconcile` 198.
-- [ ] Merge in order **#10 → #11 → #12**, retargeting each PR to `main` after the previous one merges. Use "Create a merge commit" or "Squash": the branches were merged upward, not rebased, in the last round.
-- [ ] Before merging, confirm the Render env vars below exist (names only; values stay in Render).
-- [ ] After the **last** merge (one redeploy is enough, but each merge redeploys), wait for the deploy, then run the Sandbox check below.
-- [ ] If any check fails: revert the merge commit on `main` (redeploys the previous build) and reopen.
+
+*(All done 2026-10-10 — #10, #11 and #12 are merged; kept for the record.)*
+
+- [x] `pytest -q` is green on each branch: `feat/paypal-depth` 168, `feat/paypal-evidence` 177, `feat/paypal-reconcile` 198.
+- [x] Merge in order **#10 → #11 → #12**, retargeting each PR to `main` after the previous one merges. Use "Create a merge commit" or "Squash": the branches were merged upward, not rebased, in the last round.
+- [x] Before merging, confirm the Render env vars below exist (names only; values stay in Render).
+- [x] After the **last** merge (one redeploy is enough, but each merge redeploys), wait for the deploy, then run the Sandbox check below.
+- [x] If any check fails: revert the merge commit on `main` (redeploys the previous build) and reopen. *(Not needed — all checks passed.)*
 
 ## Render environment variables used (no values here)
 | Variable | Needed for | Notes |

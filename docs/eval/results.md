@@ -4,6 +4,8 @@ Run: 2026-10-08T23:04:09+00:00 · dataset: 52 hand-labelled messages ([dataset.j
 
 Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).
 
+> **Staleness caveat (added 2026-10-11):** this eval was measured against the *pre-exchange* policy, when every refund request was routed to a human and only `EXCHANGE_REQUEST` could be handled autonomously. The policy has since changed (the merchant's own settings may approve a size exchange too; `approval_source` records who handled each case). The LLM numbers below describe the extractor, which is unchanged, but the policy-level "unwarranted accept" column no longer reflects the current rules — the eval has not been re-run under them (README says the same).
+
 **Keyword-fallback column re-run 2026-10-08T23:50:54+00:00 (keyword-only, no LLM calls), after the fallback injection guard:** when the LLM is unavailable and the message looks like a prompt injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged from the 2026-10-08T23:04:09+00:00 run.
 
 * Before (keyword run 2026-10-08T23:04:09+00:00): exact match 10/52; injections the policy would wrongly accept: 2 (m37, m52).

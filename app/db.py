@@ -163,6 +163,11 @@ class Database:
         conn = sqlite3.connect(self.path, timeout=10)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
+        if self.path != ":memory:":
+            # WAL: readers stop blocking the writer, so the dashboard's chain verification and the
+            # background reconcile no longer contend for the single journal lock. Persistent per
+            # file; a no-op for the in-memory databases the tests use.
+            conn.execute("PRAGMA journal_mode = WAL")
         try:
             yield conn
             conn.commit()

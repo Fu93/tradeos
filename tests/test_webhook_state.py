@@ -215,6 +215,6 @@ def test_paypal_request_ids_fit_paypal_limit(app_ctx):
     client, _, wf = app_ctx
     case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
     client.post(f"/cases/{case_id}/approve", follow_redirects=False)
-    for prefix in ("order", "order-wallet", "capture", "refund"):
+    for prefix in ("order", "wallet", "capture", "refund"):
         rid = f"tradeos-{prefix}-{case_id}"
         assert len(rid) <= 38 and rid.isascii()

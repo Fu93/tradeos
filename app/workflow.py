@@ -164,7 +164,10 @@ class Workflow:
             days_ago = self.settings.case_b_days_since_purchase
         if days_ago:
             seeded = (self.today() - timedelta(days=days_ago)).isoformat()
-        case_id = f"{scenario}-{uuid.uuid4().hex[:6].upper()}"
+        # 64-bit random suffix: the id is the only unauthenticated barrier on the action endpoints
+        # (the admin token is the real gate), so the old 24 bits were enumerable. Capped at 16 hex
+        # chars so the PayPal-Request-Ids derived from it stay within PayPal's 38-char guidance.
+        case_id = f"{scenario}-{uuid.uuid4().hex[:16].upper()}"
         self.db.insert_case(
             id=case_id, scenario=scenario, label=label or spec["label"], status=NEW,
             customer_name=spec["customer_name"], customer_message=message or DEMO_MESSAGE,
@@ -268,7 +271,7 @@ class Workflow:
                 self.db.audit(case_id, "payment", "Card capture unavailable — falling back to buyer approval",
                               card_err.to_dict())
                 order = self._pp(case_id, "create_order", s.order_amount, s.currency, case_id,
-                                 f"TradeOS demo {case_id}", f"tradeos-order-wallet-{case_id}",
+                                 f"TradeOS demo {case_id}", f"tradeos-wallet-{case_id}",
                                  f"{s.public_base_url}/cases/{case_id}/paypal-return",
                                  f"{s.public_base_url}/?case={case_id}")
             self.db.update_case(case_id, order_id=order["id"], order_status=order.get("status"))
