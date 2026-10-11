@@ -26,6 +26,8 @@ services:
         sync: false
       - key: TRADEOS_ADMIN_TOKEN        # guards approve / decline / refund / capture / reset
         sync: false
+      - key: TRADEOS_TRUST_CF_CONNECTING_IP
+        value: "1"                      # Render sits behind Cloudflare's edge; off by default elsewhere
       - key: TRADEOS_DB_PATH
         value: /tmp/tradeos.db
       - key: TRADEOS_RESET_ON_START

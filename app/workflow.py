@@ -59,7 +59,7 @@ SCENARIOS = {
     # ~20 s later, so PENDING -> COMPLETED via reconcile or a signed webhook can be shown on screen.
     "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
 }
-MAX_TRACKED_CASES = 500  # cap for per-case in-memory maps (locks, reconcile throttle)
+MAX_TRACKED_CASES = 500  # cap for per-case reconcile/throttle maps (locks are never evicted, see _lock)
 RUNNABLE = ("A", "B", "R", "D", "P")
 MOCK_ONLY = ("P",)
 
@@ -102,6 +102,7 @@ class Workflow:
         self._inflight = 0              # money operations in progress (approve / refund / retry / recovery)
         self._resetting = False         # demo reset in progress: money operations are refused
         self._needs_check: set[str] = set()
+        self._running: set[str] = set()  # case ids with a whole-run process() in flight
         self._pending_recovery: set[str] = set()
         self._pending_recovery_requests: set[str] = set()
         # UTC, to match PayPal timestamps.
@@ -178,14 +179,15 @@ class Workflow:
         return case_id
 
     def _lock(self, case_id: str) -> threading.Lock:
+        """One lock per case, created on demand and kept for the process lifetime (the demo reset
+        clears the idle ones). Never evicted: the old bounded-map eviction could drop a lock in the
+        window between taking it and acquiring it, handing two threads different locks for the same
+        case. Whole-run serialization of process() uses the _running flag, not this lock, so it
+        stays short-lived exactly where it was before."""
         with self._locks_guard:
-            lock = self._locks.pop(case_id, None) or threading.Lock()
-            self._locks[case_id] = lock  # most recently used last
-            if len(self._locks) > MAX_TRACKED_CASES:  # bounded: evict idle locks, oldest first
-                for key in [k for k, v in self._locks.items() if k != case_id and not v.locked()]:
-                    if len(self._locks) <= MAX_TRACKED_CASES:
-                        break
-                    del self._locks[key]
+            lock = self._locks.get(case_id)
+            if lock is None:
+                lock = self._locks[case_id] = threading.Lock()
             return lock
 
     @contextmanager
@@ -202,9 +204,11 @@ class Workflow:
                 self._inflight -= 1
 
     def begin_reset(self) -> bool:
-        """Demo reset may start only when no refund call is in flight and no case lock is held."""
+        """Demo reset may start only when no refund call is in flight, no case lock is held and no
+        whole-run process() is in flight."""
         with self._locks_guard:
-            if self._resetting or self._inflight or any(lock.locked() for lock in self._locks.values()):
+            if self._resetting or self._inflight or self._running or any(
+                    lock.locked() for lock in self._locks.values()):
                 return False
             self._resetting = True
             return True
@@ -247,17 +251,36 @@ class Workflow:
         return case_id
 
     def process(self, case_id: str) -> None:
-        """Run the whole loop for a new case.
+        """Run the whole loop for a new case, serialized per case by the _running flag.
 
         Two runs of the same case can overlap (a double-clicked Run button, two tabs — the rate
-        limiter counts per minute, not per click). The terminal-state guard in db.update_case makes
-        the slower run fail cleanly instead of overwriting a final state; we stop it here and record
-        why, so a completed refund can never be flipped back to PENDING_APPROVAL."""
+        limiter counts per minute, not per click). The first run claims the case; the slower
+        duplicate is refused here, before paying for a second order/capture/LLM pass, instead of
+        overwriting a final state. The terminal-state freeze in db.update_case stays as the backstop
+        for the entry points that do not come through here (buyer capture, policy retry)."""
         try:
+            with self._locks_guard:
+                if case_id in self._running:
+                    busy = True
+                else:
+                    busy = False
+                    self._running.add(case_id)
+            if busy:
+                self.db.audit(case_id, "workflow", "Run skipped — another run of this case is already in flight",
+                              {"status": self._case(case_id)["status"]})
+                return
+            case = self._case(case_id)  # raises CaseNotFound for an unknown id
+            if case["status"] != NEW:
+                self.db.audit(case_id, "workflow", "Run skipped — the case is no longer NEW (a duplicate "
+                              "run or retry got there first)", {"status": case["status"]})
+                return
             self._process(case_id)
         except CaseFinalized as exc:
             self.db.audit(case_id, "workflow", "Run stopped — the case was already finalized (a duplicate "
                           "run arrived after the case was completed / rejected / declined)", {"reason": str(exc)})
+        finally:
+            with self._locks_guard:
+                self._running.discard(case_id)
 
     def _process(self, case_id: str) -> None:
         self._case(case_id)  # raises CaseNotFound for an unknown id
@@ -742,10 +765,17 @@ class Workflow:
         try:
             refund = self._pp(case_id, "refund_capture", case["capture_id"], request_id, **kwargs)
         except PayPalError as exc:
-            if exc.status_code is None or exc.status_code >= 500:
-                # Outcome UNKNOWN (timeout / network / 5xx): PayPal may have refunded anyway, so the UI must
-                # not say "no money moved". A bounded GET check runs next (outside the lock); if PayPal shows
-                # the capture refunded, the same PayPal-Request-Id is re-sent once to recover the refund.
+            # Certain-no-refund: PayPal answered with a plain 4xx, or the request was refused
+            # locally before it was sent (sent=False). 408 IS a timeout and 429 is throttling —
+            # PayPal may still have accepted the request — so both are UNKNOWN, like network
+            # errors and 5xx: the UI must not say "no money moved" without PayPal confirming it.
+            certain = (not exc.sent) or (exc.status_code is not None and exc.status_code < 500
+                                         and exc.status_code not in (408, 429))
+            if not certain:
+                # Outcome UNKNOWN (timeout / throttled / network / 5xx): PayPal may have refunded
+                # anyway, so the UI must not say "no money moved". A bounded GET check runs next
+                # (outside the lock); if PayPal shows the capture refunded, the same
+                # PayPal-Request-Id is re-sent once to recover the refund.
                 self.db.update_case(case_id, status=REFUND_UNKNOWN, error=str(exc), refund_fault=None)
                 self.db.audit(case_id, "paypal", "Refund outcome UNKNOWN — no reply from PayPal; checking",
                               {**exc.to_dict(), "paypal_request_id": request_id})

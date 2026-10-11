@@ -189,16 +189,16 @@ def test_webhook_handler_does_not_block_event_loop():
     assert "run_in_threadpool(handle)" in src
 
 
-def test_lock_map_is_bounded_and_reset_clears_state(app_ctx, monkeypatch):
-    import app.workflow as w
+def test_locks_are_never_evicted_and_reset_clears_state(app_ctx):
     client, _, wf = app_ctx
-    monkeypatch.setattr(w, "MAX_TRACKED_CASES", 5)
     held = wf._lock("HELD")
     held.acquire()
     try:
         for i in range(20):
             wf._lock(f"C{i}")
-        assert len(wf._locks) <= 6 and "HELD" in wf._locks  # a lock in use is never evicted
+        # Locks are never evicted: the old bounded-map eviction could drop a lock in the window
+        # between taking it and acquiring it, handing two threads different locks for one case.
+        assert len(wf._locks) == 21 and "HELD" in wf._locks
     finally:
         held.release()
     case_id, refund_id = pending_case(client, wf)

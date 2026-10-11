@@ -31,13 +31,18 @@ SANDBOX_TEST_CARD = "4012888888881881"
 
 class PayPalError(Exception):
     def __init__(self, message: str, status_code: int | None = None, name: str = "", debug_id: str = "",
-                 details: Any = None) -> None:
+                 details: Any = None, sent: bool = True) -> None:
         super().__init__(message)
         self.message = message
         self.status_code = status_code
         self.name = name
         self.debug_id = debug_id
         self.details = details
+        # False when the error was raised locally, before any request reached PayPal (the sandbox
+        # guards below, missing credentials / token): the outcome is then certain — this request
+        # made no refund — and no "outcome unknown" check is needed. Network errors keep sent=True:
+        # the request may or may not have reached PayPal.
+        self.sent = sent
 
     def to_dict(self) -> dict:
         return {
@@ -46,6 +51,7 @@ class PayPalError(Exception):
             "name": self.name,
             "debug_id": self.debug_id,
             "details": self.details,
+            "sent": self.sent,
         }
 
     def __str__(self) -> str:  # pragma: no cover - trivial
@@ -106,9 +112,12 @@ class PayPalClient:
                     **({"timeout": timeout} if timeout is not None else {}),
                 )
             except httpx.HTTPError as exc:
-                raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
+                # The API request itself was never sent: without a token there is no call.
+                raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}", sent=False) from exc
             if resp.status_code != 200:
-                raise self._error(resp, "OAuth token request failed")
+                token_err = self._error(resp, "OAuth token request failed")
+                token_err.sent = False  # same: nothing was sent without a token
+                raise token_err
             body = resp.json()
             self._token = body["access_token"]
             self._token_expiry = time.time() + int(body.get("expires_in", 300))
@@ -174,7 +183,7 @@ class PayPalClient:
         if not self.is_sandbox:
             # Same fail-closed rule as PayPal-Mock-Response below: the hard-coded test card
             # must never reach a live endpoint.
-            raise PayPalError("The sandbox test card is only allowed against the PayPal Sandbox.")
+            raise PayPalError("The sandbox test card is only allowed against the PayPal Sandbox.", sent=False)
         expiry = f"{date.today().year + 3}-12"
         body = {
             "intent": "CAPTURE",
@@ -238,7 +247,8 @@ class PayPalClient:
         extra = {}
         if mock_response:
             if not self.is_sandbox:
-                raise PayPalError("PayPal-Mock-Response negative testing is only allowed in the sandbox.")
+                raise PayPalError("PayPal-Mock-Response negative testing is only allowed in the sandbox.",
+                                  sent=False)
             extra["PayPal-Mock-Response"] = _json.dumps({"mock_application_codes": mock_response})
         body: dict = {}
         if note_to_payer:

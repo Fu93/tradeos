@@ -87,6 +87,12 @@ class Settings:
     rate_limit_per_minute: int = 5      # per client IP
     rate_limit_per_hour: int = 30       # per client IP
     rate_limit_global_per_hour: int = 200
+    # Money actions (approve / decline / refund / capture) get their own, higher budget so a demo
+    # walkthrough is never throttled by the order-creation limits, while repeated refund attempts
+    # and reconcile refreshes stay bounded per address.
+    money_rate_limit_per_minute: int = 30
+    money_rate_limit_per_hour: int = 150
+    money_rate_limit_global_per_hour: int = 600
 
     # Failure-mode demo: PayPal sandbox negative testing code forced on ONE refund attempt.
     refund_failure_mock_code: str = "REFUND_FAILED_INSUFFICIENT_FUNDS"
@@ -97,7 +103,10 @@ class Settings:
     # Replay protection on paypal-transmission-time (see Workflow.record_webhook for the policy).
     # Client IP for rate limits (see ratelimit.client_key). Render sits behind Cloudflare.
     trusted_proxy_hops: int = 1
-    trust_cf_connecting_ip: bool = True
+    # Off by default: CF-Connecting-IP cannot be verified, so trusting it lets a direct-to-origin
+    # caller rotate its rate-limit identity per request. Turn it on only where a CF edge is really
+    # in front (render.yaml sets it for the Render deployment).
+    trust_cf_connecting_ip: bool = False
     reset_cooldown_per_ip_s: int = 60
     reset_cooldown_global_s: int = 15
     webhook_max_age_s: int = 600
@@ -129,7 +138,7 @@ class Settings:
             paypal_mock=_env_bool("PAYPAL_MOCK", False),
             reconcile_in_background=_env_bool("TRADEOS_RECONCILE_IN_BACKGROUND", True),
             trusted_proxy_hops=int(_env("TRADEOS_TRUSTED_PROXY_HOPS") or 1),
-            trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", True),
+            trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", False),
             reset_cooldown_per_ip_s=int(_env("TRADEOS_RESET_COOLDOWN_PER_IP_S") or 60),
             reset_cooldown_global_s=int(_env("TRADEOS_RESET_COOLDOWN_GLOBAL_S") or 15),
             webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),
@@ -147,6 +156,9 @@ class Settings:
             rate_limit_per_minute=int(_env("RATE_LIMIT_PER_MINUTE", "5")),
             rate_limit_per_hour=int(_env("RATE_LIMIT_PER_HOUR", "30")),
             rate_limit_global_per_hour=int(_env("RATE_LIMIT_GLOBAL_PER_HOUR", "200")),
+            money_rate_limit_per_minute=int(_env("RATE_LIMIT_MONEY_PER_MINUTE", "30")),
+            money_rate_limit_per_hour=int(_env("RATE_LIMIT_MONEY_PER_HOUR", "150")),
+            money_rate_limit_global_per_hour=int(_env("RATE_LIMIT_MONEY_GLOBAL_PER_HOUR", "600")),
             refund_failure_mock_code=_env("REFUND_FAILURE_MOCK_CODE") or "REFUND_FAILED_INSUFFICIENT_FUNDS",
             mock_supplier_out_of_stock=_env("MOCK_SUPPLIER_OUT_OF_STOCK") == "1",
             paypal_webhook_id=_env("PAYPAL_WEBHOOK_ID"),

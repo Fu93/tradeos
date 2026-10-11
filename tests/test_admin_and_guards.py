@@ -148,22 +148,21 @@ def test_finalized_case_cannot_be_overwritten(settings):
     assert db.get_case(case)["webhook_status"] == "VERIFIED"
 
 
-def test_duplicate_process_run_stops_cleanly(settings):
-    """The P1-3 race: a second run of the same case arrives after the refund completed. The guard
-    refuses the overwrite at the first frozen field and process() records why instead of 500ing."""
+def test_duplicate_process_run_skips_cleanly(settings):
+    """The P1-3 race, closed at the front: the slower duplicate run loses the _running claim (or
+    finds the case no longer NEW) and stops before paying for a second order."""
     client, pp, wf = make(settings)
     case = case_from(client.post("/demo/run/A", follow_redirects=False))
     client.post(f"/cases/{case}/approve", follow_redirects=False)
     before = wf.db.get_case(case)
-    assert pp.create_order_with_card.call_count == 1
     wf.process(case)  # a late duplicate of the Run
     after = wf.db.get_case(case)
-    assert pp.create_order_with_card.call_count == 2  # the duplicate really did run again
-    assert after["status"] == REFUND_COMPLETED
+    assert pp.create_order_with_card.call_count == 1  # no second order was created
+    assert after["status"] == before["status"] == REFUND_COMPLETED
     assert after["capture_id"] == before["capture_id"]  # the evidence was NOT re-pointed
     assert after["refund_id"] == before["refund_id"]
     titles = [e["title"] for e in wf.db.timeline(case)]
-    assert any("already finalized" in t for t in titles)
+    assert any("Run skipped" in t for t in titles)
 
 
 def test_terminal_guard_is_atomic_under_concurrency(settings):

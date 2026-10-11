@@ -39,6 +39,15 @@ class RateLimiter:
                 return "Rate limit: the demo is busy (global hourly cap reached). Please try again later."
             q.append(now)
             self._global.append(now)
+            if len(self._hits) > 5000:  # bounded: drop addresses whose window has gone empty
+                # (a flood of rotating spoofed addresses must not grow the map without bound)
+                for k in list(self._hits):
+                    if k == key:
+                        continue
+                    w = self._hits[k]
+                    self._trim(w, now, 3600)
+                    if not w:
+                        del self._hits[k]
             return None
 
 

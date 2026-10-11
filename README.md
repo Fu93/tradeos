@@ -451,6 +451,8 @@ reconciled against PayPal in the background at startup.
 | `RETURN_WINDOW_DAYS` | no | `30` | |
 | `FREE_TEXT_MAX_CHARS` | no | `500` | free-text length cap |
 | `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_HOUR`, `RATE_LIMIT_GLOBAL_PER_HOUR` | no | `5`, `30`, `200` | runs that create sandbox orders (per IP / global) |
+| `RATE_LIMIT_MONEY_PER_MINUTE`, `RATE_LIMIT_MONEY_PER_HOUR`, `RATE_LIMIT_MONEY_GLOBAL_PER_HOUR` | no | `30`, `150`, `600` | separate, higher budget for the money actions (approve / decline / refund / capture) |
+| `TRADEOS_TRUST_CF_CONNECTING_IP` | no | `0` | `1` where a Cloudflare edge is really in front (render.yaml sets it for Render); off by default so the rate-limit identity cannot be forged |
 | `REFUND_FAILURE_MOCK_CODE` | no | `REFUND_FAILED_INSUFFICIENT_FUNDS` | PayPal negative-testing code for the failure demo |
 | `AUTO_ENABLED` | no | `0` | `1` = the merchant's own policy may approve a policy-eligible refund without a person |
 | `AUTO_REFUND_MAX_AMOUNT` | no | `50.00` | the limit above which a refund always goes to a person |
