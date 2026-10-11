@@ -20,7 +20,7 @@ from app.notes import TemplateNoteWriter
 from app.paypal_client import PayPalClient, PayPalError
 from app.paypal_mock import MockPayPalClient
 from app.workflow import AWAITING_BUYER, NEW, PENDING_APPROVAL, REFUND_COMPLETED
-from tests.test_upgrade import FakeExtractor, case_from
+from tests.helpers import FakeExtractor, case_from
 
 TOKEN = "sekret-admin-token"
 

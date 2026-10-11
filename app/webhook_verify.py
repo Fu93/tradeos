@@ -25,7 +25,7 @@ import httpx
 from cryptography import x509
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import padding, rsa
 
 ALLOWED_HOST_SUFFIX = ".paypal.com"
 CERT_PATH_PREFIX = "/v1/notifications/certs/"
@@ -92,9 +92,12 @@ def self_verify(headers: dict, raw_body: bytes, webhook_id: str, fetch=None, tim
     now = now or datetime.now(timezone.utc)
     if not (cert.not_valid_before_utc <= now <= cert.not_valid_after_utc):
         return "FAILURE"
+    public_key = cert.public_key()
+    if not isinstance(public_key, rsa.RSAPublicKey):
+        return "FAILURE"  # PayPal signs with RSA; any other key type is not a PayPal certificate
     try:
-        cert.public_key().verify(signature, signed_message(tid, ttime, webhook_id, raw_body),
-                                 padding.PKCS1v15(), hashes.SHA256())
+        public_key.verify(signature, signed_message(tid, ttime, webhook_id, raw_body),
+                          padding.PKCS1v15(), hashes.SHA256())
     except InvalidSignature:
         return "FAILURE"
     except Exception as exc:  # e.g. non-RSA key

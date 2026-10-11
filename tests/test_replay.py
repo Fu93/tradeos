@@ -2,7 +2,7 @@
 import json
 from datetime import datetime, timedelta, timezone
 
-from tests.test_hardening import SIG, app_with, pending_case, refund_event, run_a
+from tests.helpers import SIG, app_with, pending_case, refund_event, run_a
 
 
 def ts(delta_s):

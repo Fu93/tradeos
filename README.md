@@ -480,8 +480,9 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-362 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset
-checks and the fallback injection guard).
+389 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
+(incl. eval dataset checks and the fallback injection guard).
 
 ### Verify a deployment
 
@@ -493,6 +494,11 @@ python scripts/sandbox_verify.py https://<your-host>      # a deployed instance
 AUTO_ENABLED=1 uvicorn app.main:app --port 8000 &          # or a local one with real Sandbox credentials
 python scripts/sandbox_verify.py http://localhost:8000
 ```
+
+The `Deploy verify` workflow automates this after every push to `main`: it waits until `/healthz` reports the pushed
+commit (Render injects `RENDER_GIT_COMMIT`, which `/healthz` exposes as `version`), then runs the script against the
+live instance. Set the `TRADEOS_DEPLOY_URL` repository secret (e.g. `https://<your-app>.onrender.com`) to enable it;
+without the secret the workflow is a skipped notice. Each run creates one real Sandbox order/refund set.
 
 It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
 off, Case A must wait for a person and make no refund call until one approves; with autonomy on, the same case must

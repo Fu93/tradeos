@@ -13,60 +13,21 @@ from fastapi.testclient import TestClient
 
 from app.config import Settings
 from app.db import Database
-from app.intent import (AssistFields, ChatJSONClient, Extraction, IntentResult, KeywordIntentExtractor,
+from app.intent import (AssistFields, ChatJSONClient, KeywordIntentExtractor,
                         LLMIntentExtractor, extraction_json_schema, looks_like_injection, parse_llm_output)
 from app.main import create_app
-from app.notes import (LLMNoteWriter, TemplateNoteWriter, english_note, numbers_preserved, reason_text)
+from app.notes import (LLMNoteWriter, english_note, numbers_preserved, reason_text)
 from app.paypal_client import PayPalClient, PayPalError
 from app.paypal_mock import MockPayPalClient
 from app.presets import BY_KEY, PRESETS
 from app.ratelimit import RateLimiter
 from app.views import pipeline, result_card
 from app.workflow import RefundNotAllowed, Workflow, clean_message
-
-CORE = {"intent": "REFUND_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "REFUND"}  # return for a refund
-ASSIST = {"language": "Spanish", "language_code": "es", "current_size": "42", "requested_size": "43",
-          "merchant_summary_en": "Customer wants to exchange size 42 for 43."}
-
-
-class FakeExtractor:
-    name = "fake-llm"
-
-    def __init__(self, core=CORE, assist=ASSIST):
-        self.core, self.assist = core, assist
-        self.seen = []
-
-    def extract(self, message):
-        self.seen.append(message)
-        return Extraction(result=IntentResult(**self.core), extractor=self.name, note="fake",
-                          assist=AssistFields(**self.assist) if self.assist else None)
+from tests.helpers import ASSIST, CORE, FakeExtractor, app_ctx, case_from, make_wf  # noqa: F401 (app_ctx is a pytest fixture, injected by name)
 
 
 def chat(content):
     return httpx.Response(200, json={"choices": [{"message": {"content": content}}]})
-
-
-def make_wf(settings, extractor=None, paypal=None, note_writer=None):
-    db = Database(settings.db_path)
-    db.init(reset=True)
-    pp = paypal or MagicMock(wraps=MockPayPalClient(), is_mock=True)
-    wf = Workflow(db, settings, extractor or KeywordIntentExtractor(), paypal=pp, note_writer=note_writer)
-    wf.seed_demo()
-    return wf, pp
-
-
-@pytest.fixture
-def app_ctx(settings):
-    pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)
-    s = Settings(db_path=settings.db_path, rate_limit_per_minute=100, rate_limit_per_hour=100,
-                 paypal_webhook_id="WH-TEST")
-    app = create_app(settings=s, paypal=pp, extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
-    return TestClient(app), pp, app.state.workflow
-
-
-def case_from(resp):
-    assert resp.status_code == 303, resp.text[:300]
-    return re.search(r"case=([A-Z]-[0-9A-F]+)", resp.headers["location"]).group(1)
 
 
 # ------------------------------------------------------------------ AI: core vs assist

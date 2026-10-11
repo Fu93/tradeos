@@ -11,7 +11,7 @@ from app.paypal_client import PayPalError
 from app.ratelimit import RateLimiter
 from app.workflow import PENDING_APPROVAL, REFUND_ERROR, REFUND_UNKNOWN
 from tests.test_admin_and_guards import make
-from tests.test_upgrade import case_from
+from tests.helpers import case_from
 
 
 # ---------------------------------------------------------------- refund error classification

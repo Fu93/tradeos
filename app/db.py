@@ -501,6 +501,7 @@ class Database:
                      resource_status, outcome, next_seq(), verify_method))
             except sqlite3.IntegrityError:
                 return False
+            assert cur.lastrowid is not None  # set for every completed INSERT
             self._chain_webhook(conn, cur.lastrowid, "webhook:received")
         return True
 

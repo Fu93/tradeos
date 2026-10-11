@@ -43,9 +43,10 @@ class MockPayPalClient:
         return f"MOCK-{kind}-{n:04d}"
 
     def _capture(self, amount: str, currency: str) -> dict:
-        cap = {"id": self._id("CAPTURE"), "status": "COMPLETED", "create_time": _now(),
+        cap_id = self._id("CAPTURE")
+        cap = {"id": cap_id, "status": "COMPLETED", "create_time": _now(),
                "amount": {"currency_code": currency, "value": amount}}
-        self.captures[cap["id"]] = cap
+        self.captures[cap_id] = cap
         return cap
 
     def create_order_with_card(self, amount, currency, reference_id, description, request_id):

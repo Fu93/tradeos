@@ -5,7 +5,8 @@ unverified, unknown, mismatched, stale and duplicate deliveries are logged with 
 """
 import json
 
-from tests.test_upgrade import app_ctx, case_from, refund_event  # noqa: F401  (fixture re-export)
+from tests.helpers import app_ctx, case_from  # noqa: F401  (fixture re-export)
+from tests.test_upgrade import refund_event  # the capture-up-link event shape (see tests/helpers.py)
 
 SIG_OK = {"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature", "Content-Type": "application/json"}
 SIG_BAD = {"PAYPAL-TRANSMISSION-SIG": "forged", "Content-Type": "application/json"}

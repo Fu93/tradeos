@@ -1,0 +1,51 @@
+name: Deploy verify
+# Post-deploy smoke test against the live Render instance: scripts/sandbox_verify.py creates ONE
+# real Sandbox order+refund set (Case A), ONE Case B, one exchange and ONE Case R per run, and
+# asserts the outcome against the deployment's own autonomy settings.
+#
+# Needs the TRADEOS_DEPLOY_URL repository secret (https://<your-app>.onrender.com); without it the
+# job is a no-op notice. The wait loop compares /healthz's "version" (Render injects
+# RENDER_GIT_COMMIT) so it verifies THE new deployment, not the previous one still serving while
+# the new build is underway. Free-tier builds are usually done in a few minutes; the loop gives
+# them 10 minutes before failing.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: deploy-verify
+  cancel-in-progress: false
+jobs:
+  sandbox-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12.8"
+      - run: pip install httpx
+      - name: Wait for the new deployment, then verify it
+        env:
+          TRADEOS_DEPLOY_URL: ${{ secrets.TRADEOS_DEPLOY_URL }}
+          EXPECTED_SHA: ${{ github.sha }}
+        run: |
+          if [ -z "$TRADEOS_DEPLOY_URL" ]; then
+            echo "::notice::Set the TRADEOS_DEPLOY_URL repository secret (https://<app>.onrender.com) to enable post-deploy verification."
+            exit 0
+          fi
+          base="${TRADEOS_DEPLOY_URL%/}"
+          for i in $(seq 1 40); do
+            body=$(curl -s --max-time 60 "$base/healthz" || true)
+            version=$(printf '%s' "$body" | python -c 'import json,sys; print(json.load(sys.stdin).get("version",""))' 2>/dev/null || true)
+            if [ "$version" = "$EXPECTED_SHA" ]; then
+              echo "the new deployment is live (version matches)"
+              python scripts/sandbox_verify.py "$base"
+              exit $?
+            fi
+            echo "waiting for the new deployment ($i/40)..."
+            sleep 15
+          done
+          echo "::error::the deployment never reported version $EXPECTED_SHA — run scripts/sandbox_verify.py manually against $base"
+          exit 1

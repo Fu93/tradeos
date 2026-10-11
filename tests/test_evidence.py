@@ -10,7 +10,8 @@ from app.main import create_app
 from app.paypal_client import PayPalClient
 from app.paypal_mock import MockPayPalClient
 from app.views import evidence_log, evidence_summary, status_words
-from tests.test_upgrade import FakeExtractor, app_ctx, case_from, refund_event  # noqa: F401
+from tests.helpers import FakeExtractor, app_ctx, case_from  # noqa: F401
+from tests.test_upgrade import refund_event  # the capture-up-link event shape
 from app.notes import TemplateNoteWriter
 
 SECRETS = ("Bearer", "access_token", "client_secret", "PAYPAL_CLIENT_SECRET", "WH-TEST", "transmission_sig")
