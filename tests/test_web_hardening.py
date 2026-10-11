@@ -11,7 +11,7 @@ from app.main import create_app
 from app.notes import TemplateNoteWriter
 from app.paypal_mock import MockPayPalClient
 from app.ratelimit import Cooldown, RateLimiter, client_key
-from tests.test_upgrade import FakeExtractor
+from tests.helpers import FakeExtractor
 
 
 def req(headers=None, host="10.0.0.9"):

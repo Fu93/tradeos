@@ -24,7 +24,7 @@ from .autonomy import decide_detailed
 from .config import Settings
 from .db import CaseFinalized, Database, next_seq
 from .intent import AssistFields, IntentExtractor
-from .notes import TemplateNoteWriter
+from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
 from .intent import looks_like_injection
@@ -34,7 +34,7 @@ from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 HUMAN = "human"
 AUTO = "auto"
 
-DEMO_PRODUCT = {
+DEMO_PRODUCT: dict[str, Any] = {
     "sku": "TRAIL-RUNNER-42",
     "name": "Trail Runner sneakers, EU size 42",
     "category": "footwear",
@@ -49,7 +49,7 @@ EXCHANGE_MESSAGE = "The shoes are too small. Can I exchange size 42 for size 43?
 # A/B are the two proof paths (plan §3). F = free text / presets. R and D are failure-mode
 # demos of the SAME loop: R forces one PayPal refund error (sandbox negative testing),
 # D sends the refund request twice to show idempotency.
-SCENARIOS = {
+SCENARIOS: dict[str, dict[str, Any]] = {
     "A": {"customer_name": "Maria (demo customer)", "seeded_days_ago": None, "label": "Case A"},
     "B": {"customer_name": "Tom (demo customer)", "seeded_days_ago": "case_b", "label": "Case B"},
     "F": {"customer_name": "Free-text customer", "seeded_days_ago": None, "label": "Free text"},
@@ -346,6 +346,8 @@ class Workflow:
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
         product = self.db.get_product(case["product_sku"])
+        if product is None:  # FK-guaranteed; a clear failure beats a TypeError if data is broken
+            raise ValueError(f"unknown product {case['product_sku']}")
 
         # Step 2: customer request.
         self.db.audit(case_id, "request", "Customer request received",
@@ -525,7 +527,7 @@ class Workflow:
         "EXCHANGE_NOTE": "Customer note written after the human approved the exchange (no refund)",
     }
 
-    def _write_note(self, case_id: str, outcome: str, policy: dict | None, assist) -> dict | None:
+    def _write_note(self, case_id: str, outcome: Outcome, policy: dict | None, assist) -> dict | None:
         """Customer-language note written from the case's ACTUAL state (see app/notes.py).
 
         REFUND_NOTE goes to the payer_note column (sent with the refund call); every other
@@ -544,7 +546,8 @@ class Workflow:
             self.db.audit(case_id, "note", "Customer note unavailable", {"error": type(exc).__name__})
             return None
         column = "payer_note_json" if outcome == "REFUND_NOTE" else "note_json"
-        self.db.update_case(case_id, **{column: note.model_dump_json()})
+        fields: dict[str, Any] = {column: note.model_dump_json()}
+        self.db.update_case(case_id, **fields)
         self.db.audit(case_id, "note", self.NOTE_TITLES[outcome], note.model_dump())
         return note.model_dump()
 
@@ -722,6 +725,8 @@ class Workflow:
                 capture = self._pp(case_id, "get_capture", case["capture_id"], timeout=RECONCILE_READ_TIMEOUT)
                 from .intent import IntentResult
                 product = self.db.get_product(case["product_sku"])
+                if product is None:  # FK-guaranteed; see _after_capture
+                    raise RefundNotAllowed(f"unknown product {case['product_sku']}")
                 result = self._evaluate(case, product, IntentResult.model_validate(case["intent"]), capture,
                                         supplier_status=case.get("supplier_reply"), require_supplier=True)
                 self.db.audit(case_id, "policy", f"Policy re-check before a new refund request: {result.decision}",
@@ -1063,7 +1068,7 @@ class Workflow:
           downgraded, and nothing here ever calls the Refund API.
         """
         resource = event.get("resource") or {}
-        etype = event.get("event_type")
+        etype = str(event.get("event_type") or "")  # fail closed on a non-string event_type
         res_id = resource.get("id")
         res_status = resource.get("status")
         event_id = event.get("id")
@@ -1077,7 +1082,7 @@ class Workflow:
                 if link.get("rel") == "up" and "/captures/" in (link.get("href") or ""):
                     case = self.db.find_case_by("capture_id", link["href"].rstrip("/").split("/")[-1])
                     break
-        log = dict(event_id=event_id, event_type=etype, verification=verification, verified=verified,
+        log: dict[str, Any] = dict(event_id=event_id, event_type=etype, verification=verification, verified=verified,
                    resource_id=res_id, resource_status=res_status, verify_method=method)
         info = {"event_id": event_id, "event_type": etype, "resource_id": res_id, "resource_status": res_status,
                 "status_details": resource.get("status_details"), "verification": verification,
@@ -1206,8 +1211,8 @@ class Workflow:
 
     def _record_refund(self, case_id: str, refund: dict, request_id: str | None, via: str | None = None) -> None:
         status = refund.get("status")
-        case_status = {"COMPLETED": REFUND_COMPLETED, "PENDING": REFUND_PENDING}.get(status, REFUND_FAILED)
-        extra = {"completed_via": via} if status == "COMPLETED" and via else {}
+        case_status = {"COMPLETED": REFUND_COMPLETED, "PENDING": REFUND_PENDING}.get(status or "", REFUND_FAILED)
+        extra: dict[str, Any] = {"completed_via": via} if status == "COMPLETED" and via else {}
         self.db.update_case(case_id, refund_id=refund.get("id"), refund_status=status,
                             refund_json=json.dumps(refund), status=case_status, error=None, **extra)
         self.db.audit(case_id, "paypal", f"PayPal refund {status}",

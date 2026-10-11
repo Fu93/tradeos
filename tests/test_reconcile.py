@@ -5,7 +5,7 @@ from unittest.mock import MagicMock
 from app.paypal_client import PayPalError
 from app.paypal_mock import MockPayPalClient
 from app.views import evidence_log, evidence_summary
-from tests.test_upgrade import app_ctx, case_from, make_wf  # noqa: F401
+from tests.helpers import app_ctx, case_from, make_wf  # noqa: F401
 
 
 def approved_a(settings, **mock_kw):
@@ -118,7 +118,7 @@ def test_view_reconciles_pending_at_most_every_30s(settings):
     from fastapi.testclient import TestClient
     from app.config import Settings
     from app.main import create_app
-    from tests.test_upgrade import FakeExtractor
+    from tests.helpers import FakeExtractor
     from app.notes import TemplateNoteWriter
     pp = MagicMock(wraps=MockPayPalClient(refund_status="PENDING"), is_mock=True)
     pp.get_refund.side_effect = lambda rid, timeout=None: {"id": rid, "status": "PENDING"}
@@ -217,7 +217,7 @@ def test_webhook_endpoint_fast_while_background_reconcile_is_slow(settings):
     from fastapi.testclient import TestClient
     from app.config import Settings
     from app.main import create_app
-    from tests.test_upgrade import FakeExtractor
+    from tests.helpers import FakeExtractor
     from app.notes import TemplateNoteWriter
     mock = MockPayPalClient(refund_status="PENDING")
     s = Settings(db_path=settings.db_path, rate_limit_per_minute=100, rate_limit_per_hour=100,

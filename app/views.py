@@ -555,12 +555,12 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         amount = _money(refund.get("amount")) or f"${case['amount']} {case['currency']}"
         rows.append({"label": "PayPal refund", "value": f"{case['refund_id']} · "
                      f"{status_words(case.get('refund_status'), refund.get('status_details'))} · {amount}",
-                     "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status"), False)})
+                     "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status") or "", False)})
     elif refund_calls:
         rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
     else:
         rows.append({"label": "PayPal refund", "value": "No refund requested from PayPal", "ok": None})
-    last = (refund_calls or calls or [None])[-1]
+    last = (refund_calls or calls or [{}])[-1]
     if last and last.get("debug_id"):
         rows.append({"label": "PayPal trace ID", "value": f"{last['debug_id']} — PayPal's debug id for the {OPERATION_LABELS.get(last['operation'], last['operation']).lower()} call; PayPal support can look it up",
                      "ok": None})
@@ -570,7 +570,7 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
             how = {"self": "signature checked against PayPal's certificate", "postback": "signature verified by PayPal's API"}
-            value = f"{how.get(verified[-1].get('verify_method'), 'signature verified')} · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            value = f"{how.get(verified[-1].get('verify_method') or "", 'signature verified')} · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
             rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
         else:
             rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else

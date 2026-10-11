@@ -109,7 +109,7 @@ class PayPalClient:
                     data={"grant_type": "client_credentials"},
                     auth=(self._id, self._secret),
                     headers={"Accept": "application/json"},
-                    **({"timeout": timeout} if timeout is not None else {}),
+                    **({"timeout": timeout} if timeout is not None else {}),  # type: ignore[arg-type]  # dict[str, float] is the only key
                 )
             except httpx.HTTPError as exc:
                 # The API request itself was never sent: without a token there is no call.
@@ -157,7 +157,7 @@ class PayPalClient:
             headers["PayPal-Request-Id"] = request_id
         headers.update(extra_headers or {})
         try:
-            kw = {"timeout": timeout} if timeout is not None else {}
+            kw: dict[str, Any] = {"timeout": timeout} if timeout is not None else {}
             resp = self._http.request(method, path, json=json, content=content, headers=headers, **kw)
         except httpx.HTTPError as exc:
             raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc

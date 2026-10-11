@@ -100,7 +100,7 @@ class KeywordIntentExtractor:
     def extract(self, message: str) -> Extraction:
         text = message or ""
         if self._SIZE.search(text):
-            reason = "SIZE_MISMATCH"
+            reason: Reason = "SIZE_MISMATCH"
         elif self._DAMAGED.search(text):
             reason = "DAMAGED"
         elif self._WRONG.search(text):

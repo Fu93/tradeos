@@ -12,15 +12,10 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.x509.oid import NameOID
-from fastapi.testclient import TestClient
 
 from app import webhook_verify as wv
-from app.config import Settings
-from app.main import create_app
-from app.notes import TemplateNoteWriter
 from app.paypal_client import PayPalClient, PayPalError
-from app.paypal_mock import MockPayPalClient
-from tests.test_upgrade import FakeExtractor, case_from
+from tests.helpers import SIG, app_with, case_from, pending_case, refund_event, run_a
 
 CERT_URL = "https://api.sandbox.paypal.com/v1/notifications/certs/CERT-test"
 WEBHOOK_ID = "WH-TEST"
@@ -118,27 +113,6 @@ def test_simulator_style_id_only_matches_its_own_id():
     assert wv.self_verify(h, raw, WEBHOOK_ID, fetch=fetch_ok) == "FAILURE"  # not accepted for our real webhook
 
 
-def app_with(settings, mock=None, **kw):
-    pp = MagicMock(wraps=mock or MockPayPalClient(), is_mock=True)
-    s = Settings(db_path=settings.db_path, rate_limit_per_minute=100, rate_limit_per_hour=100,
-                 paypal_webhook_id=WEBHOOK_ID, **kw)
-    app = create_app(settings=s, paypal=pp, extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
-    return TestClient(app), pp, app.state.workflow
-
-
-def run_a(client):
-    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
-    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
-    return case_id
-
-
-def refund_event(rid, etype="PAYMENT.CAPTURE.REFUNDED", status="COMPLETED", eid="WH-1", details=None):
-    res = {"id": rid, "status": status}
-    if details:
-        res["status_details"] = details
-    return {"id": eid, "event_type": etype, "resource": res}
-
-
 def test_endpoint_self_verifies_and_records_method(settings, monkeypatch):
     monkeypatch.setattr(wv, "_http_fetch", lambda url, timeout: PEM)
     client, pp, wf = app_with(settings)
@@ -178,15 +152,6 @@ def test_falls_back_to_postback_when_self_check_cannot_run(settings, monkeypatch
 
 
 # ------------------------------------------------------------------ 2. refund events
-SIG = {"paypal-transmission-sig": "valid-mock-signature"}
-
-
-def pending_case(settings):
-    client, pp, wf = app_with(settings, mock=MockPayPalClient(refund_status="PENDING"))
-    case_id = run_a(client)
-    return client, pp, wf, case_id, wf.db.get_case(case_id)["refund_id"]
-
-
 def post(client, ev, headers=SIG):
     return client.post("/webhooks/paypal", content=json.dumps(ev), headers=headers).json()
 

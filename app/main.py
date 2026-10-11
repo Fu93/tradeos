@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import json
+import os
 import secrets
 from pathlib import Path
 
@@ -207,7 +208,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.get("/healthz")
     def healthz():
-        return {"ok": True, "paypal_mode": wf.paypal_mode, "llm_configured": settings.llm_configured,
+        return {"ok": True,
+                # The commit this deployment serves (Render injects RENDER_GIT_COMMIT): the
+                # deploy-verify workflow waits for this to equal the pushed sha before running
+                # scripts/sandbox_verify.py against the instance. Empty when unset (local runs).
+                "version": os.environ.get("RENDER_GIT_COMMIT", ""),
+                "paypal_mode": wf.paypal_mode, "llm_configured": settings.llm_configured,
                 "webhook_configured": bool(settings.paypal_webhook_id), "cases": len(db.list_cases()),
                 # Autonomy, so a verification run can tell which configuration it is talking to
                 # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
@@ -391,7 +397,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return JSONResponse({"ok": False, "handled": False, "error": "missing PayPal signature headers"},
                                 status_code=400)
 
-        def handle() -> str | None:
+        def handle() -> tuple[str, str, str | None]:
             # Runs in the threadpool: the verification call and DB work never block the event loop.
             verification, method = verify_webhook(headers, raw)
             ttime = {k.lower(): v for k, v in headers.items()}.get("paypal-transmission-time")

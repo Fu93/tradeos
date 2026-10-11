@@ -196,7 +196,7 @@ class LLMNoteWriter:
     def write(self, outcome: Outcome, *, amount: str, currency: str, policy: dict,
               assist: AssistFields | None) -> CustomerNote:
         fallback = self._template.write(outcome, amount=amount, currency=currency, policy=policy, assist=assist)
-        if _is_english(assist):
+        if assist is None or _is_english(assist):
             return fallback
         source = fallback.source_en
         user = json.dumps({"target_language": assist.language, "message_en": source}, ensure_ascii=False)
