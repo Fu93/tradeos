@@ -161,6 +161,30 @@ def test_concurrent_appends_keep_one_chain(settings):
     assert res["ok"] and [e["seq"] for e in wf.db.chain_entries(case_id)] == list(range(1, res["entries"] + 1))
 
 
+def test_verify_chain_reads_one_consistent_snapshot(settings, monkeypatch):
+    """The chain and the records it covers must come from ONE read view.
+
+    Read in two snapshots, a concurrent write to the same case makes a record look like it is missing from
+    the chain, and the refund gate then refuses a legitimate refund: measured as "Audit trail BROKEN at
+    entry 59" while another run of the same case was still writing, with the chain verifying clean once
+    things settled. Opening a second connection is exactly that second snapshot, so the deterministic half
+    of the fix is to assert it never happens (the concurrent reproduction lives in the manual probe).
+    """
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+
+    opened = []
+    real_connect = Database.connect
+
+    def spy(self):
+        opened.append(1)
+        return real_connect(self)
+
+    monkeypatch.setattr(Database, "connect", spy)
+    assert wf.db.verify_chain(case_id)["ok"] is True
+    assert opened == []
+
+
 def test_case_a_once_case_b_409_unchanged_and_badge(settings):
     client, pp, wf = app_with(settings)
     a = run_a(client)

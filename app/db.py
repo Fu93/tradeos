@@ -346,15 +346,35 @@ class Database:
             return [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
                                                   (case_id,)).fetchall()]
 
+    @contextmanager
+    def _read_snapshot(self) -> Iterator[sqlite3.Connection]:
+        """One consistent read view for the whole of a verification.
+
+        verify_chain compares the hash chain against the records it covers. Read in two separate snapshots,
+        a concurrent write to the same case makes a record look like it is missing from the chain, and the
+        refund gate then refuses a perfectly good refund: observed as "Audit trail BROKEN at entry N" while
+        another run of the same case was still writing, with the chain verifying clean once things settled.
+        BEGIN gives the reads one view; a reader only holds a SHARED lock for the length of these reads.
+        """
+        conn = sqlite3.connect(self.path, timeout=10)
+        conn.row_factory = sqlite3.Row
+        try:
+            conn.execute("BEGIN")
+            yield conn
+        finally:
+            conn.rollback()
+            conn.close()
+
     def verify_chain(self, case_id: str) -> dict:
         """Recompute every hash; report the first broken link (1-based seq)."""
-        entries = self.chain_entries(case_id)
         prev, n_back = chain.GENESIS, 0
 
         def broken(e, k, reason):
             return {"ok": False, "case_id": case_id, "entries": len(entries), "broken_at": k, "reason": reason,
                     "head": entries[-1]["entry_hash"] if entries else chain.GENESIS, "backfilled": n_back}
-        with self.connect() as conn:
+        with self._read_snapshot() as conn:
+            entries = [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
+                                                     (case_id,)).fetchall()]
             for k, e in enumerate(entries, start=1):
                 n_back += e["backfilled"]
                 if e["seq"] != k:
