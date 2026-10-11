@@ -270,3 +270,22 @@ def test_dashboard_still_waits_for_a_person_by_default(settings):
     assert f"/cases/{cid}/approve" in html
     assert "Autonomy <strong>OFF</strong>" in html
     pp.refund_capture.assert_not_called()
+
+
+def test_audit_verify_endpoint_reports_who_approved(settings):
+    """Chaining `approval_source` is only worth anything if a verifier outside this process can read it.
+
+    It was missing from the endpoint's `chained_state` until scripts/sandbox_verify.py caught it: the field
+    was on the chain and in the row, but the public verification answer omitted it, so "who approved this
+    refund" could not actually be checked from outside. Both origins are asserted here.
+    """
+    auto_client, _ = http_app(settings, auto_enabled=True)
+    auto_case = run_case_a(auto_client)
+    chained = auto_client.get(f"/cases/{auto_case}/audit/verify").json()["chained_state"]
+    assert chained["approval_source"] == "auto" and chained["human_decision"] == "APPROVED"
+
+    human_client, _ = http_app(settings)  # AUTO_ENABLED unset
+    human_case = run_case_a(human_client)
+    human_client.post(f"/cases/{human_case}/approve", follow_redirects=False)
+    chained = human_client.get(f"/cases/{human_case}/audit/verify").json()["chained_state"]
+    assert chained["approval_source"] == "human" and chained["human_decision"] == "APPROVED"

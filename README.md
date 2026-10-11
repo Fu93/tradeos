@@ -350,7 +350,9 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   human decision and refund state also gets an entry in an append-only `audit_chain` table:
   `entry_hash = SHA-256(sorted-key JSON of {case_id, seq, type, ts, payload, prev_hash})`, one chain per case, starting
   from a fixed genesis value (64 zeros). The case page shows "Audit trail intact: N entries, head <hash>" or "BROKEN at
-  entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON. Verification also checks that the
+  entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON, including the case state folded from
+  the chain (`status`, `decision`, `human_decision`, `approval_source`, `refund_status`, `refund_id`) so a verifier
+  outside this process can confirm not just *that* a refund was approved but *who* approved it. Verification also checks that the
   timeline and PayPal-call rows still match what was hashed and that none of them is missing from the chain (this
   catches a deleted last entry while its record remains; deleting both is only visible against an external head hash). Existing databases are backfilled on start (marked
   *backfilled*: those entries were hashed at migration time and say nothing about edits before it).
@@ -445,9 +447,25 @@ approval or a lying extractor — the autonomy decision (off by default; the lim
 instruction-like message and an unreadable request all escalate; autonomy cannot override a policy NO; an auto
 approval is on the chain as `approval_source: auto`; and neither the timeline nor the UI ever calls an auto approval
 a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`): a database from before
-`approval_source` existed gains the column, keeps its chain verifiable, and still refunds. 353 tests, run by GitHub
+`approval_source` existed gains the column, keeps its chain verifiable, and still refunds. 354 tests, run by GitHub
 Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset checks and the fallback
 injection guard).
+
+### Verify a deployment
+
+`scripts/sandbox_verify.py <base-url>` drives a running instance through the whole loop over HTTP and asserts the
+result. It needs no credentials, so it works against the Render demo or against `http://localhost:8000`:
+
+```bash
+python scripts/sandbox_verify.py https://<your-host>      # a deployed instance
+AUTO_ENABLED=1 uvicorn app.main:app --port 8000 &          # or a local one with real Sandbox credentials
+python scripts/sandbox_verify.py http://localhost:8000
+```
+
+It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
+off, Case A must wait for a person and make no refund call until one approves; with autonomy on, the same case must
+already be `REFUND_COMPLETED` with no approve call, `approval_source: auto` on the hash chain, and a page that
+credits the merchant's policy rather than a human. Exit code 0 = every check passed.
 
 ## Demo flow (≈3 minutes)
 

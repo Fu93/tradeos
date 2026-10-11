@@ -1,10 +1,17 @@
-"""Post-deploy Sandbox check for the PayPal depth work (#10-#12, #20). Read-mostly; uses the public demo endpoints.
+"""Post-deploy Sandbox check for the PayPal depth work (#10-#12, #20) and the autonomy path (#23).
 
     python scripts/sandbox_verify.py https://<your-render-host>
+    AUTO_ENABLED=1 uvicorn app.main:app --port 8000   # then, in another shell:
+    python scripts/sandbox_verify.py http://localhost:8000
 
 Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B, ONE exchange
 (0 refund calls) and ONE Case R (a forced 422 refund failure, then a retry that refunds).
-It needs no credentials: it only talks to the deployed app. Exit code 0 = all checks passed.
+It needs no credentials: it only talks to the app it is pointed at.
+
+Case A is asserted against the target's ACTUAL autonomy setting, read from /healthz:
+with autonomy OFF the case must wait for a person and make no refund call until one approves; with autonomy
+ON the same case must already be REFUND_COMPLETED with no approve call, approval_source=auto on the hash
+chain, and a page that credits the merchant's policy rather than a human. Exit code 0 = all checks passed.
 """
 from __future__ import annotations
 
@@ -26,11 +33,36 @@ def main(base: str) -> int:
     health = c.get("/healthz").json()
     check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
     check(bool(health.get("webhook_configured")), "PAYPAL_WEBHOOK_ID configured")
+    auto = bool(health.get("auto_enabled"))
+    print(f"Autonomy {'ON' if auto else 'OFF'} (auto_refund_max_amount={health.get('auto_refund_max_amount')})")
 
-    # Case A: one real Sandbox refund
+    # Case A: one real Sandbox refund. Who approves it depends on the target's autonomy setting, so
+    # the run asserts the configuration it found instead of assuming the one it was written for.
     r = c.post("/demo/run/A")
     case_a = r.headers["location"].split("case=")[1]
-    check(c.post(f"/cases/{case_a}/approve").status_code == 303, f"Case A {case_a} approved")
+    case = c.get(f"/api/cases/{case_a}").json()["case"]
+    if auto:
+        check(case["status"] == "REFUND_COMPLETED" and case.get("approval_source") == "auto",
+              f"Case A {case_a} completed with no human (status {case['status']}, "
+              f"approval_source {case.get('approval_source')!r})")
+        page = c.get(f"/?case={case_a}").text
+        # No apostrophes in these: Jinja escapes them (merchant&#39;s), so matching the raw text would
+        # fail on a correct page.
+        check("no human involved" in page and "auto-approved by the merchant" in page,
+              "the page credits the merchant's policy, not a human")
+        check("Human approved the refund" not in page, "the page never claims a human approved it")
+        check(c.post(f"/cases/{case_a}/approve").status_code == 409,
+              "Approve on an already-completed case -> 409 (nothing left to approve)")
+    else:
+        check(case["status"] == "PENDING_APPROVAL" and case.get("approval_source") is None,
+              f"Case A {case_a} waits for a person (status {case['status']})")
+        check(not [x for x in c.get(f"/api/cases/{case_a}").json()["paypal_calls"]
+                   if x["operation"] == "refund_capture"], "no refund call before a person approves")
+        check(c.post(f"/cases/{case_a}/approve").status_code == 303, f"Case A {case_a} approved by a person")
+        case = c.get(f"/api/cases/{case_a}").json()["case"]
+        check(case.get("approval_source") == "human",
+              f"approval_source recorded as human (got {case.get('approval_source')!r})")
+
     data = c.get(f"/api/cases/{case_a}").json()
     case, calls = data["case"], data["paypal_calls"]
     check((case.get("intent") or {}).get("requested_action") == "REFUND", f"Case A is a return for a refund: {case.get('intent')}")
@@ -81,7 +113,8 @@ def main(base: str) -> int:
     case = c.get(f"/api/cases/{case_a}").json()["case"]
     st_a = c.get(f"/cases/{case_a}/audit/verify").json().get("chained_state") or {}
     check(st_a.get("decision") == "ELIGIBLE" and st_a.get("human_decision") == "APPROVED"
-          and st_a.get("status") == case["status"],
+          and st_a.get("status") == case["status"]
+          and st_a.get("approval_source") == ("auto" if auto else "human"),
           f"Case A decision/approval/status on the hash chain: {st_a}")
     check(case.get("refund_request_id") == f"tradeos-refund-{case_a}"
           and case.get("completed_via") in ("refund_api", "webhook", "reconcile"),
