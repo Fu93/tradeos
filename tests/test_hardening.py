@@ -294,7 +294,7 @@ def test_timeout_or_5xx_triggers_paypal_check_then_retry_same_request_id(setting
 def test_retry_blocked_while_check_is_running(settings):
     client, pp, wf = app_with(settings)
     case_id = run_a(client)
-    wf.db.update_case(case_id, status="REFUND_ERROR", refund_status=None, refund_id=None)
+    wf.db.update_case(case_id, force=True, status="REFUND_ERROR", refund_status=None, refund_id=None)
     wf._refund_checks[case_id] = "CHECKING"
     r = client.post(f"/cases/{case_id}/refund", follow_redirects=False)
     assert r.status_code == 409 and "Checking with PayPal" in r.text

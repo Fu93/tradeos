@@ -22,7 +22,7 @@ from typing import Any, Callable
 
 from .autonomy import decide_detailed
 from .config import Settings
-from .db import Database, next_seq
+from .db import CaseFinalized, Database, next_seq
 from .intent import AssistFields, IntentExtractor
 from .notes import TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
@@ -121,9 +121,10 @@ class Workflow:
             if self.settings.paypal_mock:
                 self._paypal = MockPayPalClient()
             else:
-                # Raises a visible PayPalError if credentials are missing.
+                # Raises a visible PayPalError if credentials are missing or the base_url is not
+                # the sandbox (unless TRADEOS_ALLOW_LIVE was set deliberately).
                 self._paypal = PayPalClient(self.settings.paypal_client_id, self.settings.paypal_client_secret,
-                                            self.settings.paypal_base_url)
+                                            self.settings.paypal_base_url, allow_live=self.settings.allow_live)
         return self._paypal
 
     def _pp(self, case_id: str, operation: str, *args, **kwargs) -> dict:
@@ -243,6 +244,19 @@ class Workflow:
         return case_id
 
     def process(self, case_id: str) -> None:
+        """Run the whole loop for a new case.
+
+        Two runs of the same case can overlap (a double-clicked Run button, two tabs — the rate
+        limiter counts per minute, not per click). The terminal-state guard in db.update_case makes
+        the slower run fail cleanly instead of overwriting a final state; we stop it here and record
+        why, so a completed refund can never be flipped back to PENDING_APPROVAL."""
+        try:
+            self._process(case_id)
+        except CaseFinalized as exc:
+            self.db.audit(case_id, "workflow", "Run stopped — the case was already finalized (a duplicate "
+                          "run arrived after the case was completed / rejected / declined)", {"reason": str(exc)})
+
+    def _process(self, case_id: str) -> None:
         self._case(case_id)  # raises CaseNotFound for an unknown id
         s = self.settings
         try:
@@ -405,6 +419,12 @@ class Workflow:
             self.approve(case_id, approver=AUTO, source=AUTO, skip_if_approved=True)
         except PayPalError:
             pass  # recorded on the case and shown in the UI
+        except RefundNotAllowed as exc:
+            # A concurrent run of the same case approved / declined / finalized it first, so the
+            # approval guard refused this one. Record it instead of letting it escape process()
+            # as an HTTP 500 — the run routes do not wrap the auto-approval path.
+            self.db.audit(case_id, "human", "Autonomy: AUTO — approval refused, the case changed meanwhile",
+                          {"reason": str(exc)})
 
     def _autonomy_verdict(self, case_id: str, case: dict, policy: PolicyResult, extraction):
         """The merchant's autonomy decision for a case the policy already passed, recorded on the timeline.

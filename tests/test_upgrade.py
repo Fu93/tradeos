@@ -371,7 +371,8 @@ def test_paypal_client_refund_note_and_mock_header():
     assert set(body) == {"note_to_payer"} and len(body["note_to_payer"]) == 255
     assert body["note_to_payer"].startswith("Reembolso ñ 日本")
     assert json.loads(req.headers["PayPal-Mock-Response"]) == {"mock_application_codes": "INTERNAL_SERVER_ERROR"}
-    live = PayPalClient("id", "s", "https://api-m.paypal.com", transport=httpx.MockTransport(handler))
+    live = PayPalClient("id", "s", "https://api-m.paypal.com", transport=httpx.MockTransport(handler),
+                        allow_live=True)  # the constructor itself refuses a live base_url without this
     with pytest.raises(PayPalError, match="only allowed in the sandbox"):
         live.refund_capture("C1", "rid", mock_response="INTERNAL_SERVER_ERROR")
 

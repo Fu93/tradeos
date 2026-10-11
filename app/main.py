@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import json
+import secrets
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,7 +15,7 @@ from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
 from .config import Settings
-from .db import Database
+from .db import CaseFinalized, Database
 from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
@@ -37,6 +38,9 @@ EXCHANGE_COPY = ("Only a return leads to a refund. A size exchange goes to the s
 SIGNATURE_HEADERS = ("paypal-transmission-id", "paypal-transmission-time", "paypal-transmission-sig",
                      "paypal-cert-url", "paypal-auth-algo")
 log = logging.getLogger("tradeos")
+
+# Admin session cookie (TRADEOS_ADMIN_TOKEN). Sessions live in-process: a restart signs everyone out.
+ADMIN_COOKIE = "tradeos_admin"
 
 WEBHOOK_EVENTS = {"PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING", "PAYMENT.REFUND.FAILED",
                   "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED"}
@@ -119,6 +123,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_a": latest_a,
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
+            "admin_required": bool(settings.admin_token),
+            "admin_unlocked": admin_unlocked(request),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -132,6 +138,55 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
+    # --- admin token (TRADEOS_ADMIN_TOKEN): guards the money-action endpoints ------------------
+    admin_sessions: set[str] = set()
+
+    def admin_unlocked(request: Request) -> bool:
+        return request.cookies.get(ADMIN_COOKIE) in admin_sessions
+
+    def require_admin(request: Request, supplied: str = "") -> HTMLResponse | None:
+        """Unset token (default) => open, as before: local demos and the test suite keep working.
+        With a token set, the money actions (approve / decline / refund / capture / reset) pass only
+        with (1) an 'Unlock admin' session cookie, (2) the token as a form field, or (3) an
+        X-Admin-Token header (for scripts). Compares in constant time; failures never create a session."""
+        if not settings.admin_token:
+            return None
+        if admin_unlocked(request):
+            return None
+        for candidate in (supplied, request.headers.get("x-admin-token") or ""):
+            if candidate and secrets.compare_digest(candidate.encode(), settings.admin_token.encode()):
+                return None
+        return render_dashboard(
+            request, status_code=401,
+            flash="This action needs the admin token (TRADEOS_ADMIN_TOKEN). Use 'Unlock admin' at the top "
+                  "of the page, or send the token as an X-Admin-Token header.")
+
+    @app.post("/admin/login")
+    def admin_login(request: Request, token: str = Form("")):
+        """One 'Unlock admin' form for the whole page: correct token => session cookie (HttpOnly)."""
+        if (refused := limited(request)) is not None:
+            return refused
+        if not settings.admin_token:
+            return render_dashboard(request, flash="No admin token is configured (TRADEOS_ADMIN_TOKEN is "
+                                    "empty) — actions are open.", status_code=400)
+        if not token or not secrets.compare_digest(token.encode(), settings.admin_token.encode()):
+            return render_dashboard(request, flash="Wrong admin token.", status_code=401)
+        session = secrets.token_urlsafe(32)
+        admin_sessions.add(session)
+        resp = RedirectResponse("/", status_code=303)
+        resp.set_cookie(ADMIN_COOKIE, session, max_age=7 * 24 * 3600, httponly=True, samesite="lax",
+                        secure=settings.public_base_url.startswith("https"))
+        return resp
+
+    @app.post("/admin/logout")
+    def admin_logout(request: Request):
+        admin_sessions.discard(request.cookies.get(ADMIN_COOKIE, ""))
+        resp = RedirectResponse("/", status_code=303)
+        resp.delete_cookie(ADMIN_COOKIE)
+        return resp
+
+    # -------------------------------------------------------------------------------------------
+
     @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
     def dashboard(request: Request, case: str | None = None):
         return render_dashboard(request, case)
@@ -143,7 +198,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 # Autonomy, so a verification run can tell which configuration it is talking to
                 # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
                 "auto_enabled": settings.auto_enabled,
-                "auto_refund_max_amount": str(settings.auto_refund_max_amount)}
+                "auto_refund_max_amount": str(settings.auto_refund_max_amount),
+                "admin_required": bool(settings.admin_token)}
 
     @app.post("/demo/run/{scenario}")
     def run_demo(request: Request, scenario: str):
@@ -181,8 +237,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return back(case_id)
 
     @app.post("/demo/reset")
-    def reset_demo(request: Request):
-        """Shared demo: confirm step in the page (JS confirm), per-IP + global cooldown here."""
+    def reset_demo(request: Request, admin_token: str = Form("")):
+        """Shared demo: confirm step in the page (JS confirm), admin token, per-IP + global cooldown."""
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused
         if (reason := reset_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Not reset: {reason}", status_code=429)
         # Never underneath a refund: refused while any refund call is in flight or a case lock is held.
@@ -204,21 +262,31 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(404, "Case not found")
         except RefundNotAllowed as exc:
             return render_dashboard(request, case_id, flash=f"Refused: {exc}", status_code=409)
+        except CaseFinalized as exc:
+            # A duplicate run or retry arrived after the case was completed / rejected / declined;
+            # db.update_case refused the overwrite. Show it as the refusal it is, not a 500.
+            return render_dashboard(request, case_id, flash=f"Refused: {exc}", status_code=409)
         except PayPalError:
             pass  # recorded on the case and shown in the UI
         return back(case_id)
 
     @app.post("/cases/{case_id}/approve")
-    def approve(request: Request, case_id: str):
+    def approve(request: Request, case_id: str, admin_token: str = Form("")):
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused
         return guarded(request, case_id, wf.approve)
 
     @app.post("/cases/{case_id}/decline")
-    def decline(request: Request, case_id: str):
+    def decline(request: Request, case_id: str, admin_token: str = Form("")):
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused
         return guarded(request, case_id, wf.decline)
 
     @app.post("/cases/{case_id}/refund")
-    def refund(request: Request, case_id: str):
+    def refund(request: Request, case_id: str, admin_token: str = Form("")):
         """Retry endpoint. Same hard guard as approve: policy ELIGIBLE + human APPROVED."""
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused
         case = db.get_case(case_id)
         if case and case.get("refund_status") in ("COMPLETED", "PENDING"):
             return render_dashboard(request, case_id, status_code=409,
@@ -260,8 +328,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return back(case_id)
 
     @app.post("/cases/{case_id}/approve-twice")
-    def approve_twice(request: Request, case_id: str):
+    def approve_twice(request: Request, case_id: str, admin_token: str = Form("")):
         """Failure-mode demo (scenario D only): simulates a double-clicked Approve."""
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused  # approve-twice calls approve(); leaving it open would bypass the guard above
         case = db.get_case(case_id)
         if not case:
             raise HTTPException(404, "Case not found")
@@ -332,7 +402,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return render_dashboard(request, case_id, flash="Back from PayPal — press 'Capture payment' to continue.")
 
     @app.post("/cases/{case_id}/paypal-return")
-    def paypal_return_capture(request: Request, case_id: str):
+    def paypal_return_capture(request: Request, case_id: str, admin_token: str = Form("")):
+        if (refused := require_admin(request, admin_token)) is not None:
+            return refused  # capture moves money, so it is behind the same token as approve/refund
         return guarded(request, case_id, wf.complete_buyer_approval)
 
     @app.get("/cases/{case_id}/audit/verify")

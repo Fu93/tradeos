@@ -70,7 +70,7 @@ def test_case_b_rejected_and_refund_never_called(workflow, paypal):
 
 def test_case_b_refund_refused_even_if_human_approval_is_forged(workflow, paypal):
     case_id = workflow.run_scenario("B")
-    workflow.db.update_case(case_id, human_decision="APPROVED")  # simulate a bug / tampering
+    workflow.db.update_case(case_id, force=True, human_decision="APPROVED")  # simulate a bug / tampering
     with pytest.raises(RefundNotAllowed, match="REJECTED"):
         workflow.execute_refund(case_id)
     paypal.refund_capture.assert_not_called()

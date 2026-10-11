@@ -30,7 +30,8 @@ def pending_case(client, wf):
     client.post(f"/cases/{case_id}/approve", follow_redirects=False)
     case = wf.db.get_case(case_id)
     refund = {**case["refund"], "status": "PENDING", "status_details": {"reason": "ECHECK"}}
-    wf.db.update_case(case_id, refund_status="PENDING", status="REFUND_PENDING", refund_json=json.dumps(refund))
+    wf.db.update_case(case_id, force=True, refund_status="PENDING", status="REFUND_PENDING",
+                      refund_json=json.dumps(refund))  # test setup of an impossible-by-design state
     return case_id, case["refund_id"]
 
 
