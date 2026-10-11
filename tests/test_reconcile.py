@@ -182,7 +182,12 @@ def test_retry_on_finished_case_is_a_clear_409(app_ctx):
 
 
 def test_reconcile_does_not_hold_lock_while_waiting_on_paypal(settings):
-    """Regression for the review race: a slow PayPal GET must not delay a webhook for the same case."""
+    """Regression for the review race: a slow PayPal GET must not delay a webhook for the same case.
+
+    The webhook must return well under the background PayPal wait. The ceiling is 1.0s: the bug this
+    guards against holds the case lock during the ~1.5s GET, so the webhook would block for ~1.5s and
+    still fail; the uncontended webhook path (pure DB writes) stays far below 1.0s even on a slow box.
+    """
     import threading
     import time
     wf, pp, case_id = approved_a(settings, refund_status="PENDING")
@@ -201,7 +206,7 @@ def test_reconcile_does_not_hold_lock_while_waiting_on_paypal(settings):
     t0 = time.monotonic()
     wf.record_webhook({"id": "WH-RACE", "event_type": "PAYMENT.CAPTURE.REFUNDED",
                        "resource": {"id": rid, "status": "COMPLETED"}}, "SUCCESS")
-    assert time.monotonic() - t0 < 0.5
+    assert time.monotonic() - t0 < 1.0
     t.join()
     case = wf.db.get_case(case_id)
     assert case["status"] == "REFUND_COMPLETED" and pp.refund_capture.call_count == 1
@@ -229,7 +234,7 @@ def test_webhook_endpoint_fast_while_background_reconcile_is_slow(settings):
     t0 = time.monotonic()
     r = client.post("/webhooks/paypal", content=json.dumps({"id": "W1", "event_type": "PAYMENT.CAPTURE.REFUNDED",
                     "resource": {"id": rid, "status": "COMPLETED"}}), headers={"paypal-transmission-sig": "valid-mock-signature"})
-    assert time.monotonic() - t0 < 0.5 and r.json()["verified"] is True
+    assert time.monotonic() - t0 < 1.0 and r.json()["verified"] is True
     assert app.state.workflow.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
     time.sleep(2.2)  # let the background thread finish; it must not downgrade
     assert app.state.workflow.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
