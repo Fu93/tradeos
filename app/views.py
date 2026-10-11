@@ -127,9 +127,14 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
                 st["human"] = ("waiting", "needs a human: offer a refund?")
             else:
                 st["supplier"] = ("done", "replacement approved (MOCK)")
-                st["human"] = (("done", "exchange approved by merchant") if case.get("human_decision") == "APPROVED"
-                               else ("blocked", "declined by merchant") if case.get("human_decision") == "DECLINED"
-                               else ("waiting", "awaiting your approval"))
+                human = case.get("human_decision")
+                if human == "APPROVED":
+                    st["human"] = ("done", "auto-approved by the merchant's policy"
+                                   if case.get("approval_source") == "auto" else "exchange approved by merchant")
+                elif human == "DECLINED":
+                    st["human"] = ("blocked", "declined by merchant")
+                else:
+                    st["human"] = ("waiting", "awaiting your approval")
             st["paypal"] = ("skipped", f"exchange · Refund API NOT CALLED · {calls} calls")
         elif case.get("decision") == "ELIGIBLE":
             st["policy"] = ("done", "ELIGIBLE · all checks passed")
@@ -260,11 +265,14 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "rows": [request_row, policy_row, ("Supplier", "not involved (return)"),
                          ("Refund amount", f"${case['amount']} {case['currency']} · full capture")]}
     if status == "EXCHANGE_ARRANGED":
+        who = ("The merchant's policy approved the exchange (auto) — no human involved" if
+               case.get("approval_source") == "auto" else "The merchant approved the exchange")
         return {**base, "kind": "ok", "icon": "⇄", "title": "Exchange arranged — no refund",
-                "subtitle": "The merchant approved the exchange; the replacement comes from the supplier (MOCK reply, "
-                            "no real supplier). No money moved: the Refund API was NOT CALLED.",
-                "rows": [("Supplier", "replacement approved (MOCK supplier)"), ("Refund API calls", str(calls)),
-                         ("Refund ID", "none"), ("PayPal Order ID", case.get("order_id") or "—")]}
+                "subtitle": f"{who}; the replacement comes from the supplier (MOCK reply, no real supplier). "
+                            "No money moved: the Refund API was NOT CALLED.",
+                "rows": [("Supplier", "replacement approved (MOCK supplier)"), ("Approved by", _approval_text(case)),
+                         ("Refund API calls", str(calls)), ("Refund ID", "none"),
+                         ("PayPal Order ID", case.get("order_id") or "—")]}
     if status == "NEEDS_HUMAN":
         return {**base, "kind": "warn", "icon": "!", "title": "Needs a human: replacement out of stock — offer a refund?",
                 "subtitle": "The (MOCK) supplier can't ship the requested replacement. TradeOS does not refund "
@@ -398,11 +406,14 @@ def narrate(e: dict) -> str:
     if t.startswith("Autonomy: HUMAN"):
         return f"This case needs a person: {d.get('why', '')}."
     if t == "Auto-approved by the merchant's policy — no human involved":
-        return "Auto-approved by the merchant's policy. No human approved this refund."
+        # Same title for the refund and the exchange path, so the wording must not assume a refund.
+        return "Auto-approved by the merchant's policy. No human approved this case."
     if t.startswith("Waiting for human approval of the exchange"):
         return "Waiting for a human to approve the exchange. No refund is involved."
     if t == "Human approved the refund":
         return "The merchant approved the refund."
+    if t == "Human approved the exchange":
+        return "The merchant approved the exchange."
     if t.startswith("PayPal refund "):
         note = " The customer note was attached as note_to_payer." if d.get("note_to_payer") else ""
         return (f"PayPal returned refund {d.get('refund_id')} with status "

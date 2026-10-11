@@ -305,7 +305,6 @@ class Workflow:
 
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
-        s = self.settings
         product = self.db.get_product(case["product_sku"])
 
         # Step 2: customer request.
@@ -350,28 +349,11 @@ class Workflow:
                           pre.to_dict())
             self.db.update_case(case_id, policy_json=json.dumps(pre.to_dict()), decision="ELIGIBLE",
                                 status=PENDING_APPROVAL)
-            verdict = decide_detailed(
-                pre,
-                amount=Decimal(case["amount"]),
-                auto_enabled=s.auto_enabled,
-                auto_refund_max_amount=s.auto_refund_max_amount,
-                auto_exchange_enabled=s.auto_exchange_enabled,
-                injection_suspected=looks_like_injection(case.get("customer_message") or ""),
-                intent_is_unknown=extraction.result.intent == "UNKNOWN",
-                action=pre.action,
-            )
-            limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount)}
-            if verdict.decision != "AUTO":
-                # Anything that is not an explicit AUTO is a person's call: AUTO off, an unreadable
-                # request, an instruction-like message, or an amount above the merchant's limit.
-                self.db.audit(case_id, "human", "Autonomy: HUMAN — this case needs a person",
-                              {"why": verdict.reason, **limits})
+            if self._autonomy_verdict(case_id, case, pre, extraction).decision != "AUTO":
                 self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
                 self.db.audit(case_id, "human", "Waiting for human approval of the refund",
                               {"amount": f"{case['amount']} {case['currency']}"})
                 return
-            self.db.audit(case_id, "human", "Autonomy: AUTO — within the merchant's limits, no human needed",
-                          {"why": verdict.reason, **limits, "amount": f"{case['amount']} {case['currency']}"})
             # The same approve() path, lock and hard guard a person clicking Approve would take.
             self.approve(case_id, approver=AUTO, source=AUTO)
             return
@@ -400,12 +382,46 @@ class Workflow:
             self._reject(case_id, final, extraction)
             return
         # EXCHANGE_ELIGIBLE (not ELIGIBLE): the refund gate refuses anything but ELIGIBLE, so an exchange
-        # can never reach the Refund API.
+        # can never reach the Refund API — whether a person approved it or the merchant's policy did.
         self.db.update_case(case_id, policy_json=json.dumps(final.to_dict()), decision="EXCHANGE_ELIGIBLE",
                             status=PENDING_APPROVAL)
-        self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
-        self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
-                      {"refund": "none — exchange"})
+        if self._autonomy_verdict(case_id, case, final, extraction).decision != "AUTO":
+            self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
+            self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
+                          {"refund": "none — exchange"})
+            return
+        self.approve(case_id, approver=AUTO, source=AUTO)
+
+    def _autonomy_verdict(self, case_id: str, case: dict, policy: PolicyResult, extraction):
+        """The merchant's autonomy decision for a case the policy already passed, recorded on the timeline.
+
+        Shared by the refund and the exchange path so both answer the same question the same way: may the
+        merchant's own policy approve this, or does a person have to? It reads the policy result and the
+        merchant's settings only — it cannot turn a policy NO into a YES (a non-eligible policy comes back
+        BLOCK), and it never calls PayPal.
+        """
+        s = self.settings
+        verdict = decide_detailed(
+            policy,
+            amount=Decimal(case["amount"]),
+            auto_enabled=s.auto_enabled,
+            auto_refund_max_amount=s.auto_refund_max_amount,
+            auto_exchange_enabled=s.auto_exchange_enabled,
+            injection_suspected=looks_like_injection(case.get("customer_message") or ""),
+            intent_is_unknown=extraction.result.intent == "UNKNOWN",
+            action=policy.action,
+        )
+        limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount),
+                  "auto_exchange_enabled": s.auto_exchange_enabled}
+        if verdict.decision == "AUTO":
+            self.db.audit(case_id, "human", "Autonomy: AUTO — within the merchant's limits, no human needed",
+                          {"why": verdict.reason, **limits, "amount": f"{case['amount']} {case['currency']}"})
+        else:
+            # Anything that is not an explicit AUTO is a person's call: AUTO off, an unreadable request,
+            # an instruction-like message, a limit, or the switch for this action being off.
+            self.db.audit(case_id, "human", "Autonomy: HUMAN — this case needs a person",
+                          {"why": verdict.reason, **limits})
+        return verdict
 
     def _evaluate(self, case: dict, product: dict, intent, capture: dict, supplier_status: str | None,
                   require_supplier: bool) -> PolicyResult:

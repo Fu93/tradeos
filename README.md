@@ -46,24 +46,36 @@ TradeOS is **not** a storefront, a consumer shopping agent, or a chatbot that an
 4. **Automation can be cheaper than labour, with visible assumptions** — an illustrative cost model, not a claimed measured saving.
 5. **A case can complete with no human at all, and still be explainable** — the merchant's policy approves it inside their own limits, and the audit chain records that the approver was the policy, not a person.
 
-## Autonomy: who approves a refund
+## Autonomy: who approves a case
 
-`AUTO_ENABLED` is **off by default**. When a merchant turns it on, a policy-eligible refund at or below
-`AUTO_REFUND_MAX_AMOUNT` is approved by the merchant's own policy instead of waiting for a person. Everything else
-still goes to a person, and the policy engine is never bypassed:
+`AUTO_ENABLED` is **off by default**. When a merchant turns it on, the two automated outcomes can be approved by the
+merchant's own policy instead of waiting for a person:
+
+| Outcome | Needs | Limit |
+| --- | --- | --- |
+| Return for a refund | `AUTO_ENABLED` + the amount within `AUTO_REFUND_MAX_AMOUNT` | the refund limit |
+| Size exchange (no money moves) | `AUTO_ENABLED` + `AUTO_EXCHANGE_ENABLED` | — |
+
+`AUTO_ENABLED` is a master switch: it gates both, and each outcome has its own switch on top. Everything else still
+goes to a person, and the policy engine is never bypassed:
 
 | Condition | Who approves |
 | --- | --- |
 | Policy `REJECTED` | nobody — the Refund API is never called (autonomy is not a second policy engine) |
 | `AUTO_ENABLED` off (the default) | a person |
-| Amount above `AUTO_REFUND_MAX_AMOUNT` | a person |
+| Refund above `AUTO_REFUND_MAX_AMOUNT`, or `AUTO_EXCHANGE_ENABLED` off | a person |
 | Message contains instruction-like text, or the request could not be read | a person |
-| Policy `ELIGIBLE`, `AUTO_ENABLED` on, amount within the limit | **the merchant's policy** |
+| Exchange where the (MOCK) supplier reports the replacement out of stock | a person — the one exchange outcome that needs a decision |
+| Policy `ELIGIBLE` / `EXCHANGE_ELIGIBLE`, switches on, within the limits | **the merchant's policy** |
 
 The auto path is not a shortcut around the safety machinery. It calls the same `approve()`, takes the same per-case
 lock, and passes the same `_guard_refund` hard guard as a person clicking Approve — the only difference is that the
 approval is written to the case's hash chain with `approval_source: auto` instead of `human`. The UI and the timeline
-say which one it was, in those words; nothing in the code writes "human" for a decision a person did not make.
+say which one it was, in those words; nothing in the code writes "human" for a decision a person did not make. The
+case list marks each finished case **AUTO** or **HUMAN**, so a session's mix of the two is visible at a glance.
+
+An auto-approved exchange is still `EXCHANGE_ELIGIBLE`, never `ELIGIBLE`: the refund gate accepts only the latter, so
+no autonomy setting can turn an exchange into a refund.
 
 ## The one workflow
 
@@ -75,7 +87,7 @@ Only a **return** leads to a refund. A **size exchange** never does.
 | Customer | *"These sneakers are too small and don't fit. I'd like to return them and get my money back."* → AI: `REFUND_REQUEST / SIZE_MISMATCH / REFUND` | same | *"鞋子太小了，可以把42號換成43號嗎？"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
 | Deterministic policy (fed by `GET /v2/payments/captures/{id}`) | ELIGIBLE (return) | **REJECTED** — purchased 45 days ago, 30-day window | ELIGIBLE (exchange) |
 | Supplier | not involved | not contacted | Generated draft + **MOCK** reply `REPLACEMENT_APPROVED` |
-| Approval | A person — or the merchant's policy, when `AUTO_ENABLED` is on and the amount is within the limit | — | A person |
+| Approval | A person — or the merchant's policy, when `AUTO_ENABLED` is on and the amount is within the limit | — | A person — or the merchant's policy, when `AUTO_ENABLED` and `AUTO_EXCHANGE_ENABLED` are on |
 | PayPal | `POST /v2/payments/captures/{id}/refund` → Refund ID, `COMPLETED` | **Refund API NOT CALLED**, Refund ID none | **Refund API NOT CALLED** → `EXCHANGE_ARRANGED` |
 
 If the (mock) supplier replies `OUT_OF_STOCK`, the exchange case shows **"Needs a human: replacement out of stock —
@@ -101,6 +113,9 @@ timeline, and the supplier check applies only to exchanges.
 
 The dashboard is one page: a **6-step pipeline** across the top (Customer request → AI intent → Policy → Supplier →
 Approval → PayPal), lit green / amber / red / grey for the selected case, and a **big result card** above the fold.
+The **case list** above it carries one chip per case, marking a finished case **AUTO** (the merchant's policy
+approved it) or **HUMAN** (a person did), so a session's mix of the two reads at a glance; rejected and still-waiting
+cases carry no prefix because no approval happened.
 
 | Case B — rejected, no refund call | Refund API failure — failure shown, never success |
 | --- | --- |
@@ -236,13 +251,14 @@ Policy engine (pure Python) ◄── PayPal GET capture (status, amount, curren
       │           capture COMPLETED · return window · product eligible ·
       │           return: refundable amount | exchange: supplier confirmed  → ELIGIBLE / REJECTED + reasons
       ├── REJECTED ──► stop. Refund API is never called.
-      ├── EXCHANGE ──► Supplier draft + MOCK reply ──► a person approves the exchange ──► EXCHANGE_ARRANGED
-      │                (OUT_OF_STOCK ──► needs a human: offer a refund?)    Refund API never called
-      ▼ RETURN
-Autonomy (merchant settings)  ← AUTO_ENABLED / AUTO_REFUND_MAX_AMOUNT
-      ├── AUTO  ──► approve(approver="auto")   ┐
-      └── HUMAN ──► dashboard approval         ┘  both take the SAME path from here
-      ▼
+      ├── EXCHANGE ──► Supplier draft + MOCK reply
+      │                (OUT_OF_STOCK ──► needs a human: offer a refund? — never automatic)
+      ▼ RETURN / EXCHANGE_ELIGIBLE
+Autonomy (merchant settings)  ← AUTO_ENABLED · AUTO_REFUND_MAX_AMOUNT · AUTO_EXCHANGE_ENABLED
+      ├── AUTO  ──► approve(approver="auto")   ┐  both take the SAME path from here
+      └── HUMAN ──► dashboard approval         ┘
+      ├── exchange approved ──► EXCHANGE_ARRANGED  (Refund API never called)
+      ▼ return approved
 Hard guard (code)  ← refuses unless the chain holds policy ELIGIBLE + a chained APPROVED
       ▼
 PayPal Refund API (idempotent PayPal-Request-Id = tradeos-refund-<case id>; note_to_payer = grounded customer note)
@@ -425,7 +441,7 @@ reconciled against PayPal in the background at startup.
 | `REFUND_FAILURE_MOCK_CODE` | no | `REFUND_FAILED_INSUFFICIENT_FUNDS` | PayPal negative-testing code for the failure demo |
 | `AUTO_ENABLED` | no | `0` | `1` = the merchant's own policy may approve a policy-eligible refund without a person |
 | `AUTO_REFUND_MAX_AMOUNT` | no | `50.00` | the limit above which a refund always goes to a person |
-| `AUTO_EXCHANGE_ENABLED` | no | `0` | reserved for the exchange path (no money moves); not wired yet |
+| `AUTO_EXCHANGE_ENABLED` | no | `0` | `1` = the merchant's own policy may approve a size exchange too (no money moves); needs `AUTO_ENABLED` |
 | `COST_HUMAN_MINUTES`, `COST_HOURLY_RATE_USD`, `COST_AI_API_USD`, `COST_REVIEW_MINUTES` | no | `8`, `20`, `0.06`, `1` | illustrative cost model |
 
 ## Tests
@@ -443,13 +459,14 @@ policy, fallback on errors), the grounded customer note (number check, 255-char 
 (presets, late toggle, length cap, rate limits), the failure modes (late, injection, forced refund failure + retry,
 double-click and concurrent approvals → one refund), the webhook endpoint (verified / forged / unknown) and the
 workflow/HTTP layer — including **Case B: `refund_capture` is asserted never to be called**, even with a forged
-approval or a lying extractor — the autonomy decision (off by default; the limit boundary; above the limit, an
-instruction-like message and an unreadable request all escalate; autonomy cannot override a policy NO; an auto
-approval is on the chain as `approval_source: auto`; and neither the timeline nor the UI ever calls an auto approval
-a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`): a database from before
-`approval_source` existed gains the column, keeps its chain verifiable, and still refunds. 354 tests, run by GitHub
-Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset checks and the fallback
-injection guard).
+approval or a lying extractor — the autonomy decision (off by default; the refund limit and the exchange switch
+separately, each behind the master switch; above the limit, an instruction-like message and an unreadable request all
+escalate; an out-of-stock exchange stays a person's call even with every switch on; autonomy cannot override a policy
+NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
+ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
+a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
+362 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff` (incl. eval dataset
+checks and the fallback injection guard).
 
 ### Verify a deployment
 
@@ -476,11 +493,12 @@ credits the merchant's policy rather than a human. Exit code 0 = every check pas
    note travels with the refund as `note_to_payer`.
 3b. **中文 preset (exchange 42 → 43)** → MOCK supplier approves a replacement → **Approve exchange (no refund)** →
    `Exchange arranged — no refund`, Refund API calls 0.
-3c. **The agent completes a case on its own** (start the app with `AUTO_ENABLED=1`) → run the same return → no Approve
-   button appears, the case goes straight to `Refund COMPLETED`, and the timeline shows *"Autonomy: AUTO — within the
-   merchant's limits"* followed by *"Auto-approved by the merchant's policy — no human involved"*. Then set
-   `AUTO_REFUND_MAX_AMOUNT=10.00` and run it again: the same case waits for a person, because $49.99 is outside the
-   merchant's limit. That contrast is the point.
+3c. **The agent completes cases on its own** (start the app with `AUTO_ENABLED=1 AUTO_EXCHANGE_ENABLED=1`) → run the
+   same return and the 中文 exchange → neither shows an Approve button, both finish (`Refund COMPLETED`,
+   `Exchange arranged — no refund`), and the case list marks them **AUTO**. The timeline shows *"Autonomy: AUTO —
+   within the merchant's limits"* followed by *"Auto-approved by the merchant's policy — no human involved"*. Then set
+   `AUTO_REFUND_MAX_AMOUNT=10.00` and run the return again: it waits for a person, because $49.99 is outside the
+   merchant's limit. That contrast — and the fact that the exchange still moves no money — is the point.
 4. **Run Case B** (or the *Late request* preset) → policy REJECTED → `Refund not executed`, Refund API calls 0, Refund ID none.
 5. **Failure & safety modes**: the prompt-injection preset is rejected and can't change the amount; forced PayPal refund failure is shown as a failure and
    retried; a double-clicked approve yields one refund.

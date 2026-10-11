@@ -22,7 +22,7 @@ from app.main import create_app
 from app.paypal_mock import MockPayPalClient
 from app.policy import PolicyResult
 from app.views import narrate, pipeline, result_card, timeline_view
-from app.workflow import RefundNotAllowed, Workflow
+from app.workflow import EXCHANGE_MESSAGE, RefundNotAllowed, Workflow
 
 AUTO_TITLE = "Auto-approved by the merchant's policy — no human involved"
 NEEDS_PERSON = "Autonomy: HUMAN — this case needs a person"
@@ -223,10 +223,105 @@ def test_decide_refund_threshold_boundary():
 def test_decide_exchange_needs_its_own_switch():
     assert decide(ELIGIBLE, **kw(action="EXCHANGE", auto_exchange_enabled=False)) == "HUMAN"
     assert decide(ELIGIBLE, **kw(action="EXCHANGE", auto_exchange_enabled=True)) == "AUTO"
+    # the master switch still gates the exchange
+    assert decide(ELIGIBLE, **kw(action="EXCHANGE", auto_exchange_enabled=True, auto_enabled=False)) == "HUMAN"
 
 
 def test_decide_never_automates_an_unsupported_action():
     assert decide(ELIGIBLE, **kw(action=None)) == "HUMAN"
+
+
+# ---------------------------------------------------------------- the exchange path
+def test_an_exchange_is_not_automatic_by_default(settings):
+    wf, pp = mk(settings)
+    cid = wf.run_free_text(EXCHANGE_MESSAGE)
+    case = wf.db.get_case(cid)
+    assert case["status"] == "PENDING_APPROVAL" and case["decision"] == "EXCHANGE_ELIGIBLE"
+    assert case["approval_source"] is None
+    assert "Waiting for human approval of the exchange (no refund)" in titles(wf, cid)
+    assert wf.db.paypal_calls(cid, "refund_capture") == []
+
+
+def test_auto_arranges_the_exchange_without_a_human(settings):
+    wf, pp = mk(settings, auto_enabled=True, auto_exchange_enabled=True)
+    cid = wf.run_free_text(EXCHANGE_MESSAGE)
+    case = wf.db.get_case(cid)
+
+    assert case["status"] == "EXCHANGE_ARRANGED" and case["approval_source"] == "auto"
+    assert AUTO_TITLE in titles(wf, cid)
+    assert [t for t in titles(wf, cid) if t.startswith("Waiting for human")] == []
+    # No money moves on this path, whoever approves it.
+    pp.refund_capture.assert_not_called()
+    assert wf.db.paypal_calls(cid, "refund_capture") == []
+    assert case["refund_id"] is None
+    # The refund gate only accepts an ELIGIBLE policy decision, and an exchange is EXCHANGE_ELIGIBLE.
+    with pytest.raises(RefundNotAllowed):
+        wf.execute_refund(cid)
+    assert wf.db.verify_chain(cid)["ok"] is True
+    assert wf.db.chained_case_state(cid)["approval_source"] == "auto"
+
+
+def test_the_exchange_switch_is_separate_from_the_master_switch(settings):
+    """Either switch alone must be enough to keep a person in the loop."""
+    wf, _ = mk(settings, auto_enabled=True, auto_exchange_enabled=False)
+    assert wf.db.get_case(wf.run_free_text(EXCHANGE_MESSAGE))["status"] == "PENDING_APPROVAL"
+
+    wf, _ = mk(settings, auto_enabled=False, auto_exchange_enabled=True)
+    assert wf.db.get_case(wf.run_free_text(EXCHANGE_MESSAGE))["status"] == "PENDING_APPROVAL"
+
+
+def test_the_exchange_switch_does_not_touch_the_refund_path(settings):
+    wf, _ = mk(settings, auto_enabled=True, auto_exchange_enabled=False)
+    case = wf.db.get_case(wf.run_scenario("A"))
+    assert case["status"] == "REFUND_COMPLETED" and case["approval_source"] == "auto"
+
+
+def test_an_out_of_stock_exchange_is_never_automatic(settings):
+    """The one exchange outcome that needs a decision: everything is switched on, and it still stops."""
+    wf, pp = mk(settings, auto_enabled=True, auto_exchange_enabled=True, mock_supplier_out_of_stock=True)
+    cid = wf.run_free_text(EXCHANGE_MESSAGE)
+    case = wf.db.get_case(cid)
+
+    assert case["status"] == "NEEDS_HUMAN" and case["decision"] == "NEEDS_HUMAN"
+    assert case["approval_source"] is None
+    assert [t for t in titles(wf, cid) if "Autonomy: AUTO" in t] == []
+    assert "Needs a human: replacement out of stock (MOCK) — offer a refund? Refund API NOT CALLED" in titles(wf, cid)
+    pp.refund_capture.assert_not_called()
+    assert wf.db.paypal_calls(cid, "refund_capture") == []
+
+
+def test_pipeline_and_card_credit_the_policy_for_an_auto_exchange(settings):
+    wf, _ = mk(settings, auto_enabled=True, auto_exchange_enabled=True)
+    cid = wf.run_free_text(EXCHANGE_MESSAGE)
+    case = wf.db.get_case(cid)
+
+    step = next(s for s in pipeline(wf.db, case) if s["key"] == "human")
+    assert step["detail"] == "auto-approved by the merchant's policy"
+    card = result_card(wf.db, case)
+    assert "no human involved" in card["subtitle"]
+    assert dict(card["rows"])["Approved by"] == "auto — merchant policy (no human)"
+    assert dict(card["rows"])["Refund API calls"] == "0"
+
+
+def test_the_case_list_marks_who_handled_each_case(settings):
+    """The judge-facing ask: the list itself shows Auto vs Human vs Rejected."""
+    client, _ = http_app(settings, auto_enabled=True, auto_exchange_enabled=True)
+    refund_case = run_case_a(client)
+    run_free_text(client, EXCHANGE_MESSAGE)
+    run_scenario(client, "B")  # rejected: no approval happened, so no AUTO/HUMAN prefix
+    html = client.get(f"/?case={refund_case}").text
+
+    assert "AUTO · REFUND COMPLETED" in html
+    assert "AUTO · EXCHANGE ARRANGED" in html
+    assert ">REJECTED<" in html
+    assert "AUTO · REJECTED" not in html
+
+
+def test_the_case_list_says_human_for_a_person_approval(settings):
+    client, _ = http_app(settings)  # AUTO_ENABLED unset
+    cid = run_case_a(client)
+    client.post(f"/cases/{cid}/approve", follow_redirects=False)
+    assert "HUMAN · REFUND COMPLETED" in client.get(f"/?case={cid}").text
 
 
 def test_narrate_covers_the_new_timeline_titles(settings):
@@ -244,10 +339,21 @@ def http_app(settings, **kw):
     return TestClient(app), pp
 
 
-def run_case_a(client):
-    resp = client.post("/demo/run/A", follow_redirects=False)
+def case_from(client, resp):
     assert resp.status_code == 303, resp.text[:300]
     return re.search(r"case=([A-Z]-[0-9A-F]+)", resp.headers["location"]).group(1)
+
+
+def run_case_a(client):
+    return case_from(client, client.post("/demo/run/A", follow_redirects=False))
+
+
+def run_scenario(client, scenario):
+    return case_from(client, client.post(f"/demo/run/{scenario}", follow_redirects=False))
+
+
+def run_free_text(client, message):
+    return case_from(client, client.post("/cases/free", data={"message": message}, follow_redirects=False))
 
 
 def test_dashboard_completes_the_case_with_no_approve_button_when_autonomy_is_on(settings):

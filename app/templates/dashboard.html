@@ -1,9 +1,16 @@
 {% extends "base.html" %}
-{% macro status_chip(status) -%}
+{# One chip per case. A finished case is marked AUTO when the merchant's own policy approved it and HUMAN
+   when a person did, so the case list shows at a glance who handled what. Cases that never got an approval
+   (rejected, still waiting, declined) carry no prefix. #}
+{% macro status_chip(case) -%}
+  {%- set status = case.status -%}
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
                  "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
                  "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "NEEDS_HUMAN": "warn", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
-  <span class="chip {{ cls.get(status, 'neutral') }}">{{ status | replace('_', ' ') }}</span>
+  {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_FAILED", "REFUND_ERROR",
+                               "REFUND_OUTCOME_UNKNOWN", "EXCHANGE_ARRANGED") -%}
+  {%- set prefix = {"auto": "AUTO · ", "human": "HUMAN · "}.get(case.approval_source, "") if handled else "" -%}
+  <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ status | replace('_', ' ') }}</span>
 {%- endmacro %}
 {% block content %}
 
@@ -26,7 +33,7 @@
   <span class="muted small">Cases:</span>
   {% for c in cases[:14] %}
     <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}" title="{{ c.label }}">
-      <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span> {{ status_chip(c.status) }}</a>
+      <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span> {{ status_chip(c) }}</a>
   {% endfor %}
 </nav>
 
@@ -114,7 +121,7 @@
       <h3 class="small-h">Other cases waiting for you</h3>
       <ul class="pending-list">
         {% for c in pending %}
-          <li><a href="/?case={{ c.id }}">{{ c.label }} · {{ c.id }}</a> {{ status_chip(c.status) }}
+          <li><a href="/?case={{ c.id }}">{{ c.label }} · {{ c.id }}</a> {{ status_chip(c) }}
             <span class="muted small">${{ c.amount }}</span></li>
         {% endfor %}
       </ul>
