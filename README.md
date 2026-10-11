@@ -416,6 +416,12 @@ uvicorn app.main:app --reload
 No PayPal credentials yet? `PAYPAL_MOCK=1 uvicorn app.main:app` runs the whole loop offline with fake `MOCK-` IDs.
 A red "MOCK mode" badge is shown; nothing in that mode is a real PayPal result.
 
+An offline run **without `LLM_API_KEY`** uses the keyword extractor, which reads **English only**. The non-English
+presets (中文 / Español / Deutsch / 日本語) then come back as `UNKNOWN` and are rejected to a human — the intended
+outcome for a request the extractor cannot read, but it means 4 of the 7 presets look blocked until you add a key.
+The case page says so (`keyword-fallback`, "no LLM key set"), and the policy reason reads "not supported by the
+automated workflow; route to a human".
+
 With `TRADEOS_RESET_ON_START=1` every start archives the existing cases and seeds a fresh demo (on Render's free tier
 the disk is empty after a restart anyway). Refunds still `PENDING` or with an unknown outcome in a kept database are
 reconciled against PayPal in the background at startup.

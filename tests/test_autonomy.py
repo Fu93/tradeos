@@ -324,6 +324,44 @@ def test_the_case_list_says_human_for_a_person_approval(settings):
     assert "HUMAN · REFUND COMPLETED" in client.get(f"/?case={cid}").text
 
 
+def test_a_refused_auto_refund_shows_the_failure_instead_of_a_500(settings):
+    """Regression from wiring autonomy into the refund path.
+
+    Scenario R injects PayPal's 422 on the first refund attempt. With autonomy on, that refund happens
+    inside process(), which POST /demo/run/R does not wrap - so the PayPalError escaped and the route
+    answered HTTP 500. The case was already correct (REFUND_ERROR with the failure note and audit entry);
+    only the response was wrong, which is why the assertion that matters here is the 303.
+    """
+    client, _ = http_app(settings, auto_enabled=True)
+    cid = run_scenario(client, "R")  # 303, not 500
+    case = client.get(f"/api/cases/{cid}").json()["case"]
+    assert case["status"] == "REFUND_ERROR" and case["approval_source"] == "auto"
+    assert case["refund_id"] is None
+    assert "no money moved" in client.get(f"/?case={cid}").text
+    # and the retry recovers exactly as it does on the human path
+    client.post(f"/cases/{cid}/refund", follow_redirects=False)
+    assert client.get(f"/api/cases/{cid}").json()["case"]["status"] == "REFUND_COMPLETED"
+
+
+def test_a_second_auto_approval_of_one_case_is_a_no_op(settings):
+    """Two overlapping runs of the same case, reproduced deterministically.
+
+    With autonomy on the first run approves the case inside process(); the second reaches approve()
+    afterwards and found nothing to approve, so it raised RefundNotAllowed and the route answered HTTP
+    500 - measured with 6 concurrent POST /demo/run/A: 1x303 and 5x500, while the same probe with
+    autonomy off returned 6x303. The skip lives inside the case lock, so it cannot itself race.
+    """
+    wf, pp = mk(settings, auto_enabled=True)
+    case_id = wf.run_scenario("A")  # run 1: auto-approved and refunded
+    assert wf.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+
+    wf._auto_approve(case_id)  # run 2 arrives late, at the point where it would approve: must not raise
+
+    assert pp.refund_capture.call_count == 1  # and must not refund a second time
+    assert wf.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+    assert "Autonomy: AUTO — this case was already approved, nothing left to do" in titles(wf, case_id)
+
+
 def test_narrate_covers_the_new_timeline_titles(settings):
     wf, _ = mk(settings, auto_enabled=True)
     cid = wf.run_scenario("A")

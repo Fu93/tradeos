@@ -355,7 +355,7 @@ class Workflow:
                               {"amount": f"{case['amount']} {case['currency']}"})
                 return
             # The same approve() path, lock and hard guard a person clicking Approve would take.
-            self.approve(case_id, approver=AUTO, source=AUTO)
+            self._auto_approve(case_id)
             return
 
         # Step 5 (exchange only): supplier draft + clearly labelled mock reply. No money moves on this path.
@@ -390,7 +390,21 @@ class Workflow:
             self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
                           {"refund": "none — exchange"})
             return
-        self.approve(case_id, approver=AUTO, source=AUTO)
+        self._auto_approve(case_id)
+
+    def _auto_approve(self, case_id: str) -> None:
+        """Approve on the merchant's policy's behalf, exactly as the dashboard's Approve would.
+
+        A PayPalError must not escape from here. `_execute_refund` has already recorded the outcome on the
+        case (REFUND_ERROR, or REFUND_OUTCOME_UNKNOWN with a background check queued) and written the
+        customer note, so the dashboard shows the failure — the same reason the Approve route swallows it.
+        Letting it through turned a demo run into an HTTP 500 instead of the failure card, because the
+        auto-approval happens inside process(), which the run routes do not wrap.
+        """
+        try:
+            self.approve(case_id, approver=AUTO, source=AUTO, skip_if_approved=True)
+        except PayPalError:
+            pass  # recorded on the case and shown in the UI
 
     def _autonomy_verdict(self, case_id: str, case: dict, policy: PolicyResult, extraction):
         """The merchant's autonomy decision for a case the policy already passed, recorded on the timeline.
@@ -505,16 +519,27 @@ class Workflow:
         return ("Auto-approved by the merchant's policy — no human involved" if source == AUTO
                 else "Human approved the refund")
 
-    def approve(self, case_id: str, approver: str = "merchant", source: str = HUMAN) -> None:
+    def approve(self, case_id: str, approver: str = "merchant", source: str = HUMAN,
+                skip_if_approved: bool = False) -> None:
         """approver/source: a person ("merchant"/"human") or the merchant's own policy ("auto"/"auto").
 
         Both are the same code path: the same per-case lock, the same hard guard, the same PayPal
         call. Only the recorded origin differs.
+
+        skip_if_approved is for the automatic path only. Two runs of the same case can overlap (a
+        double-submitted demo button, two tabs): the first approves it, and the second would otherwise
+        find nothing to approve and raise. The check is inside the case lock, so it cannot itself race,
+        and it cannot mask a guard refusal - the guard runs after this point.
         """
         # Serialised per case: a double-click can never start two approvals.
         try:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
+                if skip_if_approved and case["human_decision"] == "APPROVED":
+                    self.db.audit(case_id, "human", "Autonomy: AUTO — this case was already approved, "
+                                  "nothing left to do",
+                                  {"approver": approver, "source": source, "status": case["status"]})
+                    return
                 if case["status"] == PENDING_APPROVAL and case["decision"] == "EXCHANGE_ELIGIBLE":
                     self._approve_exchange(case_id, approver, source)
                     return
