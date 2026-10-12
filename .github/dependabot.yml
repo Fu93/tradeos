@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: "/"
+    schedule:
+      interval: weekly
+    # After merging a bump, regenerate the locks:
+    #   uv pip compile requirements.txt -o requirements.lock --generate-hashes --universal
+    #   uv pip compile requirements-dev.txt -o requirements-dev.lock --generate-hashes --universal
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly

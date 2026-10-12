@@ -46,11 +46,24 @@ jobs:
             version=$(printf '%s' "$body" | python -c 'import json,sys; print(json.load(sys.stdin).get("version",""))' 2>/dev/null || true)
             if [ "$version" = "$EXPECTED_SHA" ]; then
               echo "the new deployment is live (version matches)"
+              set +e
               python scripts/sandbox_verify.py "$base"
-              exit $?
+              rc=$?
+              set -e
+              # External retention for the audit chains: one head list per deployment, kept as a
+              # workflow artifact. Two lists from different times detect a truncated/rewritten chain.
+              curl -s --max-time 60 "$base/audit/heads" > "audit-heads-${EXPECTED_SHA}.json" || true
+              exit $rc
             fi
             echo "waiting for the new deployment ($i/40)..."
             sleep 15
           done
           echo "::error::the deployment never reported version $EXPECTED_SHA — run scripts/sandbox_verify.py manually against $base"
           exit 1
+      - name: Save the audit-chain heads artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: audit-heads-${{ github.sha }}
+          path: audit-heads-*.json
+          if-no-files-found: ignore

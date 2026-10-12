@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}{% if current %}{{ current.label or current.id }} · {{ current.status }} · {% endif %}TradeOS{% endblock %}
 {# One chip per case. A finished case is marked AUTO when the merchant's own policy approved it and HUMAN
    when a person did, so the case list shows at a glance who handled what. Cases that never got an approval
    (rejected, still waiting, declined) carry no prefix. #}
@@ -67,6 +68,7 @@
       <article class="result-card {{ result.kind }}"{% if result.await_webhook %} data-await-webhook="{{ current.id }}"{% endif %}>
         <div class="rc-head"><span class="rc-icon">{{ result.icon }}</span>
           <div><div class="rc-title">{{ result.title }}</div><div class="rc-sub">{{ result.subtitle }}</div></div></div>
+        {% if result.await_webhook %}<p id="webhook-note" class="muted small" hidden></p>{% endif %}
         {% if result.reason %}<div class="rc-reason"><span class="muted">{{ 'Policy reason' if current.status == 'REJECTED' else 'PayPal said' }}:</span> {{ result.reason }}</div>{% endif %}
         {% if result.rows %}
           <dl class="rc-grid">

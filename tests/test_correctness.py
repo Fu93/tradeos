@@ -9,7 +9,7 @@ import pytest
 from app.config import Settings
 from app.paypal_client import PayPalError
 from app.ratelimit import RateLimiter
-from app.workflow import NEW, PENDING_APPROVAL, REFUND_ERROR, REFUND_UNKNOWN
+from app.workflow import AWAITING_BUYER, NEW, PENDING_APPROVAL, REFUND_ERROR, REFUND_UNKNOWN, RefundNotAllowed
 from tests.test_admin_and_guards import make
 from tests.helpers import case_from
 
@@ -135,3 +135,27 @@ def test_process_skips_while_a_demo_reset_is_in_flight(workflow):
     assert wf._paypal.create_order_with_card.call_count == 0  # no order was paid for
     assert wf.db.get_case(case_id)["status"] == NEW  # untouched, still runnable after the reset
     assert any("reset is in progress" in e["title"] for e in wf.db.timeline(case_id))
+
+
+def test_free_text_of_only_non_printables_is_422_not_500(settings):
+    """"\x00\x01\x02" survives .strip() but cleans to "" — that used to escape the route check and
+    blow up run_free_text with an unhandled ValueError (a public 500)."""
+    client, pp, wf = make(settings)
+    r = client.post("/cases/free", data={"message": "\x00\x01\x02"})
+    assert r.status_code == 422 and "Type a customer message" in r.text
+    assert pp.create_order_with_card.call_count == 0
+
+
+def test_buyer_capture_is_refused_during_a_demo_reset(workflow):
+    """complete_buyer_approval moves money, so it runs inside _money_op like every other money path."""
+    wf = workflow
+    wf._paypal.create_order_with_card.side_effect = PayPalError("card capture unavailable")
+    case_id = wf.run_scenario("A")
+    assert wf.db.get_case(case_id)["status"] == AWAITING_BUYER
+    wf._resetting = True
+    try:
+        with pytest.raises(RefundNotAllowed, match="reset"):
+            wf.complete_buyer_approval(case_id)
+    finally:
+        wf._resetting = False
+    assert wf._paypal.capture_order.call_count == 0

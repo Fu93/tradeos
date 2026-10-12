@@ -368,7 +368,10 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   from a fixed genesis value (64 zeros). The case page shows "Audit trail intact: N entries, head <hash>" or "BROKEN at
   entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON, including the case state folded from
   the chain (`status`, `decision`, `human_decision`, `approval_source`, `refund_status`, `refund_id`) so a verifier
-  outside this process can confirm not just *that* a refund was approved but *who* approved it. Verification also checks that the
+  outside this process can confirm not just *that* a refund was approved but *who* approved it. `GET /audit/heads`
+  returns every chain's head hash for retention OUTSIDE the database: the deploy-verify workflow saves one such list
+  per deployment as a workflow artifact, and two lists from different times are what make a truncated or rewritten
+  chain detectable — the one thing the in-database chain cannot prove about itself. Verification also checks that the
   timeline and PayPal-call rows still match what was hashed and that none of them is missing from the chain (this
   catches a deleted last entry while its record remains; deleting both is only visible against an external head hash). Existing databases are backfilled on start (marked
   *backfilled*: those entries were hashed at migration time and say nothing about edits before it).
@@ -411,7 +414,8 @@ demo always runs.
 ```bash
 git clone https://github.com/Fu93/tradeos.git && cd tradeos
 python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements-dev.txt   # app + pytest/ruff
+pip install -r requirements-dev.lock  # hash-pinned build (regenerate with:
+                                      #   uv pip compile requirements-dev.txt -o requirements-dev.lock --generate-hashes --universal)
 cp .env.example .env        # fill in PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET (Sandbox) and optionally LLM_API_KEY
 uvicorn app.main:app --reload
 # open http://localhost:8000 and click "Run Case A", approve it, then "Run Case B"
@@ -480,7 +484,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-394 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+405 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
 (incl. eval dataset checks and the fallback injection guard).
 
@@ -498,7 +502,9 @@ python scripts/sandbox_verify.py http://localhost:8000
 The `Deploy verify` workflow automates this after every push to `main`: it waits until `/healthz` reports the pushed
 commit (Render injects `RENDER_GIT_COMMIT`, which `/healthz` exposes as `version`), then runs the script against the
 live instance. Set the `TRADEOS_DEPLOY_URL` repository secret (e.g. `https://<your-app>.onrender.com`) to enable it;
-without the secret the workflow is a skipped notice. Each run creates one real Sandbox order/refund set.
+without the secret the workflow is a skipped notice. Each run creates one real Sandbox order/refund set, then
+  saves `GET /audit/heads` as a workflow artifact (`audit-heads-<commit>`), so every deployment leaves an externally
+  retained audit-chain head list. Set `TRADEOS_ADMIN_TOKEN` as a repository secret too when the deployment uses it.
 
 It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
 off, Case A must wait for a person and make no refund call until one approves; with autonomy on, the same case must

@@ -121,7 +121,8 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             st["human"] = ("skipped", "nothing to approve")
             st["paypal"] = ("blocked", f"Refund API NOT CALLED · {calls} calls")
         elif case.get("decision") in ("EXCHANGE_ELIGIBLE", "NEEDS_HUMAN"):
-            st["policy"] = ("done", "exchange · checks passed")
+            st["policy"] = (("waiting", "exchange · supplier out of stock — human decides")
+                            if case.get("decision") == "NEEDS_HUMAN" else ("done", "exchange · checks passed"))
             if case.get("decision") == "NEEDS_HUMAN":
                 st["supplier"] = ("failed", f"{_human(case.get('supplier_reply'))} (MOCK)")
                 st["human"] = ("waiting", "needs a human: offer a refund?")
@@ -221,10 +222,13 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                          ("Refund ID", case.get("refund_id") or "none"),
                          ("PayPal Order ID", case.get("order_id") or "—")]}
     if status == "REFUND_ERROR":
-        failure = next((e["detail"] for e in reversed(db.timeline(case["id"])) if e["title"] == "Refund failed"), None)
+        failure = next((e["detail"] for e in reversed(db.timeline(case["id"]))
+                        if e["stage"] == "paypal" and e["title"] == "Refund failed"), None)
         reason = case.get("error")
         if failure:
-            issue = (failure.get("details") or [{}])[0].get("issue", "") if isinstance(failure.get("details"), list) else ""
+            details = failure.get("details")
+            first = details[0] if isinstance(details, list) and details and isinstance(details[0], dict) else {}
+            issue = first.get("issue", "")
             reason = " · ".join(x for x in (f"HTTP {failure.get('status_code')}", failure.get("name"), issue,
                                             f"debug_id {failure.get('debug_id')}" if failure.get("debug_id") else "") if x)
         return {**base, "kind": "bad", "icon": "✕", "title": "Refund FAILED at PayPal — no money moved",
@@ -375,7 +379,7 @@ def narrate(e: dict) -> str:
     d = e.get("detail") or {}
     t = e["title"]
     if t == "PayPal order created":
-        return f"PayPal Sandbox order {d.get('order_id')} created for ${d.get('amount', '').replace(' USD', '')} USD."
+        return f"PayPal Sandbox order {d.get('order_id')} created for {d.get('amount', '')}."
     if t == "PayPal payment captured":
         return f"PayPal captured the payment — capture {d.get('capture_id')} is {d.get('status')}."
     if t == "Customer request received":
@@ -386,10 +390,10 @@ def narrate(e: dict) -> str:
         return (f"{who} read the message{f' ({lang})' if lang else ''} and extracted: "
                 f"{_human(d.get('intent'))} · {_human(d.get('reason'))} · wants {_human(d.get('requested_action'))}. "
                 f"It did not decide anything.")
-    if t.startswith("Policy pre-check") or t.startswith("Policy final"):
+    if t.startswith(("Policy pre-check", "Policy final", "Policy re-check")):
         checks = d.get("checks", [])
         passed = sum(c["passed"] for c in checks)
-        stage = "pre-check" if "pre-check" in t else "final check"
+        stage = "pre-check" if "pre-check" in t else "re-check" if "re-check" in t else "final check"
         if d.get("decision") == "ELIGIBLE":
             return f"Policy {stage}: ELIGIBLE — {passed}/{len(checks)} rules passed."
         failed = _first_failed(d)
@@ -400,6 +404,12 @@ def narrate(e: dict) -> str:
         return f"Supplier replied {d.get('status', '').replace('_', ' ').lower()} — MOCK reply, simulated for the demo."
     if t == "Waiting for human approval of the refund":
         return f"Waiting for a human to approve the {d.get('amount', '')} refund. Nothing moves automatically."
+    if t.startswith("Autonomy: AUTO — approval refused"):
+        return ("The merchant's policy would have auto-approved, but the approval was refused because the case "
+                f"changed meanwhile ({d.get('reason', 'details on the audit chain')}). Nothing was approved "
+                "automatically and no money moved.")
+    if t.startswith("Autonomy: AUTO — this case was already approved"):
+        return "Autonomy found the case already approved — nothing left to do, no second approval, no second refund call."
     if t.startswith("Autonomy: AUTO"):
         return (f"The merchant's policy auto-approved this case ({d.get('why', '')}). No human was involved; it "
                 "takes the same hard guard and the same PayPal call as a human approval.")
@@ -419,9 +429,8 @@ def narrate(e: dict) -> str:
         return (f"PayPal returned refund {d.get('refund_id')} with status "
                 f"{status_words(d.get('status'), d.get('status_details'))} ({_money(d.get('amount'))}).{note}")
     if t == "Refund failed":
-        issue = ""
-        if isinstance(d.get("details"), list) and d["details"]:
-            issue = d["details"][0].get("issue", "")
+        details = d.get("details")
+        issue = details[0].get("issue", "") if isinstance(details, list) and details and isinstance(details[0], dict) else ""
         return (f"PayPal refused the refund: HTTP {d.get('status_code')} {d.get('name') or ''} {issue}".strip()
                 + (f" (debug_id {d.get('debug_id')})" if d.get("debug_id") else "")
                 + ". No success recorded; retry uses the same PayPal-Request-Id.")
@@ -429,6 +438,9 @@ def narrate(e: dict) -> str:
         code = (d.get("PayPal-Mock-Response") or {}).get("mock_application_codes")
         return f"Failure test: this one refund attempt carries PayPal's sandbox negative-testing header ({code})."
     if t.startswith("Refund API NOT CALLED"):
+        if "exchange arranged" in t:
+            return ("Refund API NOT CALLED — the exchange was approved: a replacement request goes to the (MOCK) "
+                    "supplier instead. Refund ID: none.")
         return "Refund API NOT CALLED — the policy rejected the case. Refund ID: none."
     if t.startswith("Customer note drafted: awaiting"):
         return f"Customer note drafted in {d.get('language')}: awaiting merchant approval, no refund yet (not sent)."
@@ -448,8 +460,56 @@ def narrate(e: dict) -> str:
                 f"{' — total refunded ' + d['total_refunded'] if d.get('total_refunded') else ''}.")
     if t.startswith("Reconcil") or t.startswith("PayPal reports the capture PARTIALLY"):
         return t + "."
-    if t.startswith("PayPal webhook"):
+    if t.startswith(("PayPal webhook", "Verified PayPal webhook", "Late PayPal webhook",
+                     "Duplicate PayPal webhook")):
         return t + "."
+    if t == "Refund outcome UNKNOWN — no reply from PayPal; checking":
+        return ("PayPal did not answer the refund call — the outcome is UNKNOWN: the refund may have gone "
+                "through. A bounded check against PayPal runs next; nothing is assumed.")
+    if t.startswith("Checked with PayPal after the unanswered refund call"):
+        status = d.get("capture_status", "")
+        if status in ("REFUNDED", "PARTIALLY_REFUNDED"):
+            return (f"Checked with PayPal: the capture is {status} — the refund request went through. Recovering "
+                    "it by re-sending the same PayPal-Request-Id once.")
+        return (f"Checked with PayPal: the capture is {status or 'unreachable'} — no refund seen yet, so a retry "
+                "stays safe (same PayPal-Request-Id).")
+    if t.startswith("Recovered the refund from PayPal"):
+        return (f"Recovered the refund from PayPal ({d.get('trigger', 'after the GET check')}): the same "
+                f"PayPal-Request-Id was re-sent once and PayPal returned the refund it had already made "
+                f"({d.get('refund_id')}, {d.get('status')}).")
+    if t.startswith("Could not recover the refund from PayPal"):
+        return ("Could not recover the refund from PayPal — the outcome is still UNKNOWN and a human must check "
+                "PayPal directly.")
+    if t.startswith("Could not check with PayPal after the failed refund call"):
+        return (f"Could not check with PayPal ({d.get('error', 'unreachable')}) — the retry stays safe: it reuses "
+                "the same PayPal-Request-Id.")
+    if t.startswith("PayPal confirmed the refund FAILED"):
+        return (f"PayPal confirmed refund {d.get('failed_refund_id')} FAILED — retrying once with a NEW "
+                f"PayPal-Request-Id ({d.get('paypal_request_id')}) after re-checking the policy.")
+    if t.startswith("Run skipped —"):
+        if "reset" in t:
+            return "Run skipped — a demo reset was in progress. The case can be run again now that the reset finished."
+        return "Run skipped — another run of this case was already in flight and handled it."
+    if t.startswith("Run stopped —"):
+        return ("Run stopped — the case was already finalized (a duplicate run arrived after it was completed, "
+                "rejected or declined).")
+    if t.startswith("Card capture unavailable"):
+        return ("Card capture was unavailable — falling back to a PayPal-wallet order that needs the sandbox "
+                "buyer's approval before the loop can continue.")
+    if t == "Waiting for sandbox buyer approval":
+        return "Waiting for the sandbox buyer to approve the wallet order; 'Capture payment' then continues the loop."
+    if t.startswith("Keyword fallback + injection detected"):
+        return ("The LLM was unavailable and the keyword fallback detected instruction-like wording: the intent is "
+                "forced to UNKNOWN and the case goes to a human.")
+    if t.startswith("Needs a human: replacement out of stock"):
+        return "The (MOCK) supplier is out of stock: whether to offer a refund is a human decision. Refund API NOT CALLED."
+    if t == "Retrying the policy check (PayPal could not be read last time)":
+        return ("Retrying the intent + policy step — PayPal could not be read last time. Nothing here can refund; "
+                "an approval is still required afterwards.")
+    if t == "Customer note unavailable":
+        return f"Customer note unavailable ({d.get('error', 'error')}) — the flow continued; the note is a convenience."
+    if t.startswith("Customer note written after the human approved the exchange"):
+        return f"Customer note written in {d.get('language')} after the exchange was approved (no refund involved)."
     if t == "Human declined — Refund API not called":
         return "The merchant declined. Refund API not called."
     if t == "PayPal error":
@@ -513,6 +573,8 @@ WEBHOOK_OUTCOME_WORDS = {
     "STALE_REPLAY_REJECTED": "stale/replay rejected — no change", "STALE_GET_CHECK": "late delivery — re-checked with PayPal GET",
     "PENDING_CONFIRMED": "verified: still PENDING", "PENDING_TO_FAILED": "verified: refund FAILED — needs a human",
     "WARNING_NEEDS_HUMAN": "verified warning — needs a human", "NEEDS_HUMAN": "verified, differs — needs a human",
+    "UNKNOWN_RECOVERY": "verified while outcome UNKNOWN — recovering the refund", "PROCESSING": "claimed, processing",
+    "STALE_GET_FAILED_WILL_RETRY": "late delivery — could not re-check, PayPal will retry",
 }
 
 
