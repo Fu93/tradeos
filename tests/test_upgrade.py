@@ -693,3 +693,40 @@ def test_rejected_note_keeps_no_refund_wording(settings):
     case = wf.db.get_case(wf.run_scenario("B"))
     assert case["note"]["outcome"] == "REJECTION_NOTE" and "No refund has been issued." in case["note"]["text"]
     assert not makes_completion_claim(case["note"]["text"])
+
+
+# ------------------------------------------------------------------ webhook retries + concurrency
+def test_webhook_retry_same_event_recorded_once(app_ctx):
+    """PayPal delivers webhooks at-least-once: a replay of the same event id must not
+    duplicate the audit entry, and must still be acknowledged as handled."""
+    client, pp, wf = app_ctx
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    refund_id = wf.db.get_case(case_id)["refund_id"]
+    body = json.dumps(refund_event(refund_id))
+    headers = {"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature", "Content-Type": "application/json"}
+    for _ in range(3):  # original + two PayPal retries
+        r = client.post("/webhooks/paypal", content=body, headers=headers)
+        assert r.json() == {"ok": True, "handled": True, "verified": True, "case": case_id}
+    events = [e for e in wf.db.timeline(case_id) if e["stage"] == "webhook"]
+    assert len(events) == 1  # recorded once despite three deliveries
+
+
+def test_concurrent_process_of_one_case_creates_one_order():
+    """Two simultaneous requests for the same NEW case are serialised by the per-case lock:
+    exactly one PayPal order is ever created for it."""
+    from threading import Thread
+    s = Settings(db_path=":memory:", rate_limit_per_minute=500, rate_limit_per_hour=500)
+    app = create_app(settings=s, paypal=MockPayPalClient(), extractor=FakeExtractor(),
+                     note_writer=TemplateNoteWriter())
+    wf = app.state.workflow
+    case_id = wf.new_case("A")
+    threads = [Thread(target=wf.process, args=(case_id,)) for _ in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=10)
+    orders = wf.db.paypal_calls(case_id, "create_order_with_card")
+    assert len(orders) == 1
+    case = wf.db.get_case(case_id)
+    assert case["status"] == "PENDING_APPROVAL" and case["decision"] == "ELIGIBLE"

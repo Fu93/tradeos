@@ -91,3 +91,52 @@ def test_find_link():
     order = {"links": [{"rel": "self", "href": "s"}, {"rel": "payer-action", "href": "p"}]}
     assert find_link(order, "payer-action", "approve") == "p"
     assert find_link(order, "approve") is None
+
+
+# ------------------------------------------------------------------ safe retries (upgrade)
+def test_transient_5xx_on_idempotent_call_is_retried(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda s: None)  # keep the test fast
+    responses = [httpx.Response(503, json={"name": "INTERNAL_ERROR"}),
+                 httpx.Response(200, json={"status": "COMPLETED"})]
+
+    def flaky(request):
+        return responses.pop(0)
+
+    pp, rec = client({("GET", "/v2/payments/captures/C1"): flaky})
+    out = pp.get_capture("C1")
+    assert out == {"status": "COMPLETED"}
+    assert len([r for r in rec.requests if r.url.path.endswith('/captures/C1')]) == 2  # original + retry
+
+
+def test_network_timeout_on_idempotent_post_is_retried(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda s: None)
+    calls = {"n": 0}
+
+    def timeout_then_ok(request):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise httpx.ConnectTimeout("boom")
+        return httpx.Response(201, json={"id": "R1", "status": "COMPLETED"})
+
+    pp, _ = client({("POST", "/v2/payments/captures/C1/refund"): timeout_then_ok})
+    out = pp.refund_capture("C1", "tradeos-refund-A-1")
+    assert out["id"] == "R1"
+    assert calls["n"] == 2  # PayPal-Request-Id makes the replay idempotent
+
+
+def test_non_idempotent_post_is_never_retried(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda s: None)
+    pp, rec = client({("POST", "/v2/checkout/orders"):
+                      lambda r: httpx.Response(500, json={"name": "INTERNAL_ERROR", "message": "oops"})})
+    with pytest.raises(PayPalError):
+        pp._request("POST", "/v2/checkout/orders", json={})  # no request_id => single attempt
+    assert len([r for r in rec.requests if r.url.path == "/v2/checkout/orders"]) == 1
+
+
+def test_persistent_5xx_exhausts_retries_and_raises(monkeypatch):
+    monkeypatch.setattr("time.sleep", lambda s: None)
+    pp, rec = client({("GET", "/v2/payments/refunds/R1"):
+                      httpx.Response(502, json={"name": "INTERNAL_ERROR", "message": "bad gateway"})})
+    with pytest.raises(PayPalError, match="502"):
+        pp.get_refund("R1")
+    assert len([r for r in rec.requests if r.url.path == "/v2/payments/refunds/R1"]) == PayPalClient.MAX_ATTEMPTS

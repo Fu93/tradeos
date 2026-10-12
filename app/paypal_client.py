@@ -110,6 +110,14 @@ class PayPalClient:
             return self._token
 
     # -- low level --------------------------------------------------------
+    RETRYABLE_STATUS = {408, 409, 429, 500, 502, 503, 504}
+    MAX_ATTEMPTS = 3  # network-transient retries for idempotent calls only (see _request)
+
+    @staticmethod
+    def _is_transient(exc: httpx.HTTPError) -> bool:
+        return isinstance(exc, (httpx.ConnectError, httpx.ReadTimeout, httpx.ConnectTimeout,
+                                httpx.PoolTimeout))
+
     @staticmethod
     def _error(resp: httpx.Response, fallback: str) -> PayPalError:
         try:
@@ -132,6 +140,13 @@ class PayPalClient:
 
     def _request(self, method: str, path: str, *, json: Any = None, content: bytes | None = None,
                  request_id: str | None = None, extra_headers: dict | None = None) -> dict:
+        # Retrying is only safe for calls that CANNOT change PayPal's state:
+        #  * GETs (reads), and
+        #  * POSTs carrying a stable PayPal-Request-Id (PayPal replays the original
+        #    response instead of executing the action twice).
+        # A POST without an idempotency key is never retried, so a flaky network can
+        # not create two orders / captures / refunds.
+        retryable = method.upper() == "GET" or bool(request_id)
         headers = {
             "Authorization": f"Bearer {self._access_token()}",
             "Content-Type": "application/json",
@@ -141,13 +156,28 @@ class PayPalClient:
         if request_id:
             headers["PayPal-Request-Id"] = request_id
         headers.update(extra_headers or {})
-        try:
-            resp = self._http.request(method, path, json=json, content=content, headers=headers)
-        except httpx.HTTPError as exc:
-            raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
-        if resp.status_code >= 400:
-            raise self._error(resp, f"{method} {path} failed")
-        return resp.json() if resp.content else {}
+        attempts = self.MAX_ATTEMPTS if retryable else 1
+        delay = 0.4
+        resp: httpx.Response | None = None
+        for attempt in range(1, attempts + 1):
+            try:
+                resp = self._http.request(method, path, json=json, content=content, headers=headers)
+            except httpx.HTTPError as exc:
+                if attempt < attempts and self._is_transient(exc):
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+                raise PayPalError(f"Could not reach PayPal: {type(exc).__name__}") from exc
+            if resp.status_code >= 400:
+                # A retryable server-side status on a safe call: back off and try again.
+                # (4xx business errors are never in RETRYABLE_STATUS except 408/409/429,
+                # which PayPal returns for transient congestion on these endpoints.)
+                if retryable and attempt < attempts and resp.status_code in self.RETRYABLE_STATUS:
+                    time.sleep(delay)
+                    delay *= 2
+                    continue
+                raise self._error(resp, f"{method} {path} failed")
+            return resp.json() if resp.content else {}
 
     # -- Orders v2 --------------------------------------------------------
     @staticmethod

@@ -90,17 +90,40 @@ def utcnow() -> str:
 class Database:
     def __init__(self, path: str) -> None:
         self.path = path
+        self._shared: sqlite3.Connection | None = None  # persistent connection for :memory: DBs
         if path != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
+        if self.path == ":memory:":
+            # A shared in-process connection: every fresh sqlite3.connect(":memory:")
+            # would open an EMPTY database, so tables created by init() would vanish
+            # and concurrent threads could not see each other's writes at all.
+            if self._shared is None:
+                conn = sqlite3.connect(":memory:", timeout=10, check_same_thread=False)
+                conn.row_factory = sqlite3.Row
+                conn.execute("PRAGMA foreign_keys = ON")
+                self._shared = conn
+            try:
+                yield self._shared
+                self._shared.commit()
+            except Exception:
+                self._shared.rollback()
+                raise
+            return
         conn = sqlite3.connect(self.path, timeout=10)
         conn.row_factory = sqlite3.Row
         conn.execute("PRAGMA foreign_keys = ON")
+        # WAL: readers never block the webhook writer and vice versa (better concurrency
+        # on the single Render instance). Journal mode is persistent per database file.
+        conn.execute("PRAGMA journal_mode = WAL")
         try:
             yield conn
             conn.commit()
+        except Exception:
+            conn.rollback()
+            raise
         finally:
             conn.close()
 

@@ -66,6 +66,8 @@ class CaseNotFound(Exception):
 
 
 class Workflow:
+    MAX_LOCKS = 1024  # bound for the per-case lock map (see _lock)
+
     def __init__(self, db: Database, settings: Settings, extractor: IntentExtractor, paypal: Any = None,
                  today: Callable[[], date] | None = None, note_writer: Any = None) -> None:
         self.db = db
@@ -136,7 +138,20 @@ class Workflow:
 
     def _lock(self, case_id: str) -> threading.Lock:
         with self._locks_guard:
-            return self._locks.setdefault(case_id, threading.Lock())
+            lock = self._locks.get(case_id)
+            if lock is None:
+                # Bound the map: drop an oldest entry when it grows past the cap so a
+                # long-running server never leaks one Lock per case forever. (Locks are
+                # only held for short in-process critical sections; evicting an idle
+                # lock cannot corrupt state because every guard re-reads from the DB.)
+                if len(self._locks) >= self.MAX_LOCKS:
+                    for key in list(self._locks)[:self.MAX_LOCKS // 2]:
+                        if self._locks[key] is not None and not self._locks[key].locked():
+                            self._locks.pop(key, None)
+                        if len(self._locks) < self.MAX_LOCKS * 0.75:
+                            break
+                lock = self._locks.setdefault(case_id, threading.Lock())
+            return lock
 
     def _case(self, case_id: str) -> dict:
         case = self.db.get_case(case_id)
@@ -164,7 +179,18 @@ class Workflow:
         return case_id
 
     def process(self, case_id: str) -> None:
+        # Serialised per case, like approve(): a concurrent second request for the same
+        # case can never create a duplicate PayPal order or race a refund before approval.
+        with self._lock(case_id):
+            self._process_locked(case_id)
+
+    def _process_locked(self, case_id: str) -> None:
         case = self._case(case_id)
+        # Idempotent re-run guard: process() is for NEW cases. If a concurrent (or retried)
+        # request arrives after another thread already moved this case forward, do NOT call
+        # PayPal again — the per-case lock alone serialises, it does not deduplicate.
+        if case["status"] != NEW:
+            return
         s = self.settings
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
@@ -200,19 +226,20 @@ class Workflow:
 
     def complete_buyer_approval(self, case_id: str) -> None:
         """Fallback path: buyer approved in the PayPal sandbox, now capture."""
-        case = self._case(case_id)
-        if case["status"] != AWAITING_BUYER:
-            return
-        try:
-            order = self._pp(case_id, "capture_order", case["order_id"], f"tradeos-capture-{case_id}")
-            capture = first_capture(order)
-            if not capture:
-                raise PayPalError(f"Capture returned no capture (order status {order.get('status')})")
-            self._record_capture(case_id, order, capture)
-        except PayPalError as exc:
-            self._fail(case_id, "payment", exc)
-            return
-        self._after_capture(case_id)
+        with self._lock(case_id):  # a double-hit return URL can never capture twice
+            case = self._case(case_id)
+            if case["status"] != AWAITING_BUYER:
+                return
+            try:
+                order = self._pp(case_id, "capture_order", case["order_id"], f"tradeos-capture-{case_id}")
+                capture = first_capture(order)
+                if not capture:
+                    raise PayPalError(f"Capture returned no capture (order status {order.get('status')})")
+                self._record_capture(case_id, order, capture)
+            except PayPalError as exc:
+                self._fail(case_id, "payment", exc)
+                return
+            self._after_capture(case_id)
 
     def _record_capture(self, case_id: str, order: dict, capture: dict) -> None:
         self.db.update_case(case_id, order_status=order.get("status"), capture_id=capture["id"],
@@ -223,6 +250,11 @@ class Workflow:
     def _fail(self, case_id: str, stage: str, exc: PayPalError, status: str = ERROR) -> None:
         self.db.update_case(case_id, status=status, error=str(exc))
         self.db.audit(case_id, stage, "PayPal error", exc.to_dict())
+
+    def _clear_error(self, case_id: str) -> None:
+        """A successful step supersedes any earlier error message (no stale red banners)."""
+        if self._case(case_id).get("error"):
+            self.db.update_case(case_id, error=None)
 
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
@@ -257,6 +289,9 @@ class Workflow:
             self._fail(case_id, "policy", exc)
             return
         self.db.update_case(case_id, capture_status=capture.get("status"))
+        # A successful PayPal read supersedes any earlier error banner (e.g. a network blip
+        # that was already retried successfully).
+        self._clear_error(case_id)
         pre = self._evaluate(case, product, extraction.result, capture, supplier_status=None, require_supplier=False)
         self.db.audit(case_id, "policy", f"Policy pre-check: {pre.decision}", pre.to_dict())
         if not pre.eligible:
@@ -335,13 +370,21 @@ class Workflow:
         else:
             ts = capture.get("create_time") or case.get("capture_time")
             purchase = datetime.fromisoformat(ts.replace("Z", "+00:00")).date() if ts else self.today()
+        # already_refunded comes from PayPal's own seller_receivable_breakdown when present;
+        # fall back to 0 only if the field is missing (full refund stays safe).
+        breakdown = capture.get("seller_receivable_breakdown") or {}
+        refunded_amt = breakdown.get("refunded_amount") or {}
+        try:
+            already_refunded = Decimal(str(refunded_amt.get("value", "0")))
+        except Exception:
+            already_refunded = Decimal("0")
         return evaluate(PolicyInput(
             capture_status=capture.get("status"),
             captured_amount=Decimal(amount["value"]) if amount.get("value") else None,
             capture_currency=amount.get("currency_code"),
             expected_currency=case["currency"],
             requested_refund=Decimal(case["amount"]),
-            already_refunded=Decimal("0"),
+            already_refunded=already_refunded,
             purchase_date=purchase,
             today=self.today(),
             return_window_days=self.settings.return_window_days,
@@ -418,6 +461,9 @@ class Workflow:
         Then the identical refund request is replayed straight at PayPal with the SAME
         PayPal-Request-Id, to show that even a request that slipped through returns the
         same refund instead of a second one.
+
+        Runs WITHOUT the per-case lock on purpose: approve() must be able to take it.
+        The replay itself re-acquires the lock inside replay_refund_request().
         """
         self.approve(case_id)
         second_click = "refused by TradeOS (case no longer awaiting approval)"
@@ -430,6 +476,8 @@ class Workflow:
         self.replay_refund_request(case_id, second_click)
 
     def replay_refund_request(self, case_id: str, second_click: str = "") -> dict:
+        # Serialised like every other money path; approve_twice calls this only AFTER its
+        # inner approve() calls have released the lock (threading.Lock is not reentrant).
         with self._lock(case_id):
             case = self._case(case_id)
             self._guard_refund(case)
@@ -537,6 +585,11 @@ class Workflow:
                 "resource_id": refund_id, "resource_status": resource.get("status"),
                 "verification": verification, "received_at": self._now(), "create_time": event.get("create_time")}
         status = "VERIFIED" if verification == "SUCCESS" else "UNVERIFIED"
+        # PayPal retries webhooks (at-least-once delivery): a repeat of the SAME event id
+        # with the same verification outcome is recorded once and acknowledged silently.
+        previous = case.get("webhook") or {}
+        if previous.get("event_id") == info["event_id"] and previous.get("verification") == verification:
+            return case["id"]
         self.db.update_case(case["id"], webhook_status=status, webhook_json=json.dumps(info))
         title = (f"PayPal webhook {event.get('event_type')} received — signature verified (second confirmation)"
                  if status == "VERIFIED" else

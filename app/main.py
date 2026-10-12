@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from pathlib import Path
 
@@ -19,6 +20,7 @@ from .notes import build_note_writer
 from .paypal_client import PayPalError
 from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import RateLimiter, client_key
+from .security import same_origin_or_trusted
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, RUNNABLE, CaseNotFound, RefundNotAllowed,
@@ -103,6 +105,21 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
+    def check_origin(request: Request) -> None:
+        """Reject cross-site form posts (CSRF) on every state-changing endpoint."""
+        if not same_origin_or_trusted(request, settings.public_base_url):
+            raise HTTPException(403, "Cross-origin request refused (same-origin protection).")
+
+    @app.middleware("http")
+    async def security_headers(request: Request, call_next):
+        response = await call_next(request)
+        # The dashboard is a standalone demo; framing it from another site only enables
+        # clickjacking. Same-origin keeps the demo's own pages readable to each other.
+        response.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "same-origin")
+        return response
+
     @app.get("/", response_class=HTMLResponse)
     def dashboard(request: Request, case: str | None = None):
         return render_dashboard(request, case)
@@ -116,6 +133,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def run_demo(request: Request, scenario: str):
         if scenario not in RUNNABLE:
             raise HTTPException(404)
+        check_origin(request)
         if (refused := limited(request)) is not None:
             return refused
         case_id = wf.run_scenario(scenario)
@@ -124,6 +142,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/cases/free")
     def run_free_text(request: Request, message: str = Form(""), late: str = Form(""), preset: str = Form("")):
         """The judge's own message (or a one-click preset) through the same loop."""
+        check_origin(request)
         is_late = late.lower() in ("1", "on", "true", "yes")
         label = "Free text"
         if preset:
@@ -148,12 +167,21 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return back(case_id)
 
     @app.post("/demo/reset")
-    def reset_demo():
+    def reset_demo(request: Request):
+        check_origin(request)
         db.init(reset=True)
         wf.seed_demo()
         return RedirectResponse("/", status_code=303)
 
     def guarded(request: Request, case_id: str, action) -> HTMLResponse | RedirectResponse:
+        return _guarded(request, case_id, action, check=True)
+
+    def guarded_no_origin(request: Request, case_id: str, action) -> HTMLResponse | RedirectResponse:
+        return _guarded(request, case_id, action, check=False)
+
+    def _guarded(request: Request, case_id: str, action, check: bool) -> HTMLResponse | RedirectResponse:
+        if check:
+            check_origin(request)
         try:
             action(case_id)
         except CaseNotFound:
@@ -195,7 +223,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     async def paypal_webhook(request: Request):
         """Second, independent confirmation: PayPal pushes PAYMENT.CAPTURE.REFUNDED; we verify the
         signature with PayPal's verify-webhook-signature API before trusting it."""
+        # Cheap pre-filters BEFORE any expensive postback verification (anti-DoS):
+        # only accept JSON of a sane size and known event types.
+        content_type = request.headers.get("content-type", "")
+        if content_type and "json" not in content_type.lower():
+            raise HTTPException(415, "Expected application/json")
         raw = await request.body()
+        if len(raw) > 64 * 1024:
+            raise HTTPException(413, "Webhook payload too large")
         try:
             event = json.loads(raw)
         except ValueError:
@@ -206,8 +241,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             verification = "NO_WEBHOOK_ID"
         else:
             try:
-                verification = wf.paypal().verify_webhook_signature(dict(request.headers), raw,
-                                                                     settings.paypal_webhook_id)
+                # The postback is a blocking network call: keep it off the event loop.
+                verification = await asyncio.to_thread(wf.paypal().verify_webhook_signature,
+                                                       dict(request.headers), raw,
+                                                       settings.paypal_webhook_id)
             except PayPalError:
                 verification = "ERROR"
         case_id = wf.record_webhook(event, verification)
@@ -220,7 +257,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.get("/cases/{case_id}/paypal-return")
     def paypal_return(request: Request, case_id: str):
-        return guarded(request, case_id, wf.complete_buyer_approval)
+        # Reached only via a PayPal redirect that starts from our own order flow;
+        # same-origin check would break the external return, so we rely on the
+        # status guard inside complete_buyer_approval (no-op unless AWAITING_BUYER).
+        return guarded_no_origin(request, case_id, wf.complete_buyer_approval)
 
     @app.get("/api/cases/{case_id}")
     def case_json(case_id: str):

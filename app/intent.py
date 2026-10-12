@@ -296,7 +296,12 @@ class ChatJSONClient:
         self._base_url = base_url.rstrip("/")
         self._model = model
         self._timeout = timeout
-        self._transport = transport
+        # One reusable client per extractor: connection pooling (keep-alive) and no
+        # per-request TCP+TLS handshake to the LLM provider.
+        self._http = httpx.Client(timeout=timeout, transport=transport)
+
+    def close(self) -> None:
+        self._http.close()
 
     @property
     def model(self) -> str:
@@ -312,12 +317,11 @@ class ChatJSONClient:
             }
 
         structured = {"type": "json_schema", "json_schema": {"name": schema_name, "strict": True, "schema": schema}}
-        with httpx.Client(timeout=self._timeout, transport=self._transport) as client:
-            url = f"{self._base_url}/chat/completions"
-            headers = {"Authorization": f"Bearer {self._api_key}"}
-            resp = client.post(url, headers=headers, json=payload(structured))
-            if resp.status_code == 400:  # provider/model without json_schema support
-                resp = client.post(url, headers=headers, json=payload(JSON_MODE))
+        url = f"{self._base_url}/chat/completions"
+        headers = {"Authorization": f"Bearer {self._api_key}"}
+        resp = self._http.post(url, headers=headers, json=payload(structured))
+        if resp.status_code == 400:  # provider/model without json_schema support
+            resp = self._http.post(url, headers=headers, json=payload(JSON_MODE))
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]
 
