@@ -221,7 +221,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
                 "auto_enabled": settings.auto_enabled,
                 "auto_refund_max_amount": str(settings.auto_refund_max_amount),
-                "admin_required": bool(settings.admin_token)}
+                "admin_required": bool(settings.admin_token),
+                # Render free tier stores SQLite under /tmp; a restart or redeploy wipes it.
+                # Surfaced so a judge (or deploy-verify) can see the demo is ephemeral without scraping.
+                "persistence": "ephemeral" if settings.db_path.startswith("/tmp") else "durable"}
 
     @app.post("/demo/run/{scenario}")
     def run_demo(request: Request, scenario: str):
