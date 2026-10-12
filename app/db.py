@@ -109,6 +109,15 @@ CREATE TABLE IF NOT EXISTS webhook_events (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
     ON webhook_events(event_id) WHERE verified = 1;
+
+-- Secondary lookups: find_case_by (every webhook delivery), timeline, paypal_calls, webhook_events
+-- and verify_chain's coverage check would otherwise scan the whole table on every call.
+CREATE INDEX IF NOT EXISTS idx_cases_capture_id ON cases(capture_id);
+CREATE INDEX IF NOT EXISTS idx_cases_refund_id ON cases(refund_id);
+CREATE INDEX IF NOT EXISTS idx_cases_order_id ON cases(order_id);
+CREATE INDEX IF NOT EXISTS idx_audit_events_case ON audit_events(case_id, id);
+CREATE INDEX IF NOT EXISTS idx_paypal_calls_case ON paypal_calls(case_id, id);
+CREATE INDEX IF NOT EXISTS idx_webhook_events_case ON webhook_events(case_id);
 """
 
 TABLES = ("audit_chain", "webhook_events", "paypal_calls", "audit_events", "cases", "products")
@@ -157,6 +166,11 @@ class Database:
         self.path = path
         if path != ":memory:":
             Path(path).parent.mkdir(parents=True, exist_ok=True)
+        # verify_chain results keyed by chain tip: the dashboard verifies on every render, and the
+        # result is deterministic while the chain is unchanged. Bounded crudely (clear) — a full
+        # re-verify after a clear is only a perf event, never a correctness one. The refund gate
+        # never reads this cache: _guard_refund goes through verify_and_fold (always fresh).
+        self._chain_cache: dict[str, tuple[tuple[int, int, str], dict]] = {}
 
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
@@ -165,8 +179,8 @@ class Database:
         conn.execute("PRAGMA foreign_keys = ON")
         if self.path != ":memory:":
             # WAL: readers stop blocking the writer, so the dashboard's chain verification and the
-            # background reconcile no longer contend for the single journal lock. Persistent per
-            # file; a no-op for the in-memory databases the tests use.
+            # background reconcile no longer contend for the single journal lock. The mode is
+            # persistent per file, so this is a no-op after the first connection.
             conn.execute("PRAGMA journal_mode = WAL")
         try:
             yield conn
@@ -318,10 +332,15 @@ class Database:
         return [_decode_case(r) for r in rows]
 
     def latest_case(self, scenario: str, label: str | None = None) -> dict | None:
-        cases = self.list_cases(scenario=scenario)
+        """One indexed seek instead of list_cases + a Python filter (the dashboard renders several
+        of these per request, and failure_modes alone calls it five times)."""
+        sql, args = "SELECT * FROM cases WHERE scenario=? AND archived_at IS NULL", [scenario]
         if label is not None:
-            cases = [c for c in cases if c.get("label") == label]
-        return cases[0] if cases else None
+            sql, args = sql + " AND label=?", [*args, label]
+        sql += " ORDER BY created_at DESC, rowid DESC LIMIT 1"
+        with self.connect() as conn:
+            row = conn.execute(sql, args).fetchone()
+        return _decode_case(row) if row else None
 
     def find_case_by(self, column: str, value: str) -> dict | None:
         if column not in ("refund_id", "capture_id", "order_id"):
@@ -413,43 +432,97 @@ class Database:
             conn.rollback()
             conn.close()
 
+    @staticmethod
+    def _tip_from(conn: sqlite3.Connection, case_id: str) -> tuple[int, int, str]:
+        """Cheap chain-tip probe for the verify cache: (entry count, max seq, head hash). Runs inside
+        the caller's snapshot so the tip and the cached verdict come from one read view. Uses the
+        UNIQUE(case_id, seq) index."""
+        row = conn.execute(
+            "SELECT seq, entry_hash, (SELECT COUNT(*) FROM audit_chain c WHERE c.case_id=a.case_id) AS n "
+            "FROM audit_chain a WHERE a.case_id=? ORDER BY seq DESC LIMIT 1", (case_id,)).fetchone()
+        if row is None:
+            return (0, 0, chain.GENESIS)
+        return (row["n"], row["seq"], row["entry_hash"])
+
     def verify_chain(self, case_id: str) -> dict:
-        """Recompute every hash; report the first broken link (1-based seq)."""
+        """Recompute every hash; report the first broken link (1-based seq).
+
+        Dashboard-facing: the result is memoized against the chain tip, because the dashboard
+        re-verifies on every render while the chain is append-only. The tip probe and the (cached)
+        verdict come from the same snapshot. The refund gate does NOT go through here — _guard_refund
+        uses verify_and_fold, which always re-reads, so out-of-app tampering is still caught where
+        it matters even when it leaves the chain tip untouched."""
+        with self._read_snapshot() as conn:
+            tip = self._tip_from(conn, case_id)
+            cached = self._chain_cache.get(case_id)
+            if cached is not None and cached[0] == tip:
+                return cached[1]
+            result, _state = self._verify_snapshot(conn, case_id)
+        if len(self._chain_cache) > 500:
+            self._chain_cache.clear()  # crude bound; a full re-verify after this is only slow, not wrong
+        self._chain_cache[case_id] = (tip, result)
+        return result
+
+    def verify_and_fold(self, case_id: str) -> tuple[dict, dict]:
+        """One consistent read that both re-verifies the whole chain and folds the chained case state
+        out of it — what _guard_refund needs (verify + chained_case_state used to be two full reads).
+        Never memoized."""
+        with self._read_snapshot() as conn:
+            return self._verify_snapshot(conn, case_id)
+
+    def _verify_snapshot(self, conn: sqlite3.Connection, case_id: str) -> tuple[dict, dict]:
+        """The full verification, running on the caller's snapshot connection. Returns (result, state)."""
         prev, n_back = chain.GENESIS, 0
+        state: dict = {}
 
         def broken(e, k, reason):
             return {"ok": False, "case_id": case_id, "entries": len(entries), "broken_at": k, "reason": reason,
                     "head": entries[-1]["entry_hash"] if entries else chain.GENESIS, "backfilled": n_back}
-        with self._read_snapshot() as conn:
-            entries = [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
-                                                     (case_id,)).fetchall()]
-            for k, e in enumerate(entries, start=1):
-                n_back += e["backfilled"]
-                if e["seq"] != k:
-                    return broken(e, k, f"sequence gap: expected {k}, found {e['seq']}")
-                if e["prev_hash"] != prev:
-                    return broken(e, k, "prev_hash does not match the previous entry")
-                payload = json.loads(e["payload_json"])
-                if chain.entry_hash(case_id, e["seq"], e["type"], e["ts"], payload, e["prev_hash"]) != e["entry_hash"]:
-                    return broken(e, k, "entry content does not match its hash")
-                src = chain.SOURCE_PAYLOAD.get(e["source_table"] or "")
-                if src is not None:
-                    row = conn.execute(f"SELECT * FROM {e['source_table']} WHERE id=?", (e["source_id"],)).fetchone()
-                    if row is None:
-                        return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was deleted")
-                    if chain.normalize(src(dict(row))) != payload:
-                        return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was modified")
-                prev = e["entry_hash"]
-            # Coverage: every immutable record of this case must be in the chain. Catches a deleted
-            # (truncated) chain entry whose record still exists. If the record was deleted too, only a
-            # head hash recorded outside the database reveals it.
-            chained = {(e["source_table"], e["source_id"]) for e in entries}
-            for table in chain.SOURCE_PAYLOAD:
-                for r in conn.execute(f"SELECT id FROM {table} WHERE case_id=? ORDER BY id", (case_id,)):
-                    if (table, r["id"]) not in chained:
-                        return broken(None, len(entries) + 1, f"record {table}#{r['id']} is missing from the chain")
+        entries = [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
+                                                 (case_id,)).fetchall()]
+        # The immutable source rows, fetched once per table instead of once per chain entry.
+        src_rows: dict[tuple[str, int], dict] = {}
+        needed: dict[str, list[int]] = {}
+        for e in entries:
+            table = e["source_table"] or ""
+            if table in chain.SOURCE_PAYLOAD and e["source_id"] is not None:
+                needed.setdefault(table, []).append(e["source_id"])
+        for table, ids in needed.items():
+            for start in range(0, len(ids), 500):  # stay far below SQLite's variable limit
+                chunk = ids[start:start + 500]
+                marks = ",".join("?" * len(chunk))
+                for r in conn.execute(f"SELECT * FROM {table} WHERE id IN ({marks})", chunk):
+                    src_rows[(table, r["id"])] = dict(r)
+        for k, e in enumerate(entries, start=1):
+            n_back += e["backfilled"]
+            if e["seq"] != k:
+                return broken(e, k, f"sequence gap: expected {k}, found {e['seq']}"), state
+            if e["prev_hash"] != prev:
+                return broken(e, k, "prev_hash does not match the previous entry"), state
+            payload = json.loads(e["payload_json"])
+            if chain.entry_hash(case_id, e["seq"], e["type"], e["ts"], payload, e["prev_hash"]) != e["entry_hash"]:
+                return broken(e, k, "entry content does not match its hash"), state
+            if e["type"] == "case:update":
+                state.update(payload)
+            src = chain.SOURCE_PAYLOAD.get(e["source_table"] or "")
+            if src is not None:
+                row = src_rows.get((e["source_table"], e["source_id"]))
+                if row is None:
+                    return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was deleted"), state
+                if chain.normalize(src(row)) != payload:
+                    return broken(e, k, f"source record {e['source_table']}#{e['source_id']} was modified"), state
+            prev = e["entry_hash"]
+        # Coverage: every immutable record of this case must be in the chain. Catches a deleted
+        # (truncated) chain entry whose record still exists. If the record was deleted too, only a
+        # head hash recorded outside the database reveals it.
+        chained = {(e["source_table"], e["source_id"]) for e in entries}
+        for table in chain.SOURCE_PAYLOAD:
+            for r in conn.execute(f"SELECT id FROM {table} WHERE case_id=? ORDER BY id", (case_id,)):
+                if (table, r["id"]) not in chained:
+                    return broken(None, len(entries) + 1,
+                                  f"record {table}#{r['id']} is missing from the chain"), state
         return {"ok": True, "case_id": case_id, "entries": len(entries), "broken_at": None, "reason": None,
-                "head": prev, "backfilled": n_back}
+                "head": prev, "backfilled": n_back}, state
 
     def timeline(self, case_id: str) -> list[dict]:
         with self.connect() as conn:

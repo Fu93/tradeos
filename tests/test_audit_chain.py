@@ -76,9 +76,11 @@ def test_tamper_paypal_call_and_deleted_row_detected(settings):
     case_id = run_a(client)
     e = next(e for e in wf.db.chain_entries(case_id) if e["type"] == "paypal:refund_capture")
     raw(wf.db, "UPDATE paypal_calls SET result='FAILED' WHERE id=?", (e["source_id"],))
-    assert wf.db.verify_chain(case_id)["broken_at"] == e["seq"]
+    # Out-of-app tampering does not move the chain tip, so the dashboard's memoized verify would
+    # report the previous verdict; the always-fresh path (what the refund gate uses) must catch it.
+    assert wf.db.verify_and_fold(case_id)[0]["broken_at"] == e["seq"]
     raw(wf.db, "DELETE FROM paypal_calls WHERE id=?", (e["source_id"],))
-    assert "deleted" in wf.db.verify_chain(case_id)["reason"]
+    assert "deleted" in wf.db.verify_and_fold(case_id)[0]["reason"]
 
 
 def test_tamper_chain_entry_detected_after_dropping_trigger(settings):
@@ -303,3 +305,29 @@ def test_verify_latency_reasonable(settings):
     print(f"verify {len(wf.db.chain_entries(case_id))} entries: {1000*(t1-t0):.1f} ms; page {1000*(t2-t1):.1f} ms")
     # A smoke bound, not a benchmark: generous enough to stay green on a loaded shared runner.
     assert t1 - t0 < 5.0
+
+
+def test_verify_chain_is_memoized_until_the_chain_moves(settings):
+    client, pp, wf = app_with(settings)
+    case_id = run_a(client)
+    first = wf.db.verify_chain(case_id)
+    assert first["ok"] is True
+    assert wf.db.verify_chain(case_id) is first  # same tip -> the cached verdict object itself
+    wf.db.audit(case_id, "note", "another entry", {"n": 1})  # a chained write moves the tip
+    second = wf.db.verify_chain(case_id)
+    assert second is not first and second["ok"] and second["entries"] == first["entries"] + 1
+
+
+def test_refund_gate_never_trusts_the_verify_cache(settings):
+    """The dashboard may show a memoized verdict, but _guard_refund re-verifies freshly: out-of-app
+    tampering that leaves the chain tip untouched must still refuse the refund."""
+    client, pp, wf = app_with(settings)
+    case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
+    assert wf.db.get_case(case_id)["status"] == "PENDING_APPROVAL"
+    assert wf.db.verify_chain(case_id)["ok"]  # warms the cache
+    target = next(e for e in wf.db.chain_entries(case_id) if e["source_table"] == "audit_events"
+                  and "human" in e["type"])
+    raw(wf.db, "UPDATE audit_events SET title='Human DECLINED' WHERE id=?", (target["source_id"],))
+    r = client.post(f"/cases/{case_id}/approve", follow_redirects=False)
+    assert r.status_code == 409 and "Audit trail BROKEN" in r.text
+    assert pp.refund_capture.call_count == 0

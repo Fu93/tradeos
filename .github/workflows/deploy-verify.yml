@@ -4,10 +4,12 @@ name: Deploy verify
 # asserts the outcome against the deployment's own autonomy settings.
 #
 # Needs the TRADEOS_DEPLOY_URL repository secret (https://<your-app>.onrender.com); without it the
-# job is a no-op notice. The wait loop compares /healthz's "version" (Render injects
-# RENDER_GIT_COMMIT) so it verifies THE new deployment, not the previous one still serving while
-# the new build is underway. Free-tier builds are usually done in a few minutes; the loop gives
-# them 10 minutes before failing.
+# job is a no-op notice. If the deployment sets TRADEOS_ADMIN_TOKEN, the same token must also be
+# set as a repository secret — sandbox_verify sends it as an X-Admin-Token header on the money
+# actions, and fails loudly when the deployment requires one and none was given. The wait loop
+# compares /healthz's "version" (Render injects RENDER_GIT_COMMIT) so it verifies THE new
+# deployment, not the previous one still serving while the new build is underway. Free-tier builds
+# are usually done in a few minutes; the loop gives them 10 minutes before failing.
 on:
   push:
     branches: [main]
@@ -15,8 +17,10 @@ on:
 permissions:
   contents: read
 concurrency:
+  # A newer push supersedes a queued run: the queued one can never see ITS sha go live and would
+  # only burn 10 minutes before a guaranteed false failure.
   group: deploy-verify
-  cancel-in-progress: false
+  cancel-in-progress: true
 jobs:
   sandbox-verify:
     runs-on: ubuntu-latest
@@ -29,6 +33,7 @@ jobs:
       - name: Wait for the new deployment, then verify it
         env:
           TRADEOS_DEPLOY_URL: ${{ secrets.TRADEOS_DEPLOY_URL }}
+          TRADEOS_ADMIN_TOKEN: ${{ secrets.TRADEOS_ADMIN_TOKEN }}
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           if [ -z "$TRADEOS_DEPLOY_URL" ]; then

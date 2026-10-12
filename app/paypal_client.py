@@ -85,7 +85,8 @@ class PayPalClient:
     def __init__(self, client_id: str, client_secret: str, base_url: str, timeout: float = 30.0,
                  transport: httpx.BaseTransport | None = None, allow_live: bool = False) -> None:
         if not client_id or not client_secret:
-            raise PayPalError("PayPal credentials are not configured (PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET).")
+            raise PayPalError("PayPal credentials are not configured (PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET).",
+                              sent=False)
         self._id = client_id
         self._secret = client_secret
         self.base_url = base_url.rstrip("/")

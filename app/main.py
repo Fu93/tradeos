@@ -436,8 +436,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Recompute the case's hash chain. Read-only. See README 'Hash-chained audit trail' for limits."""
         if not db.get_case(case_id):
             raise HTTPException(404)
-        result = db.verify_chain(case_id)
-        chained = db.chained_case_state(case_id)
+        result, chained = db.verify_and_fold(case_id)
         # approval_source belongs here: the point of chaining it is that a verifier outside this process
         # can confirm WHO approved a refund (a person, or the merchant's own policy), not just that
         # somebody did. Leaving it out made the guarantee only visible inside the app.

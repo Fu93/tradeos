@@ -45,10 +45,19 @@ def main(base: str) -> int:
     auto = bool(health.get("auto_enabled"))
     print(f"Autonomy {'ON' if auto else 'OFF'} (auto_refund_max_amount={health.get('auto_refund_max_amount')})")
 
+    def run_case(path: str) -> str:
+        """POST an endpoint that must redirect to a case; a 429/409 page fails loudly with its
+        flash text instead of dying on a KeyError later (e.g. the order-creation rate limit when
+        this script runs twice within a minute, or visitors burning the demo budget)."""
+        r = c.post(path)
+        if r.status_code != 303:
+            check(False, f"POST {path} -> {r.status_code} (expected 303): {r.text[:200]}")
+            raise SystemExit(1)
+        return r.headers["location"].split("case=")[1]
+
     # Case A: one real Sandbox refund. Who approves it depends on the target's autonomy setting, so
     # the run asserts the configuration it found instead of assuming the one it was written for.
-    r = c.post("/demo/run/A")
-    case_a = r.headers["location"].split("case=")[1]
+    case_a = run_case("/demo/run/A")
     case = c.get(f"/api/cases/{case_a}").json()["case"]
     if auto:
         check(case["status"] == "REFUND_COMPLETED" and case.get("approval_source") == "auto",
@@ -108,8 +117,7 @@ def main(base: str) -> int:
           f"{(chain_a.get('head') or '')[:12]}")
 
     # Case B: blocked, refund API never called
-    r = c.post("/demo/run/B")
-    case_b = r.headers["location"].split("case=")[1]
+    case_b = run_case("/demo/run/B")
     check(c.post(f"/cases/{case_b}/approve").status_code == 409, f"Case B {case_b} approve -> 409")
     b_calls = c.get(f"/api/cases/{case_b}").json()["paypal_calls"]
     check(not any(x["operation"] == "refund_capture" for x in b_calls), "Case B: refund API not called")
@@ -138,6 +146,9 @@ def main(base: str) -> int:
 
     # Exchange (size swap): supplier replacement (MOCK), human approval, Refund API NOT CALLED
     r = c.post("/cases/free", data={"message": "The shoes are too small. Can I exchange size 42 for size 43?"})
+    if r.status_code != 303:
+        check(False, f"POST /cases/free -> {r.status_code} (expected 303): {r.text[:200]}")
+        raise SystemExit(1)
     case_x = r.headers["location"].split("case=")[1]
     xc = c.get(f"/api/cases/{case_x}").json()["case"]
     check(xc["status"] == "PENDING_APPROVAL" and xc["decision"] == "EXCHANGE_ELIGIBLE",
@@ -153,8 +164,7 @@ def main(base: str) -> int:
           f"Exchange audit trail intact: {chain_x.get('entries')} entries")
 
     # Refund failure (PayPal 422) -> 'PayPal refused, no money moved' -> retry COMPLETED (same request id)
-    r = c.post("/demo/run/R")
-    case_r = r.headers["location"].split("case=")[1]
+    case_r = run_case("/demo/run/R")
     c.post(f"/cases/{case_r}/approve")
     rc = c.get(f"/api/cases/{case_r}").json()["case"]
     page = c.get(f"/?case={case_r}").text

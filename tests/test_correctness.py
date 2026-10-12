@@ -9,7 +9,7 @@ import pytest
 from app.config import Settings
 from app.paypal_client import PayPalError
 from app.ratelimit import RateLimiter
-from app.workflow import PENDING_APPROVAL, REFUND_ERROR, REFUND_UNKNOWN
+from app.workflow import NEW, PENDING_APPROVAL, REFUND_ERROR, REFUND_UNKNOWN
 from tests.test_admin_and_guards import make
 from tests.helpers import case_from
 
@@ -119,3 +119,19 @@ def test_webhook_rejects_oversized_bodies(settings):
     assert r.status_code == 400
     assert wf.db.webhook_events() == []  # nothing was written, not even an unverified row
     assert pp.refund_capture.call_count == 0
+
+
+# ---------------------------------------------------------------- reset interlock
+def test_process_skips_while_a_demo_reset_is_in_flight(workflow):
+    """The mirror of begin_reset() refusing while a run is in flight: a run must not start (and pay
+    for a real sandbox order) while db.init(reset=True) + seed_demo are archiving underneath it."""
+    wf = workflow
+    case_id = wf.new_case("A")
+    wf._resetting = True  # as begin_reset() sets it, held for the whole reset duration
+    try:
+        wf.process(case_id)
+    finally:
+        wf._resetting = False
+    assert wf._paypal.create_order_with_card.call_count == 0  # no order was paid for
+    assert wf.db.get_case(case_id)["status"] == NEW  # untouched, still runnable after the reset
+    assert any("reset is in progress" in e["title"] for e in wf.db.timeline(case_id))
