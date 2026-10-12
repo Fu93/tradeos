@@ -256,17 +256,22 @@ class Workflow:
         Two runs of the same case can overlap (a double-clicked Run button, two tabs — the rate
         limiter counts per minute, not per click). The first run claims the case; the slower
         duplicate is refused here, before paying for a second order/capture/LLM pass, instead of
-        overwriting a final state. The terminal-state freeze in db.update_case stays as the backstop
-        for the entry points that do not come through here (buyer capture, policy retry)."""
+        overwriting a final state. A run is also refused while a demo reset is in flight — the
+        mirror of begin_reset() refusing while a run is in flight — so a run can never pay for an
+        order on a case that is being archived underneath it. The terminal-state freeze in
+        db.update_case stays as the backstop for the entry points that do not come through here
+        (buyer capture, policy retry)."""
         try:
             with self._locks_guard:
-                if case_id in self._running:
-                    busy = True
+                if self._resetting:
+                    busy = "a demo reset is in progress"
+                elif case_id in self._running:
+                    busy = "another run of this case is already in flight"
                 else:
-                    busy = False
+                    busy = None
                     self._running.add(case_id)
             if busy:
-                self.db.audit(case_id, "workflow", "Run skipped — another run of this case is already in flight",
+                self.db.audit(case_id, "workflow", f"Run skipped — {busy}",
                               {"status": self._case(case_id)["status"]})
                 return
             case = self._case(case_id)  # raises CaseNotFound for an unknown id
@@ -682,13 +687,14 @@ class Workflow:
         if not case["capture_id"]:
             raise RefundNotAllowed("No PayPal capture to refund.")
         # The row alone is not enough: the decision and the approval must also be on the case's hash
-        # chain, and the chain must verify. A direct UPDATE of the cases table (no chain entry) is refused.
-        # The approval may be a person's or, when the merchant enabled autonomy, the policy's own
-        # (approval_source "human" / "auto"); either way it has to be a chained entry.
-        chain = self.db.verify_chain(case["id"])
-        if not chain["ok"]:
-            raise RefundNotAllowed(f"Audit trail BROKEN at entry {chain['broken_at']}; refund refused.")
-        chained = self.db.chained_case_state(case["id"])
+        # chain, and the chain must verify — freshly, never through the dashboard's memo cache. One
+        # read both verifies and folds the chained state. A direct UPDATE of the cases table (no
+        # chain entry) is refused. The approval may be a person's or, when the merchant enabled
+        # autonomy, the policy's own (approval_source "human" / "auto"); either way it has to be a
+        # chained entry.
+        chain_result, chained = self.db.verify_and_fold(case["id"])
+        if not chain_result["ok"]:
+            raise RefundNotAllowed(f"Audit trail BROKEN at entry {chain_result['broken_at']}; refund refused.")
         if chained.get("decision") != "ELIGIBLE" or chained.get("human_decision") != "APPROVED":
             raise RefundNotAllowed("No policy ELIGIBLE + chained APPROVED entry on the audit chain; refund refused.")
         if chained.get("capture_id") != case["capture_id"]:
