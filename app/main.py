@@ -16,7 +16,7 @@ from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
 from .config import Settings
-from .db import CaseFinalized, Database
+from .db import CaseFinalized, Database, utcnow
 from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
@@ -28,7 +28,7 @@ from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
-                       Workflow)
+                       Workflow, clean_message)
 
 BASE = Path(__file__).parent
 EXCHANGE_COPY = ("Only a return leads to a refund. A size exchange goes to the supplier as a replacement request "
@@ -147,10 +147,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
-    def money_limited(request: Request) -> HTMLResponse | None:
+    def money_limited(request: Request, case_id: str | None = None) -> HTMLResponse | None:
         reason = money_limiter.check(ip(request))
         if reason:
-            return render_dashboard(request, flash=reason, status_code=429)
+            return render_dashboard(request, case_id, flash=reason, status_code=429)
         return None
 
     # --- admin token (TRADEOS_ADMIN_TOKEN): guards the money-action endpoints ------------------
@@ -159,11 +159,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def admin_unlocked(request: Request) -> bool:
         return request.cookies.get(ADMIN_COOKIE) in admin_sessions
 
-    def require_admin(request: Request, supplied: str = "") -> HTMLResponse | None:
+    def require_admin(request: Request, supplied: str = "", case_id: str | None = None) -> HTMLResponse | None:
         """Unset token (default) => open, as before: local demos and the test suite keep working.
         With a token set, the money actions (approve / decline / refund / capture / reset) pass only
         with (1) an 'Unlock admin' session cookie, (2) the token as a form field, or (3) an
-        X-Admin-Token header (for scripts). Compares in constant time; failures never create a session."""
+        X-Admin-Token header (for scripts). Compares in constant time; failures never create a session.
+        The 401 page keeps showing the case the action was aimed at, not whichever case happens to
+        render first — a wrong-case page invites a wrong-case click."""
         if not settings.admin_token:
             return None
         if admin_unlocked(request):
@@ -172,7 +174,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             if candidate and secrets.compare_digest(candidate.encode(), settings.admin_token.encode()):
                 return None
         return render_dashboard(
-            request, status_code=401,
+            request, case_id, status_code=401,
             flash="This action needs the admin token (TRADEOS_ADMIN_TOKEN). Use 'Unlock admin' at the top "
                   "of the page, or send the token as an X-Admin-Token header.")
 
@@ -244,7 +246,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             if message.strip() == p["message"]:
                 label = preset_label(preset)
         message = message.strip()
-        if not message:
+        if not message or not clean_message(message, settings.free_text_max_chars):
+            # clean_message strips non-printables: "\x00" survives .strip() but cleans to "" — that used
+            # to escape this check and blow up run_free_text with an unhandled ValueError (a public 500).
             return render_dashboard(request, flash="Type a customer message (any language) or pick a preset.",
                                     status_code=422)
         if len(message) > settings.free_text_max_chars:
@@ -292,20 +296,20 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/cases/{case_id}/approve")
     def approve(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request, case_id)) is not None or (refused := require_admin(request, admin_token, case_id)) is not None:
             return refused
         return guarded(request, case_id, wf.approve)
 
     @app.post("/cases/{case_id}/decline")
     def decline(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request, case_id)) is not None or (refused := require_admin(request, admin_token, case_id)) is not None:
             return refused
         return guarded(request, case_id, wf.decline)
 
     @app.post("/cases/{case_id}/refund")
     def refund(request: Request, case_id: str, admin_token: str = Form("")):
         """Retry endpoint. Same hard guard as approve: policy ELIGIBLE + human APPROVED."""
-        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request, case_id)) is not None or (refused := require_admin(request, admin_token, case_id)) is not None:
             return refused
         case = db.get_case(case_id)
         if case and case.get("refund_status") in ("COMPLETED", "PENDING"):
@@ -350,7 +354,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/cases/{case_id}/approve-twice")
     def approve_twice(request: Request, case_id: str, admin_token: str = Form("")):
         """Failure-mode demo (scenario D only): simulates a double-clicked Approve."""
-        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request, case_id)) is not None or (refused := require_admin(request, admin_token, case_id)) is not None:
             return refused  # approve-twice calls approve(); leaving it open would bypass the guard above
         case = db.get_case(case_id)
         if not case:
@@ -427,7 +431,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/cases/{case_id}/paypal-return")
     def paypal_return_capture(request: Request, case_id: str, admin_token: str = Form("")):
-        if (refused := money_limited(request)) is not None or (refused := require_admin(request, admin_token)) is not None:
+        if (refused := money_limited(request, case_id)) is not None or (refused := require_admin(request, admin_token, case_id)) is not None:
             return refused  # capture moves money, so it is behind the same token as approve/refund
         return guarded(request, case_id, wf.complete_buyer_approval)
 
@@ -443,6 +447,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         result["chained_state"] = {k: chained.get(k) for k in ("status", "decision", "human_decision",
                                                                "approval_source", "refund_status", "refund_id")}
         return JSONResponse(result)
+
+    @app.get("/audit/heads")
+    def audit_heads():
+        """The chain head of every case, for retention OUTSIDE this database (the deploy-verify
+        workflow saves one list per deployment as a workflow artifact). Two head lists recorded at
+        different times are what make a truncated or rewritten chain detectable — README
+        'Hash-chained audit trail': tamper-evident, not tamper-proof."""
+        return JSONResponse({"generated_at": utcnow(), "heads": db.chain_heads()})
 
     @app.get("/api/cases/{case_id}")
     def case_json(case_id: str):

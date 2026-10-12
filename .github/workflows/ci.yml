@@ -2,6 +2,8 @@ name: CI
 on:
   push:
   pull_request:
+  schedule:
+    - cron: "0 3 * * 1"   # weekly: pip-audit re-runs against whatever advisories shipped that week
 permissions:
   contents: read
 concurrency:
@@ -16,7 +18,7 @@ jobs:
         with:
           python-version: "3.12.8"
           cache: pip
-      - run: pip install -r requirements-dev.txt
+      - run: pip install -r requirements-dev.lock
       - name: Lint (ruff)
         run: ruff check .
       - name: Type check (mypy)
@@ -33,6 +35,7 @@ jobs:
         with:
           python-version: "3.12.8"
           cache: pip
-      - run: pip install -r requirements.txt pip-audit
+      - run: pip install -r requirements.lock
+      - run: pip install pip-audit   # separate: the hash-pinned lock cannot mix with an unpinned tool
       - name: Dependency audit (pip-audit)
         run: pip-audit --strict

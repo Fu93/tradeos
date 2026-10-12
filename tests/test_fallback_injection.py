@@ -103,7 +103,8 @@ def test_end_to_end_guarded_case_goes_to_human_without_approve_button(client_wf,
     assert f'action="/cases/{case_id}/approve"' not in html  # no Approve button for this case
     assert f'action="/cases/{case_id}/approve-twice"' not in html
     assert "intent was forced to <code>UNKNOWN</code>" in html
-    assert "Keyword fallback + injection detected" in html
+    # narrate() translates the audit title into plain English; the raw title is not on the page
+    assert "keyword fallback detected instruction-like wording" in html
     assert client.post(f"/cases/{case_id}/approve", follow_redirects=False).status_code == 409
     pp.refund_capture.assert_not_called()
 

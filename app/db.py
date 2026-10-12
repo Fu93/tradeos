@@ -408,6 +408,17 @@ class Database:
                     t_, p_ = "webhook:received", chain.webhook_row_payload(row)
                 self._chain_append(conn, row["case_id"], t_, ts, p_, table, rid, backfilled=True)
 
+    def chain_heads(self) -> list[dict]:
+        """(case_id, seq, head) for every chain. These are the values an observer OUTSIDE the database
+        must record: a later head list that no longer chains up to a previously recorded head proves a
+        truncation or rewrite (the one thing the in-database chain cannot prove about itself)."""
+        with self.connect() as conn:
+            rows = conn.execute(
+                "SELECT a.case_id AS case_id, a.seq AS seq, a.entry_hash AS entry_hash FROM audit_chain a "
+                "WHERE a.seq = (SELECT MAX(b.seq) FROM audit_chain b WHERE b.case_id = a.case_id) "
+                "ORDER BY a.case_id").fetchall()
+        return [{"case_id": r["case_id"], "seq": r["seq"], "head": r["entry_hash"]} for r in rows]
+
     def chain_entries(self, case_id: str) -> list[dict]:
         with self.connect() as conn:
             return [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",

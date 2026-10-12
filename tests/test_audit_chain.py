@@ -331,3 +331,14 @@ def test_refund_gate_never_trusts_the_verify_cache(settings):
     r = client.post(f"/cases/{case_id}/approve", follow_redirects=False)
     assert r.status_code == 409 and "Audit trail BROKEN" in r.text
     assert pp.refund_capture.call_count == 0
+
+
+def test_audit_heads_lists_every_chain_head_for_external_retention(settings):
+    client, pp, wf = app_with(settings)
+    a = run_a(client)
+    b = case_from(client.post("/demo/run/B", follow_redirects=False))
+    data = client.get("/audit/heads").json()
+    assert data["generated_at"]
+    by_id = {h["case_id"]: h for h in data["heads"]}
+    assert by_id[a]["head"] == wf.db.verify_chain(a)["head"]
+    assert by_id[b]["head"] == wf.db.verify_chain(b)["head"]

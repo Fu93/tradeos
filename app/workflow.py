@@ -141,8 +141,7 @@ class Workflow:
             self.db.log_paypal_call(case_id, operation, False, str(exc), debug_id=exc.debug_id or None,
                                     request_id=request_id,
                                     evidence={"http_status": exc.status_code, "name": exc.name or None,
-                                              "issue": ((exc.details or [{}])[0] or {}).get("issue")
-                                              if isinstance(exc.details, list) else None})
+                                              "issue": _first_issue(exc.details)})
             raise
         summary = {k: result.get(k) for k in ("id", "status") if isinstance(result, dict)}
         self.db.log_paypal_call(case_id, operation, True, json.dumps(summary), debug_id=_last_debug_id(client),
@@ -323,7 +322,13 @@ class Workflow:
         self._after_capture(case_id)
 
     def complete_buyer_approval(self, case_id: str) -> None:
-        """Fallback path: buyer approved in the PayPal sandbox, now capture."""
+        """Fallback path: buyer approved in the PayPal sandbox, now capture. This moves money, so it
+        runs inside _money_op like every other money path: a demo reset refuses to start underneath it
+        (and it is refused while a reset is in flight)."""
+        with self._money_op():
+            self._complete_buyer_approval(case_id)
+
+    def _complete_buyer_approval(self, case_id: str) -> None:
         case = self._case(case_id)
         if case["status"] != AWAITING_BUYER:
             return
@@ -1245,6 +1250,13 @@ RECONCILE_MIN_INTERVAL = 30.0  # seconds between automatic reconciliations of on
 RECONCILE_READ_TIMEOUT = 5.0   # seconds per PayPal GET during reconciliation (demo must never hang)
 
 # Position of the PayPal-Request-Id argument per client operation (for the evidence log).
+def _first_issue(details: Any) -> str | None:
+    """PayPal's `details` is a list of objects — but never trust the shape inside an error handler."""
+    if isinstance(details, list) and details and isinstance(details[0], dict):
+        return details[0].get("issue")
+    return None
+
+
 _REQUEST_ID_ARG = {"create_order_with_card": 4, "create_order": 4, "capture_order": 1, "refund_capture": 1}
 
 
