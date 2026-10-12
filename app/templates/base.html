@@ -22,12 +22,16 @@
         <span class="badge bad">PayPal: not configured — set PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET</span>
       {% endif %}
       <span class="badge neutral">Intent extractor: {{ extractor }}</span>
+      {% if settings.db_path.startswith('/tmp') %}
+        <span class="badge warn" title="Render free tier: SQLite lives in /tmp and is wiped on restart or redeploy. Audit trails do not survive a deploy.">Persistence: ephemeral</span>
+      {% endif %}
     </div>
   </header>
   <main>{% block content %}{% endblock %}</main>
   <footer class="footer">
     Use AI where language is ambiguous. Use code where money is at stake. ·
     PayPal AI Hackathon MVP · Sandbox only · <a href="/api/docs">API</a>
+    {% if settings.db_path.startswith('/tmp') %}· <span class="muted">Data is ephemeral (free tier)</span>{% endif %}
   </footer>
   <script src="/static/app.js"></script>
 </body>
