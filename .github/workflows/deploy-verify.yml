@@ -62,7 +62,7 @@ jobs:
           exit 1
       - name: Save the audit-chain heads artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: audit-heads-${{ github.sha }}
           path: audit-heads-*.json
