@@ -35,6 +35,7 @@ jobs:
         with:
           python-version: "3.12.8"
           cache: pip
-      - run: pip install -r requirements.lock pip-audit
+      - run: pip install -r requirements.lock
+      - run: pip install pip-audit   # separate: the hash-pinned lock cannot mix with an unpinned tool
       - name: Dependency audit (pip-audit)
         run: pip-audit --strict
