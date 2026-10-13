@@ -38,6 +38,24 @@
   </div>
 </section>
 
+<section class="demo-guide" aria-labelledby="demo-guide-title">
+  <div class="guide-copy">
+    <div class="eyebrow">Judge path · about 3 minutes</div>
+    <h2 id="demo-guide-title">See the complete money-safe workflow</h2>
+    <ol class="guide-steps">
+      <li><strong>Run Case A</strong><span>eligible return</span></li>
+      <li><strong>Approve &amp; refund</strong><span>human approval gate</span></li>
+      <li><strong>Check evidence</strong><span>PayPal · webhook · audit</span></li>
+    </ol>
+    <p class="cold-start-note">Free-tier note: the first request may take a few seconds while the demo wakes up. If it looks slow, wait and refresh once.</p>
+  </div>
+  <div class="guide-links">
+    <a class="btn primary" href="#pending">Start with Case A above</a>
+    <a class="btn" href="#evidence">Jump to PayPal evidence</a>
+    <a class="btn ghost" href="#failures">See failure &amp; safety modes</a>
+  </div>
+</section>
+
 {% if flash %}<div class="flash bad" role="alert">{{ flash }}</div>{% endif %}
 
 <nav class="tabs" aria-label="Cases">
@@ -209,6 +227,14 @@
     <h2>PayPal evidence {% if paypal_mode == "mock" %}<span class="mock-tag">MOCK PayPal — not real Sandbox data</span>{% endif %}</h2>
     <p class="ev-caption">What PayPal itself reported for this case: the refund and its status, an ID PayPal can trace, and PayPal's signed confirmation. TradeOS only shows success after PayPal says COMPLETED.</p>
     {% if current and evidence %}
+    <div class="evidence-highlights" aria-label="Key judge evidence">
+      {% for r in evidence_summary %}
+        <div class="evidence-highlight {{ 'good' if r.ok is true else ('bad' if r.ok is false else 'pending') }}">
+          <span class="highlight-label">{{ r.label }}</span>
+          <strong>{{ r.value }}</strong>
+        </div>
+      {% endfor %}
+    </div>
     <dl class="ev-summary">
       {% for r in evidence_summary %}
         <dt>{{ r.label }}</dt><dd class="{{ 'ok' if r.ok else ('bad' if r.ok is false else '') }}">{{ r.value }}</dd>

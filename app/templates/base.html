@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  <div class="demo-ribbon" role="status">
+    <strong>HACKATHON DEMO</strong><span>PayPal Sandbox</span><span>No real money</span>
+  </div>
   <header class="topbar">
     <div class="brand">
       <span class="logo">TradeOS</span>
@@ -22,6 +25,8 @@
         <span class="badge bad">PayPal: not configured — set PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET</span>
       {% endif %}
       <span class="badge neutral">Intent extractor: {{ extractor }}</span>
+      <span class="badge {{ 'ok' if settings.llm_configured else 'warn' }}">LLM: {{ 'Live' if settings.llm_configured else 'Fallback' }}</span>
+      <span class="badge {{ 'ok' if webhook_configured|default(false) else 'warn' }}">Webhook: {{ 'configured' if webhook_configured|default(false) else 'not configured' }}</span>
       {% if settings.db_path.startswith('/tmp') %}
         <span class="badge warn" title="Render free tier: SQLite lives in /tmp and is wiped on restart or redeploy. Audit trails do not survive a deploy.">Persistence: ephemeral</span>
       {% endif %}

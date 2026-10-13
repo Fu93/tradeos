@@ -6,7 +6,22 @@
 >
 > Use AI where language is ambiguous. Use code where money is at stake.
 
-**Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; free tier, first load may take ~1 min to wake) · **Video:** _YouTube URL TBD_
+**Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
+
+### Judge quick start — about 3 minutes
+
+1. If the first request is slow, wait a few seconds for the free-tier service to wake and refresh once.
+2. Click **Run Case A — eligible return (refund)**. This creates a real PayPal Sandbox order and capture.
+3. Click **Approve & refund**. The Refund API is not called before this human approval.
+4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
+5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
+
+The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
+The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. Render's free tier uses ephemeral SQLite data, so a restart may reseed the shared demo cases.
+
+The matching recording plan is in [`docs/demo-video-script.md`](docs/demo-video-script.md); it treats the UI guide and evidence cards as part of the judge story rather than as separate documentation.
+
+## What TradeOS does
 
 1. A customer writes in any language; an LLM only extracts intent into a strict schema.
 2. Deterministic Python policy decides eligibility. Then the merchant's own autonomy setting decides who approves: a person, or — when the merchant has opted in and the amount is inside their limit — the policy itself. Only an approval recorded on the audit chain lets the PayPal Refund API be called.
@@ -81,10 +96,10 @@ no autonomy setting can turn an exchange into a refund.
 
 Only a **return** leads to a refund. A **size exchange** never does.
 
-| Step | Case A — eligible return | Case B — same return, rejected | Exchange (e.g. the 中文 preset, 42 → 43) |
+| Step | Case A — eligible return | Case B — same return, rejected | Exchange (e.g. the Chinese-language preset, 42 → 43) |
 | --- | --- | --- | --- |
 | PayPal Sandbox order + capture | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID |
-| Customer | *"These sneakers are too small and don't fit. I'd like to return them and get my money back."* → AI: `REFUND_REQUEST / SIZE_MISMATCH / REFUND` | same | *"鞋子太小了，可以把42號換成43號嗎？"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
+| Customer | *"These sneakers are too small and don't fit. I'd like to return them and get my money back."* → AI: `REFUND_REQUEST / SIZE_MISMATCH / REFUND` | same | *"These shoes are too small. Can I exchange size 42 for 43?"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
 | Deterministic policy (fed by `GET /v2/payments/captures/{id}`) | ELIGIBLE (return) | **REJECTED** — purchased 45 days ago, 30-day window | ELIGIBLE (exchange) |
 | Supplier | not involved | not contacted | Generated draft + **MOCK** reply `REPLACEMENT_APPROVED` |
 | Approval | A person — or the merchant's policy, when `AUTO_ENABLED` is on and the amount is within the limit | — | A person — or the merchant's policy, when `AUTO_ENABLED` and `AUTO_EXCHANGE_ENABLED` are on |
@@ -133,7 +148,7 @@ cases carry no prefix because no approval happened.
 
 ![Multilingual free-text input and what the AI understood](docs/multilingual-input.png)
 
-Type your own customer message, or click a preset: **English, 中文（繁體）, Español, Deutsch, 日本語**, a
+Type your own customer message, or click a preset: **English, Chinese (Traditional), Spanish, German, Japanese**, a
 **prompt-injection** message and a **late request**. Every run goes through the same loop and creates a **real
 PayPal Sandbox order + capture**. A toggle *Purchased 45 days ago* seeds an old purchase date (labelled as seeded
 demo data) to demo the rejection path. Input is capped (500 chars, control characters stripped) and runs are rate-limited
@@ -169,11 +184,10 @@ One strict structured-output call returns two separately validated parts:
 
   Translation guard (deterministic): every number must survive, the text must fit PayPal's 255-character
   `note_to_payer` limit, and — for every state except COMPLETED — the translation must not contain approval /
-  refund-completed claims (phrase lists for en, zh, ja, es, de, e.g. “approved”, “已批准”, “已退款”, “承認済”,
-  “aprobado”, “genehmigt”). Otherwise the code-written English note is used.
+  refund-completed claims (phrase lists for English, Chinese, Japanese, Spanish, and German, such as “approved” and “refunded”). Otherwise the code-written English note is used.
 * AI never decides eligibility, amount, capture or permission.
 
-Language presets: English, Español and 日本語 ask to **return for a refund**; 中文（繁體） and Deutsch ask to
+Language presets: English, Spanish, and Japanese ask to **return for a refund**; Chinese (Traditional) and German ask to
 **exchange 42 → 43** (no refund). Language detection (Traditional vs Simplified Chinese is double-checked
 deterministically from the script) and the sizes come from the model. The injection preset is REJECTED with 0 refund
 calls: the model reads it as a refund request without a stated reason, and the heuristic marker check flags it. The keyword fallback returns
@@ -426,7 +440,7 @@ No PayPal credentials yet? `PAYPAL_MOCK=1 uvicorn app.main:app` runs the whole l
 A red "MOCK mode" badge is shown; nothing in that mode is a real PayPal result.
 
 An offline run **without `LLM_API_KEY`** uses the keyword extractor, which reads **English only**. The non-English
-presets (中文 / Español / Deutsch / 日本語) then come back as `UNKNOWN` and are rejected to a human — the intended
+presets (Chinese / Spanish / German / Japanese) then come back as `UNKNOWN` and are rejected to a human — the intended
 outcome for a request the extractor cannot read, but it means 4 of the 7 presets look blocked until you add a key.
 The case page says so (`keyword-fallback`, "no LLM key set"), and the policy reason reads "not supported by the
 automated workflow; route to a human".
@@ -514,14 +528,14 @@ credits the merchant's policy rather than a human. Exit code 0 = every check pas
 ## Demo flow (≈3 minutes)
 
 1. Problem and audience: small cross-border merchants without an ops team.
-2. **Try it yourself → Español** (or English / 日本語) → Run → real sandbox order + capture → the AI panel shows
+2. **Try it yourself → Spanish** (or English / Japanese) → Run → real sandbox order + capture → the AI panel shows
    the Spanish original and the English merchant summary (a return) → pipeline lights up to *Approval*.
 3. **Approve & refund** → `Refund COMPLETED`, confirmed by PayPal, with Order / Capture / Refund IDs; the Spanish
    note travels with the refund as `note_to_payer`.
-3b. **中文 preset (exchange 42 → 43)** → MOCK supplier approves a replacement → **Approve exchange (no refund)** →
+3b. **Chinese-language preset (exchange 42 → 43)** → MOCK supplier approves a replacement → **Approve exchange (no refund)** →
    `Exchange arranged — no refund`, Refund API calls 0.
 3c. **The agent completes cases on its own** (start the app with `AUTO_ENABLED=1 AUTO_EXCHANGE_ENABLED=1`) → run the
-   same return and the 中文 exchange → neither shows an Approve button, both finish (`Refund COMPLETED`,
+   same return and the Chinese-language exchange → neither shows an Approve button, both finish (`Refund COMPLETED`,
    `Exchange arranged — no refund`), and the case list marks them **AUTO**. The timeline shows *"Autonomy: AUTO —
    within the merchant's limits"* followed by *"Auto-approved by the merchant's policy — no human involved"*. Then set
    `AUTO_REFUND_MAX_AMOUNT=10.00` and run the return again: it waits for a person, because $49.99 is outside the

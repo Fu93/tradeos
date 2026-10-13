@@ -153,6 +153,18 @@ def test_csrf_cross_origin_post_blocked_same_origin_allowed(settings):
     assert ok2.status_code == 303
 
 
+def test_judge_guidance_and_environment_status_are_visible(settings):
+    client, pp, wf = make(settings)
+    html = client.get("/").text
+    assert "HACKATHON DEMO" in html
+    assert "PayPal Sandbox" in html
+    assert "No real money" in html
+    assert "Judge path" in html
+    assert "Start with Case A above" in html
+    assert "LLM: Fallback" in html
+    assert "Webhook: configured" in html
+
+
 # ---------------------------------------------------------------- (5) small fixes
 def test_head_root_and_html_404(settings):
     client, pp, wf = make(settings)

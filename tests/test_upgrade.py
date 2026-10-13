@@ -424,7 +424,7 @@ def test_success_card_has_all_ids(settings):
 def test_dashboard_has_new_panels(app_ctx):
     client, _, _ = app_ctx
     html = client.get("/").text
-    for text in ("Try it yourself", "中文（繁體）", "Español", "Deutsch", "日本語", "Prompt injection",
+    for text in ("Try it yourself", "Chinese (Traditional)", "Spanish", "German", "Japanese", "Prompt injection",
                  "Late request (45 days)", "Purchased 45 days ago", "Failure &amp; safety modes",
                  "Refund API failure", "Double-click approve", "MOCK supplier", "Customer request",
                  "AI intent", "Approval", "Autonomy", 'maxlength="500"'):
