@@ -54,7 +54,7 @@ def test_unknown_then_reconcile_recovers_same_request_id(settings):
     request_id = _unknown_then_refunded(wf, case_id)
 
     # Reconcile discovers the refund and recovers it.
-    r = wf.reconcile(case_id)
+    wf.reconcile(case_id)
     case = wf.db.get_case(case_id)
     assert case["status"] == REFUND_COMPLETED
     assert case["refund_id"]  # recovery recorded a refund id
@@ -116,8 +116,10 @@ def test_concurrent_webhook_and_reconcile_end_consistent(settings):
 
     t1 = threading.Thread(target=do_reconcile)
     t2 = threading.Thread(target=do_webhook)
-    t1.start(); t2.start()
-    t1.join(); t2.join()
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
 
     case = wf.db.get_case(case_id)
     assert case["status"] == REFUND_COMPLETED
