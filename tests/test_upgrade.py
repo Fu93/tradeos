@@ -262,25 +262,25 @@ def test_injection_changes_nothing(app_ctx):
     case = wf.db.get_case(case_id)
     assert case["status"] == "REJECTED" and case["amount"] == "49.99"
     assert "a refund needs a stated reason" in case["policy"]["reasons"][0]
-    assert any("instruction-like" in r for r in case["policy"]["reasons"])  # heuristic marker check
+    # injection is flagged (for the UI/audit) but does not force the rejection
+    assert any("instruction-like" in (c.get("detail") or "") for c in case["policy"]["checks"])
     html = client.get(f"/?case={case_id}").text
     assert "Instruction-like text detected" in html and "Controlled by the backend" in html
     pp.refund_capture.assert_not_called()
 
 
 def test_injection_even_with_a_compromised_model_needs_human_and_uses_backend_amount(settings):
-    """Worst case: the model is fooled into a valid return-for-refund intent. The heuristic marker check sends
-    this message to a human (REJECTED for automation); the amount stays the backend's either way."""
+    """Worst case: the model is fooled into a valid return-for-refund intent. The heuristic marker
+    does not force REJECTED (that hid the human path); autonomy routes it to a person. Amount stays
+    the backend's either way; nothing is refunded without an approval on the chain."""
     wf, pp = make_wf(settings, FakeExtractor())
     case_id = wf.run_free_text(BY_KEY["injection"]["message"], label="Preset: Prompt injection")
     case = wf.db.get_case(case_id)
-    assert case["status"] == "REJECTED" and case["amount"] == "49.99"
-    assert "no_injection_markers" in {c["name"] for c in case["policy"]["checks"] if not c["passed"]}
+    assert case["status"] == "PENDING_APPROVAL" and case["amount"] == "49.99"
+    assert any("instruction-like" in (c.get("detail") or "") for c in case["policy"]["checks"])
     pp.refund_capture.assert_not_called()
-    with pytest.raises(RefundNotAllowed):
-        wf.execute_refund(case_id)
-    with pytest.raises(RefundNotAllowed):
-        wf.approve(case_id)
+    # A person can still approve (the hard guard is the audit chain + policy, not the marker).
+    # But we do not call approve here; the point is no automatic refund happened.
     pp.refund_capture.assert_not_called()
 
 

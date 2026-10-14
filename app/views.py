@@ -632,7 +632,8 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
         if verified:
             how = {"self": "signature checked against PayPal's certificate", "postback": "signature verified by PayPal's API"}
-            value = f"{how.get(verified[-1].get('verify_method') or "", 'signature verified')} · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
+            method = verified[-1].get("verify_method") or ""
+            value = f"{how.get(method, 'signature verified')} · event {verified[-1]['event_id']}" + (f" · {dups} duplicate ignored" if dups else "")
             rows.append({"label": "Signed PayPal notice", "value": value, "ok": True})
         else:
             rows.append({"label": "Signed PayPal notice", "value": "waiting for PayPal's signed webhook…" if webhook_configured else
