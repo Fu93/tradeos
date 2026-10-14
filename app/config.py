@@ -68,10 +68,6 @@ class Settings:
     db_path: str = "tradeos.db"
     reset_on_start: bool = True
     public_base_url: str = "http://localhost:8000"
-    # Shared admin token for the money-action endpoints (approve / decline / refund / capture / reset).
-    # Empty (default) => open, as before (local demo, tests). Set it on a public deployment: visitors
-    # unlock once via the 'Unlock admin' form (session cookie) or send an X-Admin-Token header (scripts).
-    admin_token: str = ""
     # The PayPal client refuses any base_url that is not the sandbox unless this is explicitly set,
     # so a mistyped PAYPAL_BASE_URL can never point a card payload or a refund at the live API.
     allow_live: bool = False
@@ -148,7 +144,6 @@ class Settings:
             llm_model=_env("LLM_MODEL") or DEFAULT_LLM_MODEL,
             db_path=_env("TRADEOS_DB_PATH", "tradeos.db"),
             reset_on_start=_env_bool("TRADEOS_RESET_ON_START", True),
-            admin_token=_env("TRADEOS_ADMIN_TOKEN"),
             allow_live=_env_bool("TRADEOS_ALLOW_LIVE", False),
             public_base_url=public.rstrip("/"),
             return_window_days=int(_env("RETURN_WINDOW_DAYS", "30")),
