@@ -15,7 +15,6 @@ chain, and a page that credits the merchant's policy rather than a human. Exit c
 """
 from __future__ import annotations
 
-import os
 import sys
 import time
 
@@ -23,12 +22,7 @@ import httpx
 
 
 def main(base: str) -> int:
-    # A target with TRADEOS_ADMIN_TOKEN set requires the token on the money actions; send it as a
-    # header on every request. /healthz reports admin_required so a missing token fails loudly.
-    headers = {}
-    if os.environ.get("TRADEOS_ADMIN_TOKEN"):
-        headers["X-Admin-Token"] = os.environ["TRADEOS_ADMIN_TOKEN"]
-    c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False, headers=headers)
+    c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False)
     fails: list[str] = []
 
     def check(ok: bool, label: str) -> None:
@@ -39,9 +33,6 @@ def main(base: str) -> int:
     health = c.get("/healthz").json()
     check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
     check(bool(health.get("webhook_configured")), "PAYPAL_WEBHOOK_ID configured")
-    if health.get("admin_required") and not headers:
-        check(False, "TRADEOS_ADMIN_TOKEN is set on the target but not in this environment — money-action "
-                     "checks below will fail; re-run with TRADEOS_ADMIN_TOKEN set")
     auto = bool(health.get("auto_enabled"))
     print(f"Autonomy {'ON' if auto else 'OFF'} (auto_refund_max_amount={health.get('auto_refund_max_amount')})")
 

@@ -408,10 +408,8 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   Every response carries CSP (`script-src 'self'`, no inline code), HSTS, `frame-ancestors 'none'` / X-Frame-Options,
   nosniff and Referrer-Policy; state-changing POSTs from another origin (Origin/Referer check) get 403, the webhook is
   exempt. Requests with neither header (scripts, curl) are allowed because they aren't a browser CSRF vector.
-- **Admin token:** the money actions (approve / decline / refund / buyer capture / demo reset) are guarded by
-  `TRADEOS_ADMIN_TOKEN` when it is set — visitors unlock once via the page's *Unlock admin* form (HttpOnly session
-  cookie, constant-time token compare), scripts send an `X-Admin-Token` header. The PayPal client also refuses any
-  base URL that is not the sandbox unless `TRADEOS_ALLOW_LIVE=1`, so a mistyped `PAYPAL_BASE_URL` cannot point a
+- **Open demo by design:** money actions (approve / decline / refund / buyer capture / demo reset) are not gated by a shared secret. Rate limits, the deterministic policy hard guard, per-case locks, and the hash-chained audit trail remain. This is a shared hackathon demo on PayPal Sandbox (no real money). Do not treat it as a multi-tenant production system.
+- The PayPal client refuses any base URL that is not the sandbox unless `TRADEOS_ALLOW_LIVE=1`, so a mistyped `PAYPAL_BASE_URL` cannot point a
   card payload or a refund at the live API.
 - **Not covered:** partial refunds, disputes, automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
@@ -463,7 +461,6 @@ reconciled against PayPal in the background at startup.
 | `LLM_MODEL` | no | `openai/gpt-oss-20b` | |
 | `TRADEOS_DB_PATH` | no | `tradeos.db` | |
 | `TRADEOS_RESET_ON_START` | no | `1` | archive old cases and reseed demo data at boot |
-| `TRADEOS_ADMIN_TOKEN` | no (recommended on Render) | — | guards the money actions (approve / decline / refund / capture / reset). Visitors unlock once via the page's *Unlock admin* form (HttpOnly session cookie); scripts send the token as an `X-Admin-Token` header. Empty ⇒ open, as before |
 | `TRADEOS_ALLOW_LIVE` | no | `0` | the PayPal client refuses any base URL that is not the sandbox unless this is explicitly `1` |
 | `PUBLIC_BASE_URL` | no | `RENDER_EXTERNAL_URL` or `http://localhost:8000` | PayPal return URL for the approval fallback |
 | `RETURN_WINDOW_DAYS` | no | `30` | |
@@ -518,7 +515,7 @@ commit (Render injects `RENDER_GIT_COMMIT`, which `/healthz` exposes as `version
 live instance. Set the `TRADEOS_DEPLOY_URL` repository secret (e.g. `https://<your-app>.onrender.com`) to enable it;
 without the secret the workflow is a skipped notice. Each run creates one real Sandbox order/refund set, then
   saves `GET /audit/heads` as a workflow artifact (`audit-heads-<commit>`), so every deployment leaves an externally
-  retained audit-chain head list. Set `TRADEOS_ADMIN_TOKEN` as a repository secret too when the deployment uses it.
+  retained audit-chain head list.
 
 It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
 off, Case A must wait for a person and make no refund call until one approves; with autonomy on, the same case must
@@ -572,11 +569,9 @@ Out of scope for this MVP: product sourcing, scraping, multichannel commerce, li
 invoicing, autonomous financial decisions, partial refunds, real fulfilment, extra agents. The customer note is a
 translated refund/decision note, not a chatbot.
 
-Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces). What the
-MVP does have is a single shared `TRADEOS_ADMIN_TOKEN` (recommended on a public deployment) that guards the
-money-action endpoints — approve, decline, refund, buyer capture, demo reset — with an in-page *Unlock admin*
-form (HttpOnly session cookie) or an `X-Admin-Token` header for scripts. Running cases and viewing the dashboard
-stay public by design; case creation is protected by per-IP/global rate limits.
+Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces).
+Money actions are open by design for this shared hackathon demo (rate limits + policy hard guards + audit chain).
+This is PayPal Sandbox only; it is not a production system for real merchant funds.
 
 ## License
 

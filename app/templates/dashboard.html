@@ -25,15 +25,6 @@
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible return (refund)</button></form>
     <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same return request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
     <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
-    {% if admin_required %}
-      {% if admin_unlocked %}
-      <form method="post" action="/admin/logout" class="js-busy"><button class="btn ghost small" title="Drop this browser's admin session (money actions lock again)">🔒 Admin unlocked — lock</button></form>
-      {% else %}
-      <form method="post" action="/admin/login" class="js-busy admin-auth">
-        <input type="password" name="token" aria-label="Admin token" placeholder="Admin token" autocomplete="off">
-        <button class="btn small" title="Approve / decline / refund / capture / reset need the admin token (TRADEOS_ADMIN_TOKEN)">🔒 Unlock admin</button>
-      </form>
-      {% endif %}
     {% endif %}
   </div>
 </section>

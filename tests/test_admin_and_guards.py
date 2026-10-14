@@ -1,11 +1,8 @@
-"""Admin token (TRADEOS_ADMIN_TOKEN), the sandbox-only PayPal client, and the terminal-state guard
-in db.update_case — regression tests for the P1 findings of the 2026-10-11 audit:
+"""Sandbox-only PayPal client and the terminal-state guard in db.update_case.
 
-- P1-1: the money-action endpoints (approve / decline / refund / capture / reset) are open by design
-  in the old code; with a token configured they must refuse visitors and accept the token only.
-- P1-2: a mistyped PAYPAL_BASE_URL used to point a card payload or refund at the live API.
-- P1-3 (guard half): a slow duplicate run of the same case could flip a completed refund back to
-  PENDING_APPROVAL and re-point its evidence at a fresh capture; db.update_case must refuse that.
+Regression tests retained after removal of the optional TRADEOS_ADMIN_TOKEN gate
+(the money-action endpoints are now open by design for the shared hackathon demo;
+rate limits, policy hard guards, and the audit chain remain).
 """
 import threading
 
@@ -22,8 +19,6 @@ from app.paypal_mock import MockPayPalClient
 from app.workflow import AWAITING_BUYER, NEW, PENDING_APPROVAL, REFUND_COMPLETED
 from tests.helpers import FakeExtractor, case_from
 
-TOKEN = "sekret-admin-token"
-
 
 def make(settings, **kw):
     pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)
@@ -33,82 +28,7 @@ def make(settings, **kw):
     return TestClient(app), pp, app.state.workflow
 
 
-# ---------------------------------------------------------------- (1) admin token
-def test_money_actions_need_the_token_when_configured(settings):
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    case = case_from(client.post("/demo/run/A", follow_redirects=False))
-    for path in (f"/cases/{case}/approve", f"/cases/{case}/decline", f"/cases/{case}/refund", "/demo/reset"):
-        r = client.post(path, follow_redirects=False)
-        assert r.status_code == 401, path
-        assert "admin token" in r.text
-    assert pp.refund_capture.call_count == 0
-    ok = client.post(f"/cases/{case}/approve", data={"admin_token": TOKEN}, follow_redirects=False)
-    assert ok.status_code == 303
-    assert pp.refund_capture.call_count == 1
-
-
-def test_admin_token_header_works_for_scripts(settings):
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    case = case_from(client.post("/demo/run/A", follow_redirects=False))
-    wrong = client.post(f"/cases/{case}/approve", headers={"x-admin-token": "nope"}, follow_redirects=False)
-    assert wrong.status_code == 401
-    ok = client.post(f"/cases/{case}/approve", headers={"x-admin-token": TOKEN}, follow_redirects=False)
-    assert ok.status_code == 303 and pp.refund_capture.call_count == 1
-
-
-def test_admin_login_logout_session(settings):
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    assert client.post("/admin/login", data={"token": "wrong"}, follow_redirects=False).status_code == 401
-    r = client.post("/admin/login", data={"token": TOKEN}, follow_redirects=False)
-    assert r.status_code == 303 and "tradeos_admin" in r.headers["set-cookie"]
-    case = case_from(client.post("/demo/run/A", follow_redirects=False))
-    assert client.post(f"/cases/{case}/approve", follow_redirects=False).status_code == 303
-    assert client.post("/admin/logout", follow_redirects=False).status_code == 303
-    # the session was discarded server-side: the next money action needs the token again
-    case2 = case_from(client.post("/demo/run/A", follow_redirects=False))
-    assert client.post(f"/cases/{case2}/approve", follow_redirects=False).status_code == 401
-    assert pp.refund_capture.call_count == 1
-
-
-def test_unlock_form_follows_the_session(settings):
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    assert "/admin/login" in client.get("/").text
-    client.post("/admin/login", data={"token": TOKEN}, follow_redirects=False)
-    assert "/admin/logout" in client.get("/").text
-
-
-def test_no_token_configured_means_open(settings):
-    client, pp, wf = make(settings)
-    case = case_from(client.post("/demo/run/A", follow_redirects=False))
-    assert client.post(f"/cases/{case}/approve", follow_redirects=False).status_code == 303
-    assert client.post("/demo/reset", follow_redirects=False).status_code == 303
-    assert client.post("/admin/login", data={"token": "x"}, follow_redirects=False).status_code == 400
-    assert client.get("/healthz").json()["admin_required"] is False
-
-
-def test_approve_twice_is_behind_the_token_too(settings):
-    # approve-twice calls approve(): leaving it open would bypass the guard on /approve itself.
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    case = case_from(client.post("/demo/run/D", follow_redirects=False))
-    assert client.post(f"/cases/{case}/approve-twice", follow_redirects=False).status_code == 401
-    assert pp.refund_capture.call_count == 0
-    r = client.post(f"/cases/{case}/approve-twice", headers={"x-admin-token": TOKEN}, follow_redirects=False)
-    assert r.status_code == 303
-    assert pp.refund_capture.call_count == 2  # the approve + the replay with the SAME request id
-
-
-def test_buyer_capture_is_behind_the_token(settings):
-    client, pp, wf = make(settings, admin_token=TOKEN)
-    pp.create_order_with_card.side_effect = PayPalError("card capture unavailable")
-    case = case_from(client.post("/demo/run/A", follow_redirects=False))
-    assert wf.db.get_case(case)["status"] == AWAITING_BUYER
-    assert client.post(f"/cases/{case}/paypal-return", follow_redirects=False).status_code == 401
-    r = client.post(f"/cases/{case}/paypal-return", headers={"x-admin-token": TOKEN}, follow_redirects=False)
-    assert r.status_code == 303
-    assert wf.db.get_case(case)["status"] == PENDING_APPROVAL
-
-
-# ---------------------------------------------------------------- (2) sandbox-only client
+# ---------------------------------------------------------------- sandbox-only client
 def test_non_sandbox_base_url_refused_unless_allow_live():
     with pytest.raises(PayPalError, match="not the PayPal Sandbox"):
         PayPalClient("id", "s", "https://api-m.paypal.com")
@@ -127,7 +47,7 @@ def test_workflow_refuses_to_build_a_live_client(settings):
         app.state.workflow.paypal()
 
 
-# ---------------------------------------------------------------- (3) terminal-state guard
+# ---------------------------------------------------------------- terminal-state guard
 def test_finalized_case_cannot_be_overwritten(settings):
     client, pp, wf = make(settings)
     case = case_from(client.post("/demo/run/A", follow_redirects=False))
