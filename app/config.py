@@ -134,7 +134,10 @@ class Settings:
             paypal_mock=_env_bool("PAYPAL_MOCK", False),
             reconcile_in_background=_env_bool("TRADEOS_RECONCILE_IN_BACKGROUND", True),
             trusted_proxy_hops=int(_env("TRADEOS_TRUSTED_PROXY_HOPS") or 1),
-            trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", False),
+            # Render always fronts services with Cloudflare, so default the trust ON there (RENDER=true is set by
+            # the platform); an explicit TRADEOS_TRUST_CF_CONNECTING_IP still wins. Without this, a service
+            # whose env was not synced from render.yaml keys limits on a shared/rotating edge hop instead of the client.
+            trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", _env("RENDER").lower() == "true"),
             reset_cooldown_per_ip_s=int(_env("TRADEOS_RESET_COOLDOWN_PER_IP_S") or 60),
             reset_cooldown_global_s=int(_env("TRADEOS_RESET_COOLDOWN_GLOBAL_S") or 15),
             webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),
