@@ -217,19 +217,42 @@
     <h2>PayPal evidence {% if paypal_mode == "mock" %}<span class="mock-tag">MOCK PayPal — not real Sandbox data</span>{% endif %}</h2>
     <p class="ev-caption">What PayPal itself reported for this case: the refund and its status, an ID PayPal can trace, and PayPal's signed confirmation. TradeOS only shows success after PayPal says COMPLETED.</p>
     {% if current and evidence %}
-    <div class="evidence-highlights" aria-label="Key judge evidence">
-      {% for r in evidence_summary %}
-        <div class="evidence-highlight {{ 'good' if r.ok is true else ('bad' if r.ok is false else 'pending') }}">
-          <span class="highlight-label">{{ r.label }}</span>
-          <strong>{{ r.value }}</strong>
+    <section class="proves" id="paypal-proves" aria-label="PayPal proves">
+      <h3 class="proves-title">PayPal proves <span class="muted small">— values PayPal itself returned; TradeOS only displays them</span></h3>
+      <div class="proves-grid">
+        <div class="proves-item {{ 'good' if proves.refund and proves.refund.ok is true else ('bad' if proves.refund and proves.refund.ok is false else 'pending') }}">
+          <span class="proves-label">Refund</span>
+          {% if proves.refund %}<strong><code>{{ proves.refund.id }}</code></strong><span>{{ proves.refund.words }}</span>
+          {% else %}<strong>none</strong><span>No refund has been requested from PayPal for this case.</span>{% endif %}
         </div>
-      {% endfor %}
-    </div>
-    <dl class="ev-summary">
-      {% for r in evidence_summary %}
-        <dt>{{ r.label }}</dt><dd class="{{ 'ok' if r.ok else ('bad' if r.ok is false else '') }}">{{ r.value }}</dd>
-      {% endfor %}
-    </dl>
+        <div class="proves-item {{ 'good' if proves.debug_ids else 'pending' }}">
+          <span class="proves-label">PayPal-Debug-Id ({{ proves.debug_ids|length }})</span>
+          {% if proves.debug_ids %}
+            <ul class="proves-ids">{% for d in proves.debug_ids %}<li><code>{{ d.debug_id }}</code> <span class="muted small">{{ d.operation }}{{ '' if d.ok else ' · call failed' }}</span></li>{% endfor %}</ul>
+          {% else %}<strong>none yet</strong><span>PayPal has not returned a debug id for this case.</span>{% endif %}
+        </div>
+        <div class="proves-item {{ 'good' if proves.webhook and proves.webhook.ok is true else 'pending' }}">
+          <span class="proves-label">Webhook signature</span>
+          {% if not proves.webhook %}<strong>n/a</strong><span>No capture yet.</span>
+          {% elif proves.webhook.state == 'verified' %}
+            <strong>Verified ✓</strong>
+            <span>Method: {{ proves.webhook.method }}</span>
+            <span>Event <code>{{ proves.webhook.event_id }}</code>{% if proves.webhook.event_type %} · {{ proves.webhook.event_type }}{% endif %}</span>
+            {% if proves.webhook.duplicates %}<span class="muted small">{{ proves.webhook.duplicates }} duplicate delivery ignored</span>{% endif %}
+          {% elif proves.webhook.state == 'waiting' %}<strong>Not verified yet</strong><span>Waiting for PayPal's signed webhook; nothing is treated as confirmed by webhook.</span>
+          {% elif proves.webhook.state == 'not_configured' %}<strong>Not set up</strong><span>Webhook is not configured on this server.</span>
+          {% else %}<strong>n/a</strong><span>No refund yet, so no refund webhook is expected.</span>{% endif %}
+          {% if proves.webhook and proves.webhook.unverified %}<span class="muted small">{{ proves.webhook.unverified }} delivery rejected as unverified (ignored)</span>{% endif %}
+        </div>
+        <div class="proves-item {{ 'good' if proves.reconcile and proves.reconcile.ok is true else ('bad' if proves.reconcile and proves.reconcile.done and proves.reconcile.ok is false else 'pending') }}">
+          <span class="proves-label">Reconcile with PayPal</span>
+          {% if not proves.reconcile %}<strong>n/a</strong><span>No capture yet.</span>
+          {% else %}<strong>{{ 'Checked' if proves.reconcile.done else 'Not checked yet' }}</strong>
+            <span>{{ proves.reconcile.text }}{% if proves.reconcile.time %} · {{ proves.reconcile.time }}{% endif %}</span>{% endif %}
+        </div>
+      </div>
+      {% if paypal_mode == "mock" %}<p class="muted small">MOCK mode: these IDs are generated locally, not by PayPal.</p>{% endif %}
+    </section>
     <details class="ev-log">
       <summary>Show details — every PayPal call and notification ({{ evidence|length }})</summary>
       <div class="ev-scroll">

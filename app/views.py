@@ -670,6 +670,55 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
     return rows
 
 
+WEBHOOK_METHOD_WORDS = {
+    "self": "checked locally against PayPal's signing certificate (cert chain + CRC32 + signature)",
+    "postback": "verified by PayPal's own verify-webhook-signature API",
+}
+
+
+def paypal_proves(db: Database, case: dict, webhook_configured: bool = True) -> dict:
+    """Display-only 'PayPal proves' panel: what PayPal itself returned for this case.
+
+    Reads the same stored rows as evidence_summary(); it makes no decisions and calls no PayPal API.
+    Every field is either a value PayPal sent us or an explicit 'not yet' / 'none'."""
+    calls = db.paypal_calls(case["id"])
+    refund = case.get("refund") or {}
+    out: dict = {"refund": None, "debug_ids": [], "webhook": None, "reconcile": None}
+    if case.get("refund_id"):
+        out["refund"] = {"id": case["refund_id"], "status": case.get("refund_status") or "UNKNOWN",
+                         "words": status_words(case.get("refund_status"), refund.get("status_details")),
+                         "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status") or "", False)}
+    for c in calls:
+        if c.get("debug_id"):
+            out["debug_ids"].append({"operation": OPERATION_LABELS.get(c["operation"], c["operation"]),
+                                     "debug_id": c["debug_id"], "request_id": c.get("request_id"), "ok": bool(c["ok"])})
+    if case.get("refund_id"):
+        events = db.webhook_events(case["id"])
+        verified = [e for e in events if e["verified"]]
+        unverified = len(events) - len(verified)
+        dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
+        if verified:
+            last = verified[-1]
+            out["webhook"] = {"state": "verified", "ok": True, "event_id": last["event_id"], "event_type": last.get("event_type"),
+                              "method": WEBHOOK_METHOD_WORDS.get(last.get("verify_method") or "", "signature verified"),
+                              "method_key": last.get("verify_method") or "unknown", "duplicates": dups, "unverified": unverified}
+        else:
+            out["webhook"] = {"state": "waiting" if webhook_configured else "not_configured", "ok": None, "event_id": None,
+                              "event_type": None, "method": None, "method_key": None, "duplicates": dups, "unverified": unverified}
+    elif case.get("capture_id"):
+        out["webhook"] = {"state": "no_refund", "ok": None, "event_id": None, "event_type": None, "method": None,
+                          "method_key": None, "duplicates": 0, "unverified": 0}
+    recs = [e for e in db.timeline(case["id"]) if e["stage"] == "reconcile"]
+    if recs:
+        last_rec = recs[-1]
+        out["reconcile"] = {"done": True, "ok": bool((last_rec.get("detail") or {}).get("ok")),
+                            "text": last_rec["title"].replace("Reconciled with PayPal — ", "").replace("Reconciliation ", ""),
+                            "time": fmt_time(last_rec["ts"])}
+    elif case.get("capture_id"):
+        out["reconcile"] = {"done": False, "ok": None, "text": "not yet — press “Check against PayPal”", "time": None}
+    return out
+
+
 def timeline_view(events: list[dict]) -> list[dict]:
     return [{**e, "text": narrate(e), "time": fmt_time(e.get("ts"))} for e in events]
 
