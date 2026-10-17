@@ -182,3 +182,13 @@ def test_case_a_once_case_b_409_unchanged(settings):
     b = client.post("/demo/run/B", follow_redirects=False).headers["location"].split("case=")[1]
     assert client.post(f"/cases/{b}/approve", follow_redirects=False).status_code == 409
     assert pp.refund_capture.call_count == 1
+
+
+def test_mobile_css_lets_confirmation_chips_wrap():
+    """375px: the 'Signed PayPal webhook: not configured' chip is nowrap by default and forced a horizontal
+    scroll; the <=640px block must let .confirm chips wrap and keep the evidence log inside the viewport."""
+    from pathlib import Path
+    css = (Path(__file__).resolve().parents[1] / "app" / "static" / "style.css").read_text()
+    mobile = css[css.index("@media (max-width: 640px)"):]
+    assert ".confirm .chip { white-space: normal" in mobile
+    assert "details.ev-log { min-width: 0; max-width: 100%; }" in mobile
