@@ -16,7 +16,7 @@ from app.main import create_app
 from app.notes import TemplateNoteWriter
 from app.paypal_client import PayPalClient, PayPalError
 from app.paypal_mock import MockPayPalClient
-from app.workflow import AWAITING_BUYER, NEW, PENDING_APPROVAL, REFUND_COMPLETED
+from app.workflow import NEW, PENDING_APPROVAL, REFUND_COMPLETED
 from tests.helpers import FakeExtractor, case_from
 
 
