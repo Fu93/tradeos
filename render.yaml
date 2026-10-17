@@ -3,7 +3,7 @@ services:
   - type: web
     name: tradeos
     runtime: python
-    plan: free
+    plan: starter
     buildCommand: pip install -r requirements.lock
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /healthz

@@ -10,14 +10,14 @@
 
 ### Judge quick start — about 3 minutes
 
-1. If the first request is slow, wait a few seconds for the free-tier service to wake and refresh once.
+1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once.
 2. Click **Run Case A — eligible return (refund)**. This creates a real PayPal Sandbox order and capture.
 3. Click **Approve & refund**. The Refund API is not called before this human approval.
 4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
-The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. Render's free tier uses ephemeral SQLite data, so a restart may reseed the shared demo cases.
+The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
 
 The matching recording plan is in [`docs/demo-video-script.md`](docs/demo-video-script.md); it treats the UI guide and evidence cards as part of the judge story rather than as separate documentation.
 
@@ -35,7 +35,7 @@ supplier without any refund.
 
 ![TradeOS dashboard — Case A: refund COMPLETED, confirmed by PayPal (live Sandbox)](docs/dashboard.png)
 
-More live-Sandbox screenshots (1440x900, retaken 2026-10-17 after Case A became the wrong-colour return): [evidence panel](docs/screenshots/caseA-evidence-live.png),
+More live-Sandbox screenshots (1440x900, retaken 2026-10-17 (UTC) after the guided hint, the Sandbox notice and the 'PayPal proves' panel landed (#46, #47)): [evidence panel](docs/screenshots/caseA-evidence-live.png),
 [evidence details](docs/screenshots/caseA-evidence-details-live.png), [reconcile + audit badge](docs/screenshots/caseA-reconcile-audit-live.png),
 [refund failure then retry](docs/screenshots/refund-failure-retry-live.png), [double click](docs/screenshots/double-click-live.png),
 [prompt injection](docs/screenshots/injection-live.png), [late request](docs/screenshots/late-request-live.png), [mobile 375px](docs/screenshots/mobile-375-live.png).
@@ -399,8 +399,8 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   editing the `cases` row alone cannot authorise a refund; someone who rewrites the chain too is the limit above.
   The approval's origin (`approval_source: human | auto`) is a chained field too, so "was this refund approved by a
   person or by the merchant's own policy?" is answered by the same verification, not by trusting the row.
-  "Reset demo" never deletes chains: it archives the cases (one chained entry each) and keeps every record. On Render's
-  free tier the disk itself is empty after a restart or deploy, so chains do not outlive a deploy.
+  "Reset demo" never deletes chains: it archives the cases (one chained entry each) and keeps every record. On Render
+  (no persistent disk) the filesystem itself is empty after a restart or deploy, so chains do not outlive a deploy.
 - **Web hardening.** Rate limits key on the client address from `CF-Connecting-IP` (set by Cloudflare in front of
   Render) or else the X-Forwarded-For entry `TRADEOS_TRUSTED_PROXY_HOPS` from the right, never the client-controlled
   leftmost value; one address can use at most 30 of the 200 global runs per hour. "Reset demo" asks for confirmation
@@ -445,8 +445,8 @@ outcome for a request the extractor cannot read, but it means 4 of the 7 presets
 The case page says so (`keyword-fallback`, "no LLM key set"), and the policy reason reads "not supported by the
 automated workflow; route to a human".
 
-With `TRADEOS_RESET_ON_START=1` every start archives the existing cases and seeds a fresh demo (on Render's free tier
-the disk is empty after a restart anyway). Refunds still `PENDING` or with an unknown outcome in a kept database are
+With `TRADEOS_RESET_ON_START=1` every start archives the existing cases and seeds a fresh demo (on Render without a persistent disk
+the filesystem is empty after a restart anyway). Refunds still `PENDING` or with an unknown outcome in a kept database are
 reconciled against PayPal in the background at startup.
 
 ### Environment variables
@@ -562,9 +562,9 @@ not a measured or verified saving.
 
 ## Deploy
 
-`render.yaml` is a Render Blueprint (free plan, SQLite in `/tmp`, demo reseeded at boot, health check `/healthz`).
+`render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, health check `/healthz`).
 Secrets are entered in the Render dashboard. For the webhook, run `scripts/register_webhook.py` once against the public
-URL and set `PAYPAL_WEBHOOK_ID`. The free tier sleeps and wipes `/tmp` on restart; webhooks for cases from before a
+URL and set `PAYPAL_WEBHOOK_ID`. The service has no persistent disk, so `/tmp` is wiped on restart or deploy (Starter does not sleep); webhooks for cases from before a
 restart are acknowledged and ignored.
 
 ## Scope

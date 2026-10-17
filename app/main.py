@@ -64,7 +64,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     money_limiter = RateLimiter(settings.money_rate_limit_per_minute, settings.money_rate_limit_per_hour,
                                 settings.money_rate_limit_global_per_hour)
 
-    # Render's free tier wipes the filesystem: reset + seed the demo on every start.
+    # Render (no persistent disk) wipes the filesystem: reset + seed the demo on every start.
     db.init(reset=settings.reset_on_start)
     if not db.list_cases():
         wf.seed_demo()
@@ -168,7 +168,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 "auto_enabled": settings.auto_enabled,
                 "auto_exchange_enabled": settings.auto_exchange_enabled,
                 "auto_refund_max_amount": str(settings.auto_refund_max_amount),
-                # Render free tier stores SQLite under /tmp; a restart or redeploy wipes it.
+                # Render (no disk) stores SQLite under /tmp; a restart or redeploy wipes it.
                 # Surfaced so a judge (or deploy-verify) can see the demo is ephemeral without scraping.
                 "persistence": "ephemeral" if settings.db_path.startswith("/tmp") else "durable"}
 
