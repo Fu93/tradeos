@@ -12,7 +12,7 @@ The first shot must show the **HACKATHON DEMO · PayPal Sandbox · No real money
 
 | Time | Screen | Narration |
 | --- | --- | --- |
-| 0:00–0:12 | Ribbon, badges, and Judge path guide. Highlight **Start with Case A above** and the cold-start note. | A customer writes: these sneakers are too small, I want to return them. Another asks to swap a 42 for a 43. For a small merchant with no operations team, that is minutes of manual work. |
+| 0:00–0:12 | Ribbon, badges, and Judge path guide. Highlight **Start with Case A above** and the cold-start note. | A customer writes: the sneakers arrived in the wrong colour, I want to return them. Another asks to swap a 42 for a 43. For a small merchant with no operations team, that is minutes of manual work. |
 | 0:12–0:28 | Run Case A; show the pipeline moving from customer request to policy. | Translate the message, check the date, find the PayPal capture, and issue a refund by hand. TradeOS turns that work into one explainable workflow. PayPal moves the money. TradeOS moves the work. |
 | 0:28–0:42 | Top badges: PayPal Sandbox, LLM Live, Webhook configured; then Chinese-language preset and AI panel. | The rule is simple: AI understands, rules decide, humans approve, and PayPal proves. Everything here runs on PayPal Sandbox: real orders, captures, and refunds. |
 | 0:42–0:58 | AI panel: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE`, 42 → 43, English summary; show the backend-control table. | First, a size exchange in Chinese. The AI extracts only the intent, the size mismatch, and a merchant summary. It decides nothing. |

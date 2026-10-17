@@ -44,8 +44,11 @@ DEMO_PRODUCT: dict[str, Any] = {
     "price": "49.99",
     "supplier": "Stride Footwear Co. (fictional demo supplier)",
 }
-# Case A (and R / D / P): a return for money back -> the refund path.
-DEMO_MESSAGE = "These sneakers are too small and don't fit. I'd like to return them and get my money back."
+# Case A (and R / D / P): a wrong-colour return (not as described) for money back -> the refund path.
+DEMO_MESSAGE = (
+    "The sneakers I received are black, but the photo shows white. "
+    "The colour doesn't match the listing, and I'd like to return them for a refund."
+)
 # Exchange showcase: a size swap -> supplier replacement, NO refund (Refund API never called).
 EXCHANGE_MESSAGE = "The shoes are too small. Can I exchange size 42 for size 43?"
 # A/B are the two proof paths (plan §3). F = free text / presets. R and D are failure-mode
