@@ -2,7 +2,7 @@
 
     python scripts/sandbox_verify.py https://<your-render-host>
     AUTO_ENABLED=1 uvicorn app.main:app --port 8000   # then, in another shell:
-    python scripts/sandbox_verify.py http://localhost:8000
+    python scripts/sandbox_verify.py http://localhost:8000 --allow-autonomy
 
 Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B, ONE exchange
 (0 refund calls) and ONE Case R (a forced 422 refund failure, then a retry that refunds).
@@ -12,16 +12,22 @@ Case A is asserted against the target's ACTUAL autonomy setting, read from /heal
 with autonomy OFF the case must wait for a person and make no refund call until one approves; with autonomy
 ON the same case must already be REFUND_COMPLETED with no approve call, approval_source=auto on the hash
 chain, and a page that credits the merchant's policy rather than a human. Exit code 0 = all checks passed.
+
+Autonomy is experimental and must be OFF on the hosted demo, so the run FAILS if /healthz reports
+auto_enabled or auto_exchange_enabled true, unless --allow-autonomy (or ALLOW_AUTONOMY=1) is given, which is
+meant for local runs of the opt-in path only. deploy-verify never passes it.
 """
 from __future__ import annotations
 
+import os
 import sys
 import time
 
 import httpx
 
 
-def main(base: str) -> int:
+def main(base: str, allow_autonomy: bool = False) -> int:
+    allow_autonomy = allow_autonomy or os.environ.get("ALLOW_AUTONOMY") == "1"
     c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False)
     fails: list[str] = []
 
@@ -34,6 +40,14 @@ def main(base: str) -> int:
     check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
     check(bool(health.get("webhook_configured")), "PAYPAL_WEBHOOK_ID configured")
     auto = bool(health.get("auto_enabled"))
+    auto_ex = bool(health.get("auto_exchange_enabled"))
+    check("auto_exchange_enabled" in health, "/healthz reports auto_exchange_enabled")
+    if auto or auto_ex:
+        print("::warning::AUTONOMY IS ON at the target (auto_enabled=%s auto_exchange_enabled=%s)" % (auto, auto_ex))
+        check(allow_autonomy, "autonomy is OFF at the target (experimental; must stay off in the hosted demo; "
+                              "pass --allow-autonomy only for deliberate local runs)")
+        if not allow_autonomy:
+            return 1  # stop before creating any case against an unexpectedly autonomous target
     print(f"Autonomy {'ON' if auto else 'OFF'} (auto_refund_max_amount={health.get('auto_refund_max_amount')})")
 
     def run_case(path: str) -> str:
@@ -174,6 +188,7 @@ def main(base: str) -> int:
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        sys.exit("usage: sandbox_verify.py https://<host>")
-    sys.exit(main(sys.argv[1]))
+    args = [a for a in sys.argv[1:] if a != "--allow-autonomy"]
+    if len(args) != 1:
+        raise SystemExit(__doc__)
+    sys.exit(main(args[0], allow_autonomy="--allow-autonomy" in sys.argv[1:]))

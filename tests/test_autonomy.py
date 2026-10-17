@@ -433,3 +433,79 @@ def test_audit_verify_endpoint_reports_who_approved(settings):
     human_client.post(f"/cases/{human_case}/approve", follow_redirects=False)
     chained = human_client.get(f"/cases/{human_case}/audit/verify").json()["chained_state"]
     assert chained["approval_source"] == "human" and chained["human_decision"] == "APPROVED"
+
+
+# ---- defaults locked OFF; policy actor on the auto path -------------------------------------------------
+
+def test_defaults_off_in_settings_env_example_and_render_yaml(monkeypatch):
+    from app.config import Settings as S
+    import pathlib
+    import re
+    for name in ("AUTO_ENABLED", "AUTO_EXCHANGE_ENABLED"):
+        monkeypatch.delenv(name, raising=False)
+    st = S.from_env()
+    assert st.auto_enabled is False and st.auto_exchange_enabled is False
+    root = pathlib.Path(__file__).resolve().parent.parent
+    # deploy config must not turn autonomy on (nor set the switches at all)
+    render = (root / "render.yaml").read_text()
+    assert not re.search(r"AUTO_(ENABLED|EXCHANGE_ENABLED)", render), "render.yaml must not set AUTO_* switches"
+    for path in (".env.example",):
+        for key in ("AUTO_ENABLED", "AUTO_EXCHANGE_ENABLED"):
+            m = re.search(rf"^{key}=(\S*)", (root / path).read_text(), re.M)
+            assert m and m.group(1) in ("0", "false", ""), f"{path} {key}"
+
+
+def test_healthz_reports_both_switches_off_by_default(monkeypatch):
+    from app.config import Settings as S
+    from fastapi.testclient import TestClient
+    for name in ("AUTO_ENABLED", "AUTO_EXCHANGE_ENABLED"):
+        monkeypatch.delenv(name, raising=False)
+    app = create_app(settings=S.from_env(), paypal=MagicMock(), extractor=KeywordIntentExtractor())
+    data = TestClient(app).get("/healthz").json()
+    assert data["auto_enabled"] is False and data["auto_exchange_enabled"] is False
+
+
+def test_auto_path_timeline_actor_is_policy_not_human(settings):
+    wf, _ = mk(settings, auto_enabled=True)
+    cid = wf.run_scenario("A")
+    events = wf.db.timeline(cid)
+    auto = [e for e in events if e["title"].startswith("Autonomy: AUTO") or e["title"] == AUTO_TITLE]
+    assert len(auto) >= 2 and {e["stage"] for e in auto} == {"policy"}
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_human_path_stage_is_still_human(settings):
+    wf, _ = mk(settings)
+    cid = wf.run_scenario("A")
+    wf.approve(cid)
+    assert any(e["stage"] == "human" and e["title"] == "Human approved the refund" for e in wf.db.timeline(cid))
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_sandbox_verify_fails_if_autonomy_is_on_unless_allowed(monkeypatch, capsys):
+    import importlib.util
+    import pathlib
+    spec = importlib.util.spec_from_file_location(
+        "sandbox_verify", pathlib.Path(__file__).resolve().parent.parent / "scripts" / "sandbox_verify.py")
+    sv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sv)
+
+    class Resp:
+        def json(self):
+            return {"paypal_mode": "sandbox", "webhook_configured": True, "auto_enabled": True,
+                    "auto_exchange_enabled": False}
+
+    class Client:
+        def __init__(self, *a, **k):
+            pass
+
+        def get(self, *a, **k):
+            return Resp()
+
+        def post(self, *a, **k):
+            raise AssertionError("must stop before creating any case")
+
+    monkeypatch.setattr(sv.httpx, "Client", Client)
+    monkeypatch.delenv("ALLOW_AUTONOMY", raising=False)
+    assert sv.main("http://x") == 1
+    assert "autonomy is OFF at the target" in capsys.readouterr().out

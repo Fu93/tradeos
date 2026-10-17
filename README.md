@@ -59,9 +59,11 @@ TradeOS is **not** a storefront, a consumer shopping agent, or a chatbot that an
 2. **Rules control the AI** — the model cannot override policy. A blocked case never calls the Refund API.
 3. **PayPal actually executes** — Order → Capture → real Refund ID. The UI shows success only after PayPal confirms `COMPLETED`.
 4. **Automation can be cheaper than labour, with visible assumptions** — an illustrative cost model, not a claimed measured saving.
-5. **A case can complete with no human at all, and still be explainable** — the merchant's policy approves it inside their own limits, and the audit chain records that the approver was the policy, not a person.
+5. **Every approval is attributable** — a person's click or, only if a merchant explicitly opts in (an experimental setting that is off by default and off in the hosted demo), the merchant's policy; the audit chain records which.
 
 ## Autonomy: who approves a case
+
+> **Experimental, opt-in, off by default. Not enabled in the hosted demo.** Do not enable on real money without real-traffic evidence and human review of the first cases. It has only unit-test coverage.
 
 `AUTO_ENABLED` is **off by default**. When a merchant turns it on, the two automated outcomes can be approved by the
 merchant's own policy instead of waiting for a person:
@@ -431,7 +433,7 @@ pip install -r requirements-dev.lock  # hash-pinned build (regenerate with:
 cp .env.example .env        # fill in PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET (Sandbox) and optionally LLM_API_KEY
 uvicorn app.main:app --reload
 # open http://localhost:8000 and click "Run Case A", approve it, then "Run Case B"
-# to watch the agent complete a case with no human: AUTO_ENABLED=1 uvicorn app.main:app --reload
+# experimental, local only: to see the opt-in auto-approval path, AUTO_ENABLED=1 uvicorn app.main:app --reload
 ```
 
 No PayPal credentials yet? `PAYPAL_MOCK=1 uvicorn app.main:app` runs the whole loop offline with fake `MOCK-` IDs.
@@ -517,7 +519,9 @@ without the secret the workflow is a skipped notice. Each run creates one real S
   saves `GET /audit/heads` as a workflow artifact (`audit-heads-<commit>`), so every deployment leaves an externally
   retained audit-chain head list.
 
-It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
+Autonomy must be **off** on the hosted demo: the script fails (before creating any case) if `/healthz` reports
+`auto_enabled` or `auto_exchange_enabled` true, unless `--allow-autonomy` / `ALLOW_AUTONOMY=1` is given for a deliberate
+local run (deploy-verify never passes it). It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
 off, Case A must wait for a person and make no refund call until one approves; with autonomy on, the same case must
 already be `REFUND_COMPLETED` with no approve call, `approval_source: auto` on the hash chain, and a page that
 credits the merchant's policy rather than a human. Exit code 0 = every check passed.
