@@ -98,12 +98,10 @@ def evaluate(inp: PolicyInput) -> PolicyResult:
                         f"Request understood as {inp.intent.intent} / {inp.intent.requested_action}"
                         f" (reason {inp.intent.reason})" + why))
 
-    # 1b. Heuristic injection markers: never automated. Recorded for the UI and audit, but does not
-    # force REJECTED — the autonomy layer routes these to a human (see app/autonomy.py). A hard
-    # rejection here would hide the "needs a person" path the rest of the system already implements.
+    # 1b. Heuristic injection markers in the message: never automated, a human reads it.
     if inp.injection_suspected:
-        checks.append(Check("injection_flagged", True,
-                            "Message contains instruction-like text (heuristic) — will be sent to a human, not auto-approved"))
+        checks.append(Check("no_injection_markers", False,
+                            "Message contains instruction-like text (heuristic check) — sent to a human"))
 
     # 2. Payment really captured (PayPal is the source of truth).
     paid = inp.capture_status == "COMPLETED"
