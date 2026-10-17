@@ -69,6 +69,7 @@ class Extraction(BaseModel):
     assist: AssistFields | None = None
     assist_note: str = "Assist fields unavailable (no LLM)."
     injection_guard: bool = False  # keyword fallback forced UNKNOWN because the message looks like an injection
+    llm_unavailable: bool = False  # the LLM call failed (quota, timeout, outage): the keyword fallback answered
 
 
 class IntentExtractor(Protocol):
@@ -136,6 +137,9 @@ class KeywordIntentExtractor:
                           assist=None, assist_note=assist_note)
 
 
+LLM_DOWN_TITLE = "Needs a human: AI model unavailable, message not understood"
+LLM_DOWN_NOTICE = ("AI model unavailable: using basic English-only rules, which could not read this message. "
+                   "This case needs a human. Refund API NOT CALLED.")
 INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected → intent forced to UNKNOWN; "
                         "sent to a human (keyword rules can be fooled by injected words).")
 
@@ -331,6 +335,14 @@ class ChatJSONClient:
         return resp.json()["choices"][0]["message"]["content"]
 
 
+def _describe_llm_error(exc: Exception) -> str:
+    """Short, key-free description for the audit trail (never includes the request or headers)."""
+    if isinstance(exc, httpx.HTTPStatusError):
+        code = exc.response.status_code
+        return f"HTTP {code}, rate limit / quota reached" if code == 429 else f"HTTP {code}"
+    return type(exc).__name__
+
+
 LLM_ERRORS = (httpx.HTTPError, KeyError, IndexError, TypeError, ValueError)
 
 
@@ -367,7 +379,8 @@ class LLMIntentExtractor:
             return Extraction(
                 result=fb.result,
                 extractor=f"{fb.extractor} (LLM unavailable)",
-                note=f"LLM call failed ({type(exc).__name__}); used deterministic fallback."
+                llm_unavailable=True,
+                note=f"LLM call failed ({_describe_llm_error(exc)}); used deterministic fallback."
                 + (f" {fb.note}" if fb.injection_guard else ""),
                 assist=None,
                 assist_note="Assist fields unavailable: the LLM call failed.",

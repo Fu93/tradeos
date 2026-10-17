@@ -6,7 +6,7 @@ import json
 from datetime import datetime, timezone
 
 from .db import Database
-from .intent import looks_like_injection
+from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .presets import BY_KEY, preset_label
 
 
@@ -67,6 +67,10 @@ def evidence_a(db: Database, case: dict | None) -> list[dict] | None:
     return [{"label": l, "value": v, "ok": ok} for l, v, ok in rows]
 
 
+def _llm_down(case: dict) -> bool:
+    return bool((case.get("extraction") or {}).get("llm_unavailable")) and not case.get("supplier_reply")
+
+
 def evidence_b(db: Database, case: dict | None) -> list[dict] | None:
     if not case or case["status"] == "NEW":
         return None
@@ -120,6 +124,12 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
                 ("done", "replacement approved (MOCK)")
             st["human"] = ("skipped", "nothing to approve")
             st["paypal"] = ("blocked", f"Refund API NOT CALLED · {calls} calls")
+        elif case.get("decision") == "NEEDS_HUMAN" and _llm_down(case):
+            st["intent"] = ("blocked", "AI unavailable · not understood")
+            st["policy"] = ("skipped", "not run — a human reads the message")
+            st["supplier"] = ("skipped", "not contacted")
+            st["human"] = ("waiting", "needs a human (AI model unavailable)")
+            st["paypal"] = ("skipped", f"Refund API NOT CALLED · {calls} calls")
         elif case.get("decision") in ("EXCHANGE_ELIGIBLE", "NEEDS_HUMAN"):
             st["policy"] = (("waiting", "exchange · supplier out of stock — human decides")
                             if case.get("decision") == "NEEDS_HUMAN" else ("done", "exchange · checks passed"))
@@ -277,6 +287,11 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "rows": [("Supplier", "replacement approved (MOCK supplier)"), ("Approved by", _approval_text(case)),
                          ("Refund API calls", str(calls)), ("Refund ID", "none"),
                          ("PayPal Order ID", case.get("order_id") or "—")]}
+    if status == "NEEDS_HUMAN" and _llm_down(case):
+        return {**base, "kind": "warn", "icon": "!", "title": "Needs a human: AI model unavailable",
+                "subtitle": LLM_DOWN_NOTICE,
+                "rows": [("Extractor", "keyword fallback (English-only)"), ("Refund API calls", str(calls)),
+                         ("Refund ID", "none")]}
     if status == "NEEDS_HUMAN":
         return {**base, "kind": "warn", "icon": "!", "title": "Needs a human: replacement out of stock — offer a refund?",
                 "subtitle": "The (MOCK) supplier can't ship the requested replacement. TradeOS does not refund "
@@ -338,6 +353,9 @@ def ai_panel(case: dict | None) -> dict | None:
         "message": case["customer_message"],
         "intent": case["intent"],
         "assist": case.get("assist"),
+        "llm_unavailable": bool(extraction.get("llm_unavailable")),
+        "llm_notice": ("AI model unavailable: using basic English-only rules. Messages in other languages may not be "
+                       "understood, and such cases are sent to a human." if extraction.get("llm_unavailable") else None),
         "extractor": extraction.get("extractor"),
         "extract_note": extraction.get("note"),
         "assist_note": extraction.get("assist_note"),
@@ -501,6 +519,8 @@ def narrate(e: dict) -> str:
     if t.startswith("Keyword fallback + injection detected"):
         return ("The LLM was unavailable and the keyword fallback detected instruction-like wording: the intent is "
                 "forced to UNKNOWN and the case goes to a human.")
+    if t == LLM_DOWN_TITLE:
+        return LLM_DOWN_NOTICE
     if t.startswith("Needs a human: replacement out of stock"):
         return "The (MOCK) supplier is out of stock: whether to offer a refund is a human decision. Refund API NOT CALLED."
     if t == "Retrying the policy check (PayPal could not be read last time)":
