@@ -214,3 +214,17 @@ table.evidence tr.bad td{background:#fef2f2}
   .confirm .chip { white-space: normal; overflow-wrap: anywhere; max-width: 100%; }
   details.ev-log { min-width: 0; max-width: 100%; }
 }
+
+/* --- "PayPal proves" panel ---------------------------------------------- */
+.proves { margin: 10px 0 12px; }
+.proves-title { margin: 0 0 8px; font-size: 16px; }
+.proves-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.proves-item { min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; background: #fff; font-size: 13px; overflow-wrap: anywhere; }
+.proves-item.good { border-color: #8ad1a8; background: #f3fbf6; }
+.proves-item.bad { border-color: #f1a39b; background: #fff7f6; }
+.proves-item.pending { border-color: #f0d27a; background: #fffaf0; }
+.proves-label { font-size: 11px; font-weight: 800; letter-spacing: .5px; text-transform: uppercase; color: var(--muted); }
+.proves-item strong { font-size: 14px; }
+.proves-ids { margin: 0; padding: 0; list-style: none; }
+.proves-ids li { margin: 2px 0; }
+@media (max-width: 640px) { .proves-grid { grid-template-columns: 1fr; } }

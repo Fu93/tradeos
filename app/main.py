@@ -25,7 +25,7 @@ from .presets import BY_KEY, PRESETS, preset_label
 from .ratelimit import Cooldown, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
-                    preset_for, result_card, timeline_view, evidence_log, evidence_summary)
+                    preset_for, result_card, timeline_view, evidence_log, evidence_summary, paypal_proves)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
                        Workflow, clean_message)
 
@@ -120,6 +120,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
             "audit_chain": db.verify_chain(current["id"]) if current else None,
             "evidence_summary": evidence_summary(db, current, bool(settings.paypal_webhook_id)) if current else [],
+            "proves": paypal_proves(db, current, bool(settings.paypal_webhook_id)) if current else None,
             "evidence": evidence_log(db, current["id"]) if current else [],
             "pending": pending,
             "economics": case_economics(settings.order_amount, settings.costs),
