@@ -4,6 +4,7 @@ Recording plan for the current dashboard after Demo Polish v1. Target duration: 
 Use the LIVE PayPal Sandbox, English narration (`en-US-AndrewNeural`), and English subtitles in a dedicated bottom band.
 The first shot must show the **HACKATHON DEMO · PayPal Sandbox · No real money** ribbon, the environment badges, and the **Judge path · about 3 minutes** guide.
 
+> Autonomy is experimental, opt-in, off by default and not enabled in the demo.
 > Record with autonomy **off** (`AUTO_ENABLED` unset, the default), which is why the narration can say
 > "a human approves, and only then does TradeOS call the PayPal Refund API". That sentence describes the configuration
 > on screen, not a permanent property of the system: with `AUTO_ENABLED=1` the same eligible return is approved by the

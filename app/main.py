@@ -165,6 +165,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 # Autonomy, so a verification run can tell which configuration it is talking to
                 # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
                 "auto_enabled": settings.auto_enabled,
+                "auto_exchange_enabled": settings.auto_exchange_enabled,
                 "auto_refund_max_amount": str(settings.auto_refund_max_amount),
                 # Render free tier stores SQLite under /tmp; a restart or redeploy wipes it.
                 # Surfaced so a judge (or deploy-verify) can see the demo is ephemeral without scraping.

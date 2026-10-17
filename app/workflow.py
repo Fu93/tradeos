@@ -32,6 +32,8 @@ from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
 HUMAN = "human"
+# Timeline actor for entries the merchant's autonomy policy wrote (never "human": no person was involved).
+POLICY_ACTOR = "policy"
 AUTO = "auto"
 
 DEMO_PRODUCT: dict[str, Any] = {
@@ -461,7 +463,7 @@ class Workflow:
             # A concurrent run of the same case approved / declined / finalized it first, so the
             # approval guard refused this one. Record it instead of letting it escape process()
             # as an HTTP 500 — the run routes do not wrap the auto-approval path.
-            self.db.audit(case_id, "human", "Autonomy: AUTO — approval refused, the case changed meanwhile",
+            self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — approval refused, the case changed meanwhile",
                           {"reason": str(exc)})
 
     def _autonomy_verdict(self, case_id: str, case: dict, policy: PolicyResult, extraction):
@@ -486,7 +488,7 @@ class Workflow:
         limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount),
                   "auto_exchange_enabled": s.auto_exchange_enabled}
         if verdict.decision == "AUTO":
-            self.db.audit(case_id, "human", "Autonomy: AUTO — within the merchant's limits, no human needed",
+            self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — within the merchant's limits, no human needed",
                           {"why": verdict.reason, **limits, "amount": f"{case['amount']} {case['currency']}"})
         else:
             # Anything that is not an explicit AUTO is a person's call: AUTO off, an unreadable request,
@@ -595,7 +597,7 @@ class Workflow:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
                 if skip_if_approved and case["human_decision"] == "APPROVED":
-                    self.db.audit(case_id, "human", "Autonomy: AUTO — this case was already approved, "
+                    self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — this case was already approved, "
                                   "nothing left to do",
                                   {"approver": approver, "source": source, "status": case["status"]})
                     return
@@ -607,7 +609,7 @@ class Workflow:
                                            f"policy {case['decision']}).")
                 self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(),
                                     approval_source=source)
-                self.db.audit(case_id, "human", self._approval_title(source),
+                self.db.audit(case_id, POLICY_ACTOR if source == AUTO else "human", self._approval_title(source),
                               {"approver": approver, "source": source})
                 self._execute_refund(case_id)
         finally:
@@ -619,7 +621,8 @@ class Workflow:
                  else "Human approved the exchange")
         self.db.update_case(case_id, human_decision="APPROVED", human_at=self._now(), approval_source=source,
                             status=EXCHANGE_ARRANGED)
-        self.db.audit(case_id, "human", title, {"approver": approver, "source": source})
+        self.db.audit(case_id, POLICY_ACTOR if source == AUTO else "human", title,
+                      {"approver": approver, "source": source})
         self.db.audit(case_id, "paypal", "Refund API NOT CALLED — exchange arranged (replacement via the MOCK "
                       "supplier), no refund", {"refund_id": None})
         case = self._case(case_id)
