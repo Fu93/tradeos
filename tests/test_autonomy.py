@@ -480,3 +480,32 @@ def test_human_path_stage_is_still_human(settings):
     wf.approve(cid)
     assert any(e["stage"] == "human" and e["title"] == "Human approved the refund" for e in wf.db.timeline(cid))
     assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_sandbox_verify_fails_if_autonomy_is_on_unless_allowed(monkeypatch, capsys):
+    import importlib.util
+    import pathlib
+    spec = importlib.util.spec_from_file_location(
+        "sandbox_verify", pathlib.Path(__file__).resolve().parent.parent / "scripts" / "sandbox_verify.py")
+    sv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(sv)
+
+    class Resp:
+        def json(self):
+            return {"paypal_mode": "sandbox", "webhook_configured": True, "auto_enabled": True,
+                    "auto_exchange_enabled": False}
+
+    class Client:
+        def __init__(self, *a, **k):
+            pass
+
+        def get(self, *a, **k):
+            return Resp()
+
+        def post(self, *a, **k):
+            raise AssertionError("must stop before creating any case")
+
+    monkeypatch.setattr(sv.httpx, "Client", Client)
+    monkeypatch.delenv("ALLOW_AUTONOMY", raising=False)
+    assert sv.main("http://x") == 1
+    assert "autonomy is OFF at the target" in capsys.readouterr().out
