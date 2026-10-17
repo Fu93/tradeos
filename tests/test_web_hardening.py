@@ -192,3 +192,15 @@ def test_mobile_css_lets_confirmation_chips_wrap():
     mobile = css[css.index("@media (max-width: 640px)"):]
     assert ".confirm .chip { white-space: normal" in mobile
     assert "details.ev-log { min-width: 0; max-width: 100%; }" in mobile
+
+
+def test_home_three_step_hint_and_sandbox_notice_without_stale_or_overclaiming_text(settings):
+    client, pp, wf = make(settings)
+    html = client.get("/").text
+    for step in ("Pick a case", "Press approve", "See the PayPal result"):
+        assert step in html
+    assert html.index("Pick a case") < html.index("Press approve") < html.index("See the PayPal result")
+    assert "PayPal Sandbox: no real money moves" in html
+    # the old "wakes up" cold-start note and "free tier" wording are stale on the Starter plan
+    assert "Free-tier note" not in html and "wakes up" not in html and "free tier" not in html.lower()
+    assert "guaranteed" not in html.lower()

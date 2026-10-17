@@ -34,7 +34,7 @@ h1 { margin: 0 0 4px; font-size: 22px; } h2 { margin: 0 0 12px; font-size: 17px;
 .guide-steps li { display: grid; grid-template-columns: 22px auto; column-gap: 6px; align-items: baseline; }
 .guide-steps li::before { counter-increment: guide; content: counter(guide); display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 11px; font-weight: 800; }
 .guide-steps strong { font-size: 13px; } .guide-steps span { grid-column: 2; color: var(--muted); font-size: 12px; }
-.cold-start-note { margin: 9px 0 0; color: #53657d; font-size: 12px; }
+.sandbox-note { margin: 9px 0 0; padding: 6px 10px; color: #5a4300; background: var(--warn-bg); border-radius: 8px; font-size: 12.5px; overflow-wrap: anywhere; }
 .guide-links { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 7px; min-width: 245px; }
 .row.between { justify-content: space-between; } .gap { gap: 8px; }
 .btn { border: 1px solid var(--line); background: #fff; color: var(--ink); padding: 9px 14px; border-radius: 8px;
@@ -200,6 +200,7 @@ table.evidence tr.bad td{background:#fef2f2}
   .demo-ribbon { gap: 10px; font-size: 10px; }
   .demo-guide { align-items: stretch; flex-direction: column; }
   .guide-links { justify-content: flex-start; min-width: 0; }
+  .guide-steps { flex-direction: column; gap: 8px; }
   .evidence-highlights { grid-template-columns: 1fr 1fr; }
   .tabs { flex-wrap: wrap; }
   .tabs .tab { white-space: normal; }

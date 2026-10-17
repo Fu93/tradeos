@@ -28,7 +28,7 @@
       <span class="badge {{ 'ok' if settings.llm_configured else 'warn' }}">LLM: {{ 'Live' if settings.llm_configured else 'Fallback' }}</span>
       <span class="badge {{ 'ok' if webhook_configured|default(false) else 'warn' }}">Webhook: {{ 'configured' if webhook_configured|default(false) else 'not configured' }}</span>
       {% if settings.db_path.startswith('/tmp') %}
-        <span class="badge warn" title="Render free tier: SQLite lives in /tmp and is wiped on restart or redeploy. Audit trails do not survive a deploy.">Persistence: ephemeral</span>
+        <span class="badge warn" title="SQLite lives in /tmp on this server and is wiped on restart or redeploy. Audit trails do not survive a deploy.">Persistence: ephemeral</span>
       {% endif %}
     </div>
   </header>
@@ -36,7 +36,7 @@
   <footer class="footer">
     Use AI where language is ambiguous. Use code where money is at stake. ·
     PayPal AI Hackathon MVP · Sandbox only · <a href="/api/docs">API</a>
-    {% if settings.db_path.startswith('/tmp') %}· <span class="muted">Data is ephemeral (free tier)</span>{% endif %}
+    {% if settings.db_path.startswith('/tmp') %}· <span class="muted">Demo data is ephemeral (wiped on restart or redeploy)</span>{% endif %}
   </footer>
   <script src="/static/app.js"></script>
 </body>
