@@ -27,7 +27,7 @@ from .intent import AssistFields, IntentExtractor
 from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
-from .intent import looks_like_injection
+from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
@@ -376,7 +376,8 @@ class Workflow:
                             assist_json=json.dumps(assist, ensure_ascii=False) if assist else None,
                             extraction_json=json.dumps({"extractor": extraction.extractor, "note": extraction.note,
                                                         "assist_note": extraction.assist_note,
-                                                        "injection_guard": extraction.injection_guard}))
+                                                        "injection_guard": extraction.injection_guard,
+                                                        "llm_unavailable": extraction.llm_unavailable}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
                        "assist": assist, "assist_note": extraction.assist_note})
@@ -385,6 +386,16 @@ class Workflow:
                           "Keyword fallback + injection detected → intent UNKNOWN, sent to a human",
                           {"why": "The LLM was unavailable, and keyword rules can be steered by injected words, "
                                   "so this message cannot become an approvable request.", "forced": intent})
+
+        if (extraction.llm_unavailable and extraction.result.intent == "UNKNOWN"
+                and not extraction.injection_guard and not looks_like_injection(case["customer_message"])):
+            # The model is down and the English-only fallback could not read the message (e.g. Chinese). That is
+            # our limitation, not a policy NO: hand it to a person instead of a silent REJECTED. Safe: the
+            # decision is NEEDS_HUMAN (never ELIGIBLE), so the refund gate stays shut and nothing is approvable.
+            self.db.update_case(case_id, decision="NEEDS_HUMAN", status=NEEDS_HUMAN)
+            self.db.audit(case_id, "human", LLM_DOWN_TITLE,
+                          {"why": LLM_DOWN_NOTICE, "refund_id": None, "refund_api_called": False})
+            return
 
         # Step 4: policy engine, fed with live PayPal capture data.
         try:

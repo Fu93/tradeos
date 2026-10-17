@@ -66,3 +66,16 @@ def test_reset_and_health(ctx):
     assert client.post("/demo/reset", follow_redirects=False).status_code == 303
     assert {c["status"] for c in wf.db.list_cases()} == {"NEW"}
     assert client.get("/healthz").json()["ok"] is True
+
+
+def test_home_after_demo_reset_shows_only_the_two_starter_cases(ctx):
+    """Cases run before a reset (incl. a double-approved one) are archived and gone from the home page."""
+    client, pp, wf = ctx
+    case_id = run(client, "A")
+    client.post(f"/cases/{case_id}/approve-twice", follow_redirects=False)
+    client.post("/cases/free", data={"preset": "en"}, follow_redirects=False)
+    assert client.post("/demo/reset", follow_redirects=False).status_code == 303
+    cases = wf.db.list_cases()
+    assert sorted(c["scenario"] for c in cases) == ["A", "B"] and all(c["status"] == "NEW" for c in cases)
+    html = client.get("/").text
+    assert case_id not in html and html.count('class="tab ') == 2

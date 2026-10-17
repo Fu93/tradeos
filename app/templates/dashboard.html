@@ -265,6 +265,7 @@
     <h2>What the AI understood</h2>
     {% if ai %}
       <p class="quote">“{{ ai.message }}”</p>
+      {% if ai.llm_notice %}<div class="flash bad" role="alert">⚠ {{ ai.llm_notice }}</div>{% endif %}
       {% if ai.injection %}
         {% if ai.injection_guard %}
         <div class="inject">⚠ Instruction-like text detected while the LLM was unavailable. The keyword fallback can be
