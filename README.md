@@ -101,7 +101,7 @@ Only a **return** leads to a refund. A **size exchange** never does.
 | Step | Case A — eligible return | Case B — same return, rejected | Exchange (e.g. the Chinese-language preset, 42 → 43) |
 | --- | --- | --- | --- |
 | PayPal Sandbox order + capture | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID | ✓ real Order ID + Capture ID |
-| Customer | *"These sneakers are too small and don't fit. I'd like to return them and get my money back."* → AI: `REFUND_REQUEST / SIZE_MISMATCH / REFUND` | same | *"These shoes are too small. Can I exchange size 42 for 43?"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
+| Customer | *"The sneakers I received are black, but the photo shows white. The colour doesn't match the listing, and I'd like to return them for a refund."* → AI: `REFUND_REQUEST / NOT_AS_DESCRIBED / REFUND` | same | *"These shoes are too small. Can I exchange size 42 for 43?"* → AI: `EXCHANGE_REQUEST / SIZE_MISMATCH / EXCHANGE` |
 | Deterministic policy (fed by `GET /v2/payments/captures/{id}`) | ELIGIBLE (return) | **REJECTED** — purchased 45 days ago, 30-day window | ELIGIBLE (exchange) |
 | Supplier | not involved | not contacted | Generated draft + **MOCK** reply `REPLACEMENT_APPROVED` |
 | Approval | A person — or the merchant's policy, when `AUTO_ENABLED` is on and the amount is within the limit | — | A person — or the merchant's policy, when `AUTO_ENABLED` and `AUTO_EXCHANGE_ENABLED` are on |

@@ -18,7 +18,7 @@ from app.notes import TemplateNoteWriter
 from app.paypal_mock import MockPayPalClient
 from app.workflow import Workflow
 
-CORE = {"intent": "REFUND_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "REFUND"}  # return for a refund
+CORE = {"intent": "REFUND_REQUEST", "reason": "NOT_AS_DESCRIBED", "requested_action": "REFUND"}  # return for a refund
 ASSIST = {"language": "Spanish", "language_code": "es", "current_size": "42", "requested_size": "43",
           "merchant_summary_en": "Customer wants to exchange size 42 for 43."}
 

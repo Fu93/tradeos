@@ -95,6 +95,12 @@ class KeywordIntentExtractor:
     _SIZE = re.compile(r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size)\b", re.I)
     _DAMAGED = re.compile(r"\b(damaged|broken|torn|defective|faulty)\b", re.I)
     _WRONG = re.compile(r"\b(wrong item|wrong product|not what i ordered)\b", re.I)
+    _COLOUR = re.compile(
+        r"\b(wrong colou?r|different colou?r|colou?r\s+(is\s+)?(wrong|different|incorrect|off)|"
+        r"colou?r\s+(does\s*n[o']?t|isn'?t|is\s+not)\s+(match|the\s+same)|"
+        r"(isn'?t|is\s+not|not)\s+the\s+(same\s+)?colou?r)",
+        re.I,
+    )
     _CHANGED = re.compile(r"\b(changed my mind|don'?t want|no longer need)\b", re.I)
 
     def extract(self, message: str) -> Extraction:
@@ -103,6 +109,8 @@ class KeywordIntentExtractor:
             reason: Reason = "SIZE_MISMATCH"
         elif self._DAMAGED.search(text):
             reason = "DAMAGED"
+        elif self._COLOUR.search(text):
+            reason = "NOT_AS_DESCRIBED"
         elif self._WRONG.search(text):
             reason = "WRONG_ITEM"
         elif self._CHANGED.search(text):

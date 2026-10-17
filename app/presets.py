@@ -8,7 +8,8 @@ from __future__ import annotations
 
 PRESETS: list[dict] = [
     {"key": "en", "chip": "English", "late": False, "path": "refund",
-     "message": "These sneakers are too small and don't fit. I'd like to return them and get my money back."},
+     "message": "The sneakers I received are black, but the photo shows white. "
+                "The colour doesn't match the listing, and I'd like to return them for a refund."},
     {"key": "zh", "chip": "Chinese (Traditional)", "late": False, "path": "exchange",
      "message": "鞋子太小了，可以把42號換成43號嗎？"},
     {"key": "es", "chip": "Spanish", "late": False, "path": "refund",

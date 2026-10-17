@@ -104,3 +104,21 @@ def test_llm_network_error_falls_back_to_keywords():
 
     ex = llm_with(handler).extract(DEMO)
     assert ex.result.intent == "EXCHANGE_REQUEST" and "LLM unavailable" in ex.extractor
+
+
+@pytest.mark.parametrize("msg", [
+    "The sneakers I received are black, but the photo shows white. The colour doesn't match the listing, "
+    "and I'd like to return them for a refund.",
+    "Wrong colour! I want a refund.",
+    "The color is different from the picture, refund please",
+    "This is not the colour I ordered, I want my money back",
+])
+def test_keyword_extractor_colour_mismatch_is_not_as_described(msg):
+    r = KeywordIntentExtractor().extract(msg).result
+    assert r.model_dump() == {"intent": "REFUND_REQUEST", "reason": "NOT_AS_DESCRIBED", "requested_action": "REFUND"}
+
+
+def test_keyword_extractor_demo_case_a_message_without_llm():
+    from app.workflow import DEMO_MESSAGE
+    assert KeywordIntentExtractor().extract(DEMO_MESSAGE).result.reason == "NOT_AS_DESCRIBED"
+    assert "too small" not in DEMO_MESSAGE
