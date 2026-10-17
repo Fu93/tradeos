@@ -35,7 +35,7 @@ supplier without any refund.
 
 ![TradeOS dashboard — Case A: refund COMPLETED, confirmed by PayPal (live Sandbox)](docs/dashboard.png)
 
-More live-Sandbox screenshots (1440x900, taken 2026-10-10): [evidence panel](docs/screenshots/caseA-evidence-live.png),
+More live-Sandbox screenshots (1440x900, retaken 2026-10-17 after Case A became the wrong-colour return): [evidence panel](docs/screenshots/caseA-evidence-live.png),
 [evidence details](docs/screenshots/caseA-evidence-details-live.png), [reconcile + audit badge](docs/screenshots/caseA-reconcile-audit-live.png),
 [refund failure then retry](docs/screenshots/refund-failure-retry-live.png), [double click](docs/screenshots/double-click-live.png),
 [prompt injection](docs/screenshots/injection-live.png), [late request](docs/screenshots/late-request-live.png), [mobile 375px](docs/screenshots/mobile-375-live.png).
