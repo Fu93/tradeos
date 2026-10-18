@@ -26,7 +26,8 @@ has a static guard for that. A person acts in PayPal.
 |---|---|---|
 | Unit / integration tests (mock PayPal, **not** PayPal proof) | webhook created / updated / resolved; duplicate; unsigned and tampered rejected; missing headers rejected outside mock; future-dated and replayed rejected; out-of-order update ignored; unmatched dispute; recommendation rules; scope-missing degradation; GET-only client; hash chain stays valid; demo reset keeps working; RSA self-verify path with a *test* certificate | `tests/test_disputes.py` (20 tests) |
 | Live Sandbox, read-only GET (2026-10-18, UTC+1) | OAuth token for the Sandbox app lists `disputes/read-seller`; `GET /v1/customer/disputes?page_size=5` → HTTP 200, `items: []` (PayPal-Debug-Id `ca4c38bff9e52` via the app's client); `GET /v1/customer/disputes/{unknown}` → 404 `RESOURCE_NOT_FOUND` (`ca4c38c00ca10`) | proves the credentials have the read scope and the GET path/auth work |
-| **Not covered** | parsing a *real* PayPal dispute object (the sandbox app has **no disputes**, so the fixtures are written from PayPal's documented shape); a real signed `CUSTOMER.DISPUTE.*` delivery (the live webhook is not subscribed to these events, and the Render service is not deployed with this code); evidence submission / any dispute action (deliberately not implemented); live (production) behaviour | open |
+| Live Sandbox webhook (2026-10-18, UTC+1) | The Sandbox webhook was subscribed to the three `CUSTOMER.DISPUTE.*` events in addition to the five payment events (PATCH on the same webhook id). A **PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` (Webhooks Management API `simulate-event` with the webhook id) was POSTed by PayPal to the live `/webhooks/paypal`, answered HTTP 200 and shown on `/disputes` as *signed webhook*. It is a PayPal **mock payload** (sample case PP-000-042-663-135, 2018 dates), not a real buyer dispute | proves subscription, delivery to the live URL and the signed-webhook path for a dispute event; does **not** prove parsing of a real dispute |
+| **Not covered** | parsing a *real* PayPal dispute object (the sandbox app has **no disputes**, so the fixtures are written from PayPal's documented shape); a delivery of a *real* buyer-created dispute (none was created); evidence submission / any dispute action (deliberately not implemented); live (production) behaviour | open |
 
 ## How to get a real sandbox dispute (not done)
 Per PayPal's docs, a sandbox dispute is created as the *buyer*: `POST /v1/customer/disputes` with a buyer
@@ -34,9 +35,11 @@ Per PayPal's docs, a sandbox dispute is created as the *buyer*: `POST /v1/custom
 personal account's Resolution Center after a card-funded payment. That is a write call outside this feature's scope and
 was not made. The app's token does list `disputes/create`, but TradeOS never uses it.
 
-## To turn it on for the Sandbox webhook (a settings change — not done here)
-Subscribe the webhook to the three `CUSTOMER.DISPUTE.*` events (PayPal dashboard, or extend `EVENTS` in
-`scripts/register_webhook.py`). Until then the Disputes page is populated only by "Fetch from PayPal".
+## Webhook subscription
+The Sandbox webhook is subscribed to the three `CUSTOMER.DISPUTE.*` events (done 2026-10-18 with
+`scripts/register_webhook.py --apply`; `EVENTS` there now lists them, so the repo matches PayPal). The webhook id did not
+change, so `PAYPAL_WEBHOOK_ID` needed no change. PayPal's PATCH supports only `replace` on `/event_types`, so the script
+always sends the complete list. "Fetch from PayPal" remains available as a read-only GET.
 
 ## Rollback
 Revert the PR. The `disputes` table is created with `CREATE TABLE IF NOT EXISTS`; leaving it in a kept database is harmless.
