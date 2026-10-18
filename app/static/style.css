@@ -270,3 +270,21 @@ form.inline { display: inline-block; margin-left: 6px; }
   .mx-row .mx-dec, .mx-row .mx-amt { grid-column: 2; } .mx-row .mx-num { text-align: left; }
   .mx-sum { font-size: 15px; }
 }
+
+/* Touch targets: at phone width every button, preset chip, nav/tab link and form control is at least 44px tall
+   (WCAG 2.5.5 / Apple HIG). Layout is kept by wrapping, not by shrinking. */
+.api-back { margin: 8px 16px; font-size: 14px; }
+@media (max-width: 640px) {
+  .btn, .btn.small, .chip-btn, .tab, .mainnav a, .footer a { min-height: 44px; }
+  .btn, .btn.small, .chip-btn { display: inline-flex; align-items: center; justify-content: center; text-align: center; padding: 8px 14px; font-size: 14px; }
+  .btn.small { font-size: 13.5px; }
+  .chip-btn { padding: 8px 16px; }
+  .tab { display: inline-flex; align-items: center; padding: 6px 12px; }
+  .mainnav { gap: 6px; } .mainnav a { display: inline-flex; align-items: center; padding: 0 10px; }
+  .footer a { display: inline-flex; align-items: center; padding: 0 10px; }
+  .toggle { display: flex; align-items: center; gap: 8px; min-height: 44px; }
+  .toggle input[type="checkbox"] { width: 24px; height: 24px; }
+  select, .mx-resolve select, .admin-auth input[type="password"] { min-height: 44px; }
+  .actions form, .actions .btn { max-width: 100%; }
+  form.inline { display: block; margin: 6px 0 0; }
+}
