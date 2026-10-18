@@ -118,11 +118,14 @@ def test_fuzz_multiple_partials_never_exceed_capture_and_never_repeat_a_unit():
     for _ in range(600):
         order = rand_order(rng)
         decisions = rand_decisions(rng, order)
-        refund_qty, exch_qty, released, committed = {}, {}, set(), 0
+        refund_qty, exch_qty, released, committed, shipped = {}, {}, set(), 0, 0
+        policy = rng.choice(li.SHIPPING_POLICIES)
         for _batch in range(rng.randint(2, 5)):
             led = li.Ledger(dict(refund_qty), dict(exch_qty), frozenset(released), committed)
-            q = li.quote_batch(order, decisions, led, shipping_policy="MERCHANT_ERROR")
+            q = li.quote_batch(order, decisions, led, shipping_policy=policy)
             committed += q.total_minor
+            shipped += sum(x.shipping_minor for x in q.refund_lines)
+            assert shipped <= order.shipping_minor      # shipping is never refunded beyond what was charged
             assert committed <= order.total
             for x in q.refund_lines:
                 refund_qty[x.line_no] = refund_qty.get(x.line_no, 0) + x.qty
@@ -134,7 +137,7 @@ def test_fuzz_multiple_partials_never_exceed_capture_and_never_repeat_a_unit():
             for ln in order.lines:
                 assert refund_qty.get(ln.line_no, 0) + exch_qty.get(ln.line_no, 0) <= ln.qty
         again = li.quote_batch(order, decisions, li.Ledger(dict(refund_qty), dict(exch_qty), frozenset(released),
-                                                           committed))
+                                                           committed), shipping_policy=policy)
         assert again.total_minor == 0  # nothing left to refund twice (second identical batch is empty)
 
 
@@ -200,9 +203,62 @@ def test_shipping_never_policy_and_default():
     o = mixed_demo()
     never = li.quote_batch(o, decisions_demo(), li.Ledger(), shipping_policy="NEVER")
     assert all(x.shipping_minor == 0 for x in never.refund_lines)
-    assert li.DEFAULT_SHIPPING_POLICY == "MERCHANT_ERROR"
+    assert li.DEFAULT_SHIPPING_POLICY == "WITHDRAWAL_FULL"
     non_error = [li.LineDecision(1, "REFUND", 1, "CHANGED_MIND", ""), li.LineDecision(2, "REFUND", 1, "SIZE_MISMATCH", "")]
-    assert all(x.shipping_minor == 0 for x in li.quote_batch(o, non_error, li.Ledger()).refund_lines)
+    assert all(x.shipping_minor == 0 for x in li.quote_batch(o, non_error, li.Ledger()).refund_lines)  # partial return
+
+
+def full_return(reason="CHANGED_MIND"):
+    o = mixed_demo()
+    return o, [li.LineDecision(n, "REFUND", 1, reason, "") for n in (1, 2, 3, 4)]
+
+
+def test_withdrawal_full_refunds_standard_shipping_on_whole_order_return():
+    o, d = full_return()                      # all four lines returned, change of mind: legal withdrawal
+    q = li.quote_batch(o, d, li.Ledger())
+    assert sum(x.shipping_minor for x in q.refund_lines) == 600
+    assert q.total_minor == o.total and q.remaining_after_minor == 0
+    # MERCHANT_ERROR / NEVER keep the old behaviour: change of mind gets no shipping
+    assert li.quote_batch(o, d, li.Ledger(), shipping_policy="MERCHANT_ERROR").total_minor == o.total - 600
+    assert li.quote_batch(o, d, li.Ledger(), shipping_policy="NEVER").total_minor == o.total - 600
+
+
+def test_withdrawal_full_no_shipping_when_any_line_not_returned():
+    o, d = full_return()
+    for skip, how in ((4, "EXCHANGE"), (4, "REJECT"), (2, "NEEDS_HUMAN")):
+        dd = [li.LineDecision(x.line_no, how if x.line_no == skip else "REFUND", 1, "CHANGED_MIND", "") for x in d]
+        q = li.quote_batch(o, dd, li.Ledger())
+        assert sum(x.shipping_minor for x in q.refund_lines) == 0       # partial withdrawal: no delivery refund
+    q = li.quote_batch(o, d[:3], li.Ledger())                            # lines 1-3 only
+    assert sum(x.shipping_minor for x in q.refund_lines) == 0
+    two = li.OrderModel("USD", (li.Line(1, "A", "A", 1000, 2, 0),), 300)  # one of two units
+    q = li.quote_batch(two, [li.LineDecision(1, "REFUND", 1, "CHANGED_MIND", "")], li.Ledger())
+    assert q.total_minor == 1000
+
+
+def test_withdrawal_full_completing_second_batch_releases_remaining_shipping_once():
+    o, d = full_return()
+    led = li.Ledger({1: 1, 2: 1}, {}, frozenset(), 4999 + 400 + 7900 + 632)
+    q = li.quote_batch(o, d, led)                                       # batch 2 completes lines 3 and 4
+    assert [x.line_no for x in q.refund_lines] == [3, 4]
+    assert sum(x.shipping_minor for x in q.refund_lines) == 600         # whole shipping, incl. lines 1-2's shares
+    assert led.refunded_minor + q.total_minor == o.total
+    # a merchant-error share already released in batch 1 is not paid again
+    sh = o.shipping_shares()
+    led2 = li.Ledger({1: 1, 2: 1}, {}, frozenset({1}), 4999 + 400 + 7900 + 632 + sh[1])
+    q2 = li.quote_batch(o, d, led2)
+    assert sum(x.shipping_minor for x in q2.refund_lines) == 600 - sh[1]
+    assert led2.refunded_minor + q2.total_minor == o.total
+    # an exchange anywhere in the order means it is not a whole-order return
+    q3 = li.quote_batch(o, d, li.Ledger({1: 1, 2: 1}, {3: 1}, frozenset(), 0))
+    assert sum(x.shipping_minor for x in q3.refund_lines) == 0
+
+
+def test_withdrawal_full_never_exceeds_capture_when_shipping_zero_or_odd():
+    o = li.OrderModel("JPY", (li.Line(1, "A", "A", 1500, 1, 150), li.Line(2, "B", "B", 700, 2, 70)), 501)
+    d = [li.LineDecision(1, "REFUND", 1, "CHANGED_MIND", ""), li.LineDecision(2, "REFUND", 2, "CHANGED_MIND", "")]
+    q = li.quote_batch(o, d, li.Ledger())
+    assert q.total_minor == o.total and sum(x.shipping_minor for x in q.refund_lines) == 501
 
 
 def test_shipping_only_when_whole_line_refunded():
