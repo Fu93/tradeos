@@ -189,11 +189,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     # -------------------------------------------------------------------------------------------
 
-    @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
+    @app.head("/", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/", response_class=HTMLResponse)
     def dashboard(request: Request, case: str | None = None):
         return render_dashboard(request, case)
 
-    @app.api_route("/queue", methods=["GET", "HEAD"], response_class=HTMLResponse)
+    @app.head("/queue", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/queue", response_class=HTMLResponse)
     def queue_page(request: Request):
         """Seeded multilingual demo queue (DEMO DATA). Read-only view: no DB rows, no PayPal calls, no actions."""
         return templates.TemplateResponse(request, "queue.html", {
@@ -487,7 +489,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "disputes": wf.disputes.view(), "access": wf.disputes.access(), "flash": flash,
             "label": DISPUTE_RECOMMENDATION_LABEL}, status_code=status_code)
 
-    @app.api_route("/disputes", methods=["GET", "HEAD"], response_class=HTMLResponse)
+    @app.head("/disputes", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/disputes", response_class=HTMLResponse)
     def disputes_page(request: Request):
         return render_disputes(request)
 
