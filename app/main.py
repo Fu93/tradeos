@@ -19,7 +19,7 @@ from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
 from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
-from .lineitems import MoneyError
+from .lineitems import MoneyError, to_str as money_str
 from .mixed import MIXED_STATUSES
 from .notes import build_note_writer
 from .paypal_client import PayPalError
@@ -544,13 +544,22 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         calls = [{k: c.get(k) for k in ("ts", "operation", "ok", "result", "debug_id", "request_id")}
                  for c in db.paypal_calls(case_id)]
         ids = {k: case.get(k) for k in ("order_id", "capture_id", "refund_id") if case.get(k)}
+        # Mixed orders refund per batch: the refund ids live on the batches, not on the case row.
+        batches = [{"batch_no": b["batch_no"], "status": b["status"],
+                    "amount": money_str(b["amount_minor"], b["currency"]), "currency": b["currency"],
+                    "refund_id": b.get("refund_id"), "refund_status": b.get("refund_status"),
+                    "paypal_amount": b.get("paypal_amount"), "debug_id": b.get("debug_id"),
+                    "request_id": b.get("request_id")} for b in db.list_batches(case_id)]
+        refund_api_called = any(c["operation"] == "refund_capture" for c in calls) or bool(
+            ids.get("refund_id") or any(b["refund_id"] for b in batches))
         return {
             "report": "TradeOS case evidence", "generated_at": utcnow(), "case_id": case_id,
             "environment": {"paypal_mode": wf.paypal_mode, "note": "PayPal Sandbox only — no real money"
                             if wf.paypal_mode != "live" else "live"},
             "summary": {k: case.get(k) for k in ("status", "decision", "human_decision", "approval_source",
                                                  "refund_status")},
-            "paypal_ids": ids, "verification": result, "chain_head": entries[-1]["entry_hash"] if entries else None,
+            "paypal_ids": ids, "refund_batches": batches, "refund_api_called": refund_api_called,
+            "verification": result, "chain_head": entries[-1]["entry_hash"] if entries else None,
             "chain_entries": entries, "paypal_calls": calls,
             "how_to_verify": ("entry_hash = sha256(canonical_json({case_id, seq, type, ts, payload, prev_hash})); "
                               "canonical_json = sorted keys, separators (',', ':'), UTF-8, ensure_ascii=False; "

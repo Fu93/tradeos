@@ -86,3 +86,18 @@ def test_print_button_has_no_inline_handler_so_the_csp_does_not_block_it(app_ctx
     assert "onclick" not in html.lower() and "data-print" in html
     assert "script-src 'self'" in client.get(f"/cases/{cid}/evidence").headers["content-security-policy"]
     assert "data-print" in client.get("/static/app.js").text
+
+
+def test_mixed_case_report_lists_batch_refund_ids_and_never_says_refund_api_not_called(app_ctx):
+    client, pp, wf = app_ctx
+    cid = wf.run_scenario("M")
+    # before approval no refund exists: the honest line is shown
+    assert "Refund API: NOT CALLED" in client.get(f"/cases/{cid}/evidence").text
+    batch = wf.db.get_batch(f"{cid}-B1")
+    wf.mixed.approve_batch(cid, batch["id"], li.to_str(batch["amount_minor"], batch["currency"]), batch["items_hash"])
+    h = client.get(f"/cases/{cid}/evidence").text
+    d = client.get(f"/cases/{cid}/evidence.json").json()
+    done = wf.db.get_batch(f"{cid}-B1")
+    assert done["refund_id"] and d["refund_api_called"] is True
+    assert d["refund_batches"][0]["refund_id"] == done["refund_id"] and done["refund_id"] in h
+    assert "Refund API: NOT CALLED" not in h and "Partial refunds (per batch)" in h
