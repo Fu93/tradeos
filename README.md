@@ -140,8 +140,17 @@ cases carry no prefix because no approval happened.
 
 * **Success** shows `Refund COMPLETED`, confirmed by PayPal, with Order ID, Capture ID, Refund ID, amount and PayPal's timestamp
   (plus a second, independent confirmation from the signed PayPal webhook when configured).
-* **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`.
-* The three plan blocks are kept: **1 Pending action** (the result / approval card), **2 Case timeline** (plain English,
+* **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`. A message with
+  instruction-like text is shown as **Rejected: instruction-like text in the message** (never reaches approval); a request
+  outside the two automated paths is shown as **Needs human review**, or **Needs human safety review** when the message
+  mentions harm or danger. These are display labels only: the decision stays REJECTED, there is no approve button and
+  the Refund API is not called.
+* **Mixed orders (Case M)**: the *PayPal evidence* panel lists every partial refund (one per batch) with its refund id,
+  the computed amount, the amount PayPal reported and the signed-webhook slot (*waiting…* / *Verified ✓*); the webhook is
+  matched to the batch by PayPal's refund id. The item table keeps each line's refunded amount after approval.
+* **/api/docs** is Swagger UI served from `app/static/swagger` (swagger-ui-dist 5.33.3, Apache-2.0): no CDN and the
+  Content-Security-Policy is unchanged.
+* The three plan blocks are kept: **1 Pending action** (the result / approval card; the heading names the outcome — *Result: refund completed*, *Result: rejected (no refund)* … — once nothing is pending any more), **2 Case timeline** (plain English,
   raw JSON in a collapsible `raw` under every event, full JSON at `/api/cases/{id}`), **3 Case economics** (smaller,
   still labelled *Illustrative cost model — assumptions configurable.*), plus the return-vs-exchange table and the
   **MOCK supplier** label.
@@ -515,7 +524,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-405 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+768 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
 (incl. eval dataset checks and the fallback injection guard).
 
