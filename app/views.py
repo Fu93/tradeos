@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from datetime import datetime, timezone
 
 from .db import Database
@@ -38,7 +39,41 @@ def _human(value: str | None) -> str:
 
 
 def _first_failed(policy: dict | None) -> dict | None:
-    return next((c for c in (policy or {}).get("checks", []) if not c["passed"]), None)
+    """The failed check to SHOW as the reason. Display only (the decision is the policy engine's): an injection
+    marker is shown ahead of any other failure, so a message with instruction-like text is never explained away
+    by a side effect such as "a refund needs a stated reason"."""
+    failed = [c for c in (policy or {}).get("checks", []) if not c["passed"]]
+    return next((c for c in failed if c["name"] == "no_injection_markers"), failed[0] if failed else None)
+
+
+SAFETY_WORDS = re.compile(
+    r"\b(burn(?:ed|t|s)?|injur\w*|hurt|fire|smok(?:e|ing)|poison\w*|toxic|allerg\w*|rash|danger\w*|unsafe|safety|"
+    r"chok\w*|melt\w*|explod\w*|quem[eéo]\w*|peligro\w*|herid\w*|humo|fuego|verbrann\w*|verbrenn\w*|gef[aä]hr\w*|"
+    r"verletz\w*)\b|火傷|やけど|危険|怪我|けが|受傷|危險|燒傷|燙傷", re.IGNORECASE)
+
+
+def rejection_info(case: dict) -> dict | None:
+    """DISPLAY label for a REJECTED case. It reads the stored policy checks and the message; it never changes
+    the decision, the status or what can be approved (REJECTED has no approve button in either label).
+
+    * injection: instruction-like text in the message (check no_injection_markers) -> rejected before approval;
+    * human_review: the request is not one the automated workflow handles (the policy's own "route to a human"
+      wording) -> a person has to read it; if the message mentions harm/danger it is labelled a safety review.
+    """
+    policy = case.get("policy") or {}
+    checks = {c["name"]: c for c in policy.get("checks", [])}
+    if case.get("status") != "REJECTED" and case.get("decision") != "REJECTED":
+        return None
+    inj = checks.get("no_injection_markers")
+    if inj and not inj["passed"]:
+        return {"kind": "injection", "label": "Rejected: instruction-like text in the message", "reason": inj["detail"]}
+    sup = checks.get("request_supported")
+    if sup and not sup["passed"] and "route to a human" in sup["detail"]:
+        safety = bool(SAFETY_WORDS.search(case.get("customer_message") or ""))
+        return {"kind": "safety" if safety else "human_review",
+                "label": "Needs human safety review" if safety else "Needs human review",
+                "reason": sup["detail"]}
+    return None
 
 
 # ---------------------------------------------------------------- evidence (plan §7)
@@ -124,7 +159,15 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             st["policy"] = ("blocked", f"REJECTED · {failed['name'].replace('_', ' ')}" if failed else "REJECTED")
             st["supplier"] = ("skipped", "not contacted") if not case.get("supplier_reply") else \
                 ("done", "replacement approved (MOCK)")
-            st["human"] = ("skipped", "nothing to approve")
+            rej = rejection_info(case)
+            if rej and rej["kind"] in ("safety", "human_review"):
+                st["policy"] = ("blocked", "REJECTED · not automated")
+                st["human"] = ("skipped", f"{rej['label']} — no approve button")
+            elif rej:
+                st["policy"] = ("blocked", "REJECTED · instruction-like text")
+                st["human"] = ("skipped", "never reaches approval")
+            else:
+                st["human"] = ("skipped", "nothing to approve")
             st["paypal"] = ("blocked", f"Refund API NOT CALLED · {calls} calls")
         elif case.get("decision") == "NEEDS_HUMAN" and _llm_down(case):
             st["intent"] = ("blocked", "AI unavailable · not understood")
@@ -219,6 +262,24 @@ def _refund_api_status(db: Database, case_id: str) -> str | None:
     return None
 
 
+# ---------------------------------------------------------------- block 1 heading
+_TITLE_BY_STATUS = {
+    "REFUND_COMPLETED": "Result: refund completed", "EXCHANGE_ARRANGED": "Result: exchange arranged",
+    "REJECTED": "Result: rejected (no refund)", "DECLINED_BY_HUMAN": "Result: declined (no refund)",
+    "REFUND_FAILED": "Result: refund failed at PayPal", "REFUND_ERROR": "Result: refund failed (no money moved)",
+    "REFUND_PENDING": "Refund in progress at PayPal", "REFUND_OUTCOME_UNKNOWN": "Checking the refund with PayPal",
+    "ERROR": "Result: PayPal error", "MIXED_DONE": "Result: all lines handled",
+    "MIXED_REFUND_PENDING": "Refund in progress at PayPal", "MIXED_OUTCOME_UNKNOWN": "Checking the refund with PayPal",
+    "MIXED_ATTENTION": "Needs attention: a partial refund",
+}
+
+
+def section_title(case: dict | None) -> str:
+    """Heading of block 1. 'Pending action' only while something is actually waiting for a person (or nothing has
+    run yet); once the case is completed, rejected, declined or failed it names the outcome instead of going stale."""
+    return _TITLE_BY_STATUS.get(case["status"], "Pending action") if case else "Pending action"
+
+
 # ---------------------------------------------------------------- result card
 def result_card(db: Database, case: dict | None, webhook_configured: bool = True) -> dict | None:
     if not case:
@@ -257,12 +318,25 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "await_webhook": webhook_configured and not webhook}
     if status == "REJECTED":
         failed = _first_failed(case.get("policy"))
-        return {**base, "kind": "bad", "icon": "✕", "title": "Refund not executed",
-                "subtitle": "The policy engine said NO. The model cannot override it.",
-                "reason": failed["detail"] if failed else "Policy rejected the case",
-                "rows": [("Decision", "REJECTED"), ("Refund API calls", str(calls)),
-                         ("Refund ID", case.get("refund_id") or "none"),
-                         ("PayPal Order ID", case.get("order_id") or "—")]}
+        rej = rejection_info(case)
+        title, subtitle = "Refund not executed", "The policy engine said NO. The model cannot override it."
+        rows = [("Decision", "REJECTED"), ("Refund API calls", str(calls)),
+                ("Refund ID", case.get("refund_id") or "none"),
+                ("PayPal Order ID", case.get("order_id") or "—")]
+        if rej and rej["kind"] == "injection":
+            title = "Rejected: instruction-like text in the message"
+            subtitle = ("The message contains instruction-like text, so the policy engine rejected it before any "
+                        "approval step: there is no approve button and the Refund API was not called. The text is "
+                        "treated as data; a person can still read the message.")
+            rows.insert(1, ("Rejection reason", "instruction-like text (injection markers)"))
+        elif rej:
+            title = f"{rej['label']}: not handled automatically"
+            subtitle = ("TradeOS only automates a return for a refund and a size exchange. This request is neither, so "
+                        "the policy engine stopped it: nothing is approved or refunded here (no approve button, Refund "
+                        "API NOT CALLED) and a person has to read the message and follow up outside this workflow.")
+            rows.insert(1, ("Next step", rej["label"]))
+        return {**base, "kind": "bad", "icon": "✕", "title": title, "subtitle": subtitle,
+                "reason": failed["detail"] if failed else "Policy rejected the case", "rows": rows}
     if status == "REFUND_ERROR":
         failure = next((e["detail"] for e in reversed(db.timeline(case["id"]))
                         if e["stage"] == "paypal" and e["title"] == "Refund failed"), None)
@@ -592,6 +666,49 @@ def status_words(status: str | None, details: dict | None = None) -> str:
     return words
 
 
+# A verified delivery counts as "this batch's refund was confirmed by a signed webhook" only when TradeOS actually
+# applied it to that refund (not a mismatch, a stale body or an unmatched/ignored one).
+WEBHOOK_CONFIRMING = ("CONFIRMED", "PENDING_TO_COMPLETED")
+
+
+def is_mixed(case: dict) -> bool:
+    return case.get("scenario") == "M" or case.get("decision") == "MIXED"
+
+
+def batch_refunds(db: Database, case: dict, webhook_configured: bool = True) -> list[dict]:
+    """Mixed orders keep their refunds in case_batches (one PayPal partial refund per batch), not in the single
+    case.refund_id field. One row per batch that has a PayPal refund id, with the signed-webhook match found by
+    that refund id (webhook_events.resource_id). Display only: values PayPal returned or explicit 'waiting'."""
+    from .mixed import money_label
+    from . import lineitems as li
+    events = db.webhook_events(case["id"])
+    rows = []
+    for b in db.list_batches(case["id"]):
+        if not b["refund_id"]:
+            continue
+        cur = b["currency"]
+        mine = [e for e in events if e.get("resource_id") == b["refund_id"]]
+        confirmed = [e for e in mine if e["verified"] and e["outcome"] in WEBHOOK_CONFIRMING]
+        if confirmed:
+            last = confirmed[-1]
+            wh = {"state": "verified", "ok": True, "event_id": last["event_id"], "event_type": last.get("event_type"),
+                  "method": WEBHOOK_METHOD_WORDS.get(last.get("verify_method") or "", "signature verified")}
+        else:
+            wh = {"state": "waiting" if webhook_configured else "not_configured", "ok": None, "event_id": None,
+                  "event_type": None, "method": None}
+        wh["duplicates"] = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in mine)
+        wh["unverified"] = sum(1 for e in mine if not e["verified"] and e["outcome"] != "DUPLICATE_IGNORED")
+        computed = li.to_str(b["amount_minor"], cur)
+        reported = b.get("paypal_amount")
+        rows.append({
+            "batch_no": b["batch_no"], "refund_id": b["refund_id"], "status": b["refund_status"] or "UNKNOWN",
+            "words": status_words(b["refund_status"], (b.get("refund") or {}).get("status_details")),
+            "ok": {"COMPLETED": True, "PENDING": None}.get(b["refund_status"] or "", False),
+            "computed": money_label(b["amount_minor"], cur), "paypal_amount": reported,
+            "equal": (reported == f"{computed} {cur}") if reported else None, "webhook": wh})
+    return rows
+
+
 def _call_row(c: dict) -> dict:
     ev = json.loads(c["evidence_json"]) if c.get("evidence_json") else {}
     op = c["operation"]
@@ -664,7 +781,22 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
     calls = db.paypal_calls(case["id"])
     refund_calls = [c for c in calls if c["operation"] == "refund_capture"]
     rows = []
-    if case.get("refund_id"):
+    if is_mixed(case):
+        brs = batch_refunds(db, case, webhook_configured)
+        for b in brs:
+            rows.append({"label": f"PayPal refund (batch {b['batch_no']})",
+                         "value": f"{b['refund_id']} · {b['words']} · computed {b['computed']} · PayPal reported "
+                                  f"{b['paypal_amount'] or 'no amount'}"
+                                  + (" ✓ equal" if b["equal"] else " ✗ DIFFERS" if b["equal"] is False else ""),
+                         "ok": b["ok"] if b["equal"] is not False else False})
+            w = b["webhook"]
+            rows.append({"label": f"Signed PayPal notice (batch {b['batch_no']})",
+                         "value": (f"{w['method']} · event {w['event_id']}" if w["state"] == "verified" else
+                                   "waiting for PayPal's signed webhook…" if w["state"] == "waiting" else
+                                   "webhook not set up on this server"), "ok": w["ok"]})
+        if not brs:
+            rows.append({"label": "PayPal refund", "value": "No refund requested from PayPal yet", "ok": None})
+    elif case.get("refund_id"):
         refund = case.get("refund") or {}
         amount = _money(refund.get("amount")) or f"${case['amount']} {case['currency']}"
         rows.append({"label": "PayPal refund", "value": f"{case['refund_id']} · "
@@ -678,7 +810,7 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
     if last and last.get("debug_id"):
         rows.append({"label": "PayPal trace ID", "value": f"{last['debug_id']} — PayPal's debug id for the {OPERATION_LABELS.get(last['operation'], last['operation']).lower()} call; PayPal support can look it up",
                      "ok": None})
-    if case.get("refund_id"):
+    if case.get("refund_id") and not is_mixed(case):
         events = db.webhook_events(case["id"])
         verified = [e for e in events if e["verified"]]
         dups = sum(e["outcome"] == "DUPLICATE_IGNORED" for e in events)
@@ -715,8 +847,15 @@ def paypal_proves(db: Database, case: dict, webhook_configured: bool = True) -> 
     Every field is either a value PayPal sent us or an explicit 'not yet' / 'none'."""
     calls = db.paypal_calls(case["id"])
     refund = case.get("refund") or {}
-    out: dict = {"refund": None, "debug_ids": [], "webhook": None, "reconcile": None}
-    if case.get("refund_id"):
+    out: dict = {"refund": None, "debug_ids": [], "webhook": None, "reconcile": None, "batches": []}
+    brs = batch_refunds(db, case, webhook_configured) if is_mixed(case) else []
+    out["batches"] = brs
+    if brs:
+        out["refund"] = {"id": ", ".join(b["refund_id"] for b in brs), "status": "BATCHES",
+                         "words": f"{len(brs)} partial refund(s), listed per batch below",
+                         "ok": False if any(b["ok"] is False or b["equal"] is False for b in brs)
+                         else (True if all(b["ok"] for b in brs) else None)}
+    elif case.get("refund_id"):
         out["refund"] = {"id": case["refund_id"], "status": case.get("refund_status") or "UNKNOWN",
                          "words": status_words(case.get("refund_status"), refund.get("status_details")),
                          "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status") or "", False)}
@@ -724,7 +863,16 @@ def paypal_proves(db: Database, case: dict, webhook_configured: bool = True) -> 
         if c.get("debug_id"):
             out["debug_ids"].append({"operation": OPERATION_LABELS.get(c["operation"], c["operation"]),
                                      "debug_id": c["debug_id"], "request_id": c.get("request_id"), "ok": bool(c["ok"])})
-    if case.get("refund_id"):
+    if brs:
+        states = {b["webhook"]["state"] for b in brs}
+        dups = sum(b["webhook"]["duplicates"] for b in brs)
+        unv = sum(b["webhook"]["unverified"] for b in brs)
+        state = "verified" if states == {"verified"} else "not_configured" if "not_configured" in states else "waiting"
+        last = next((b["webhook"] for b in reversed(brs) if b["webhook"]["state"] == "verified"), None) or {}
+        out["webhook"] = {"state": state, "ok": True if state == "verified" else None,
+                          "event_id": last.get("event_id"), "event_type": last.get("event_type"),
+                          "method": last.get("method"), "method_key": None, "duplicates": dups, "unverified": unv}
+    elif case.get("refund_id"):
         events = db.webhook_events(case["id"])
         verified = [e for e in events if e["verified"]]
         unverified = len(events) - len(verified)

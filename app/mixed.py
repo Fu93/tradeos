@@ -729,6 +729,23 @@ class MixedOrders:
         def m(x: int) -> str:
             return money_label(x, cur)
 
+        # Amounts per line from batches that are past the proposal (approved / at PayPal / done): the item table keeps
+        # showing them after approval instead of going back to a dash. Computed by code from the stored quote.
+        settled: dict[int, dict] = {}
+        for b in batches:
+            if b["status"] in RELEASED or b["status"] == PROPOSED:
+                continue
+            label = {COMPLETED: "refunded", PENDING: "pending at PayPal"}.get(b["status"], "approved, not confirmed yet")
+            for q in (b["quote"] or {}).get("refund_lines", []):
+                d = settled.setdefault(q["line_no"], {"item": 0, "tax": 0, "ship": 0, "labels": set()})
+                d["item"] += q["item_minor"]
+                d["tax"] += q["tax_minor"]
+                d["ship"] += q["shipping_minor"]
+                d["labels"].add(label)
+
+        def settled_label(labels: set[str]) -> str:
+            return "refunded" if labels == {"refunded"} else " / ".join(sorted(labels))
+
         lines = []
         for ln in model.lines:
             r = rows[ln.line_no]
@@ -739,6 +756,9 @@ class MixedOrders:
                           "refund_item": m(q["item_minor"]) if q else None, "refund_tax": m(q["tax_minor"]) if q else None,
                           "refund_ship": m(q["shipping_minor"]) if q else None,
                           "refund_total": m(q["item_minor"] + q["tax_minor"] + q["shipping_minor"]) if q else None,
+                          "done_total": m(sd["item"] + sd["tax"] + sd["ship"]) if (sd := settled.get(ln.line_no)) else None,
+                          "done_parts": f"{m(sd['item'])} + {m(sd['tax'])} + {m(sd['ship'])}" if sd else None,
+                          "done_label": settled_label(sd["labels"]) if sd else None,
                           "ship_share": m(shares[ln.line_no]), "state": "; ".join(in_batch.get(ln.line_no, [])),
                           "needs_human": r["resolution"] == "NEEDS_HUMAN"})
         led = self.ledger(case_id)
