@@ -17,6 +17,14 @@
   <dl class="kv">{% for k, v in r.paypal_ids.items() %}<dt>{{ k }}</dt><dd><code>{{ v }}</code></dd>{% endfor %}</dl>
   {% else %}<p class="muted">No PayPal order was created for this case (nothing was captured or refunded).</p>{% endif %}
 
+  {% if r.refund_batches %}
+  <h2>Partial refunds (per batch)</h2>
+  <div class="table-wrap"><table class="evtable">
+    <thead><tr><th scope="col">Batch</th><th scope="col">Status</th><th scope="col">Computed</th><th scope="col">PayPal amount</th><th scope="col">Refund id</th><th scope="col">PayPal-Debug-Id</th></tr></thead>
+    <tbody>{% for b in r.refund_batches %}<tr><td>{{ b.batch_no }}</td><td>{{ b.status }}</td><td>{{ b.amount }} {{ b.currency }}</td><td>{{ b.paypal_amount or "—" }}</td><td><code>{{ b.refund_id or "—" }}</code></td><td><code>{{ b.debug_id or "—" }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% endif %}
+
   <h2>Audit hash chain</h2>
   {% if r.verification.ok %}
   <p><strong>Intact</strong> at generation time: {{ r.verification.entries }} entries. Head <code>{{ r.chain_head }}</code>. Record this head outside the server; a later chain that no longer reaches it was rewritten.</p>
@@ -36,6 +44,6 @@
     <tbody>{% for c in r.paypal_calls %}<tr><td>{{ c.ts }}</td><td>{{ c.operation }}</td><td>{{ "yes" if c.ok else "no" }}</td><td><code>{{ c.debug_id or "—" }}</code></td><td><code>{{ c.request_id or "—" }}</code></td></tr>{% endfor %}</tbody>
   </table></div>
   {% else %}<p class="muted">No PayPal API call was made for this case.</p>{% endif %}
-  {% if not r.paypal_ids.refund_id %}<p><strong>Refund API: NOT CALLED</strong> — no PayPal refund exists for this case.</p>{% endif %}
+  {% if not r.refund_api_called %}<p><strong>Refund API: NOT CALLED</strong> — no PayPal refund exists for this case.</p>{% endif %}
 </section>
 {% endblock %}
