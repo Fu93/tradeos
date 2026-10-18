@@ -13,7 +13,7 @@ MUTANTS = [
     ("workflow: gate hit no longer routes to safety review", "app/workflow.py",
      "        if gate.flagged:\n            self._route_to_safety_review(case_id, gate, intent)\n            return\n", ""),
     ("workflow: server-side backstop removed (and status check)", "app/workflow.py",
-     "        if case.get(\"status\") == NEEDS_SAFETY or case.get(\"decision\") == NEEDS_SAFETY:", "        if False:"),
+     "        if case.get(\"status\") in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get(\"decision\") == NEEDS_SAFETY:", "        if False:"),
     ("workflow: backstop re-scan ignores the message", "app/workflow.py",
      "        if safety_assess(case.get(\"customer_message\"), product, reason).flagged:", "        if False:"),
     ("safety: harm rule disabled", "app/safety.py", "    if harm:\n", "    if False and harm:\n"),
@@ -27,7 +27,19 @@ MUTANTS = [
      '("" if unicodedata.category(ch) == "Cf" else " ")', '" "'),
     ("views: approve button state - status check dropped", "app/workflow.py",
      "                self._refuse_if_safety(case)\n                if case.get(\"decision\") == MIXED:", "                if case.get(\"decision\") == MIXED:"),
+    # --- safety review 'mark reviewed' (tests/test_safety_review.py) ---
+    ("review: non-safety cases accepted", "app/workflow.py", "            if case[\"status\"] != NEEDS_SAFETY:\n                raise RefundNotAllowed(f\"Case {case_id} is not a safety",
+     "            if False:\n                raise RefundNotAllowed(f\"Case {case_id} is not a safety"),
+    ("review: double submit writes again", "app/workflow.py", "            if case[\"status\"] == SAFETY_REVIEWED:\n                return False", "            if False:\n                return False"),
+    ("review: note length limit removed", "app/workflow.py", "            if len(text) > SAFETY_NOTE_MAX:", "            if False:"),
+    ("review: empty note accepted", "app/workflow.py", "            if not text:\n                raise SafetyNoteInvalid", "            if False:\n                raise SafetyNoteInvalid"),
+    ("review: terminal freeze removed", "app/db.py", ', "SAFETY_REVIEWED")', ")"),
+    ("review: backstop ignores SAFETY_REVIEWED status", "app/workflow.py",
+     "in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get(\"decision\") == NEEDS_SAFETY", "in (NEEDS_SAFETY,) and False"),
+    ("review: endpoint skips rate limit", "app/main.py",
+     "        if (refused := money_limited(request, case_id)) is not None:\n            return refused\n        try:\n            wf.mark_safety_reviewed", "        try:\n            wf.mark_safety_reviewed"),
 ]
+TESTS = ["tests/test_safety_gate.py", "tests/test_safety_review.py"]
 
 
 def main() -> int:
@@ -41,7 +53,7 @@ def main() -> int:
             continue
         path.write_text(src.replace(old, new, 1))
         try:
-            r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-x", "tests/test_safety_gate.py"], cwd=ROOT,
+            r = subprocess.run([sys.executable, "-m", "pytest", "-q", "-x", *TESTS], cwd=ROOT,
                                capture_output=True, text=True)
         finally:
             path.write_text(src)

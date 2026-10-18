@@ -59,6 +59,19 @@ DEMO_MESSAGE = (
     "I ordered four things. The sneakers arrived damaged, the rain jacket and the socks are not what I wanted, "
     "so I'd like to return those three for a refund. The T-shirt is too small: please exchange it for size L."
 )
+# "Case M2" (two-step): same seeded order, but the customer is only sure about the sneakers (return) and the T-shirt
+# (exchange). The jacket and socks stay UNKNOWN, so code leaves them with a human. A person resolves them one at a time,
+# which creates a SECOND batch (and a third) on the SAME capture; the ledger caps the cumulative refund at the capture.
+TWO_STEP_MESSAGE = (
+    "I ordered four things. The sneakers arrived damaged, please refund them. The T-shirt is too small: please "
+    "exchange it for size L. I haven't decided about the rain jacket and the socks yet - I'll tell you later."
+)
+TWO_STEP_PROPOSALS = [
+    {"line_no": 1, "action": "RETURN", "reason": "DAMAGED"},
+    {"line_no": 2, "action": "UNKNOWN", "reason": "UNKNOWN"},
+    {"line_no": 3, "action": "UNKNOWN", "reason": "UNKNOWN"},
+    {"line_no": 4, "action": "EXCHANGE", "reason": "SIZE_MISMATCH"},
+]
 # Stand-in for the AI extractor's per-line reading of DEMO_MESSAGE (the per-line extractor is NOT built; see
 # docs/partial-refunds.md). It contains only what a model may say: no amount.
 DEMO_PROPOSALS = [
@@ -214,7 +227,7 @@ class MixedOrders:
             self.db.audit(case_id, "policy", "Mixed order: capture does not match the order lines — needs a human; "
                           "Refund API NOT CALLED", {"problem": problem, "refund_id": None})
             return
-        proposals, ignored = li.parse_proposals(DEMO_PROPOSALS, model)
+        proposals, ignored = li.parse_proposals(TWO_STEP_PROPOSALS if case.get("customer_message") == TWO_STEP_MESSAGE else DEMO_PROPOSALS, model)
         self.db.audit(case_id, "intent", "Per-line proposals recorded (DEMO-DATA stand-in for the AI reading; "
                       "proposals carry no amount)",
                       {"proposals": [p.__dict__ for p in proposals], "ignored_fields": ignored})

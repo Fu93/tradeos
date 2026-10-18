@@ -133,12 +133,13 @@ STEPS = [("request", "Customer request"), ("intent", "AI intent"), ("policy", "P
 def pipeline(db: Database, case: dict | None) -> list[dict]:
     """State of each step for the selected case: done / waiting / blocked / failed / skipped / todo."""
     st = {k: ("todo", "") for k, _ in STEPS}
-    if case and case["status"] == SAFETY_STATUS:
+    if case and case["status"] in (SAFETY_STATUS, "SAFETY_REVIEWED"):
         st["request"] = ("done", f"paid ${case['amount']} · message received")
         st["intent"] = ("blocked", "ignored — Safety Gate ran first")
         st["policy"] = ("blocked", "not run — Safety Gate (code) routed it to a person")
         st["supplier"] = ("skipped", "not contacted")
-        st["human"] = ("waiting", f"{SAFETY_LABEL} — no approve button")
+        st["human"] = (("done", "reviewed by a person — note on the audit chain") if case["status"] == "SAFETY_REVIEWED"
+                       else ("waiting", f"{SAFETY_LABEL} — no approve button"))
         st["paypal"] = ("blocked", f"Refund API NOT CALLED · {_refund_api_calls(db, case['id'])} calls")
     elif case and case["status"] != "NEW" and case.get("scenario") == "M":
         _mixed_pipeline(db, case, st)
@@ -267,6 +268,7 @@ def _refund_api_status(db: Database, case_id: str) -> str | None:
 # ---------------------------------------------------------------- block 1 heading
 _TITLE_BY_STATUS = {
     SAFETY_STATUS: "Needs human safety review (no refund, no supplier task)",
+    "SAFETY_REVIEWED": "Result: safety case reviewed by a person (no refund, no money moved)",
     "REFUND_COMPLETED": "Result: refund completed", "EXCHANGE_ARRANGED": "Result: exchange arranged",
     "REJECTED": "Result: rejected (no refund)", "DECLINED_BY_HUMAN": "Result: declined (no refund)",
     "REFUND_FAILED": "Result: refund failed at PayPal", "REFUND_ERROR": "Result: refund failed (no money moved)",
@@ -319,6 +321,20 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                                    .get(webhook or "", "waiting…" if webhook_configured else
                                         "not configured (PAYPAL_WEBHOOK_ID)"), webhook == "VERIFIED")],
                 "await_webhook": webhook_configured and not webhook}
+    if status == "SAFETY_REVIEWED":
+        gate = (case.get("extraction") or {}).get("safety") or {}
+        note = ""
+        for e in reversed(db.timeline(case["id"])):
+            if e.get("stage") == "human" and str(e.get("title", "")).startswith("Human marked the safety case reviewed"):
+                note = (e.get("detail") or {}).get("note", "")
+                break
+        return {**base, "kind": "ok", "icon": "✓", "title": "Safety case reviewed by a person",
+                "subtitle": "A person read this safety-gated case and recorded a note on the audit chain. This is a "
+                            "record only: no refund, no supplier task, Refund API NOT CALLED, and the case cannot "
+                            "re-enter the refund flow. Any follow-up with the customer happens outside this workflow.",
+                "reason": note, "reason_label": "Reviewer note", "rows": [("Decision", "SAFETY_REVIEWED"), ("Money moved", "no"),
+                                         ("Refund API calls", str(calls)), ("Refund ID", "none"),
+                                         ("Supplier", "not contacted"), ("PayPal Order ID", case.get("order_id") or "—")]}
     if status == SAFETY_STATUS:
         gate = (case.get("extraction") or {}).get("safety") or {}
         seen = ", ".join(dict.fromkeys(f"{x.get('kind')}: “{x.get('match')}”" for x in gate.get("signals", [])))
