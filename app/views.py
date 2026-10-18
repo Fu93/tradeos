@@ -332,7 +332,7 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "subtitle": "A person read this safety-gated case and recorded a note on the audit chain. This is a "
                             "record only: no refund, no supplier task, Refund API NOT CALLED, and the case cannot "
                             "re-enter the refund flow. Any follow-up with the customer happens outside this workflow.",
-                "reason": note, "reason_label": "Reviewer note", "rows": [("Decision", "SAFETY_REVIEWED"), ("Money moved", "no"),
+                "reason": note, "rows": [("Decision", "SAFETY_REVIEWED"), ("Money moved", "no"),
                                          ("Refund API calls", str(calls)), ("Refund ID", "none"),
                                          ("Supplier", "not contacted"), ("PayPal Order ID", case.get("order_id") or "—")]}
     if status == SAFETY_STATUS:
