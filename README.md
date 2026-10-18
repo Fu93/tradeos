@@ -29,7 +29,7 @@ Today one person reads it, checks the order, decides, and clicks refund in PayPa
 **What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
 only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
 a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
-is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee).
+is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**.
 
 | Principle | How it is enforced (in code, not in the prompt) |
 |---|---|
@@ -575,6 +575,12 @@ reconciled against PayPal in the background at startup.
 | `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_HOUR`, `RATE_LIMIT_GLOBAL_PER_HOUR` | no | `5`, `30`, `200` | runs that create sandbox orders (per IP / global) |
 | `RATE_LIMIT_MONEY_PER_MINUTE`, `RATE_LIMIT_MONEY_PER_HOUR`, `RATE_LIMIT_MONEY_GLOBAL_PER_HOUR` | no | `30`, `150`, `600` | separate, higher budget for the money actions (approve / decline / refund / capture) |
 | `TRADEOS_TRUST_CF_CONNECTING_IP` | no | `0` | `1` where a Cloudflare edge is really in front (render.yaml sets it for Render); off by default so the rate-limit identity cannot be forged |
+| `TRADEOS_SAFETY_AI` | no | `0` | `1` = opt-in second-layer AI safety classifier (escalate-only, fail-safe; needs `LLM_API_KEY`). **Off by default and off on the hosted demo.** See [`docs/safety-gate.md`](docs/safety-gate.md) |
+| `TRADEOS_SAFETY_AI_TIMEOUT_S` | no | `8` | timeout of that classifier; on timeout or error the keyword gate's result stands |
+| `TRADEOS_SHIPPING_POLICY` | no | `WITHDRAWAL_FULL` | shipping refund policy for mixed orders: `WITHDRAWAL_FULL`, `MERCHANT_ERROR` or `NEVER` (unknown value fails closed to `NEVER`); see [`docs/partial-refunds.md`](docs/partial-refunds.md) |
+| `TRADEOS_RECONCILE_IN_BACKGROUND` | no | `1` | background check of PENDING refunds only |
+| `TRADEOS_RESET_COOLDOWN_PER_IP_S`, `TRADEOS_RESET_COOLDOWN_GLOBAL_S` | no | `60`, `15` | cooldown between two "Reset demo" clicks (per IP / whole app) |
+| `TRADEOS_DISPUTES_SYNC_INTERVAL_S`, `TRADEOS_DISPUTES_REFRESH_INTERVAL_S` | no | `20`, `10` | minimum seconds between two read-only dispute fetches (whole app / same dispute) |
 | `REFUND_FAILURE_MOCK_CODE` | no | `REFUND_FAILED_INSUFFICIENT_FUNDS` | PayPal negative-testing code for the failure demo |
 | `AUTO_ENABLED` | no | `0` | `1` = the merchant's own policy may approve a policy-eligible refund without a person |
 | `AUTO_REFUND_MAX_AMOUNT` | no | `50.00` | the limit above which a refund always goes to a person |
@@ -602,7 +608,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-987 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+989 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
 (incl. eval dataset checks and the fallback injection guard).
 
