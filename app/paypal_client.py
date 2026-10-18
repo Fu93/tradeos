@@ -9,6 +9,7 @@ APIs used:
   GET  /v2/payments/refunds/{id}                 (refresh a PENDING refund)
   POST /v1/notifications/verify-webhook-signature (webhook: second, independent confirmation)
   GET/POST /v1/notifications/webhooks            (one-off webhook registration script)
+  GET  /v1/customer/disputes[/{id}]              (Disputes, READ-ONLY: needs the disputes/read-seller scope)
 
 Sandbox negative testing: ``refund_capture(..., mock_response=CODE)`` sends the
 ``PayPal-Mock-Response`` header so PayPal itself returns a real error response. It is
@@ -22,11 +23,14 @@ import threading
 import time
 from datetime import date
 from typing import Any
+from urllib.parse import quote
 
 import httpx
 
 # Official PayPal sandbox test card (developer.paypal.com/tools/sandbox/card-testing).
 SANDBOX_TEST_CARD = "4012888888881881"
+# Scope the app needs to READ disputes (GET /v1/customer/disputes). TradeOS never uses the write scopes.
+DISPUTES_READ_SCOPE = "https://uri.paypal.com/services/disputes/read-seller"
 
 
 class PayPalError(Exception):
@@ -63,6 +67,12 @@ class PayPalError(Exception):
         return " · ".join(bits)
 
 
+def is_scope_error(exc: "PayPalError") -> bool:
+    """PayPal refused a read because the app is not authorised for it (missing scope / permission)."""
+    text = f"{exc.name} {exc.message}".lower()
+    return exc.status_code in (401, 403) or "not_authorized" in text or "scope" in text or "permission" in text
+
+
 def find_link(resource: dict, *rels: str) -> str | None:
     for rel in rels:
         for link in resource.get("links", []) or []:
@@ -97,6 +107,7 @@ class PayPalClient:
         self._http = httpx.Client(base_url=self.base_url, timeout=timeout, transport=transport)
         self._token: str | None = None
         self._token_expiry = 0.0
+        self._scopes: frozenset[str] | None = None  # from the token response ("scope"), None until known
         self._lock = threading.Lock()
 
     # -- auth -------------------------------------------------------------
@@ -122,6 +133,8 @@ class PayPalClient:
             body = resp.json()
             self._token = body["access_token"]
             self._token_expiry = time.time() + int(body.get("expires_in", 300))
+            scope = body.get("scope")
+            self._scopes = frozenset(scope.split()) if isinstance(scope, str) else None
             return self._token
 
     # -- low level --------------------------------------------------------
@@ -280,6 +293,21 @@ class PayPalClient:
         payload = _json.dumps(meta)[:-1] + ', "webhook_event": ' + raw_body.decode("utf-8") + "}"
         result = self._request("POST", "/v1/notifications/verify-webhook-signature", content=payload.encode())
         return result.get("verification_status", "FAILURE")
+
+    # -- Disputes v1 (READ-ONLY: GET only; no evidence, accept, appeal, offer or message calls exist here) --
+    def has_scope(self, scope: str) -> bool | None:
+        """True / False from the OAuth token response; None if PayPal did not report scopes."""
+        self._access_token()
+        return None if self._scopes is None else scope in self._scopes
+
+    def list_disputes(self, page_size: int = 10, timeout: float | None = None) -> dict:
+        """GET /v1/customer/disputes (summary items). Needs the disputes/read-seller scope."""
+        return self._request("GET", f"/v1/customer/disputes?page_size={max(1, min(int(page_size), 50))}",
+                             timeout=timeout)
+
+    def get_dispute(self, dispute_id: str, timeout: float | None = None) -> dict:
+        """GET /v1/customer/disputes/{id}. Needs the disputes/read-seller scope."""
+        return self._request("GET", f"/v1/customer/disputes/{quote(str(dispute_id), safe='')}", timeout=timeout)
 
     def list_webhooks(self) -> dict:
         return self._request("GET", "/v1/notifications/webhooks")

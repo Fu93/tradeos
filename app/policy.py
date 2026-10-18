@@ -163,3 +163,83 @@ def evaluate(inp: PolicyInput) -> PolicyResult:
 
     decision: Decision = "ELIGIBLE" if all(c.passed for c in checks) else "REJECTED"
     return PolicyResult(decision=decision, checks=checks, stage=stage, action=action)
+
+
+# ---------------------------------------------------------------------------------------------------
+# Disputes: a RECOMMENDATION for a human, computed here (pure Python, no AI, no I/O). Nothing in
+# TradeOS acts on it: there is no evidence submission, accept, appeal, offer or message code at all.
+DISPUTE_RECOMMENDATION_LABEL = "Recommendation only — no action is taken; evidence submission not implemented"
+URGENT_DAYS = 3
+_REASON_HINTS = {
+    "MERCHANDISE_OR_SERVICE_NOT_RECEIVED": "delivery / tracking proof",
+    "MERCHANDISE_OR_SERVICE_NOT_AS_DESCRIBED": "listing text and photos versus what was shipped",
+    "UNAUTHORISED": "proof the buyer authorised the payment",
+    "CREDIT_NOT_PROCESSED": "refund or credit records",
+    "DUPLICATE_TRANSACTION": "the order records showing the charges are distinct",
+    "INCORRECT_AMOUNT": "the order total and what the buyer agreed to",
+}
+
+
+@dataclass(frozen=True)
+class DisputeFacts:
+    status: str | None            # PayPal dispute status (OPEN, WAITING_FOR_SELLER_RESPONSE, RESOLVED, ...)
+    reason: str | None
+    amount: Decimal | None
+    currency: str | None
+    due: date | None              # seller_response_due_date
+    today: date
+    case_matched: bool
+    case_refund_status: str | None = None   # our own record of the matched case
+    case_decision: str | None = None        # policy decision of the matched case (ELIGIBLE / REJECTED)
+    case_amount: Decimal | None = None
+
+
+@dataclass(frozen=True)
+class DisputeRecommendation:
+    code: str
+    summary: str
+    reasons: list[str]
+    urgency: str  # none / soon / overdue
+    label: str = DISPUTE_RECOMMENDATION_LABEL
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+
+def recommend_dispute(f: DisputeFacts) -> DisputeRecommendation:
+    reasons: list[str] = []
+    urgency = "none"
+    if f.due is not None and f.status != "RESOLVED":
+        left = (f.due - f.today).days
+        if left < 0:
+            urgency = "overdue"
+            reasons.append(f"The response deadline ({f.due.isoformat()}) has passed — check the dispute in PayPal now.")
+        elif left <= URGENT_DAYS:
+            urgency = "soon"
+            reasons.append(f"The response deadline is {f.due.isoformat()} ({left} day(s) left).")
+    if f.status == "RESOLVED":
+        return DisputeRecommendation("CLOSED", "Dispute is resolved at PayPal — nothing to decide here.",
+                                     ["PayPal reports status RESOLVED."], "none")
+    if not f.case_matched:
+        return DisputeRecommendation(
+            "REVIEW_MANUALLY", "No TradeOS case matches this transaction — a person should review it in PayPal.",
+            [*reasons, "The disputed transaction id does not match any capture TradeOS recorded."], urgency)
+    if f.case_refund_status in ("COMPLETED", "PENDING"):
+        reasons.append(f"TradeOS already recorded a refund ({f.case_refund_status}) on this capture; check it "
+                       "against the dispute amount before anything else (possible double recovery).")
+        if f.amount is not None and f.case_amount is not None and f.amount > f.case_amount:
+            reasons.append("The disputed amount is larger than the captured amount we hold for the case.")
+        return DisputeRecommendation("REVIEW_POSSIBLE_DOUBLE_RECOVERY",
+                                     "A refund already exists for this capture — a person should reconcile it "
+                                     "with the dispute.", reasons, urgency)
+    hint = _REASON_HINTS.get(f.reason or "", "evidence relevant to the stated reason")
+    if f.case_decision == "REJECTED":
+        reasons.append("The policy engine rejected the customer's return request for this order, so the merchant "
+                       "may have grounds to contest.")
+        return DisputeRecommendation("CONTEST_CANDIDATE",
+                                     f"Candidate to contest: gather {hint}; a person decides in PayPal.",
+                                     reasons, urgency)
+    reasons.append("The matched case has no refund recorded and no policy rejection.")
+    return DisputeRecommendation("GATHER_EVIDENCE",
+                                 f"Gather {hint}; a person decides whether to contest or accept in PayPal.",
+                                 reasons, urgency)
