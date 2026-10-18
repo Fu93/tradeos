@@ -319,6 +319,7 @@ is answerable from the audit trail rather than from a comment.
 | `GET /v2/payments/refunds/{id}` | Refresh a `PENDING` refund and check the refund against PayPal (pending is never shown as success) |
 | `GET /v1/notifications/certs/…` (`paypal-cert-url`) | PayPal's signing certificate for self-verifying webhooks (cached) |
 | `POST /v1/notifications/verify-webhook-signature` | Fallback webhook verification when the self-check cannot run |
+| `GET /v1/customer/disputes[/{id}]` | Disputes, **read-only** (see [`docs/disputes-readonly.md`](docs/disputes-readonly.md)) |
 | `GET/POST/PATCH /v1/notifications/webhooks` | Registration / in-place event-list update (`scripts/register_webhook.py`) |
 
 PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case and shown in the UI.

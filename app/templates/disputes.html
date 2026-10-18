@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Disputes · TradeOS{% endblock %}
+{% block content %}
+<section class="controls">
+  <div>
+    <h1>Disputes <span class="chip neutral">READ-ONLY</span></h1>
+    <p class="muted">Disputes PayPal reports for this Sandbox app (signed <code>CUSTOMER.DISPUTE.*</code> webhooks, or a read-only GET). TradeOS only <strong>shows</strong> them: it cannot submit evidence, accept, appeal, make an offer or send a message. A person acts in PayPal.</p>
+  </div>
+  <div class="buttons">
+    <form method="post" action="/disputes/sync" class="js-busy"><button class="btn primary" title="GET /v1/customer/disputes — read-only">Fetch from PayPal (read-only GET)</button></form>
+  </div>
+</section>
+{% if flash %}<div class="notice" role="status">{{ flash }}</div>{% endif %}
+{% if access.state == "missing" %}
+  <div class="notice" role="alert"><strong>Disputes read access is not enabled.</strong> {{ access.message }}</div>
+{% elif access.state == "unavailable" %}
+  <div class="notice" role="alert">{{ access.message }}</div>
+{% elif access.state == "granted" %}
+  <p class="muted small">PayPal access: the app holds the disputes read scope.</p>
+{% endif %}
+<section class="block">
+  {% if not disputes %}
+    <p>No disputes recorded. A dispute appears here after PayPal sends a verified <code>CUSTOMER.DISPUTE.*</code> webhook (the webhook must be subscribed to those events) or after you fetch from PayPal.</p>
+  {% endif %}
+  {% for d in disputes %}
+  <article class="dispute" id="dispute-{{ d.dispute_id }}">
+    <h2 class="dhead"><code>{{ d.dispute_id }}</code> <span class="chip {{ 'ok' if d.status == 'RESOLVED' else 'warn' }}">{{ (d.status or 'unknown') | replace('_', ' ') }}</span></h2>
+    <dl>
+      <dt>Reason</dt><dd>{{ (d.reason or 'unknown') | replace('_', ' ') }}</dd>
+      <dt>Amount</dt><dd>{% if d.amount %}{{ d.amount }} {{ d.currency }}{% else %}unknown{% endif %}</dd>
+      <dt>Seller response deadline</dt><dd>{{ d.due_date or 'none reported' }}</dd>
+      <dt>Stage</dt><dd>{{ (d.life_cycle_stage or '—') | replace('_', ' ') }}{% if d.dispute_state %} · {{ d.dispute_state | replace('_', ' ') }}{% endif %}</dd>
+      <dt>Linked case</dt><dd>{% if d.case %}<a href="/?case={{ d.case.id }}">{{ d.case.id }}</a> (capture <code>{{ d.capture_id }}</code>){% else %}none — no case has capture <code>{{ d.capture_id or '?' }}</code>{% endif %}</dd>
+      <dt>Source</dt><dd>{{ 'signed webhook' if d.source == 'webhook' else 'PayPal GET' }} · updated {{ d.update_time or d.updated_at }}</dd>
+    </dl>
+    <div class="recommend">
+      <div class="rlabel">{{ d.recommendation.label }}</div>
+      <div><strong>{{ d.recommendation.code | replace('_', ' ') }}</strong>{% if d.recommendation.urgency != 'none' %} <span class="chip bad">deadline {{ d.recommendation.urgency }}</span>{% endif %}</div>
+      <div>{{ d.recommendation.summary }}</div>
+      <ul class="small">{% for r in d.recommendation.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+    </div>
+    <form method="post" action="/disputes/{{ d.dispute_id }}/refresh" class="js-busy dform"><button class="btn small">Refresh from PayPal (GET)</button></form>
+  </article>
+  {% endfor %}
+</section>
+{% endblock %}

@@ -18,6 +18,7 @@ import base64
 import binascii
 import threading
 import zlib
+from typing import Any
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -108,3 +109,38 @@ def self_verify(headers: dict, raw_body: bytes, webhook_id: str, fetch=None, tim
 def clear_cache() -> None:
     with _cache_lock:
         _cache.clear()
+
+
+# --- untrusted payload shaping (OWASP: a valid signature proves the sender, not that the JSON is sane) ---
+def _text(value: Any, limit: int) -> str | None:
+    """Untrusted scalar -> short valid-UTF-8 string, else None. bool/float/dict/list/huge ints are rejected
+    (an int is only accepted when it is small; the digits of a 10**400 int must never reach str())."""
+    if isinstance(value, str):
+        text = value
+    elif isinstance(value, int) and not isinstance(value, bool) and abs(value) < 10**18:
+        text = str(value)
+    else:
+        return None
+    return text[:limit].encode("utf-8", "replace").decode("utf-8") or None
+
+
+def sanitize_payment_event(event: dict) -> dict:
+    """Allow-list copy of a refund/capture webhook: only the fields TradeOS reads, each type-checked and
+    length-bounded; everything else is dropped. Wrong-typed values become None/{} so the existing trust rules
+    (verified, once, matching refund id) simply find no match instead of crashing (was: HTTP 500)."""
+    res = event.get("resource")
+    res = res if isinstance(res, dict) else {}
+    out: dict[str, Any] = {k: _text(res.get(k), n) for k, n in
+                           (("id", 255), ("status", 64), ("create_time", 64), ("update_time", 64),
+                            ("note_to_payer", 500))}
+    details = res.get("status_details")
+    out["status_details"] = ({"reason": _text(details.get("reason"), 64)} if isinstance(details, dict) else None)
+    amount = res.get("amount")
+    out["amount"] = ({"value": _text(amount.get("value"), 32), "currency_code": _text(amount.get("currency_code"), 8)}
+                     if isinstance(amount, dict) else None)
+    links = res.get("links")
+    out["links"] = [{"rel": _text(link.get("rel"), 32), "href": _text(link.get("href"), 512)}
+                    for link in (links[:20] if isinstance(links, list) else []) if isinstance(link, dict)]
+    return {"id": _text(event.get("id"), 120), "event_type": event.get("event_type"),
+            "create_time": _text(event.get("create_time"), 64),
+            "resource": {k: v for k, v in out.items() if v not in (None, [])}}

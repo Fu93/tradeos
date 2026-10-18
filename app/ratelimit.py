@@ -77,6 +77,27 @@ class Cooldown:
             return None
 
 
+class MinInterval:
+    """Minimum seconds between two uses of the same key (e.g. one PayPal read per dispute), bounded memory."""
+
+    def __init__(self, seconds: float, clock=time.monotonic) -> None:
+        self.seconds, self._clock = seconds, clock
+        self._last: dict[str, float] = {}
+        self._lock = threading.Lock()
+
+    def check(self, key: str) -> str | None:
+        now = self._clock()
+        with self._lock:
+            last = self._last.get(key)
+            if last is not None and now - last < self.seconds:
+                return f"Fetched from PayPal moments ago; please wait {int(self.seconds - (now - last)) + 1} s."
+            self._last[key] = now
+            if len(self._last) > 2000:
+                for k in [k for k, v in self._last.items() if now - v >= self.seconds]:
+                    del self._last[k]
+            return None
+
+
 def _valid_ip(value: str) -> str | None:
     try:
         return str(ipaddress.ip_address(value.strip()))
