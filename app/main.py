@@ -24,7 +24,7 @@ from .paypal_client import PayPalError
 from .webhook_verify import SelfVerifyUnavailable, self_verify
 from .presets import BY_KEY, PRESETS, preset_label
 from .policy import DISPUTE_RECOMMENDATION_LABEL
-from .ratelimit import Cooldown, RateLimiter, client_key
+from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary, paypal_proves)
@@ -75,6 +75,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     wf.resume_unresolved_refunds()
 
     reset_cooldown = Cooldown(settings.reset_cooldown_per_ip_s, settings.reset_cooldown_global_s)
+    # Disputes reads hit PayPal (sync = 1 list + up to 10 GETs): on top of the per-IP limiter, one sync per 20 s and
+    # one refresh per dispute per 10 s for the whole app, so rotating addresses cannot multiply the PayPal traffic.
+    sync_gate = MinInterval(settings.disputes_sync_interval_s)
+    refresh_gate = MinInterval(settings.disputes_refresh_interval_s)
 
     def ip(request: Request) -> str:
         return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
@@ -337,7 +341,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             event = json.loads(raw)
         except ValueError:
             raise HTTPException(400, "Invalid JSON")
-        if not isinstance(event, dict) or event.get("event_type") not in WEBHOOK_EVENTS | set(DISPUTE_EVENTS):
+        if (not isinstance(event, dict) or not isinstance(event.get("event_type"), str)
+                or event["event_type"] not in WEBHOOK_EVENTS | set(DISPUTE_EVENTS)):
             return JSONResponse({"ok": True, "handled": False})
         headers = dict(request.headers)
         missing = [h for h in SIGNATURE_HEADERS if not headers.get(h)]
@@ -383,6 +388,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Read-only: GET the dispute list (and each dispute) from PayPal and store it. No write calls exist."""
         if (refused := limited(request)) is not None:
             return refused
+        if (reason := sync_gate.check("sync")) is not None:
+            return render_disputes(request, flash=reason, status_code=429)
         result = wf.disputes.sync()
         return render_disputes(request, flash=result["message"], status_code=200 if result["ok"] else 409)
 
@@ -392,6 +399,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return refused
         if wf.db.get_dispute(dispute_id) is None:
             raise HTTPException(404, "Dispute not found")
+        if (reason := refresh_gate.check(dispute_id)) is not None:
+            return render_disputes(request, flash=reason, status_code=429)
         result = wf.disputes.fetch(dispute_id)
         return render_disputes(request, flash=result["message"], status_code=200 if result["ok"] else 409)
 

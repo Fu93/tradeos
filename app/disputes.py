@@ -11,6 +11,7 @@ GET /v1/customer/disputes and GET /v1/customer/disputes/{id}. "Humans approve": 
 from __future__ import annotations
 
 import json
+import time
 from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
@@ -27,19 +28,37 @@ SCOPE_MISSING_MESSAGE = (
 
 
 def _s(value: Any, limit: int = 200) -> str | None:
-    return str(value)[:limit] if isinstance(value, (str, int)) and str(value) else None
+    """Untrusted scalar -> short, valid-UTF-8 string (lone surrogates would crash the DB driver); else None."""
+    if isinstance(value, bool) or not isinstance(value, (str, int)) or not str(value):
+        return None
+    return str(value)[:limit].encode("utf-8", "replace").decode("utf-8")
+
+
+MAX_AMOUNT = Decimal("1000000000")
 
 
 def _money(obj: Any) -> tuple[str | None, str | None]:
-    if isinstance(obj, dict) and obj.get("value") is not None:
-        return _s(obj.get("value"), 32), _s(obj.get("currency_code"), 8)
-    return None, None
+    """Only a finite, non-negative, sane amount and a 3-letter code are kept; anything else is 'unknown'."""
+    if not isinstance(obj, dict):
+        return None, None
+    raw, cur = _s(obj.get("value"), 32), _s(obj.get("currency_code"), 8)
+    amount = _dec(raw)
+    if amount is None or not amount.is_finite() or amount < 0 or amount > MAX_AMOUNT:
+        raw = None
+    if cur is not None and not (len(cur) == 3 and cur.isascii() and cur.isalpha()):
+        cur = None
+    return (raw, cur) if raw is not None else (None, None)
+
+
+def _txs(resource: dict) -> list[dict]:
+    txs = resource.get("disputed_transactions")
+    return [t for t in txs if isinstance(t, dict)] if isinstance(txs, list) else []
 
 
 def seller_transaction_ids(resource: dict) -> list[str]:
     out = []
-    for t in resource.get("disputed_transactions") or []:
-        if isinstance(t, dict) and (tid := _s(t.get("seller_transaction_id"), 64)):
+    for t in _txs(resource):
+        if tid := _s(t.get("seller_transaction_id"), 64):
             out.append(tid)
     return out
 
@@ -48,7 +67,7 @@ def parse_dispute(resource: Any) -> dict | None:
     """Only the fields we show, each length-capped. None if this is not a dispute object."""
     if not isinstance(resource, dict) or not _s(resource.get("dispute_id"), 64):
         return None
-    txs = [t for t in resource.get("disputed_transactions") or [] if isinstance(t, dict)]
+    txs = _txs(resource)
     amount, currency = _money(resource.get("dispute_amount"))
     if amount is None and txs:
         amount, currency = _money(txs[0].get("gross_amount"))
@@ -77,14 +96,16 @@ def _to_date(value: str | None) -> date | None:
 
 def _dec(value: Any) -> Decimal | None:
     try:
-        return Decimal(str(value)) if value not in (None, "") else None
-    except InvalidOperation:
+        out = Decimal(str(value)) if value not in (None, "") else None
+    except (InvalidOperation, ValueError):
         return None
+    return out if out is None or out.is_finite() else None
 
 
 class DisputeService:
     def __init__(self, wf: Any) -> None:
         self.wf, self.db = wf, wf.db
+        self._access: tuple[float, dict] | None = None
 
     # -- matching / storing ----------------------------------------------------------------
     def _match(self, resource: dict) -> dict | None:
@@ -122,7 +143,7 @@ class DisputeService:
         Nothing here moves money or changes a case."""
         resource = event.get("resource")
         resource = resource if isinstance(resource, dict) else {}
-        etype, event_id = str(event.get("event_type") or ""), event.get("id")
+        etype, event_id = str(event.get("event_type") or ""), _s(event.get("id"), 120)
         verified = verification == "SUCCESS"
         rec = parse_dispute(resource)
         case = self._match(resource) if rec else None
@@ -165,7 +186,16 @@ class DisputeService:
     # -- GET (read-only) -------------------------------------------------------------------
     def access(self) -> dict:
         """Does the app hold the read scope? granted / missing / unknown (PayPal reported no scopes) /
-        unavailable (no usable PayPal client). One OAuth token request, no dispute call."""
+        unavailable (no usable PayPal client). One OAuth token request, no dispute call. Cached for 30 s so
+        that page views cannot be used to hammer PayPal's token endpoint while it is failing."""
+        now = time.monotonic()
+        if self._access and now - self._access[0] < 30:
+            return self._access[1]
+        result = self._access_uncached()
+        self._access = (now, result)
+        return result
+
+    def _access_uncached(self) -> dict:
         try:
             client = self.wf.paypal()
             has = client.has_scope(DISPUTES_READ_SCOPE) if hasattr(client, "has_scope") else None
@@ -179,8 +209,11 @@ class DisputeService:
     def fetch(self, dispute_id: str) -> dict:
         """GET one dispute and store it. Never raises for PayPal problems; returns {ok, code, message, ...}."""
         client = self.wf.paypal()
+        self._access = None
         try:
             resource = client.get_dispute(dispute_id)
+        except (ValueError, TypeError, KeyError):  # 2xx with a body that is not JSON
+            return {"ok": False, "code": "PAYPAL_ERROR", "message": "PayPal returned an unreadable reply."}
         except PayPalError as exc:
             self._log_failure(dispute_id, exc)
             if is_scope_error(exc):
@@ -188,7 +221,7 @@ class DisputeService:
                         "debug_id": exc.debug_id}
             return {"ok": False, "code": "PAYPAL_ERROR", "message": f"PayPal could not return the dispute: "
                     f"{exc.message}", "debug_id": exc.debug_id}
-        outcome = self.ingest(resource, "paypal_get")
+        outcome = self.ingest(resource, "paypal_get") if isinstance(resource, dict) else None
         if outcome is None:
             return {"ok": False, "code": "NOT_A_DISPUTE", "message": "PayPal's reply was not a dispute object."}
         result, case_id = outcome
@@ -209,14 +242,22 @@ class DisputeService:
     def sync(self, limit: int = MAX_SYNC) -> dict:
         """GET the dispute list, then GET each of the first `limit` (bounded) and store them."""
         client = self.wf.paypal()
+        self._access = None
         try:
             listing = client.list_disputes(page_size=limit)
+            if not isinstance(listing, dict):
+                raise ValueError("not an object")
+        except (ValueError, TypeError, KeyError):
+            return {"ok": False, "code": "PAYPAL_ERROR", "fetched": 0,
+                    "message": "PayPal returned an unreadable reply."}
         except PayPalError as exc:
             if is_scope_error(exc):
                 return {"ok": False, "code": "SCOPE_MISSING", "message": SCOPE_MISSING_MESSAGE, "fetched": 0}
             return {"ok": False, "code": "PAYPAL_ERROR", "fetched": 0,
                     "message": f"PayPal could not list disputes: {exc.message}"}
-        ids = [i.get("dispute_id") for i in (listing.get("items") or []) if isinstance(i, dict) and i.get("dispute_id")]
+        items = listing.get("items")
+        ids = [i.get("dispute_id") for i in (items if isinstance(items, list) else [])
+               if isinstance(i, dict) and i.get("dispute_id")]
         done, failed = 0, 0
         for did in ids[:limit]:
             res = self.fetch(str(did))

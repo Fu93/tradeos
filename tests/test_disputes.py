@@ -36,7 +36,7 @@ def post(client, ev, headers=SIG_OK):
 
 @pytest.fixture
 def ctx(settings):
-    client, pp, wf = make_app(settings)
+    client, pp, wf = make_app(settings, disputes_sync_interval_s=0, disputes_refresh_interval_s=0)
     case_id = run_a(client)
     return client, pp, wf, case_id, wf.db.get_case(case_id)["capture_id"]
 
