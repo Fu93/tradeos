@@ -37,8 +37,12 @@ REFUND_REASONS = frozenset({"SIZE_MISMATCH", "DAMAGED", "WRONG_ITEM", "NOT_AS_DE
 # The merchant got it wrong (damaged / wrong item / not as described): the only reasons that may release shipping.
 MERCHANT_ERROR_REASONS = frozenset({"DAMAGED", "WRONG_ITEM", "NOT_AS_DESCRIBED"})
 EXCHANGE_REASONS = frozenset({"SIZE_MISMATCH", "DAMAGED", "WRONG_ITEM", "NOT_AS_DESCRIBED", "CHANGED_MIND"})
-SHIPPING_POLICIES = ("NEVER", "MERCHANT_ERROR")
-DEFAULT_SHIPPING_POLICY = "MERCHANT_ERROR"
+# NEVER: no shipping refund. MERCHANT_ERROR: only for a line returned for a merchant-error reason.
+# WITHDRAWAL_FULL (default): MERCHANT_ERROR, plus the order's shipping when the refund completes a whole-order return
+# (UK Consumer Contracts Regs 2013 reg 34 / EU Directive 2011/83 art 13: original standard delivery is reimbursed on
+# withdrawal from the contract; a partial return refunds no delivery). See docs/partial-refunds.md.
+SHIPPING_POLICIES = ("NEVER", "MERCHANT_ERROR", "WITHDRAWAL_FULL")
+DEFAULT_SHIPPING_POLICY = "WITHDRAWAL_FULL"
 MAX_LINES = 50
 MAX_QTY = 1000
 
@@ -365,7 +369,7 @@ def quote_batch(order: OrderModel, decisions: list[LineDecision], ledger: Ledger
     """THE refund computation. Inputs are the order's own prices + code-made decisions + the ledger.
 
     Per refunded line: item = unit * qty, tax = tax_unit * qty (PayPal item tax is per unit, so this is the item's own
-    tax, exactly proportional, no rounding). Shipping: released only under MERCHANT_ERROR for a line refunded for a
+    tax, exactly proportional, no rounding). Shipping: released under MERCHANT_ERROR/WITHDRAWAL_FULL for a line refunded for a
     merchant-error reason, only once the line is fully refunded across batches, only once per line, share =
     largest-remainder allocation of shipping by item value. Raises OverRefund if total > capture - already refunded."""
     if shipping_policy not in SHIPPING_POLICIES:
@@ -386,20 +390,50 @@ def quote_batch(order: OrderModel, decisions: list[LineDecision], ledger: Ledger
             if qty <= 0:
                 continue
             ship = 0
-            if (shipping_policy == "MERCHANT_ERROR" and d.merchant_error and ln.line_no not in ledger.shipping_released
-                    and used_r + qty == ln.qty):
+            if (shipping_policy in ("MERCHANT_ERROR", "WITHDRAWAL_FULL") and d.merchant_error
+                    and ln.line_no not in ledger.shipping_released and used_r + qty == ln.qty):
                 ship = shares[ln.line_no]
             refund_lines.append(QuoteLine(ln.line_no, qty, ln.unit_minor * qty, ln.tax_unit_minor * qty, ship))
         elif d.resolution == "EXCHANGE":
             qty = min(d.qty - used_x, free)
             if qty > 0:
                 exchange_lines.append((ln.line_no, qty))
+    if shipping_policy == "WITHDRAWAL_FULL" and refund_lines:
+        refund_lines = _release_shipping_on_full_return(order, refund_lines, exchange_lines, ledger, shares)
     total = sum(q.total_minor for q in refund_lines)
     remaining = capture - ledger.refunded_minor
     if total > remaining:
         raise OverRefund(f"refund {total} exceeds the remaining refundable balance {remaining}")
     return Quote(order.currency, tuple(refund_lines), tuple(exchange_lines), total, capture, remaining - total,
                  shipping_policy)
+
+
+def _release_shipping_on_full_return(order: OrderModel, refund_lines: list[QuoteLine],
+                                     exchange_lines: list[tuple[int, int]], ledger: Ledger,
+                                     shares: dict[int, int]) -> list[QuoteLine]:
+    """WITHDRAWAL_FULL: if this batch completes a return of EVERY unit of EVERY line (nothing exchanged, rejected or
+    still open), the consumer withdrew from the whole order, so the order's shipping is released: each line in this
+    batch gets its own share (if not yet released) and the shares of lines refunded in earlier batches that never
+    got one are added to this batch's last line. Never more than the order's shipping in total."""
+    if exchange_lines or ledger.exchange_qty:
+        return refund_lines
+    in_batch = {q.line_no: q for q in refund_lines}
+    for ln in order.lines:
+        got = in_batch[ln.line_no].qty if ln.line_no in in_batch else 0
+        if ledger.refund_qty.get(ln.line_no, 0) + got != ln.qty:
+            return refund_lines
+    out: list[QuoteLine] = []
+    leftover = sum(shares[ln.line_no] for ln in order.lines
+                   if ln.line_no not in in_batch and ln.line_no not in ledger.shipping_released)
+    last = max(in_batch)
+    for q in refund_lines:
+        ship = q.shipping_minor
+        if not ship and q.line_no not in ledger.shipping_released:
+            ship = shares[q.line_no]
+        if q.line_no == last:
+            ship += leftover
+        out.append(QuoteLine(q.line_no, q.qty, q.item_minor, q.tax_minor, ship))
+    return out
 
 
 def items_hash(case_id: str, quote: Quote, attempt: int = 0) -> str:

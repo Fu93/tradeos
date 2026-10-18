@@ -25,8 +25,8 @@ MUTANTS = [
     ("app/lineitems.py", "ln.tax_unit_minor * qty, ship", "ln.tax_unit_minor, ship", "tax not multiplied by quantity"),
     ("app/lineitems.py", "ln.unit_minor * qty, ln.tax", "ln.unit_minor, ln.tax", "item price not multiplied by qty"),
     ("app/lineitems.py", "and used_r + qty == ln.qty):", "):", "shipping released on a partial-qty refund"),
-    ("app/lineitems.py", "ln.line_no not in ledger.shipping_released", "True", "shipping refunded twice"),
-    ("app/lineitems.py", "and d.merchant_error and", "and True and", "shipping refunded for changed-mind returns"),
+    ("app/lineitems.py", "and ln.line_no not in ledger.shipping_released and used_r", "and True and used_r", "shipping refunded twice"),
+    ("app/lineitems.py", "and d.merchant_error", "and True", "shipping refunded for changed-mind returns"),
     ("app/lineitems.py", "[:left]:", "[:left - 1]:", "allocation loses a minor unit"),
     ("app/lineitems.py", "if scaled != scaled.to_integral_value():", "if False:", "extra decimals silently truncated"),
     ("app/lineitems.py", 'ZERO_DECIMAL = frozenset({"JPY", "HUF", "TWD"})', 'ZERO_DECIMAL = frozenset({"JPY", "HUF"})', "TWD treated as 2-decimal"),
@@ -40,6 +40,13 @@ MUTANTS = [
     ("app/lineitems.py", "elif not ln.returnable:", "elif False:", "final-sale item refunded"),
     ("app/lineitems.py", "if injection_suspected:", "if False:", "injection text ignored"),
     ("app/lineitems.py", 'elif p.action not in ("RETURN", "EXCHANGE"):', "elif False:", "UNKNOWN request becomes a refund"),
+    ("app/lineitems.py", "if exchange_lines or ledger.exchange_qty:", "if False:", "whole-order shipping released although a unit is exchanged"),
+    ("app/lineitems.py", "if ledger.refund_qty.get(ln.line_no, 0) + got != ln.qty:", "if False:", "whole-order shipping released on a partial return"),
+    ("app/lineitems.py", "if ln.line_no not in in_batch and ln.line_no not in ledger.shipping_released)", "if ln.line_no not in in_batch)", "already-released shipping share refunded again"),
+    ("app/lineitems.py", "if q.line_no == last:", "if False:", "earlier lines' shipping shares lost on the completing batch"),
+    ("app/lineitems.py", "if not ship and q.line_no not in ledger.shipping_released:", "if not ship:", "released share added twice"),
+    ("app/lineitems.py", 'if shipping_policy == "WITHDRAWAL_FULL" and refund_lines:', 'if shipping_policy != "NEVER" and refund_lines:', "MERCHANT_ERROR policy refunds whole-order shipping"),
+    ("app/lineitems.py", '(shipping_policy in ("MERCHANT_ERROR", "WITHDRAWAL_FULL")', '(shipping_policy == ("MERCHANT_ERROR"', "default policy loses merchant-error shipping"),
     ("app/mixed.py", "if expected_total != shown or expected_hash != batch[\"items_hash\"]:", "if False:", "stale screen approves"),
     ("app/mixed.py", "if batch[\"status\"] != PROPOSED:", "if False:", "double approval allowed"),
     ("app/mixed.py", "if not (proposed and approved):", "if not (proposed or approved):", "approval not required on the chain"),
@@ -56,6 +63,8 @@ MUTANTS = [
 # depth). They are reported, not hidden: removing one guard leaves the other guard enforcing the rule.
 EQUIVALENT = {
     "shipping refunded twice": "a fully-refunded line has no free units, so no shipping share can be re-released",
+    "whole-order shipping released although a unit is exchanged": "a whole-order return needs every unit of every line refunded, which already excludes any exchanged unit",
+    "released share added twice": "a line with a released share is fully refunded, so it can never appear in a later batch",
     "tampered amount not detected": "items_hash and the chained amount already differ for any tampered amount",
 }
 

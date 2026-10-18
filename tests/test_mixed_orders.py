@@ -551,7 +551,13 @@ def test_dispute_view_sees_money_moved_on_a_mixed_case(settings):
 def test_shipping_policy_setting_never(settings):
     wf, pp, cid = start(settings, shipping_policy="NEVER")
     assert all(q["shipping_minor"] == 0 for q in only_batch(wf, cid)["quote"]["refund_lines"])
-    assert Settings.from_env().shipping_policy == "MERCHANT_ERROR"
+    assert Settings.from_env().shipping_policy == "WITHDRAWAL_FULL"
+
+
+def test_shipping_policy_env_values(monkeypatch):
+    for v in ("MERCHANT_ERROR", "merchant_error", "WITHDRAWAL_FULL", "NEVER"):
+        monkeypatch.setenv("TRADEOS_SHIPPING_POLICY", v)
+        assert Settings.from_env().shipping_policy == v.upper()
 
 
 def test_shipping_policy_env_unknown_value_fails_closed(monkeypatch):

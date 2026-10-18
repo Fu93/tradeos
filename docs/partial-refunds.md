@@ -50,12 +50,44 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
   Currency exponent: JPY, HUF, TWD = 0; the other PayPal-supported codes = 2 (PayPal's currency table).
 * Refund of a line = `unit price x qty` + `that unit's own tax x qty` (+ shipping share, below). Tax is therefore
   proportional to the items refunded, using the per-unit tax recorded on the PayPal order.
-* **Shipping policy (default `MERCHANT_ERROR`, setting `TRADEOS_SHIPPING_POLICY`, alternative `NEVER`; unknown values
-  fail closed to the default):** shipping is **not** refunded for a change-of-mind or ordinary return. It is refunded
-  only for a line marked as a merchant error (damaged / wrong item / not as described) and only when the **last unit**
-  of that line is refunded. The order's shipping is split over lines with the largest-remainder method so shares always
-  sum to the shipping total. Each line's share is released once.
-  **This is a business decision for the merchant** (see "Decisions").
+* **Shipping policy** (`TRADEOS_SHIPPING_POLICY`; default `WITHDRAWAL_FULL`; unknown values fail closed to `NEVER`):
+
+  | Policy | Shipping is refunded when... |
+  |---|---|
+  | `NEVER` | never (items + their tax only) |
+  | `MERCHANT_ERROR` | a line is refunded for a merchant-error reason (damaged / wrong item / not as described) and its **last unit** is refunded |
+  | **`WITHDRAWAL_FULL`** (default) | the `MERCHANT_ERROR` case, **or** this refund completes a **whole-order return**: every unit of every line is refunded (across batches), nothing exchanged, rejected or still open. Then the order's whole shipping is released. A partial return of an order refunds no delivery. |
+
+  The order's shipping is split over lines with the largest-remainder method so the shares always sum to the shipping
+  total; a share is released once; on the batch that completes a whole-order return, the shares of lines refunded in
+  earlier batches that never got one are added to that batch. Shipping refunded in total never exceeds shipping charged.
+  The demo order (3 returned, 1 exchanged) is **not** a whole-order return, so only the merchant-error lines' shipping
+  is refunded; its amounts are identical under `MERCHANT_ERROR` and `WITHDRAWAL_FULL`.
+
+  **Why this default (research, 2026-10-18):**
+  * UK Consumer Contracts Regulations 2013 reg 34(2)-(3): on cancellation the trader must reimburse the delivery
+    payment, except the part above the least expensive common standard delivery the consumer chose; the BIS guidance
+    para 15 adds the return postage need not be refunded unless the trader agreed to bear it.
+    <https://www.legislation.gov.uk/uksi/2013/3134/regulation/34> and
+    <https://assets.publishing.service.gov.uk/media/5a817b92ed915d74e33fe73a/bis-13-1368-consumer-contracts-information-cancellation-and-additional-payments-regulations-guidance.pdf>
+  * EU Directive 2011/83/EU art 13(1)-(2): same rule (all payments "including, if applicable, the costs of delivery";
+    not the supplementary cost of a non-standard delivery). <https://eur-lex.europa.eu/legal-content/EN/TXT/HTML/?uri=CELEX%3A02011L0083-20220528>
+    Your Europe summary: <https://europa.eu/youreurope/business/selling-in-eu/selling-goods-services/ecommerce-distance-selling/index_en.htm>
+  * Partial return: the legal text speaks of withdrawing from "the contract". For a partial return of one order, common
+    EU practice is no delivery refund (e.g. one withdrawal-flow vendor documents "a partial withdrawal refunds no
+    delivery at all"). This is practice, not a statute; it is the conservative reading and is the default here.
+    <https://docs.mageme.com/eu-withdrawal/customer-flow>
+  * Platform behaviour: Shopify makes shipping an explicit, separate merchant choice on the refund page, capped at what
+    was charged, with item tax refunded with the item. <https://help.shopify.com/en/manual/fulfillment/managing-orders/refunding-orders>
+  * PayPal's refund API only takes a total (`amount`); the split is the merchant's business logic, which is why TradeOS
+    computes it in code and records it in the audit chain. <https://developer.paypal.com/docs/api/payments/v2/#captures_refund>
+
+  **Limits (not claimed):** this is a defensible default, not legal advice, and not jurisdiction detection. TradeOS does
+  not know whether the buyer chose express delivery, so it treats the order's shipping as standard delivery (an express
+  upgrade should be reviewed by the human approver; use `MERCHANT_ERROR` if you do not want to refund shipping on
+  withdrawal). Return postage is never refunded. Shipping tax and tax-inclusive pricing are not modelled (the sandbox
+  order carries tax per item only). The 14-day statutory refund deadline and "goods diminished in value" deductions are
+  not modelled. Withdrawal rights are statutory for UK/EU consumers; outside them this is merchant policy.
 * **Cumulative cap:** `refunded or reserved (all batches that are not DECLINED/FAILED) + this batch <= captured`.
   The check is made when proposing, when approving, and again at send time against PayPal's own capture amount.
   `sum(refunded) + remaining == captured` always (property-tested).
@@ -94,8 +126,8 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
   tampered DB amount refused; no chained approval, broken chain, over-refund (also at PayPal), partial then second
   partial; timeout then reconcile with the same id; webhook by refund id; JPY end to end; screen contents; legacy
   single-refund paths refuse a mixed case; single-item flow unchanged.
-* `scripts/mutation_sanity.py` (dev tool): applies 30 deliberate money bugs one at a time. Result on this head: 28 killed, 2 equivalent, 0 survived. The
-  first run had 7 survivors; they exposed 5 test gaps (now covered). Two mutants are reported as **equivalent** (a second independent guard already catches the same bug), not
+* `scripts/mutation_sanity.py` (dev tool): applies the deliberate money bugs one at a time. Result on this head: 37 mutants, 33 killed, 4 equivalent, 0 survived. The
+  first run had 7 survivors; they exposed 5 test gaps (now covered). Four mutants are reported as **equivalent** (a second independent guard already catches the same bug), not
   hidden.
 * `scripts/sandbox_verify.py`: the original 31 checks are untouched. `--mixed` adds the mixed-order live check;
   `--mixed-only --allow-mock` runs only that and is for local mock runs (labelled not live proof).
@@ -119,10 +151,12 @@ DEMO-DATA badge visible).
 
 ## Decisions for the merchant
 
-1. **Shipping:** keep `MERCHANT_ERROR` (default) or `NEVER`? Refunding shipping for change-of-mind returns is not offered.
+1. **Shipping:** the default `WITHDRAWAL_FULL` follows the UK/EU withdrawal norm (see above). Set
+   `TRADEOS_SHIPPING_POLICY=MERCHANT_ERROR` or `NEVER` for a stricter merchant policy. (Decided as the default by the
+   delegated owner on 2026-10-18; changeable by env var, no code change.)
 2. Tax is refunded in proportion to the returned units using the order's per-unit tax. Confirm that matches your tax
-   rules (it does not cover tax-inclusive pricing or tax rounding differences vs. PayPal's per-line rounding).
-3. Is "last unit of a line" the right trigger for refunding that line's shipping share?
+   rules (it does not cover tax-inclusive pricing, shipping tax or tax rounding differences vs. PayPal's per-line rounding; per-unit tax is the exact amount recorded on the order, so no rounding is introduced by TradeOS).
+3. Is "last unit of a line" the right trigger for refunding a merchant-error line's shipping share? (It is conservative: a partly-returned line never releases shipping.)
 
 ## Rollback
 
