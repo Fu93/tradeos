@@ -137,8 +137,10 @@ DEMO-DATA badge visible).
 
 ## Known limits (NOT covered)
 
-* No live Sandbox proof yet (Tier C). Whether Sandbox accepts the `items[]`/breakdown order for the card source and the
-  partial refund behaves as documented is unproven until the live run.
+* Live Sandbox proof exists for **one** seeded scenario only (Case M, 2026-10-18, `sandbox_verify.py --mixed`: partial refund
+  161.69 of 191.21 USD, PayPal-reported amount equal to the computed amount, PayPal-Debug-Id captured, signed webhook and
+  reconcile matched; run logs are kept outside the repo). Other item mixes, shipping policies and currencies are covered by
+  mock tests only.
 * Per-line request reading by the LLM is not built; demo proposals are seeded.
 * The supplier contact for exchanges is a **mock** audit entry; nothing is sent to a supplier.
 * A refund made outside TradeOS (PayPal dashboard) is not in the ledger; it surfaces only when PayPal rejects with an
