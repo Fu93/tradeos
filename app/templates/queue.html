@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Queue (demo data) · TradeOS{% endblock %}
+{% block content %}
+<section class="controls">
+  <div>
+    <h1>Merchant queue <span class="demo-badge">{{ q.badge }}</span></h1>
+    <p class="muted">How incoming customer messages in six languages are routed. AI reads the language, Python rules decide, a human approves, PayPal proves.</p>
+  </div>
+</section>
+<div class="demo-banner" role="note">{{ q.badge }} — these {{ q["items"]|length }} cases are seeded examples, not real customers or orders. The customer messages and the AI's reading are canned; the routing below is computed live by the real policy engine. This page is read-only: nothing here calls PayPal, creates an order or can approve a refund. To see the real flow, run Case A on the <a href="/">Cases</a> page.</div>
+<div class="qsummary" aria-label="Routing summary">
+  {% for label, n, cls in q.counts %}<span class="chip {{ cls }}">{{ n }} · {{ label }}</span>{% endfor %}
+</div>
+<div class="qgrid">
+  {% for c in q["items"] %}
+  <article class="qcard" id="{{ c.key }}">
+    <div class="qhead"><strong>{{ c.lang }}</strong><span class="demo-badge">{{ c.badge }}</span></div>
+    <div class="muted small">{{ c.customer }} · {{ c.product }} · bought {{ c.days_ago }} days ago</div>
+    <div class="qmsg" lang="{{ c.lang_code }}">{{ c.message }}</div>
+    <div class="small"><span class="muted">AI reading (canned):</span> {{ c.summary_en }}
+      {% if c.intent %}<br><code>{{ c.intent.intent }} / {{ c.intent.reason }} / {{ c.intent.requested_action }}</code>{% else %}<br><code>unreadable</code>{% endif %}</div>
+    <div class="qroute {{ c.css }}"><span class="chip {{ c.css }}">{{ c.outcome_label }}</span><div class="small">{{ c.route }}</div></div>
+    {% if c.checks %}
+    <details><summary class="small">Policy checks ({{ c.decision }})</summary>
+      <ul class="qchecks">{% for k in c.checks %}<li class="{{ '' if k.passed else 'no' }}">{{ '✓' if k.passed else '✕' }} {{ k.detail }}</li>{% endfor %}</ul>
+    </details>
+    {% endif %}
+  </article>
+  {% endfor %}
+</div>
+{% endblock %}
