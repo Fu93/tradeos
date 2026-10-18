@@ -1,6 +1,6 @@
 # TradeOS
 
-[![CI](https://github.com/Fu93/tradeos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Fu93/tradeos/actions/workflows/ci.yml)
+[![CI](https://github.com/Fu93/tradeos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Fu93/tradeos/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![PayPal Sandbox only](https://img.shields.io/badge/PayPal-Sandbox%20only-lightgrey)
 
 > **PayPal moves the money. TradeOS moves the work.**
 >
@@ -20,6 +20,79 @@ The dashboard keeps the complete path visible: **AI intent → Python policy →
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
 
 The matching recording plan is in [`docs/demo-video-script.md`](docs/demo-video-script.md); it treats the UI guide and evidence cards as part of the judge story rather than as separate documentation.
+
+## At a glance (for judges and reviewers)
+
+**Problem.** A small cross-border merchant gets *"the shoes are the wrong colour, I want my money back"* in any language.
+Today one person reads it, checks the order, decides, and clicks refund in PayPal: slow, and the same person moves the money.
+
+**What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
+only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
+a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
+is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee).
+
+| Principle | How it is enforced (in code, not in the prompt) |
+|---|---|
+| **AI understands** | LLM output is validated against a strict schema; anything off-schema becomes `UNKNOWN` and goes to a person. It can only add a "no", never remove one. |
+| **Rules decide** | `app/policy.py` and `app/safety.py` are pure Python; a blocked case never calls the Refund API (asserted in tests). |
+| **Humans approve** | The refund hard guard refuses unless the case's hash chain holds a policy `ELIGIBLE` and a chained `APPROVED`. Autonomy is off by default and off on the hosted demo. |
+| **PayPal proves** | "Success" is shown only when PayPal itself reports `COMPLETED`. A signed webhook and a reconcile GET are recorded as separate confirmations (shown as "waiting" until they arrive); PayPal debug ids are stored. |
+
+### Architecture
+
+```mermaid
+flowchart LR
+  C[Customer message<br/>any language] --> AI["AI intent extraction<br/>strict schema, language only"]
+  AI --> SG{"Safety Gate<br/>(code)"}
+  SG -- "harm / hazardous product" --> HS["Human safety review<br/>no refund, no supplier task"]
+  SG -- ok --> PP[("PayPal GET capture")]
+  PP --> POL{"Policy engine<br/>(pure Python)"}
+  POL -- REJECTED --> STOP["Stop: Refund API not called"]
+  POL -- "exchange" --> SUP["Supplier request (MOCK)<br/>no money moves"]
+  POL -- "ELIGIBLE return" --> APP{"Human approval<br/>(autonomy off by default)"}
+  APP --> G["Hard guard:<br/>ELIGIBLE + chained APPROVED"]
+  G --> RF["PayPal Refund API<br/>idempotent request id"]
+  RF --> WH["Signed webhook + reconcile GET"]
+  WH --> AUD[("Hash-chained audit trail<br/>verify / evidence report")]
+```
+
+### What is proven, and how strongly (evidence tiers)
+
+| Tier | Claim | Evidence | Not claimed |
+|---|---|---|---|
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo, [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed`, 16 checks; run logs are kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
+| **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
+| **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
+| **Evals (synthetic messages)** | Multilingual intent and safety routing | [`docs/eval/`](docs/eval/results.md), [`docs/impact-proof.md`](docs/impact-proof.md) (states what is and is not human-checked) | Real-world accuracy |
+| **Seeded / mock demo data** | `/queue` view, supplier replies, cost model | Labelled DEMO / MOCK on screen | Any measured saving or merchant validation |
+| **Dev tooling** | [Postman collection](docs/postman/README.md) of the Sandbox calls | Not run against PayPal by us as part of this evidence; a manual run you do is your own evidence | Any proof |
+
+### Built during the hackathon
+
+First commit **8 Oct 2026**; every commit in this repository is dated 8-18 Oct 2026. 52 pull requests were merged up to #59 (#9 and the dependabot PRs are not merged). Highlights:
+
+| Date | What landed |
+|---|---|
+| 8 Oct | MVP loop: AI intent → policy → human approval → PayPal Sandbox refund; multilingual input; grounded notes; eval; first webhook |
+| 10 Oct | Self-verified signed webhooks, refund pending/failed events, reconcile-by-GET, PayPal evidence timeline, hash-chained audit trail, web hardening; return-vs-exchange split; opt-in autonomy (experimental, off) |
+| 11-12 Oct | Hardening: error classification, run serialisation, CI coverage gate + mypy + pip-audit, deploy-verify workflow, audit-head retention, ephemeral-persistence notice |
+| 17 Oct | Judge guidance + Sandbox notice, "PayPal proves" panel, honest LLM-unavailable notice, 375px mobile fixes, rate-limit client key |
+| 18 Oct | PayPal Disputes (read-only), seeded multilingual queue view, mixed orders with code-computed partial refunds, Postman collection, impact-proof doc, **Safety Gate**, downloadable evidence report, keyboard/accessibility pass |
+
+Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Apr+is%3Amerged).
+
+### Documentation index
+
+| Doc | What it is |
+|---|---|
+| [`docs/safety-gate.md`](docs/safety-gate.md) | Deterministic human safety review ahead of refunds and supplier tasks |
+| [`docs/partial-refunds.md`](docs/partial-refunds.md) | Mixed orders, per-line decisions, shipping/tax policy, evidence tiers |
+| [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | PayPal Disputes, read-only |
+| [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Live Sandbox verification checklist |
+| [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
+| [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
+| [`docs/demo-video-script.md`](docs/demo-video-script.md) | Recording plan |
 
 ## What TradeOS does
 
@@ -414,7 +487,7 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   from a fixed genesis value (64 zeros). The case page shows "Audit trail intact: N entries, head <hash>" or "BROKEN at
   entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON, including the case state folded from
   the chain (`status`, `decision`, `human_decision`, `approval_source`, `refund_status`, `refund_id`) so a verifier
-  outside this process can confirm not just *that* a refund was approved but *who* approved it. `GET /audit/heads`
+  outside this process can confirm not just *that* a refund was approved but *who* approved it. `GET /cases/{id}/evidence` (printable) and `GET /cases/{id}/evidence.json` (download) bundle the chain, its head, the PayPal ids and the PayPal call log of one case, read-only, so a third party can recompute the hashes offline. `GET /audit/heads`
   returns every chain's head hash for retention OUTSIDE the database: the deploy-verify workflow saves one such list
   per deployment as a workflow artifact, and two lists from different times are what make a truncated or rewritten
   chain detectable — the one thing the in-database chain cannot prove about itself. Verification also checks that the
@@ -443,7 +516,7 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
 - **Open demo by design:** money actions (approve / decline / refund / buyer capture / demo reset) are not gated by a shared secret. Rate limits, the deterministic policy hard guard, per-case locks, and the hash-chained audit trail remain. This is a shared hackathon demo on PayPal Sandbox (no real money). Do not treat it as a multi-tenant production system.
 - The PayPal client refuses any base URL that is not the sandbox unless `TRADEOS_ALLOW_LIVE=1`, so a mistyped `PAYPAL_BASE_URL` cannot point a
   card payload or a refund at the live API.
-- **Not covered:** partial refunds, disputes, automatic handling of reversals/declines (logged only), certificate-chain
+- **Not covered:** acting on disputes (read-only view only), live-Sandbox proof of partial refunds beyond the one seeded mixed order (Case M), automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
 
 ### LLM provider
@@ -527,7 +600,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-910 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+926 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
 (incl. eval dataset checks and the fallback injection guard).
 
@@ -600,7 +673,8 @@ restart are acknowledged and ignored.
 ## Scope
 
 Out of scope for this MVP: product sourcing, scraping, multichannel commerce, live supplier chat, logistics/customs/
-invoicing, autonomous financial decisions, partial refunds, real fulfilment, extra agents. The customer note is a
+invoicing, autonomous financial decisions, acting on disputes (they are shown read-only), live (production) PayPal, real fulfilment, extra agents.
+Partial refunds exist only for seeded mixed orders and are live-Sandbox-proven for one seeded scenario only (see `docs/partial-refunds.md`). The customer note is a
 translated refund/decision note, not a chatbot.
 
 Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces).
