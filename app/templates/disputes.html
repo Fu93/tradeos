@@ -24,7 +24,7 @@
   {% endif %}
   {% for d in disputes %}
   <article class="dispute" id="dispute-{{ d.dispute_id }}">
-    <h2 style="margin:0"><code>{{ d.dispute_id }}</code> <span class="chip {{ 'ok' if d.status == 'RESOLVED' else 'warn' }}">{{ (d.status or 'unknown') | replace('_', ' ') }}</span></h2>
+    <h2 class="dhead"><code>{{ d.dispute_id }}</code> <span class="chip {{ 'ok' if d.status == 'RESOLVED' else 'warn' }}">{{ (d.status or 'unknown') | replace('_', ' ') }}</span></h2>
     <dl>
       <dt>Reason</dt><dd>{{ (d.reason or 'unknown') | replace('_', ' ') }}</dd>
       <dt>Amount</dt><dd>{% if d.amount %}{{ d.amount }} {{ d.currency }}{% else %}unknown{% endif %}</dd>
@@ -39,7 +39,7 @@
       <div>{{ d.recommendation.summary }}</div>
       <ul class="small">{% for r in d.recommendation.reasons %}<li>{{ r }}</li>{% endfor %}</ul>
     </div>
-    <form method="post" action="/disputes/{{ d.dispute_id }}/refresh" class="js-busy" style="margin-top:8px"><button class="btn small">Refresh from PayPal (GET)</button></form>
+    <form method="post" action="/disputes/{{ d.dispute_id }}/refresh" class="js-busy dform"><button class="btn small">Refresh from PayPal (GET)</button></form>
   </article>
   {% endfor %}
 </section>

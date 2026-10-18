@@ -206,3 +206,13 @@ def test_fetch_endpoints_use_get_only_toward_paypal(settings):
     client, wf, calls = wired(settings, lambda r: httpx.Response(200, json={"items": [{"dispute_id": "D9"}]}))
     client.post("/disputes/sync")
     assert {m for m, p in calls if "disputes" in p} == {"GET"}
+
+
+def test_disputes_page_has_no_inline_styles_or_handlers(settings):
+    """The app's CSP is style-src 'self': an inline style="" is silently dropped by browsers (layout bug)."""
+    import re
+    client, _, wf = make_app(settings)
+    wf.disputes.ingest(dispute("PP-D-STYLE"), "webhook", "WH-STYLE")
+    html = client.get("/disputes").text
+    assert "PP-D-STYLE" in html
+    assert not re.search(r"\sstyle\s*=|\son[a-z]+\s*=|<style|<script(?![^>]*src=)", html)
