@@ -324,3 +324,15 @@ def test_register_webhook_updates_in_place_and_is_idempotent():
     assert reg.main(pp, url, apply=True) == {"action": "update", "id": "WH-SAME", "applied": True}
     assert sorted(state["events"]) == sorted(reg.EVENTS) and state["created"] == 0
     assert reg.main(pp, url, apply=True)["action"] == "none" and state["patched"] == 1
+
+
+def test_register_webhook_events_cover_dispute_events_and_keep_existing():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("reg2", "scripts/register_webhook.py")
+    reg = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(reg)
+    from app.disputes import DISPUTE_EVENTS
+    assert set(DISPUTE_EVENTS) <= set(reg.EVENTS)
+    assert {"PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING", "PAYMENT.REFUND.FAILED",
+            "PAYMENT.CAPTURE.REVERSED", "PAYMENT.CAPTURE.DECLINED"} <= set(reg.EVENTS)
+    assert len(reg.EVENTS) == len(set(reg.EVENTS))

@@ -25,6 +25,9 @@ EVENTS = [
     "PAYMENT.REFUND.FAILED",      # refund failed -> needs a human
     "PAYMENT.CAPTURE.REVERSED",   # log-only warning
     "PAYMENT.CAPTURE.DECLINED",   # log-only warning
+    "CUSTOMER.DISPUTE.CREATED",   # read-only Disputes view (no auto-action)
+    "CUSTOMER.DISPUTE.UPDATED",   # read-only Disputes view (no auto-action)
+    "CUSTOMER.DISPUTE.RESOLVED",  # read-only Disputes view (no auto-action)
 ]
 
 
