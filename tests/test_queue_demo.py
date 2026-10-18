@@ -62,7 +62,7 @@ def test_page_renders_badged_mobile_friendly_and_actionless(settings):
         assert text in html
     assert "Return → approval → refund" in html and "Exchange → supplier" in html and "Needs human safety review" in html
     assert "Rejected — instruction-like text" in html and "Needs a human" in html
-    assert "<form" not in html.split('<main>')[1]  # the page has no action buttons at all
+    assert "<form" not in html.split('<main')[1]  # the page has no action buttons at all
     assert len(wf.db.list_cases()) == cases_before  # nothing seeded into the cases table
     assert pp.method_calls == []  # no PayPal call of any kind
     assert client.head("/queue").status_code == 200
