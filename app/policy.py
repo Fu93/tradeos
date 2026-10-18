@@ -98,10 +98,10 @@ def evaluate(inp: PolicyInput) -> PolicyResult:
                         f"Request understood as {inp.intent.intent} / {inp.intent.requested_action}"
                         f" (reason {inp.intent.reason})" + why))
 
-    # 1b. Heuristic injection markers in the message: never automated, a human reads it.
+    # 1b. Heuristic injection markers in the message: never automated, never reaches approval (REJECTED).
     if inp.injection_suspected:
         checks.append(Check("no_injection_markers", False,
-                            "Message contains instruction-like text (heuristic check) — sent to a human"))
+                            "Message contains instruction-like text (heuristic check) — rejected before approval; a person can read the message"))
 
     # 2. Payment really captured (PayPal is the source of truth).
     paid = inp.capture_status == "COMPLETED"

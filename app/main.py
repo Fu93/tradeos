@@ -30,7 +30,7 @@ from .policy import DISPUTE_RECOMMENDATION_LABEL
 from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
-                    preset_for, result_card, timeline_view, evidence_log, evidence_summary, paypal_proves)
+                    preset_for, result_card, section_title, timeline_view, evidence_log, evidence_summary, paypal_proves)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
                        Workflow, clean_message)
 
@@ -88,12 +88,27 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def ip(request: Request) -> str:
         return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
 
-    app = FastAPI(title="TradeOS", docs_url="/api/docs", redoc_url=None)
+    app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None)
     app.state.workflow = wf
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
     install_security(app, templates, csrf_exempt=("/webhooks/paypal",))
+
+    @app.get("/api/docs", include_in_schema=False, response_class=HTMLResponse)
+    def api_docs() -> HTMLResponse:
+        # Swagger UI is vendored under /static/swagger (no CDN) and started by an external script, so the strict
+        # Content-Security-Policy (script-src 'self') stays exactly as it is.
+        return HTMLResponse(
+            '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" '
+            'content="width=device-width, initial-scale=1"><title>API · TradeOS</title>'
+            '<link rel="stylesheet" href="/static/swagger/swagger-ui.css"></head><body>'
+            '<p class="api-back"><a href="/">← Back to the TradeOS dashboard</a> · '
+            '<a href="/openapi.json">openapi.json</a></p><div id="swagger-ui"></div>'
+            '<noscript>The interactive API docs need JavaScript. The raw schema is at '
+            '<a href="/openapi.json">/openapi.json</a>.</noscript>'
+            '<script src="/static/swagger/swagger-ui-bundle.js"></script>'
+            '<script src="/static/swagger/swagger-init.js"></script></body></html>')
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
                          status_code: int = 200, draft: str = "", draft_late: bool = False) -> HTMLResponse:
@@ -111,9 +126,16 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
         latest_a, latest_b = db.latest_case("A"), db.latest_case("B")
+        proves = paypal_proves(db, current, bool(settings.paypal_webhook_id)) if current else None
+        # Mixed page: poll for the signed webhook only while a COMPLETED batch refund still lacks one (never loops:
+        # once the case carries webhook_status the attribute is gone).
+        mixed_await = bool(current and proves and settings.paypal_webhook_id and not current.get("webhook_status")
+                           and any(b["ok"] is True and b["webhook"]["state"] == "waiting" for b in proves["batches"]))
         ctx = {
+            "mixed_await_webhook": mixed_await,
             "pipeline": pipeline(db, current),
             "result": result_card(db, current, bool(settings.paypal_webhook_id)),
+            "section_title": section_title(current),
             "ai": ai_panel(current),
             "controls": backend_controls(db, current),
             "failure_modes": failure_modes(db, mock=wf.paypal_mode == "mock"),
@@ -132,7 +154,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
             "audit_chain": db.verify_chain(current["id"]) if current else None,
             "evidence_summary": evidence_summary(db, current, bool(settings.paypal_webhook_id)) if current else [],
-            "proves": paypal_proves(db, current, bool(settings.paypal_webhook_id)) if current else None,
+            "proves": proves,
             "evidence": evidence_log(db, current["id"]) if current else [],
             "pending": pending,
             "economics": case_economics(settings.order_amount, settings.costs),

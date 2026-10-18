@@ -72,7 +72,7 @@
 <div class="grid-top">
   <!-- 1. Pending action (+ result of the selected case) -->
   <section class="block" id="pending">
-    <h2><span class="num">1</span> Pending action
+    <h2 id="pending-title"><span class="num">1</span> {{ section_title }}
       {% if current %}<span class="muted small">· {{ current.label }} · case {{ current.id }}</span>{% endif %}</h2>
     {% if mixed %}
       {% include "mixed.html" %}
@@ -226,7 +226,15 @@
       <div class="proves-grid">
         <div class="proves-item {{ 'good' if proves.refund and proves.refund.ok is true else ('bad' if proves.refund and proves.refund.ok is false else 'pending') }}">
           <span class="proves-label">Refund</span>
-          {% if proves.refund %}<strong><code>{{ proves.refund.id }}</code></strong><span>{{ proves.refund.words }}</span>
+          {% if proves.batches %}
+            <strong>{{ proves.batches|length }} partial refund{{ 's' if proves.batches|length != 1 }}</strong>
+            <ul class="proves-ids" id="proves-batches">{% for b in proves.batches %}
+              <li><span class="muted small">Batch {{ b.batch_no }}</span> <code>{{ b.refund_id }}</code>
+                <span class="chip {{ 'ok' if b.ok is true else ('bad' if b.ok is false else 'warn') }}">{{ b.status }}</span><br>
+                <span class="small">{{ b.words }}</span><br>
+                <span class="small">Computed by code <strong>{{ b.computed }}</strong> · PayPal reported <strong>{{ b.paypal_amount or 'no amount yet' }}</strong>{% if b.equal %} ✓ equal{% elif b.equal is sameas false %} ✗ DIFFERS{% endif %}</span></li>
+            {% endfor %}</ul>
+          {% elif proves.refund %}<strong><code>{{ proves.refund.id }}</code></strong><span>{{ proves.refund.words }}</span>
           {% else %}<strong>none</strong><span>No refund has been requested from PayPal for this case.</span>{% endif %}
         </div>
         <div class="proves-item {{ 'good' if proves.debug_ids else 'pending' }}">
@@ -238,6 +246,14 @@
         <div class="proves-item {{ 'good' if proves.webhook and proves.webhook.ok is true else 'pending' }}">
           <span class="proves-label">Webhook signature</span>
           {% if not proves.webhook %}<strong>n/a</strong><span>No capture yet.</span>
+          {% elif proves.batches %}
+            <strong>{{ 'Verified ✓' if proves.webhook.state == 'verified' else ('Not set up' if proves.webhook.state == 'not_configured' else 'Waiting…') }}</strong>
+            <ul class="proves-ids" id="proves-batch-webhooks">{% for b in proves.batches %}
+              <li><span class="muted small">Batch {{ b.batch_no }}</span>
+                {% if b.webhook.state == 'verified' %}<strong>Verified ✓</strong> <span class="small">event <code>{{ b.webhook.event_id }}</code>{% if b.webhook.event_type %} · {{ b.webhook.event_type }}{% endif %} · matched to refund <code>{{ b.refund_id }}</code></span>
+                {% elif b.webhook.state == 'waiting' %}<span class="small">waiting… PayPal's signed webhook for refund <code>{{ b.refund_id }}</code> (usually about a minute); nothing is treated as confirmed by webhook.</span>
+                {% else %}<span class="small">webhook not set up on this server</span>{% endif %}</li>
+            {% endfor %}</ul>
           {% elif proves.webhook.state == 'verified' %}
             <strong>Verified ✓</strong>
             <span>Method: {{ proves.webhook.method }}</span>

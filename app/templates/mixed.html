@@ -1,6 +1,6 @@
 {# Mixed order (several line items). Every price here is formatted from integer minor units computed by code;
    nothing on this screen comes from the AI. #}
-<article class="result-card warn mixed" id="mixed">
+<article class="result-card warn mixed" id="mixed"{% if mixed_await_webhook %} data-await-webhook="{{ mixed.case_id }}"{% endif %}>
   <div class="rc-head"><span class="rc-icon">🧾</span>
     <div><div class="rc-title">Mixed order — {{ mixed.lines | length }} line items <span class="chip neutral">{{ mixed.demo_badge }}</span></div>
       <div class="rc-sub">Each line is resolved on its own by policy code. You approve one batch and see the exact total first. PayPal Sandbox only: no real money.</div></div></div>
@@ -13,7 +13,7 @@
       <span class="mx-item"><strong>{{ l.name }}</strong><br><span class="muted small">{{ l.qty }} × {{ l.unit }} + tax {{ l.tax_unit }} each · reason {{ l.reason | replace('_', ' ') | lower }}</span></span>
       <span class="mx-dec"><span class="chip {{ {'REFUND': 'ok', 'EXCHANGE': 'warn', 'REJECT': 'bad', 'NEEDS_HUMAN': 'warn'}.get(l.resolution, 'neutral') }}">{{ l.resolution | replace('_', ' ') }}</span>
         <span class="muted small">{{ l.detail }}{% if l.state %} · {{ l.state }}{% endif %}</span></span>
-      <span class="mx-num mx-amt">{% if l.refund_total %}{{ l.refund_total }}<br><span class="muted small">{{ l.refund_item }} + {{ l.refund_tax }} + {{ l.refund_ship }}</span>{% else %}<span class="muted">—</span>{% endif %}</span>
+      <span class="mx-num mx-amt">{% if l.done_total %}<strong>{{ l.done_total }}</strong> <span class="chip {{ 'ok' if l.done_label == 'refunded' else 'warn' }}">{{ l.done_label }}</span><br><span class="muted small">{{ l.done_parts }}</span>{% if l.refund_total %}<br>{% endif %}{% endif %}{% if l.refund_total %}proposed {{ l.refund_total }}<br><span class="muted small">{{ l.refund_item }} + {{ l.refund_tax }} + {{ l.refund_ship }}</span>{% elif not l.done_total %}<span class="muted">—</span>{% endif %}</span>
     </div>
     {% if l.needs_human %}
     <form method="post" action="/cases/{{ mixed.case_id }}/lines/{{ l.line_no }}/resolve" class="js-busy mx-resolve">
@@ -51,6 +51,7 @@
   <form method="post" action="/cases/{{ mixed.case_id }}/mixed/propose" class="js-busy actions"><button class="btn">Propose a batch for the open items</button></form>
   {% endif %}
 
+  {% if mixed_await_webhook %}<p id="webhook-note" class="muted small" hidden></p>{% endif %}
   <h3 class="small-h">Refund ledger <span class="muted small">captured {{ mixed.captured }} · refunded or reserved {{ mixed.committed }} · still refundable {{ mixed.remaining }}</span></h3>
   {% if mixed.batches %}
   <ul class="mx-batches">
