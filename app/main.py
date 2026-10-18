@@ -21,7 +21,7 @@ from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
 from .paypal_client import PayPalError
-from .webhook_verify import SelfVerifyUnavailable, self_verify
+from .webhook_verify import SelfVerifyUnavailable, sanitize_payment_event, self_verify
 from .presets import BY_KEY, PRESETS, preset_label
 from .policy import DISPUTE_RECOMMENDATION_LABEL
 from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
@@ -344,6 +344,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if (not isinstance(event, dict) or not isinstance(event.get("event_type"), str)
                 or event["event_type"] not in WEBHOOK_EVENTS | set(DISPUTE_EVENTS)):
             return JSONResponse({"ok": True, "handled": False})
+        if event["event_type"] not in DISPUTE_EVENTS:
+            event = sanitize_payment_event(event)  # allow-list + type-check (disputes do the same in parse_dispute)
         headers = dict(request.headers)
         missing = [h for h in SIGNATURE_HEADERS if not headers.get(h)]
         if missing and wf.paypal_mode != "mock":
