@@ -5,7 +5,7 @@
   <h1>Evidence report — case {{ r.case_id }}</h1>
   <p class="muted small">Generated {{ r.generated_at }} · {{ r.environment.note }}. Read-only: this page moves no money and calls no PayPal API.
     <a href="/?case={{ r.case_id }}">Back to the case</a> ·
-    <a href="/cases/{{ r.case_id }}/evidence.json" download>Download JSON</a> · <button type="button" class="btn small ghost" onclick="window.print()">Print / save as PDF</button></p>
+    <a href="/cases/{{ r.case_id }}/evidence.json" download>Download JSON</a> · <button type="button" class="btn small ghost" data-print>Print / save as PDF</button></p>
 
   <h2>Result</h2>
   <dl class="kv">

@@ -77,3 +77,12 @@ def test_only_get_is_allowed_and_no_state_change(app_ctx):
     for url in (f"/cases/{cid}/evidence", f"/cases/{cid}/evidence.json"):
         for m in ("post", "put", "delete", "patch"):
             assert getattr(client, m)(url).status_code in (404, 405)
+
+
+def test_print_button_has_no_inline_handler_so_the_csp_does_not_block_it(app_ctx):
+    client, _, _ = app_ctx
+    cid = run_a(client)
+    html = client.get(f"/cases/{cid}/evidence").text
+    assert "onclick" not in html.lower() and "data-print" in html
+    assert "script-src 'self'" in client.get(f"/cases/{cid}/evidence").headers["content-security-policy"]
+    assert "data-print" in client.get("/static/app.js").text
