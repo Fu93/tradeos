@@ -1,0 +1,632 @@
+{
+  "info": {
+    "name": "TradeOS - PayPal Sandbox calls (dev-time tooling)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "The exact PayPal REST calls TradeOS makes (see app/paypal_client.py), for manual exploration against the PayPal SANDBOX.\n\nDev-time tooling only: it is NOT part of the money path and TradeOS does not use it. No secrets are stored here: set client_id / client_secret in YOUR OWN Postman environment (never commit it). Sandbox only; do not point base_url at live."
+  },
+  "item": [
+    {
+      "name": "1. Auth",
+      "item": [
+        {
+          "name": "OAuth token (client credentials)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/oauth2/token",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "oauth2",
+                "token"
+              ]
+            },
+            "description": "POST /v1/oauth2/token. Basic auth = client_id:client_secret. Stores access_token in the environment (a secret-typed variable; do not export it). For disputes, the token must carry the https://uri.paypal.com/services/disputes/read-seller scope (TradeOS requests read-only).",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "{{client_id}}",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "{{client_secret}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "key": "grant_type",
+                  "value": "client_credentials"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200', () => pm.response.code === 200);",
+                  "const j = pm.response.json();",
+                  "pm.environment.set('access_token', j.access_token);",
+                  "console.log('scope:', j.scope);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Orders v2",
+      "item": [
+        {
+          "name": "Create order paid with sandbox test card (CAPTURE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "PayPal-Request-Id",
+                "value": "{{request_id}}",
+                "description": "Idempotency key. Same key + same body = same result (no second charge/refund). TradeOS derives it deterministically per case."
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "description": "TradeOS sends this on every call."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/checkout/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "checkout",
+                "orders"
+              ]
+            },
+            "description": "POST /v2/checkout/orders - what create_order_with_card does (sandbox card, intent CAPTURE; usually captured immediately). Response purchase_units[0].payments.captures[0].id is the capture id.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"intent\": \"CAPTURE\",\n  \"purchase_units\": [\n    {\n      \"reference_id\": \"postman-demo-1\",\n      \"description\": \"Postman demo order (sandbox)\",\n      \"amount\": {\n        \"currency_code\": \"USD\",\n        \"value\": \"49.99\"\n      }\n    }\n  ],\n  \"payment_source\": {\n    \"card\": {\n      \"number\": \"{{sandbox_test_card_number}}\",\n      \"expiry\": \"2029-12\",\n      \"security_code\": \"123\",\n      \"name\": \"Postman Demo Buyer\",\n      \"billing_address\": {\n        \"address_line_1\": \"2211 N First Street\",\n        \"admin_area_2\": \"San Jose\",\n        \"admin_area_1\": \"CA\",\n        \"postal_code\": \"95131\",\n        \"country_code\": \"US\"\n      }\n    }\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.environment.set('order_id', j.id);",
+                  "const c = ((j.purchase_units||[{}])[0].payments||{}).captures;",
+                  "if (c && c[0]) pm.environment.set('capture_id', c[0].id);",
+                  "console.log('PayPal-Debug-Id:', pm.response.headers.get('PayPal-Debug-Id'));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// dev-time helper: fresh idempotency key unless you set request_id yourself to test a retry",
+                  "if (!pm.environment.get('request_id')) { pm.environment.set('request_id', 'postman-' + pm.variables.replaceIn('{{$guid}}')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Capture order (only if the order was not captured at creation)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "PayPal-Request-Id",
+                "value": "{{request_id}}",
+                "description": "Idempotency key. Same key + same body = same result (no second charge/refund). TradeOS derives it deterministically per case."
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "description": "TradeOS sends this on every call."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/checkout/orders/{{order_id}}/capture",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "checkout",
+                "orders",
+                "{{order_id}}",
+                "capture"
+              ]
+            },
+            "description": "POST /v2/checkout/orders/{id}/capture with an empty JSON body (capture_order).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// dev-time helper: fresh idempotency key unless you set request_id yourself to test a retry",
+                  "if (!pm.environment.get('request_id')) { pm.environment.set('request_id', 'postman-' + pm.variables.replaceIn('{{$guid}}')); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Payments v2 (captures and refunds)",
+      "item": [
+        {
+          "name": "Get capture",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/captures/{{capture_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payments",
+                "captures",
+                "{{capture_id}}"
+              ]
+            },
+            "description": "GET /v2/payments/captures/{id}. TradeOS reads this to check status/amount before a refund and to reconcile after a timeout.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Refund capture - FULL (no amount)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "PayPal-Request-Id",
+                "value": "{{request_id}}",
+                "description": "Idempotency key. Same key + same body = same result (no second charge/refund). TradeOS derives it deterministically per case."
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "description": "TradeOS sends this on every call."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/captures/{{capture_id}}/refund",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payments",
+                "captures",
+                "{{capture_id}}",
+                "refund"
+              ]
+            },
+            "description": "POST /v2/payments/captures/{id}/refund with no amount = refund the remaining captured amount (current single-item flow; optional note_to_payer).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_to_payer\": \"Refund for your TradeOS case (sandbox)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// dev-time helper: fresh idempotency key unless you set request_id yourself to test a retry",
+                  "if (!pm.environment.get('request_id')) { pm.environment.set('request_id', 'postman-' + pm.variables.replaceIn('{{$guid}}')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refund capture - PARTIAL (amount)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "PayPal-Request-Id",
+                "value": "{{request_id}}",
+                "description": "Idempotency key. Same key + same body = same result (no second charge/refund). TradeOS derives it deterministically per case."
+              },
+              {
+                "key": "Prefer",
+                "value": "return=representation",
+                "description": "TradeOS sends this on every call."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/captures/{{capture_id}}/refund",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payments",
+                "captures",
+                "{{capture_id}}",
+                "refund"
+              ]
+            },
+            "description": "POST ... /refund WITH amount = partial refund (multiple partials allowed up to the captured amount). Used by the mixed-order batches proposed in PR #53. Use whole numbers for JPY/HUF/TWD (no decimals).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": {\n    \"currency_code\": \"USD\",\n    \"value\": \"{{refund_amount}}\"\n  },\n  \"custom_id\": \"postman-batch-1\",\n  \"note_to_payer\": \"Refund for 3 returned items; 1 item exchanged (sandbox)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const j = pm.response.json();",
+                  "pm.environment.set('refund_id', j.id);",
+                  "console.log('refund', j.id, j.status, JSON.stringify(j.amount), 'PayPal-Debug-Id:', pm.response.headers.get('PayPal-Debug-Id'));"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// dev-time helper: fresh idempotency key unless you set request_id yourself to test a retry",
+                  "if (!pm.environment.get('request_id')) { pm.environment.set('request_id', 'postman-' + pm.variables.replaceIn('{{$guid}}')); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get refund (proof / refresh a PENDING refund)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v2/payments/refunds/{{refund_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v2",
+                "payments",
+                "refunds",
+                "{{refund_id}}"
+              ]
+            },
+            "description": "GET /v2/payments/refunds/{id}. The refund status and amount PayPal reports are the proof; TradeOS compares the amount to what code computed.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Disputes v1 (READ-ONLY)",
+      "item": [
+        {
+          "name": "List disputes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/customer/disputes?page_size=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "customer",
+                "disputes"
+              ],
+              "query": [
+                {
+                  "key": "page_size",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "GET /v1/customer/disputes?page_size=N (TradeOS clamps N to 1..50). Needs the disputes/read-seller scope. TradeOS has no accept/appeal/evidence/message calls.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get dispute",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/customer/disputes/{{dispute_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "customer",
+                "disputes",
+                "{{dispute_id}}"
+              ]
+            },
+            "description": "GET /v1/customer/disputes/{id}.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Webhooks v1",
+      "item": [
+        {
+          "name": "Verify webhook signature (postback)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/notifications/verify-webhook-signature",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "notifications",
+                "verify-webhook-signature"
+              ]
+            },
+            "description": "POST /v1/notifications/verify-webhook-signature. TradeOS also verifies locally; this is the second, independent confirmation. Paste the PayPal-* headers and the EXACT raw event body you received (TradeOS embeds it byte for byte; re-serialising can break the signature). Expect verification_status SUCCESS.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"auth_algo\": \"{{paypal_auth_algo}}\",\n  \"cert_url\": \"{{paypal_cert_url}}\",\n  \"transmission_id\": \"{{paypal_transmission_id}}\",\n  \"transmission_sig\": \"{{paypal_transmission_sig}}\",\n  \"transmission_time\": \"{{paypal_transmission_time}}\",\n  \"webhook_id\": \"{{webhook_id}}\",\n  \"webhook_event\": {{webhook_event_raw_json}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List webhooks (registration check)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/v1/notifications/webhooks",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "v1",
+                "notifications",
+                "webhooks"
+              ]
+            },
+            "description": "GET /v1/notifications/webhooks (used by the one-off registration script).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

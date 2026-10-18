@@ -203,6 +203,12 @@ and approved by a person on a screen showing the exact total. Demo: `POST /demo/
 Details, evidence tiers (tests vs. live Sandbox proof, which is **not yet done**) and the shipping/tax policy:
 [docs/partial-refunds.md](docs/partial-refunds.md).
 
+## Postman collection (dev-time tooling)
+
+[docs/postman/](docs/postman/README.md) has a Postman collection and a secret-free environment template for the exact
+PayPal Sandbox calls TradeOS makes (OAuth, create order, capture, refund incl. partial, get refund, disputes GET,
+webhook verify). It is manual tooling for reviewers and is **not** part of the money path.
+
 ## Failure & safety modes
 
 ![Failure and safety modes](docs/failure-modes.png)
