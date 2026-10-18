@@ -1,8 +1,5 @@
 """Adversarial review of the evidence report: every case type, XSS, no secrets/paths, read-only, large chains."""
-import json
-import re
 
-import pytest
 
 from app import lineitems as li
 from tests.helpers import FakeExtractor, app_ctx, case_from, make_app  # noqa: F401
