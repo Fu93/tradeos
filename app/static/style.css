@@ -253,3 +253,20 @@ table.evidence tr.bad td{background:#fef2f2}
 .qchecks { margin: 0; padding-left: 18px; font-size: 12.5px; } .qchecks .no { color: var(--bad); }
 .qsummary { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
 @media (max-width: 640px) { .mainnav { width: 100%; } .dispute dl { grid-template-columns: 1fr; } .qgrid { grid-template-columns: 1fr; } }
+
+/* Mixed order (partial refund) approval screen */
+.mixed .mx-table { margin: 10px 0 12px; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.mx-row { display: grid; grid-template-columns: 28px 1.4fr 1.6fr 1.1fr; gap: 10px; padding: 9px 12px; border-top: 1px solid var(--line); align-items: start; }
+.mx-row.mx-head { background: #f6f8fb; font-size: 12px; color: var(--muted); font-weight: 700; border-top: 0; }
+.mx-row .mx-num { text-align: right; } .mx-n { font-weight: 700; color: var(--muted); }
+.mx-dec { display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.mx-resolve { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 8px 12px; background: var(--warn-bg); border-top: 1px solid var(--line); }
+.mx-approve { border: 1px solid #b8d0f4; border-left: 4px solid var(--blue); border-radius: 8px; padding: 10px 14px; background: #f7fbff; }
+.mx-sum { font-size: 17px; font-weight: 800; margin-bottom: 6px; overflow-wrap: anywhere; }
+.mx-batches { list-style: none; padding: 0; margin: 0 0 8px; } .mx-batches li { padding: 7px 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+form.inline { display: inline-block; margin-left: 6px; }
+@media (max-width: 640px) {
+  .mx-row { grid-template-columns: 24px 1fr; } .mx-row.mx-head { display: none; }
+  .mx-row .mx-dec, .mx-row .mx-amt { grid-column: 2; } .mx-row .mx-num { text-align: left; }
+  .mx-sum { font-size: 15px; }
+}

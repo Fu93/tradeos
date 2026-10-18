@@ -7,7 +7,8 @@
   {%- set status = case.status -%}
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
                  "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
-                 "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "NEEDS_HUMAN": "warn", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
+                 "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "MIXED_PENDING_APPROVAL": "warn", "MIXED_REFUND_PENDING": "warn",
+                 "MIXED_NEEDS_HUMAN": "warn", "MIXED_ATTENTION": "bad", "MIXED_OUTCOME_UNKNOWN": "warn", "MIXED_DONE": "ok", "NEEDS_HUMAN": "warn", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
   {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_FAILED", "REFUND_ERROR",
                                "REFUND_OUTCOME_UNKNOWN", "EXCHANGE_ARRANGED") -%}
   {%- set prefix = {"auto": "AUTO · ", "human": "HUMAN · "}.get(case.approval_source, "") if handled else "" -%}
@@ -24,6 +25,7 @@
   <div class="buttons">
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible return (refund)</button></form>
     <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same return request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
+    <form method="post" action="/demo/run/M" class="js-busy"><button class="btn" title="Real sandbox order with 4 line items (DEMO-DATA): 3 returned for a partial refund, 1 exchanged">▶ Run Case M — mixed order (3 returned, 1 exchanged)</button></form>
     <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
   </div>
 </section>
@@ -72,7 +74,9 @@
   <section class="block" id="pending">
     <h2><span class="num">1</span> Pending action
       {% if current %}<span class="muted small">· {{ current.label }} · case {{ current.id }}</span>{% endif %}</h2>
-    {% if result %}
+    {% if mixed %}
+      {% include "mixed.html" %}
+    {% elif result %}
       <article class="result-card {{ result.kind }}"{% if result.await_webhook %} data-await-webhook="{{ current.id }}"{% endif %}>
         <div class="rc-head"><span class="rc-icon">{{ result.icon }}</span>
           <div><div class="rc-title">{{ result.title }}</div><div class="rc-sub">{{ result.subtitle }}</div></div></div>

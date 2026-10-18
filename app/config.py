@@ -116,6 +116,10 @@ class Settings:
     auto_refund_max_amount: Decimal = Decimal("50.00")
     auto_exchange_enabled: bool = False
 
+    # Mixed orders: is shipping refunded with a returned item? NEVER, or MERCHANT_ERROR (default: only for a line
+    # returned as damaged / wrong item / not as described). A policy choice for the merchant; see docs/partial-refunds.md.
+    shipping_policy: str = "MERCHANT_ERROR"
+
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
     @property
@@ -167,5 +171,8 @@ class Settings:
             auto_enabled=_env_bool("AUTO_ENABLED", False),
             auto_refund_max_amount=Decimal(_env("AUTO_REFUND_MAX_AMOUNT", "50.00")),
             auto_exchange_enabled=_env_bool("AUTO_EXCHANGE_ENABLED", False),
+            shipping_policy=(_env("TRADEOS_SHIPPING_POLICY") or "MERCHANT_ERROR").upper()
+            if (_env("TRADEOS_SHIPPING_POLICY") or "MERCHANT_ERROR").upper() in ("NEVER", "MERCHANT_ERROR")
+            else "NEVER",  # an unknown value fails closed: no shipping refund
             costs=CostAssumptions.from_env(),
         )

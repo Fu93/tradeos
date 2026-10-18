@@ -195,6 +195,14 @@ deterministically from the script) and the sizes come from the model. The inject
 calls: the model reads it as a refund request without a stated reason, and the heuristic marker check flags it. The keyword fallback returns
 `UNKNOWN` for the non-English presets, which is exactly why the model is there.
 
+## Mixed orders and partial refunds
+
+An order with several line items (e.g. 3 returned, 1 exchanged) is resolved per line; one batch becomes one PayPal
+**partial** refund whose amount is computed only by code from item prices, capped by the remaining refundable balance,
+and approved by a person on a screen showing the exact total. Demo: `POST /demo/run/M` (seeded, labelled DEMO-DATA).
+Details, evidence tiers (tests vs. live Sandbox proof, which is **not yet done**) and the shipping/tax policy:
+[docs/partial-refunds.md](docs/partial-refunds.md).
+
 ## Failure & safety modes
 
 ![Failure and safety modes](docs/failure-modes.png)

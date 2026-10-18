@@ -50,9 +50,25 @@ class MockPayPalClient:
         self.captures[cap_id] = cap
         return cap
 
-    def create_order_with_card(self, amount, currency, reference_id, description, request_id):
+    def create_order_with_card(self, amount, currency, reference_id, description, request_id, order_lines=None):
         if not self.card_capture:
             raise PayPalError("Card payments not enabled for this account (mock)", 422, "UNPROCESSABLE_ENTITY")
+        if order_lines:  # PayPal validates the breakdown arithmetic: item_total + tax_total + shipping == value
+            from .lineitems import MoneyError, to_minor
+            try:
+                parts = order_lines["breakdown"]
+                got = sum(to_minor(parts[k]["value"], currency) for k in ("item_total", "tax_total", "shipping")
+                          if k in parts)
+                items = sum(to_minor(i["unit_amount"]["value"], currency) * int(i["quantity"]) for i in order_lines["items"])
+                taxes = sum(to_minor(i.get("tax", {"value": "0"})["value"], currency) * int(i["quantity"])
+                            for i in order_lines["items"])
+                ok = (got == to_minor(amount, currency) and items == to_minor(parts["item_total"]["value"], currency)
+                      and taxes == to_minor(parts.get("tax_total", {"value": "0"})["value"], currency))
+            except (MoneyError, KeyError, ValueError):
+                ok = False
+            if not ok:
+                raise PayPalError("Item amounts do not add up (mock)", 422, "UNPROCESSABLE_ENTITY",
+                                  details=[{"issue": "AMOUNT_MISMATCH"}])
         order = {"id": self._id("ORDER"), "status": "COMPLETED",
                  "purchase_units": [{"reference_id": reference_id,
                                      "payments": {"captures": [self._capture(amount, currency)]}}]}
@@ -77,36 +93,78 @@ class MockPayPalClient:
 
     is_sandbox = True
 
-    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None):
+    @staticmethod
+    def _minor(value: str, currency: str) -> int:
+        from .lineitems import MoneyError, to_minor
+        try:
+            return to_minor(value, currency)
+        except MoneyError as exc:
+            raise PayPalError(f"Invalid amount (mock): {exc}", 400, "INVALID_REQUEST",
+                              details=[{"issue": "DECIMAL_PRECISION"}])
+
+    def _refunded_minor(self, capture_id: str, currency: str, completed_only: bool = False) -> int:
+        return sum(self._minor(r["amount"]["value"], currency) for r in self.refunds_by_request.values()
+                   if r["_capture"] == capture_id and r["status"] != "FAILED"
+                   and (not completed_only or r["status"] == "COMPLETED"))
+
+    def _capture_status_after(self, capture_id: str) -> None:
+        cap = self.captures[capture_id]
+        cur = cap["amount"]["currency_code"]
+        done = self._refunded_minor(capture_id, cur, completed_only=True)
+        if done:
+            cap["status"] = "REFUNDED" if done >= self._minor(cap["amount"]["value"], cur) else "PARTIALLY_REFUNDED"
+
+    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None, amount=None,
+                       custom_id=None):
         if self.fail_refund:
             raise PayPalError("Refund failed (mock)", 422, "UNPROCESSABLE_ENTITY")
         if mock_response:  # mirrors PayPal-Mock-Response negative testing
             raise PayPalError(f"The requested action could not be completed (mock) ({mock_response})", 422,
                               "UNPROCESSABLE_ENTITY", debug_id="mock-debug",
                               details=[{"issue": mock_response}])
+        body = (note_to_payer, repr(sorted((amount or {}).items())), custom_id)
         prior = self.refunds_by_request.get(request_id)
-        if prior is not None and prior["_capture"] == capture_id and prior.get("_note") == note_to_payer:
+        if prior is not None and prior["_capture"] == capture_id and prior.get("_body") == body:
             return {k: v for k, v in prior.items() if not k.startswith("_")}  # idempotent: same id + same body
         if prior is not None:  # same PayPal-Request-Id, different capture or body
             raise PayPalError("PayPal-Request-Id reused with a different request (mock)", 422, "UNPROCESSABLE_ENTITY",
                               details=[{"issue": "DUPLICATE_REQUEST_ID"}])
         cap = self.captures[capture_id]
-        if any(r["_capture"] == capture_id and r["status"] != "FAILED" for r in self.refunds_by_request.values()):
-            raise PayPalError("Capture has already been fully refunded (mock)", 422, "UNPROCESSABLE_ENTITY",
-                              details=[{"issue": "CAPTURE_FULLY_REFUNDED"}])
+        cur = cap["amount"]["currency_code"]
+        remaining = self._minor(cap["amount"]["value"], cur) - self._refunded_minor(capture_id, cur)
+        if amount is None:
+            if remaining <= 0:
+                raise PayPalError("Capture has already been fully refunded (mock)", 422, "UNPROCESSABLE_ENTITY",
+                                  details=[{"issue": "CAPTURE_FULLY_REFUNDED"}])
+            refund_minor = remaining  # PayPal: captured amount - previous refunds
+        else:
+            if amount.get("currency_code") != cur:
+                raise PayPalError("Refund currency must equal the capture currency (mock)", 422,
+                                  "UNPROCESSABLE_ENTITY", details=[{"issue": "REFUND_CURRENCY_MISMATCH"}])
+            refund_minor = self._minor(amount["value"], cur)
+            if refund_minor <= 0:
+                raise PayPalError("Refund amount must be positive (mock)", 400, "INVALID_REQUEST",
+                                  details=[{"issue": "INVALID_PARAMETER_VALUE"}])
+            if refund_minor > remaining:
+                raise PayPalError("Refund amount exceeds what is left to refund (mock)", 422, "UNPROCESSABLE_ENTITY",
+                                  details=[{"issue": "REFUND_AMOUNT_EXCEEDED"}])
+        from .lineitems import to_str
         pending_demo = request_id.startswith(PENDING_DEMO_PREFIX)
         refund = {"id": self._id("REFUND"), "status": "PENDING" if pending_demo else self.refund_status,
-                  "create_time": _now(),
-                  "amount": dict(cap["amount"]), "_capture": capture_id, "_note": note_to_payer,
-                  "seller_payable_breakdown": {"total_refunded_amount": dict(cap["amount"])}}
+                  "amount": {"currency_code": cur, "value": to_str(refund_minor, cur)},
+                  "_capture": capture_id, "_body": body, "_note": note_to_payer}
+        if custom_id:
+            refund["custom_id"] = custom_id[:127]
         if note_to_payer:
             refund["note_to_payer"] = note_to_payer[:255]
         if pending_demo:  # like an eCheck-funded refund: PENDING, completes after a delay
             refund["status_details"] = {"reason": "ECHECK"}
             refund["_completes_at"] = time.time() + self.pending_demo_seconds
         self.refunds_by_request[request_id] = refund
-        if refund["status"] == "COMPLETED":
-            cap["status"] = "REFUNDED"  # full refund, as PayPal reports on GET capture
+        total = self._refunded_minor(capture_id, cur)
+        refund["seller_payable_breakdown"] = {"total_refunded_amount": {"currency_code": cur,
+                                                                        "value": to_str(total, cur)}}
+        self._capture_status_after(capture_id)  # PARTIALLY_REFUNDED / REFUNDED, as GET capture reports
         return {k: v for k, v in refund.items() if not k.startswith("_")}
 
     def complete_refund(self, refund_id):
@@ -117,7 +175,7 @@ class MockPayPalClient:
                 r.pop("status_details", None)
                 r["_completes_at"] = None
                 if r["_capture"] in self.captures:
-                    self.captures[r["_capture"]]["status"] = "REFUNDED"
+                    self._capture_status_after(r["_capture"])
                 return {k: v for k, v in r.items() if not k.startswith("_")}
         return None
 
