@@ -34,6 +34,7 @@ class MockPayPalClient:
         self.captures: dict[str, dict] = {}
         self.refunds_by_request: dict[str, dict] = {}
         self.pending_demo_seconds = 20.0
+        self.disputes = {}
 
     last_debug_id: str | None = None
 
@@ -122,6 +123,28 @@ class MockPayPalClient:
 
     def verify_webhook_signature(self, headers, raw_body, webhook_id):
         return "SUCCESS" if headers.get("paypal-transmission-sig") == "valid-mock-signature" else "FAILURE"
+
+    # Disputes (read-only). Tests / demos put dispute objects here; PayPal's shapes, labelled MOCK by id.
+    disputes: dict = {}
+    disputes_scope = True  # False: the mock behaves like an app without disputes/read-seller
+
+    def has_scope(self, scope):
+        return self.disputes_scope
+
+    def _disputes_guard(self):
+        if not self.disputes_scope:
+            raise PayPalError("Authorization failed due to insufficient permissions (mock)", 403, "NOT_AUTHORIZED",
+                              debug_id="mock-debug")
+
+    def list_disputes(self, page_size=10, timeout=None):
+        self._disputes_guard()
+        return {"items": [{"dispute_id": k, "status": v.get("status")} for k, v in list(self.disputes.items())[:page_size]]}
+
+    def get_dispute(self, dispute_id, timeout=None):
+        self._disputes_guard()
+        if dispute_id not in self.disputes:
+            raise PayPalError("Dispute not found (mock)", 404, "INVALID_RESOURCE_ID")
+        return dict(self.disputes[dispute_id])
 
     def get_refund(self, refund_id, timeout=None):
         for r in self.refunds_by_request.values():
