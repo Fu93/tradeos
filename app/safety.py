@@ -208,7 +208,7 @@ def product_class(product: dict | None) -> str:
 # --------------------------------------------------------------------------------------------- the gate
 @dataclass(frozen=True)
 class Signal:
-    layer: str      # "pattern" (code) or "llm-reason" (the model's own label, escalate-only)
+    layer: str      # "pattern" (code), "llm-reason" (the model's own label) or "ai" (opt-in classifier); both escalate-only
     kind: str       # hazard word group (burn / melt / ...) or "fault"
     language: str
     match: str
@@ -220,7 +220,7 @@ class Signal:
 @dataclass(frozen=True)
 class SafetyAssessment:
     flagged: bool
-    trigger: str                       # "harm_language" | "gated_product_fault" | "none"
+    trigger: str                       # "harm_language" | "gated_product_fault" | "ai_classifier" | "none"
     product_class: str
     signals: tuple[Signal, ...] = field(default_factory=tuple)
 
@@ -230,6 +230,8 @@ class SafetyAssessment:
             return "No safety signal."
         seen = ", ".join(dict.fromkeys(f"{s.kind} ({s.language}: “{s.match}”)" if s.layer == "pattern"
                                        else f"{s.kind} ({s.match})" for s in self.signals))
+        if self.trigger == "ai_classifier":
+            return f"AI safety screen (second layer) asked for a human to read this message: {seen}."
         if self.trigger == "harm_language":
             return f"Harm / injury / hazard language in the customer's message: {seen}."
         return f"Reported fault on a {self.product_class} product: {seen}."

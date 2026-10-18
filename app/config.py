@@ -121,6 +121,10 @@ class Settings:
     # whole order is returned). A policy choice for the merchant; see docs/partial-refunds.md.
     shipping_policy: str = "WITHDRAWAL_FULL"
 
+    # Second-layer AI safety classifier (escalate-only, fail-safe). OFF unless TRADEOS_SAFETY_AI=1. See docs/safety-gate.md.
+    safety_ai_enabled: bool = False
+    safety_ai_timeout_s: float = 8.0
+
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
     @property
@@ -172,6 +176,8 @@ class Settings:
             auto_enabled=_env_bool("AUTO_ENABLED", False),
             auto_refund_max_amount=Decimal(_env("AUTO_REFUND_MAX_AMOUNT", "50.00")),
             auto_exchange_enabled=_env_bool("AUTO_EXCHANGE_ENABLED", False),
+            safety_ai_enabled=_env_bool("TRADEOS_SAFETY_AI", False),
+            safety_ai_timeout_s=float(_env("TRADEOS_SAFETY_AI_TIMEOUT_S") or 8.0),
             shipping_policy=(_env("TRADEOS_SHIPPING_POLICY") or "WITHDRAWAL_FULL").upper()
             if (_env("TRADEOS_SHIPPING_POLICY") or "WITHDRAWAL_FULL").upper() in ("NEVER", "MERCHANT_ERROR", "WITHDRAWAL_FULL")
             else "NEVER",  # an unknown value fails closed: no shipping refund
