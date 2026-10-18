@@ -108,3 +108,17 @@ def test_every_seed_outcome_is_pinned_exactly():
     assert got == expected
     counts = {label: n for label, n, _ in queue_view(TODAY)["counts"]}
     assert sum(counts.values()) == 8 and counts["Return → approval → refund"] == 2
+
+
+def test_template_escapes_markup_in_any_seed_field(settings, monkeypatch):
+    """Seeds are static today; this pins that the template escapes every field if one ever carries markup."""
+    import dataclasses
+
+    import app.queue_demo as qd
+    evil = '<script>alert(1)</script>"><img src=x onerror=alert(2)>'
+    seeds = tuple(dataclasses.replace(s, customer=evil, message=evil, summary_en=evil, product=evil, lang=evil)
+                  for s in qd.SEEDS)
+    monkeypatch.setattr(qd, "SEEDS", seeds)
+    client, *_ = make_app(settings)
+    html = client.get("/queue").text
+    assert "<script>alert" not in html and "<img src=x" not in html and "&lt;script&gt;" in html
