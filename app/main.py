@@ -22,6 +22,7 @@ from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
 from .paypal_client import PayPalError
 from .webhook_verify import SelfVerifyUnavailable, sanitize_payment_event, self_verify
+from .queue_demo import queue_view
 from .presets import BY_KEY, PRESETS, preset_label
 from .policy import DISPUTE_RECOMMENDATION_LABEL
 from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
@@ -164,6 +165,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.api_route("/", methods=["GET", "HEAD"], response_class=HTMLResponse)
     def dashboard(request: Request, case: str | None = None):
         return render_dashboard(request, case)
+
+    @app.api_route("/queue", methods=["GET", "HEAD"], response_class=HTMLResponse)
+    def queue_page(request: Request):
+        """Seeded multilingual demo queue (DEMO DATA). Read-only view: no DB rows, no PayPal calls, no actions."""
+        return templates.TemplateResponse(request, "queue.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id), "q": queue_view(wf.today())})
 
     @app.get("/healthz")
     def healthz():
