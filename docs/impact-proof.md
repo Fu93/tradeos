@@ -111,5 +111,5 @@ Labels by one author, no inter-annotator check (its own "Limits").
 * No real-money or live-customer outcomes. Everything here is tests on synthetic or hand-written messages and the PayPal Sandbox.
 * No claim that the numbers will hold on real traffic, other languages, or other models.
 * The supplier-routing experiment (mock suppliers, mock catalogue) is not part of the deployed app on `main`.
-* The 85/85 is "0 automated on this set", not a safety guarantee.
+* The 85/85 is "0 automated on this set", not a safety guarantee. It was measured on the experimental branch, not on `main`; the gate that is on `main` is described (with its own evidence tiers) in [safety-gate.md](safety-gate.md).
 * Refund amounts never come from the LLM; that rule is enforced in code and covered by the tests in the repo, which is a separate matter from the eval numbers above.

@@ -17,6 +17,8 @@ from decimal import Decimal
 
 from .intent import IntentResult, looks_like_injection
 from .policy import PolicyInput, evaluate
+from .safety import SAFETY_STATUS
+from .safety import assess as assess_safety
 
 DEMO_BADGE = "DEMO DATA"
 AMOUNT, CURRENCY = Decimal("49.99"), "USD"
@@ -28,6 +30,8 @@ OUTCOMES = {
                         "PayPal refund run.", "ok"),
     "EXCHANGE_SUPPLIER": ("Exchange → supplier", "Replacement request to the supplier after approval. No refund; "
                           "the Refund API is never called.", "ok"),
+    "SAFETY_REVIEW": ("Needs human safety review", "Safety Gate (code, ahead of everything else): a person reviews a "
+                      "possible hazard or injury. No approve button, no refund, no supplier task.", "bad"),
     "HUMAN_REVIEW": ("Human review", "Outside what the automation handles: a person reads it. Nothing is "
                      "approvable.", "warn"),
     "REJECTED_INJECTION": ("Rejected — instruction-like text", "Policy rejects it (injection markers). A person may "
@@ -91,6 +95,9 @@ SEEDS: tuple[Seed, ...] = (
 
 def route(seed: Seed, today: date) -> dict:
     """Run the real policy engine on the seed and map its result to a routing outcome."""
+    gate = assess_safety(seed.message, None, seed.intent.reason if seed.intent else None)
+    if gate.flagged:  # same rule and same order as the workflow: before policy, whatever the (canned) AI reading says
+        return {"outcome": "SAFETY_REVIEW", "checks": [], "decision": SAFETY_STATUS, "action": None}
     injection = looks_like_injection(seed.message)
     if seed.intent is None:
         # Mirrors the workflow's rule for a message nothing could read: NEEDS_HUMAN, never ELIGIBLE.

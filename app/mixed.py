@@ -23,6 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 from . import lineitems as li
 from .intent import looks_like_injection
+from .safety import assess as safety_assess
 from .paypal_client import PayPalError, first_capture
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -186,6 +187,10 @@ class MixedOrders:
             return
         self.db.audit(case_id, "request", "Customer request received",
                       {"customer": case["customer_name"], "message": case["customer_message"]})
+        gate = safety_assess(case["customer_message"], None, None)
+        if gate.flagged:  # Safety Gate first: no policy lines, no batch, no refund, whatever the per-line reading says
+            wf._route_to_safety_review(case_id, gate)
+            return
         self.evaluate(case_id)
 
     def evaluate(self, case_id: str) -> None:
@@ -287,6 +292,7 @@ class MixedOrders:
         try:
             with wf._money_op(), wf._lock(case_id):
                 case, batch = self._load(case_id, batch_id)
+                wf._refuse_if_safety(case)
                 if batch["status"] != PROPOSED:
                     raise wf_refused(f"Batch {batch['batch_no']} is {batch['status']}, not awaiting approval "
                                      "(a second approval does nothing).")
@@ -404,6 +410,7 @@ class MixedOrders:
     def _guard(self, case_id: str, batch: dict) -> None:
         """The money gate. Reads the audit chain, not just the row: the proposal (what the human was shown) and the
         human approval of exactly this batch fingerprint + amount must both be chained, and the chain must verify."""
+        self.wf._refuse_if_safety(self.wf._case(case_id))
         if batch["status"] != APPROVED:
             raise wf_refused(f"Batch {batch['batch_no']} is {batch['status']}; refund refused.")
         if not batch.get("approved_by"):
