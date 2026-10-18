@@ -23,6 +23,7 @@ from typing import Any, Callable
 from .autonomy import decide_detailed
 from .config import Settings
 from .db import CaseFinalized, Database, next_seq
+from .disputes import DisputeService
 from .intent import AssistFields, IntentExtractor
 from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
@@ -112,6 +113,13 @@ class Workflow:
         self._pending_recovery_requests: set[str] = set()
         # UTC, to match PayPal timestamps.
         self.today = today or (lambda: datetime.now(timezone.utc).date())
+
+    @property
+    def disputes(self) -> DisputeService:
+        """Read-only PayPal Disputes mirror (no write calls exist)."""
+        if getattr(self, "_disputes", None) is None:
+            self._disputes = DisputeService(self)
+        return self._disputes
 
     # ------------------------------------------------------------------ PayPal
     @property

@@ -110,6 +110,30 @@ CREATE TABLE IF NOT EXISTS webhook_events (
 CREATE UNIQUE INDEX IF NOT EXISTS webhook_events_verified_once
     ON webhook_events(event_id) WHERE verified = 1;
 
+-- PayPal Customer Disputes, READ-ONLY mirror (webhook payload or GET /v1/customer/disputes/{id}).
+-- Informational only: nothing here changes a case, a refund or any money state. case_id is set when
+-- the disputed seller_transaction_id equals a capture TradeOS recorded; a matched dispute is also written
+-- to that case's hash chain (audit entries), an unmatched one has no case to chain under.
+CREATE TABLE IF NOT EXISTS disputes (
+    dispute_id TEXT PRIMARY KEY,
+    case_id TEXT,
+    capture_id TEXT,
+    status TEXT,
+    dispute_state TEXT,
+    life_cycle_stage TEXT,
+    reason TEXT,
+    amount TEXT,
+    currency TEXT,
+    due_date TEXT,
+    create_time TEXT,
+    update_time TEXT,
+    source TEXT NOT NULL,               -- webhook / paypal_get
+    last_event_id TEXT,
+    first_seen TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_disputes_case ON disputes(case_id);
+
 -- Secondary lookups: find_case_by (every webhook delivery), timeline, paypal_calls, webhook_events
 -- and verify_chain's coverage check would otherwise scan the whole table on every call.
 CREATE INDEX IF NOT EXISTS idx_cases_capture_id ON cases(capture_id);
@@ -569,6 +593,33 @@ class Database:
             args.append(operation)
         with self.connect() as conn:
             return [dict(r) for r in conn.execute(sql + " ORDER BY id", args).fetchall()]
+
+    # -- disputes (read-only mirror) ------------------------------------------
+    def get_dispute(self, dispute_id: str) -> dict | None:
+        rows = self._rows("SELECT * FROM disputes WHERE dispute_id=?", (dispute_id,))
+        return rows[0] if rows else None
+
+    def list_disputes(self) -> list[dict]:
+        return self._rows("SELECT * FROM disputes ORDER BY COALESCE(update_time, updated_at) DESC, rowid DESC")
+
+    def upsert_dispute(self, rec: dict) -> str:
+        """Insert or update one dispute. Returns 'created', 'updated' or 'stale' (an older update_time than
+        the stored one is ignored, so a late or replayed delivery can never move a dispute backwards)."""
+        now = utcnow()
+        with _chain_lock, self.connect() as conn:
+            old = conn.execute("SELECT update_time FROM disputes WHERE dispute_id=?", (rec["dispute_id"],)).fetchone()
+            if old is None:
+                cols = {**rec, "first_seen": now, "updated_at": now}
+                conn.execute(f"INSERT INTO disputes ({','.join(cols)}) VALUES ({','.join('?' for _ in cols)})",
+                             tuple(cols.values()))
+                return "created"
+            if old["update_time"] and rec.get("update_time") and rec["update_time"] < old["update_time"]:
+                return "stale"
+            cols = {**rec, "updated_at": now}
+            cols.pop("dispute_id")
+            conn.execute(f"UPDATE disputes SET {','.join(f'{k}=?' for k in cols)} WHERE dispute_id=?",
+                         (*cols.values(), rec["dispute_id"]))
+            return "updated"
 
     # -- PayPal webhook log --------------------------------------------------
     def log_webhook_event(self, event_id: str | None, event_type: str | None, verification: str, verified: bool,

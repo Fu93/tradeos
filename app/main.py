@@ -15,14 +15,16 @@ from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
 from .config import Settings
+from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
 from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
 from .notes import build_note_writer
 from .paypal_client import PayPalError
-from .webhook_verify import SelfVerifyUnavailable, self_verify
+from .webhook_verify import SelfVerifyUnavailable, sanitize_payment_event, self_verify
 from .presets import BY_KEY, PRESETS, preset_label
-from .ratelimit import Cooldown, RateLimiter, client_key
+from .policy import DISPUTE_RECOMMENDATION_LABEL
+from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary, paypal_proves)
@@ -73,6 +75,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     wf.resume_unresolved_refunds()
 
     reset_cooldown = Cooldown(settings.reset_cooldown_per_ip_s, settings.reset_cooldown_global_s)
+    # Disputes reads hit PayPal (sync = 1 list + up to 10 GETs): on top of the per-IP limiter, one sync per 20 s and
+    # one refresh per dispute per 10 s for the whole app, so rotating addresses cannot multiply the PayPal traffic.
+    sync_gate = MinInterval(settings.disputes_sync_interval_s)
+    refresh_gate = MinInterval(settings.disputes_refresh_interval_s)
 
     def ip(request: Request) -> str:
         return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
@@ -141,6 +147,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if reason:
             return render_dashboard(request, flash=reason, status_code=429)
         return None
+
+    def disputes_limited(request: Request) -> HTMLResponse | None:
+        # Same limiter, but a refusal stays on the Disputes page (it used to render the dashboard).
+        reason = limiter.check(ip(request))
+        return render_disputes(request, flash=reason, status_code=429) if reason else None
 
     def money_limited(request: Request, case_id: str | None = None) -> HTMLResponse | None:
         reason = money_limiter.check(ip(request))
@@ -335,8 +346,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             event = json.loads(raw)
         except ValueError:
             raise HTTPException(400, "Invalid JSON")
-        if not isinstance(event, dict) or event.get("event_type") not in WEBHOOK_EVENTS:
+        if (not isinstance(event, dict) or not isinstance(event.get("event_type"), str)
+                or event["event_type"] not in WEBHOOK_EVENTS | set(DISPUTE_EVENTS)):
             return JSONResponse({"ok": True, "handled": False})
+        if event["event_type"] not in DISPUTE_EVENTS:
+            event = sanitize_payment_event(event)  # allow-list + type-check (disputes do the same in parse_dispute)
         headers = dict(request.headers)
         missing = [h for h in SIGNATURE_HEADERS if not headers.get(h)]
         if missing and wf.paypal_mode != "mock":
@@ -352,6 +366,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             # Runs in the threadpool: the verification call and DB work never block the event loop.
             verification, method = verify_webhook(headers, raw)
             ttime = {k.lower(): v for k, v in headers.items()}.get("paypal-transmission-time")
+            if event.get("event_type") in DISPUTE_EVENTS:  # read-only mirror; same verification, same trust rules
+                return verification, method, wf.disputes.record_webhook(event, verification, method, ttime)
             return verification, method, wf.record_webhook(event, verification, method, ttime)
 
         try:
@@ -361,6 +377,39 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return JSONResponse({"ok": False, "handled": False, "retry": True}, status_code=500)
         return JSONResponse({"ok": True, "handled": True, "verified": verification == "SUCCESS",
                              "case": case_id, "method": method})
+
+    def render_disputes(request: Request, flash: str | None = None, status_code: int = 200) -> HTMLResponse:
+        return templates.TemplateResponse(request, "disputes.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id),
+            "disputes": wf.disputes.view(), "access": wf.disputes.access(), "flash": flash,
+            "label": DISPUTE_RECOMMENDATION_LABEL}, status_code=status_code)
+
+    @app.api_route("/disputes", methods=["GET", "HEAD"], response_class=HTMLResponse)
+    def disputes_page(request: Request):
+        return render_disputes(request)
+
+    @app.post("/disputes/sync")
+    def disputes_sync(request: Request):
+        """Read-only: GET the dispute list (and each dispute) from PayPal and store it. No write calls exist."""
+        if (refused := disputes_limited(request)) is not None:
+            return refused
+        if (reason := sync_gate.check("sync")) is not None:
+            return render_disputes(request, flash=reason, status_code=429)
+        result = wf.disputes.sync()
+        return render_disputes(request, flash=result["message"], status_code=200 if result["ok"] else 409)
+
+    @app.post("/disputes/{dispute_id}/refresh")
+    def disputes_refresh(request: Request, dispute_id: str):
+        if (refused := disputes_limited(request)) is not None:
+            return refused
+        if wf.db.get_dispute(dispute_id) is None:
+            raise HTTPException(404, "Dispute not found")
+        if (reason := refresh_gate.check(dispute_id)) is not None:
+            return render_disputes(request, flash=reason, status_code=429)
+        result = wf.disputes.fetch(dispute_id)
+        return render_disputes(request, flash=result["message"], status_code=200 if result["ok"] else 409)
 
     @app.post("/cases/{case_id}/refresh-refund")
     def refresh_refund(request: Request, case_id: str):
