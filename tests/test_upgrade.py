@@ -171,7 +171,7 @@ def test_rejected_case_gets_decision_note_and_no_refund(settings):
 # ------------------------------------------------------------------ free text + presets
 def test_presets_cover_five_languages_injection_and_late():
     keys = [p["key"] for p in PRESETS]
-    assert keys == ["en", "zh", "es", "de", "ja", "injection", "late"]
+    assert keys == ["en", "zh", "es", "de", "ja", "injection", "safety", "late"]
     assert BY_KEY["late"]["late"] is True and "Ignore all policies" in BY_KEY["injection"]["message"]
 
 

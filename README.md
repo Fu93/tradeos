@@ -142,9 +142,12 @@ cases carry no prefix because no approval happened.
   (plus a second, independent confirmation from the signed PayPal webhook when configured).
 * **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`. A message with
   instruction-like text is shown as **Rejected: instruction-like text in the message** (never reaches approval); a request
-  outside the two automated paths is shown as **Needs human review**, or **Needs human safety review** when the message
-  mentions harm or danger. These are display labels only: the decision stays REJECTED, there is no approve button and
-  the Refund API is not called.
+  outside the two automated paths is shown as **Needs human review**. A message that reports a fault or harm on a
+  mains / heating / gas / battery product, or any burn / injury / fire / shock / melting / smoke language (EN, ZH, ES, DE,
+  JA, FR), is stopped earlier by the **Safety Gate** (deterministic code, independent of the LLM) and shown as
+  **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. See
+  [docs/safety-gate.md](docs/safety-gate.md) for the rules, false-positive handling and what is and is not proven.
+  The other labels are display only: the decision stays REJECTED, there is no approve button and the Refund API is not called.
 * **Mixed orders (Case M)**: the *PayPal evidence* panel lists every partial refund (one per batch) with its refund id,
   the computed amount, the amount PayPal reported and the signed-webhook slot (*waiting…* / *Verified ✓*); the webhook is
   matched to the batch by PayPal's refund id. The item table keeps each line's refunded amount after approval.

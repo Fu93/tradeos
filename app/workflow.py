@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import threading
+import unicodedata
 from contextlib import contextmanager
 import time
 import uuid
@@ -30,6 +31,7 @@ from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
+from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
@@ -86,6 +88,7 @@ REFUND_UNKNOWN = "REFUND_OUTCOME_UNKNOWN"  # timeout / network / 5xx: PayPal may
 ERROR = "ERROR"
 EXCHANGE_ARRANGED = "EXCHANGE_ARRANGED"  # human approved the exchange; supplier ships a replacement; no refund
 NEEDS_HUMAN = "NEEDS_HUMAN"              # e.g. exchange but the supplier is out of stock: offer a refund?
+NEEDS_SAFETY = SAFETY_STATUS             # v3.2 Safety Gate: a person reviews a possible hazard/injury; no refund/supplier path
 
 
 class RefundNotAllowed(Exception):
@@ -393,16 +396,22 @@ class Workflow:
         # Step 3: AI extracts intent (language only — it does not decide money).
         extraction = self.extractor.extract(case["customer_message"])
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
+        # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
+        gate = safety_assess(case["customer_message"], product, extraction.result.reason)
         assist = extraction.assist.model_dump() if extraction.assist else None  # info only
         self.db.update_case(case_id, intent_json=json.dumps(intent),
                             assist_json=json.dumps(assist, ensure_ascii=False) if assist else None,
                             extraction_json=json.dumps({"extractor": extraction.extractor, "note": extraction.note,
                                                         "assist_note": extraction.assist_note,
                                                         "injection_guard": extraction.injection_guard,
-                                                        "llm_unavailable": extraction.llm_unavailable}))
+                                                        "llm_unavailable": extraction.llm_unavailable,
+                                                        "safety": gate.to_dict()}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
                        "assist": assist, "assist_note": extraction.assist_note})
+        if gate.flagged:
+            self._route_to_safety_review(case_id, gate, intent)
+            return
         if extraction.injection_guard:
             self.db.audit(case_id, "intent",
                           "Keyword fallback + injection detected → intent UNKNOWN, sent to a human",
@@ -533,6 +542,27 @@ class Workflow:
                           {"why": verdict.reason, **limits})
         return verdict
 
+    def _route_to_safety_review(self, case_id: str, gate, llm_intent: dict | None = None) -> None:
+        """Safety Gate hit: the case goes to a person BEFORE policy / refund / supplier. No PayPal capture lookup,
+        no supplier draft, no approve path (decision and status are neither ELIGIBLE nor PENDING_APPROVAL)."""
+        self.db.update_case(case_id, decision=NEEDS_SAFETY, status=NEEDS_SAFETY)
+        self.db.audit(case_id, "safety", f"Safety Gate: {SAFETY_LABEL} — ahead of refund and supplier tasks",
+                      {"trigger": gate.trigger, "product_class": gate.product_class, "summary": gate.summary,
+                       "signals": [x.to_dict() for x in gate.signals], "llm_reading_ignored": llm_intent,
+                       "refund_api_called": False, "supplier_contacted": False, "refund_id": None,
+                       "false_positives": "possible and accepted: routed to a person, never auto-rejected"})
+
+    def _refuse_if_safety(self, case: dict) -> None:
+        """Server-side backstop on every money entry point: re-scan the stored message and product, independent of
+        the stored decision/status (so a stale or tampered row, or a direct POST, cannot reach a refund)."""
+        if case.get("status") == NEEDS_SAFETY or case.get("decision") == NEEDS_SAFETY:
+            raise RefundNotAllowed(f"{SAFETY_LABEL}: Safety Gate case {case['id']} cannot be approved or refunded here.")
+        product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
+        reason = (case.get("intent") or {}).get("reason")
+        if safety_assess(case.get("customer_message"), product, reason).flagged:
+            raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
+                                   "approval and refund are refused.")
+
     def _evaluate(self, case: dict, product: dict, intent, capture: dict, supplier_status: str | None,
                   require_supplier: bool) -> PolicyResult:
         amount = (capture.get("amount") or {})
@@ -632,6 +662,7 @@ class Workflow:
         try:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
+                self._refuse_if_safety(case)
                 if case.get("decision") == MIXED:
                     raise RefundNotAllowed("A mixed order is approved per batch (items + exact total), not as a whole.")
                 if skip_if_approved and case["human_decision"] == "APPROVED":
@@ -726,6 +757,7 @@ class Workflow:
             self.db.audit(case_id, "human", "Human declined — Refund API not called", {"approver": approver})
 
     def _guard_refund(self, case: dict) -> None:
+        self._refuse_if_safety(case)
         if case["decision"] != "ELIGIBLE":
             raise RefundNotAllowed(f"Policy decision is {case['decision'] or 'missing'}; refund refused.")
         if case["human_decision"] != "APPROVED":
@@ -1355,7 +1387,10 @@ def _same_money(pp_amount: dict, local_value: str, local_currency: str) -> bool:
 def clean_message(message: str | None, max_chars: int) -> str:
     """Free text is data: strip control characters, collapse whitespace, hard length cap."""
     keep = "\n\t\u200c\u200d"  # ZWNJ / ZWJ are meaningful (Persian, Indic scripts, emoji sequences)
-    text = "".join(ch if (ch.isprintable() or ch in keep) else " " for ch in (message or ""))
+    # Invisible format characters (zero-width space, word joiner, BOM, soft hyphen: Unicode category Cf) are DELETED,
+    # not turned into spaces: a space would split a word ("sm\u200boke" -> "sm oke") and hide it from the Safety Gate.
+    text = "".join(ch if (ch.isprintable() or ch in keep) else ("" if unicodedata.category(ch) == "Cf" else " ")
+                   for ch in (message or ""))
     lines = (" ".join(line.split()) for line in text.strip().splitlines())
     text = "\n".join(line for line in lines if line)
     return text[:max_chars]

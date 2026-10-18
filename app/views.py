@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import json
-import re
 from datetime import datetime, timezone
 
 from .db import Database
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .presets import BY_KEY, preset_label
+from .safety import SAFETY_LABEL, SAFETY_STATUS
+from .safety import assess as assess_safety
 
 
 def fmt_ts(ts: str | None) -> str:
@@ -46,12 +47,6 @@ def _first_failed(policy: dict | None) -> dict | None:
     return next((c for c in failed if c["name"] == "no_injection_markers"), failed[0] if failed else None)
 
 
-SAFETY_WORDS = re.compile(
-    r"\b(burn(?:ed|t|s)?|injur\w*|hurt|fire|smok(?:e|ing)|poison\w*|toxic|allerg\w*|rash|danger\w*|unsafe|safety|"
-    r"chok\w*|melt\w*|explod\w*|quem[eéo]\w*|peligro\w*|herid\w*|humo|fuego|verbrann\w*|verbrenn\w*|gef[aä]hr\w*|"
-    r"verletz\w*)\b|火傷|やけど|危険|怪我|けが|受傷|危險|燒傷|燙傷", re.IGNORECASE)
-
-
 def rejection_info(case: dict) -> dict | None:
     """DISPLAY label for a REJECTED case. It reads the stored policy checks and the message; it never changes
     the decision, the status or what can be approved (REJECTED has no approve button in either label).
@@ -69,7 +64,7 @@ def rejection_info(case: dict) -> dict | None:
         return {"kind": "injection", "label": "Rejected: instruction-like text in the message", "reason": inj["detail"]}
     sup = checks.get("request_supported")
     if sup and not sup["passed"] and "route to a human" in sup["detail"]:
-        safety = bool(SAFETY_WORDS.search(case.get("customer_message") or ""))
+        safety = assess_safety(case.get("customer_message")).flagged
         return {"kind": "safety" if safety else "human_review",
                 "label": "Needs human safety review" if safety else "Needs human review",
                 "reason": sup["detail"]}
@@ -138,7 +133,14 @@ STEPS = [("request", "Customer request"), ("intent", "AI intent"), ("policy", "P
 def pipeline(db: Database, case: dict | None) -> list[dict]:
     """State of each step for the selected case: done / waiting / blocked / failed / skipped / todo."""
     st = {k: ("todo", "") for k, _ in STEPS}
-    if case and case["status"] != "NEW" and case.get("scenario") == "M":
+    if case and case["status"] == SAFETY_STATUS:
+        st["request"] = ("done", f"paid ${case['amount']} · message received")
+        st["intent"] = ("blocked", "ignored — Safety Gate ran first")
+        st["policy"] = ("blocked", "not run — Safety Gate (code) routed it to a person")
+        st["supplier"] = ("skipped", "not contacted")
+        st["human"] = ("waiting", f"{SAFETY_LABEL} — no approve button")
+        st["paypal"] = ("blocked", f"Refund API NOT CALLED · {_refund_api_calls(db, case['id'])} calls")
+    elif case and case["status"] != "NEW" and case.get("scenario") == "M":
         _mixed_pipeline(db, case, st)
     elif case and case["status"] != "NEW":
         status = case["status"]
@@ -264,6 +266,7 @@ def _refund_api_status(db: Database, case_id: str) -> str | None:
 
 # ---------------------------------------------------------------- block 1 heading
 _TITLE_BY_STATUS = {
+    SAFETY_STATUS: "Needs human safety review (no refund, no supplier task)",
     "REFUND_COMPLETED": "Result: refund completed", "EXCHANGE_ARRANGED": "Result: exchange arranged",
     "REJECTED": "Result: rejected (no refund)", "DECLINED_BY_HUMAN": "Result: declined (no refund)",
     "REFUND_FAILED": "Result: refund failed at PayPal", "REFUND_ERROR": "Result: refund failed (no money moved)",
@@ -316,6 +319,18 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                                    .get(webhook or "", "waiting…" if webhook_configured else
                                         "not configured (PAYPAL_WEBHOOK_ID)"), webhook == "VERIFIED")],
                 "await_webhook": webhook_configured and not webhook}
+    if status == SAFETY_STATUS:
+        gate = (case.get("extraction") or {}).get("safety") or {}
+        seen = ", ".join(dict.fromkeys(f"{x.get('kind')}: “{x.get('match')}”" for x in gate.get("signals", [])))
+        return {**base, "kind": "bad", "icon": "⚠", "title": SAFETY_LABEL,
+                "subtitle": "Safety Gate: the message reports a possible hazard or injury, or a fault on a product "
+                            "class that can hurt people. A person reviews it before anything else: there is no "
+                            "approve button, Refund API NOT CALLED, and no supplier task was created. "
+                            "A false alarm costs a human look, never an automatic rejection.",
+                "reason": gate.get("trigger", "").replace("_", " ") + (f" — {seen}" if seen else ""),
+                "rows": [("Decision", SAFETY_STATUS), ("Product class", gate.get("product_class") or "NONE"),
+                         ("Refund API calls", str(calls)), ("Refund ID", "none"), ("Supplier", "not contacted"),
+                         ("PayPal Order ID", case.get("order_id") or "—")]}
     if status == "REJECTED":
         failed = _first_failed(case.get("policy"))
         rej = rejection_info(case)

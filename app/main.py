@@ -121,7 +121,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                      "audit trail (it no longer appears in the case list).")
         pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR,
                                                        REFUND_UNKNOWN, REFUND_FAILED, "ERROR",
-                                                       "NEEDS_HUMAN", *MIXED_ATTENTION_STATUSES)
+                                                       "NEEDS_HUMAN", "NEEDS_HUMAN_SAFETY_REVIEW", *MIXED_ATTENTION_STATUSES)
                    and (not current or c["id"] != current["id"])]
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)

@@ -9,7 +9,8 @@ from app import lineitems as li
 from app.intent import UNKNOWN_RESULT
 from app.paypal_mock import MockPayPalClient
 from app.security import CSP
-from app.views import SAFETY_WORDS, evidence_summary, paypal_proves, rejection_info, section_title
+from app.safety import assess
+from app.views import evidence_summary, paypal_proves, rejection_info, section_title
 from tests.helpers import SIG_OK, FakeExtractor, case_from, make_app, refund_event
 
 STATIC = Path(__file__).resolve().parents[1] / "app" / "static"
@@ -217,16 +218,23 @@ def test_injection_is_the_shown_rejection_reason_and_never_reaches_approval(sett
 SAFETY_MSG = "La suela se derritió con el calor y me quemé el pie. Es peligroso, otros clientes pueden sufrir lo mismo."
 
 
-def test_safety_complaint_gets_human_safety_review_label_with_decision_unchanged(settings):
+def test_safety_complaint_gets_human_safety_review_state_from_the_gate(settings):
+    """v3.2: the Safety Gate (code) decides before policy; the model's UNKNOWN reading is irrelevant."""
     client, wf, cid, html = reject_case(settings, SAFETY_MSG, UNKNOWN_RESULT.model_dump())
     case = wf.db.get_case(cid)
-    assert case["status"] == "REJECTED" and case["decision"] == "REJECTED"  # policy semantics unchanged
-    assert rejection_info(case)["kind"] == "safety"
+    assert case["status"] == case["decision"] == "NEEDS_HUMAN_SAFETY_REVIEW"
     assert "Needs human safety review" in html and "no approve button" in html
     pend = html.split('id="try"')[0].split('id="pending"')[1]
     assert "/approve" not in pend and "Approve" not in pend
     assert not wf.db.paypal_calls(cid, "refund_capture")
     assert "Refund API NOT CALLED" in html
+
+
+def test_legacy_rejected_safety_label_still_displays_for_a_rejected_case():
+    """rejection_info keeps labelling a REJECTED 'route to a human' case with harm words (display only)."""
+    case = {"status": "REJECTED", "decision": "REJECTED", "customer_message": SAFETY_MSG,
+            "policy": {"checks": [{"name": "request_supported", "passed": False, "detail": "x — route to a human"}]}}
+    assert rejection_info(case)["kind"] == "safety"
 
 
 def test_unsupported_non_safety_request_is_plain_human_review(settings):
@@ -249,5 +257,5 @@ def test_ordinary_policy_rejection_keeps_its_old_wording(settings):
     (SAFETY_MSG, True), ("The shoe caught fire and burned me", True), ("Es gefährlich und hat mich verletzt", True),
     ("靴で火傷しました", True), ("The sneakers are black, the photo shows white", False),
     ("Quiero devolverlas, me quedan pequeñas", False), ("I'd like to return these, wrong colour", False)])
-def test_safety_words_are_display_only_heuristic(text, hit):
-    assert bool(SAFETY_WORDS.search(text)) is hit
+def test_safety_gate_flags_footwear_harm_language_only(text, hit):
+    assert assess(text).flagged is hit

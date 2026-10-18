@@ -23,7 +23,7 @@ def test_routing_outcomes():
     q = by_key()
     assert q["q-en"]["outcome"] == "REFUND_APPROVAL" and q["q-ja2"]["outcome"] == "REFUND_APPROVAL"
     assert q["q-zh"]["outcome"] == "EXCHANGE_SUPPLIER"
-    assert q["q-es"]["outcome"] == "HUMAN_REVIEW"          # safety complaint: not automatable
+    assert q["q-es"]["outcome"] == "SAFETY_REVIEW"         # v3.2 Safety Gate: burn/melt language -> human safety review
     assert q["q-de"]["outcome"] == "REJECTED_INJECTION"
     assert q["q-ja"]["outcome"] == "NEEDS_HUMAN"           # unreadable
     assert q["q-fr"]["outcome"] == "REJECTED_POLICY" and q["q-en2"]["outcome"] == "REJECTED_POLICY"
@@ -60,7 +60,7 @@ def test_page_renders_badged_mobile_friendly_and_actionless(settings):
     assert html.count("DEMO DATA") >= 9  # page title badge + banner + one per card
     for text in ("English", "Chinese (Traditional)", "Spanish", "German", "Japanese", "French"):
         assert text in html
-    assert "Return → approval → refund" in html and "Exchange → supplier" in html and "Human review" in html
+    assert "Return → approval → refund" in html and "Exchange → supplier" in html and "Needs human safety review" in html
     assert "Rejected — instruction-like text" in html and "Needs a human" in html
     assert "<form" not in html.split('<main>')[1]  # the page has no action buttons at all
     assert len(wf.db.list_cases()) == cases_before  # nothing seeded into the cases table
@@ -101,7 +101,7 @@ def test_page_escapes_everything_and_has_no_inline_styles_or_scripts(settings):
 def test_every_seed_outcome_is_pinned_exactly():
     """All 8 cases, expected outcome AND decision, so any policy drift is caught here."""
     expected = {"q-en": ("REFUND_APPROVAL", "ELIGIBLE"), "q-zh": ("EXCHANGE_SUPPLIER", "ELIGIBLE"),
-                "q-es": ("HUMAN_REVIEW", "REJECTED"), "q-de": ("REJECTED_INJECTION", "REJECTED"),
+                "q-es": ("SAFETY_REVIEW", "NEEDS_HUMAN_SAFETY_REVIEW"), "q-de": ("REJECTED_INJECTION", "REJECTED"),
                 "q-ja": ("NEEDS_HUMAN", "NEEDS_HUMAN"), "q-fr": ("REJECTED_POLICY", "REJECTED"),
                 "q-ja2": ("REFUND_APPROVAL", "ELIGIBLE"), "q-en2": ("REJECTED_POLICY", "REJECTED")}
     got = {k: (v["outcome"], v["decision"]) for k, v in by_key().items()}

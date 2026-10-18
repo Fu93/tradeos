@@ -8,11 +8,11 @@
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
                  "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
                  "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "MIXED_PENDING_APPROVAL": "warn", "MIXED_REFUND_PENDING": "warn",
-                 "MIXED_NEEDS_HUMAN": "warn", "MIXED_ATTENTION": "bad", "MIXED_OUTCOME_UNKNOWN": "warn", "MIXED_DONE": "ok", "NEEDS_HUMAN": "warn", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
+                 "MIXED_NEEDS_HUMAN": "warn", "MIXED_ATTENTION": "bad", "MIXED_OUTCOME_UNKNOWN": "warn", "MIXED_DONE": "ok", "NEEDS_HUMAN": "warn", "NEEDS_HUMAN_SAFETY_REVIEW": "bad", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
   {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_FAILED", "REFUND_ERROR",
                                "REFUND_OUTCOME_UNKNOWN", "EXCHANGE_ARRANGED") -%}
   {%- set prefix = {"auto": "AUTO · ", "human": "HUMAN · "}.get(case.approval_source, "") if handled else "" -%}
-  <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ status | replace('_', ' ') }}</span>
+  <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ 'Needs human safety review' if status == 'NEEDS_HUMAN_SAFETY_REVIEW' else status | replace('_', ' ') }}</span>
 {%- endmacro %}
 {% block content %}
 
@@ -81,7 +81,7 @@
         <div class="rc-head"><span class="rc-icon">{{ result.icon }}</span>
           <div><div class="rc-title">{{ result.title }}</div><div class="rc-sub">{{ result.subtitle }}</div></div></div>
         {% if result.await_webhook %}<p id="webhook-note" class="muted small" hidden></p>{% endif %}
-        {% if result.reason %}<div class="rc-reason"><span class="muted">{{ 'Policy reason' if current.status == 'REJECTED' else 'PayPal said' }}:</span> {{ result.reason }}</div>{% endif %}
+        {% if result.reason %}<div class="rc-reason"><span class="muted">{{ 'Policy reason' if current.status == 'REJECTED' else ('Safety Gate' if current.status == 'NEEDS_HUMAN_SAFETY_REVIEW' else 'PayPal said') }}:</span> {{ result.reason }}</div>{% endif %}
         {% if result.rows %}
           <dl class="rc-grid">
             {% for k, v in result.rows %}<div><dt>{{ k }}</dt><dd>{{ v }}</dd></div>{% endfor %}
