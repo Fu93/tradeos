@@ -13,6 +13,12 @@ with autonomy OFF the case must wait for a person and make no refund call until 
 ON the same case must already be REFUND_COMPLETED with no approve call, approval_source=auto on the hash
 chain, and a page that credits the merchant's policy rather than a human. Exit code 0 = all checks passed.
 
+Optional extra (opt-in, NOT part of the default 31 checks): ``--mixed`` appends the mixed-order partial-refund check,
+which does ONE real Sandbox partial refund (a 4-line order: 3 returned, 1 exchanged) and confirms the amount PayPal
+reports equals the amount the code computed, with the PayPal-Debug-Id captured. ``--mixed-only`` runs just that check.
+Against a local app on PAYPAL_MOCK=1 add ``--allow-mock``: the same assertions run against the mock and are labelled
+"MOCK - not live proof" (no real PayPal-Debug-Id, no signed webhook). Live runs happen only after deploy.
+
 Autonomy is experimental and must be OFF on the hosted demo, so the run FAILS if /healthz reports
 auto_enabled or auto_exchange_enabled true, unless --allow-autonomy (or ALLOW_AUTONOMY=1) is given, which is
 meant for local runs of the opt-in path only. deploy-verify never passes it.
@@ -26,7 +32,71 @@ import time
 import httpx
 
 
-def main(base: str, allow_autonomy: bool = False) -> int:
+def mixed_checks(c: httpx.Client, check, allow_mock: bool = False) -> None:
+    """Mixed order, ONE partial refund: PayPal-reported amount must equal the computed amount (PayPal proves)."""
+    tag = " [MOCK - not live proof]" if allow_mock else ""
+
+    def api(case_id: str) -> dict:
+        return c.get(f"/api/cases/{case_id}").json()
+
+    r = c.post("/demo/run/M")
+    if r.status_code != 303:
+        check(False, f"POST /demo/run/M -> {r.status_code} (expected 303): {r.text[:200]}")
+        return
+    cid = r.headers["location"].split("case=")[1]
+    d = api(cid)
+    mixed, batches = d["mixed"], d["mixed"]["batches"]
+    res = sorted(i["resolution"] for i in mixed["items"])
+    check(res == ["EXCHANGE", "REFUND", "REFUND", "REFUND"], f"Mixed {cid}: 3 items resolved REFUND, 1 EXCHANGE ({res})")
+    check(len(batches) == 1 and batches[0]["status"] == "PROPOSED" and batches[0]["amount_minor"] > 0,
+          f"Mixed {cid}: one batch awaits approval (computed {batches[0]['amount_minor'] if batches else None} minor units)")
+    check(not [x for x in d["paypal_calls"] if x["operation"] == "refund_capture"], "Mixed: no refund call before a person approves")
+    b = batches[0]
+    cur = b["currency"]
+    value = f"{b['amount_minor'] // 100}.{b['amount_minor'] % 100:02d}"  # the demo order is two-decimal (USD)
+    check(c.post(f"/cases/{cid}/approve").status_code == 409, "Mixed: whole-case Approve refused (approval is per batch)")
+    stale = c.post(f"/cases/{cid}/batches/{b['id']}/approve", data={"expected_total": "0.01", "expected_hash": b["items_hash"]})
+    check(stale.status_code == 409 and not [x for x in api(cid)["paypal_calls"] if x["operation"] == "refund_capture"],
+          "Mixed: approval carrying a different total than the screen is refused, no refund call")
+    ok = c.post(f"/cases/{cid}/batches/{b['id']}/approve", data={"expected_total": value, "expected_hash": b["items_hash"]})
+    check(ok.status_code == 303, f"Mixed: batch approved by a person with the exact total {value} {cur}")
+    d = api(cid)
+    nb = d["mixed"]["batches"][0]
+    calls = [x for x in d["paypal_calls"] if x["operation"] == "refund_capture"]
+    check(len(calls) == 1 and calls[0]["request_id"] == nb["request_id"] and str(nb["request_id"]).startswith("tos-mx-")
+          and len(nb["request_id"]) <= 38, f"Mixed: exactly one refund call, deterministic PayPal-Request-Id {nb['request_id']}")
+    dbg = calls[0].get("debug_id") if calls else None
+    check(bool(dbg) and (allow_mock or not str(dbg).startswith("mock")), f"Mixed: PayPal-Debug-Id captured on the refund call: {dbg}{tag}")
+    check(nb["status"] in ("COMPLETED", "PENDING") and nb["paypal_amount"] == f"{value} {cur}",
+          f"Mixed: PayPal-reported amount {nb['paypal_amount']} equals computed {value} {cur} (batch {nb['status']}){tag}")
+    check(c.post(f"/cases/{cid}/batches/{b['id']}/approve", data={"expected_total": value, "expected_hash": b["items_hash"]}).status_code == 409
+          and len([x for x in api(cid)["paypal_calls"] if x["operation"] == "refund_capture"]) == 1,
+          "Mixed: second approval of the same batch -> 409, still one refund call")
+    led = d["mixed"]["ledger"]
+    check(led["committed_minor"] == b["amount_minor"] and led["remaining_minor"] == led["captured_minor"] - b["amount_minor"],
+          f"Mixed: ledger refunded {led['committed_minor']} + remaining {led['remaining_minor']} == captured {led['captured_minor']}")
+    check(c.post(f"/cases/{cid}/refund").status_code == 409, "Mixed: legacy single-refund endpoint refused (409)")
+    if allow_mock:
+        print("SKIP signed-webhook check (mock mode: PayPal sends nothing)")
+    else:
+        status = None
+        for _ in range(18):
+            status = api(cid)["case"].get("webhook_status")
+            if status == "VERIFIED":
+                break
+            time.sleep(5)
+        check(status == "VERIFIED", f"Mixed: signed PAYMENT.CAPTURE.REFUNDED matched the batch refund id (webhook_status={status})")
+    c.post(f"/cases/{cid}/refresh-refund")
+    tl = api(cid)["timeline"]
+    rec = [e for e in tl if e["stage"] == "reconcile"]
+    check(bool(rec) and rec[-1]["title"].startswith("Reconciled with PayPal"), f"Mixed: reconcile result: {rec[-1]['title'] if rec else 'none'}")
+    chain = c.get(f"/cases/{cid}/audit/verify").json()
+    check(chain.get("ok") is True, f"Mixed: audit trail intact: {chain.get('entries')} entries")
+    print(f"Manual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
+
+
+def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_only: bool = False,
+         allow_mock: bool = False) -> int:
     allow_autonomy = allow_autonomy or os.environ.get("ALLOW_AUTONOMY") == "1"
     c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False)
     fails: list[str] = []
@@ -35,6 +105,14 @@ def main(base: str, allow_autonomy: bool = False) -> int:
         print(("PASS " if ok else "FAIL ") + label)
         if not ok:
             fails.append(label)
+
+    if mixed_only:
+        health = c.get("/healthz").json()
+        check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
+              f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
+        mixed_checks(c, check, allow_mock)
+        print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
+        return 0 if not fails else 1
 
     health = c.get("/healthz").json()
     check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
@@ -182,13 +260,18 @@ def main(base: str, allow_autonomy: bool = False) -> int:
           and {x["request_id"] for x in rcalls} == {f"tradeos-refund-{case_r}"},
           f"Case R retry COMPLETED with the same PayPal-Request-Id ({len(rcalls)} calls)")
 
+    if mixed:
+        mixed_checks(c, check, allow_mock)
+
     print(f"\nManual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
     print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
     return 0 if not fails else 1
 
 
 if __name__ == "__main__":
-    args = [a for a in sys.argv[1:] if a != "--allow-autonomy"]
+    flags = ("--allow-autonomy", "--mixed", "--mixed-only", "--allow-mock")
+    args = [a for a in sys.argv[1:] if a not in flags]
     if len(args) != 1:
         raise SystemExit(__doc__)
-    sys.exit(main(args[0], allow_autonomy="--allow-autonomy" in sys.argv[1:]))
+    sys.exit(main(args[0], allow_autonomy="--allow-autonomy" in sys.argv[1:], mixed="--mixed" in sys.argv[1:],
+                  mixed_only="--mixed-only" in sys.argv[1:], allow_mock="--allow-mock" in sys.argv[1:]))

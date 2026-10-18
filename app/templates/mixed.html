@@ -1,0 +1,70 @@
+{# Mixed order (several line items). Every price here is formatted from integer minor units computed by code;
+   nothing on this screen comes from the AI. #}
+<article class="result-card warn mixed" id="mixed">
+  <div class="rc-head"><span class="rc-icon">🧾</span>
+    <div><div class="rc-title">Mixed order — {{ mixed.lines | length }} line items <span class="chip neutral">{{ mixed.demo_badge }}</span></div>
+      <div class="rc-sub">Each line is resolved on its own by policy code. You approve one batch and see the exact total first. PayPal Sandbox only: no real money.</div></div></div>
+
+  <div class="mx-table" role="table" aria-label="Per-item decisions">
+    <div class="mx-row mx-head" role="row"><span>#</span><span>Item</span><span>Decision</span><span class="mx-num">Refund (item + tax + shipping)</span></div>
+    {% for l in mixed.lines %}
+    <div class="mx-row" role="row">
+      <span class="mx-n">{{ l.line_no }}</span>
+      <span class="mx-item"><strong>{{ l.name }}</strong><br><span class="muted small">{{ l.qty }} × {{ l.unit }} + tax {{ l.tax_unit }} each · reason {{ l.reason | replace('_', ' ') | lower }}</span></span>
+      <span class="mx-dec"><span class="chip {{ {'REFUND': 'ok', 'EXCHANGE': 'warn', 'REJECT': 'bad', 'NEEDS_HUMAN': 'warn'}.get(l.resolution, 'neutral') }}">{{ l.resolution | replace('_', ' ') }}</span>
+        <span class="muted small">{{ l.detail }}{% if l.state %} · {{ l.state }}{% endif %}</span></span>
+      <span class="mx-num mx-amt">{% if l.refund_total %}{{ l.refund_total }}<br><span class="muted small">{{ l.refund_item }} + {{ l.refund_tax }} + {{ l.refund_ship }}</span>{% else %}<span class="muted">—</span>{% endif %}</span>
+    </div>
+    {% if l.needs_human %}
+    <form method="post" action="/cases/{{ mixed.case_id }}/lines/{{ l.line_no }}/resolve" class="js-busy mx-resolve">
+      <label class="small">Line {{ l.line_no }} needs a person: propose
+        <select name="action"><option value="RETURN">return for a refund</option><option value="EXCHANGE">exchange</option><option value="REJECT">reject</option></select></label>
+      <label class="small">reason
+        <select name="reason">{% for r in ['SIZE_MISMATCH','DAMAGED','WRONG_ITEM','NOT_AS_DESCRIBED','CHANGED_MIND'] %}<option value="{{ r }}">{{ r | replace('_', ' ') | lower }}</option>{% endfor %}</select></label>
+      <button class="btn small">Propose (rules still decide the amount)</button>
+    </form>
+    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% if mixed.approval %}
+  {% set a = mixed.approval %}
+  <div class="mx-approve">
+    <div class="mx-sum" id="mixed-summary">{{ a.summary }}</div>
+    <dl class="rc-grid">
+      <div><dt>Items refunded</dt><dd>{{ a.items_total }}</dd></div>
+      <div><dt>Tax refunded (each item's own tax)</dt><dd>{{ a.tax }}</dd></div>
+      <div><dt>Shipping refunded ({{ mixed.shipping_policy | replace('_', ' ') | lower }})</dt><dd>{{ a.shipping }}</dd></div>
+      <div><dt>Exact refund total</dt><dd><strong>{{ a.total }}</strong></dd></div>
+      <div><dt>Captured / remaining after this</dt><dd>{{ mixed.captured }} / {{ a.after }}</dd></div>
+    </dl>
+    <div class="row gap actions">
+      <form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ a.batch.id }}/approve" class="js-busy">
+        <input type="hidden" name="expected_total" value="{{ a.total_plain }}">
+        <input type="hidden" name="expected_hash" value="{{ a.hash }}">
+        <button class="btn primary">{% if a.exchange_only %}Approve exchange (no refund){% else %}Approve: {{ a.summary }}{% endif %}</button></form>
+      <form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ a.batch.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
+    </div>
+    <p class="muted small">Nothing is refunded without this approval, recorded on the audit chain together with the total and item fingerprint shown here. The amount is computed from item prices by code; the AI never sets it.</p>
+  </div>
+  {% elif mixed.can_repropose %}
+  <form method="post" action="/cases/{{ mixed.case_id }}/mixed/propose" class="js-busy actions"><button class="btn">Propose a batch for the open items</button></form>
+  {% endif %}
+
+  <h3 class="small-h">Refund ledger <span class="muted small">captured {{ mixed.captured }} · refunded or reserved {{ mixed.committed }} · still refundable {{ mixed.remaining }}</span></h3>
+  {% if mixed.batches %}
+  <ul class="mx-batches">
+    {% for b in mixed.batches %}
+    <li><strong>Batch {{ b.no }}</strong> <span class="chip {{ {'COMPLETED': 'ok', 'PENDING': 'warn', 'PROPOSED': 'warn', 'APPROVED': 'warn', 'DECLINED': 'neutral'}.get(b.status, 'bad') }}">{{ b.status | replace('_', ' ') }}</span> {{ b.summary }} · computed {{ b.amount }}
+      {% if b.refund_id %}<br><span class="muted small">Refund <code>{{ b.refund_id }}</code> ({{ b.refund_status }}) · PayPal reported {{ b.paypal_amount }}{% if b.equal %} ✓ equals computed{% elif b.equal is sameas false %} ✗ DIFFERS from computed{% endif %}{% if b.debug_id %} · PayPal-Debug-Id <code>{{ b.debug_id }}</code>{% endif %}</span>{% endif %}
+      {% if b.request_id %}<br><span class="muted small">PayPal-Request-Id <code>{{ b.request_id }}</code></span>{% endif %}
+      {% if b.error %}<br><span class="muted small">{{ b.error }}</span>{% endif %}
+      {% if b.retryable %}<form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ b.id }}/retry" class="js-busy inline"><button class="btn small">Retry (same PayPal-Request-Id)</button></form>{% endif %}
+      {% if b.declinable and not (mixed.approval and mixed.approval.batch.id == b.id) %}<form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ b.id }}/decline" class="js-busy inline"><button class="btn small ghost">Decline</button></form>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p class="muted small">No refund batch yet.</p>{% endif %}
+  {% if mixed.batches %}<form method="post" action="/cases/{{ mixed.case_id }}/refresh-refund" class="js-busy actions"><button class="btn small ghost">Check against PayPal</button></form>{% endif %}
+  <div class="seeded">Order lines, prices and the customer's message are <strong>seeded demo data</strong>. The PayPal order and capture are a real Sandbox transaction. Per-line request reading is a stand-in for the AI extractor (not built); amounts never come from it.</div>
+</article>

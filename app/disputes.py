@@ -276,7 +276,7 @@ class DisputeService:
             rec = recommend_dispute(DisputeFacts(
                 status=d["status"], reason=d["reason"], amount=_dec(d["amount"]), currency=d["currency"],
                 due=_to_date(d["due_date"]), today=today, case_matched=case is not None,
-                case_refund_status=(case or {}).get("refund_status"),
+                case_refund_status=self.wf.mixed.effective_refund_status(case) if case else None,
                 case_decision=(case or {}).get("decision"), case_amount=_dec((case or {}).get("amount"))))
             rows.append({**d, "case": case, "recommendation": rec.to_dict()})
         return rows

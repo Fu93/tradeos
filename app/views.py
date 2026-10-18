@@ -103,7 +103,9 @@ STEPS = [("request", "Customer request"), ("intent", "AI intent"), ("policy", "P
 def pipeline(db: Database, case: dict | None) -> list[dict]:
     """State of each step for the selected case: done / waiting / blocked / failed / skipped / todo."""
     st = {k: ("todo", "") for k, _ in STEPS}
-    if case and case["status"] != "NEW":
+    if case and case["status"] != "NEW" and case.get("scenario") == "M":
+        _mixed_pipeline(db, case, st)
+    elif case and case["status"] != "NEW":
         status = case["status"]
         intent = case.get("intent")
         policy = case.get("policy") or {}
@@ -174,6 +176,36 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             st["policy"] = ("failed", "PayPal lookup failed")
     return [{"key": k, "label": label, "state": st[k][0], "detail": st[k][1], "n": i + 1}
             for i, (k, label) in enumerate(STEPS)]
+
+
+def _mixed_pipeline(db: Database, case: dict, st: dict) -> None:
+    """Mixed order: per-line decisions are code, the approval is per batch, PayPal proves each partial refund."""
+    items = db.get_items(case["id"])
+    batches = db.list_batches(case["id"])
+    st["request"] = ("done", f"paid ${case['amount']} · {len(items)} line items (DEMO-DATA)")
+    if case["status"] == "ERROR" and not case.get("capture_id"):
+        st["request"] = ("failed", "PayPal order / capture failed")
+        return
+    if not any(i["resolution"] for i in items):
+        return
+    count = {k: sum(1 for i in items if i["resolution"] == k) for k in ("REFUND", "EXCHANGE", "REJECT", "NEEDS_HUMAN")}
+    st["intent"] = ("done", "per-line proposals (no amounts)")
+    st["policy"] = ("done", " · ".join(f"{n} {k.lower().replace('_', ' ')}" for k, n in count.items() if n))
+    st["supplier"] = ("done", "exchange via MOCK supplier on approval") if count["EXCHANGE"] else ("skipped", "no exchange")
+    done = [b for b in batches if b["status"] in ("COMPLETED", "PENDING", "APPROVED")]
+    pending = any(b["status"] == "PROPOSED" for b in batches)
+    st["human"] = (("waiting", "awaiting your approval of a batch") if pending else
+                   ("done", f"{len(done)} batch(es) approved by merchant") if done else ("waiting", "needs a human"))
+    money = [b for b in batches if b["refund_id"]]
+    if any(b["status"] == "UNKNOWN" for b in batches):
+        st["paypal"] = ("waiting", "partial refund outcome UNKNOWN — checking with PayPal")
+    elif any(b["status"] in ("ERROR", "AMOUNT_MISMATCH", "FAILED") for b in batches):
+        st["paypal"] = ("failed", "a partial refund needs attention")
+    elif money:
+        st["paypal"] = ("done" if all(b["refund_status"] == "COMPLETED" for b in money) else "waiting",
+                        f"{len(money)} partial refund(s) at PayPal")
+    else:
+        st["paypal"] = ("skipped", "Refund API NOT CALLED yet")
 
 
 def _refund_api_status(db: Database, case_id: str) -> str | None:

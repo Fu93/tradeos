@@ -19,6 +19,8 @@ from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
 from .economics import case_economics
 from .intent import IntentExtractor, build_extractor
+from .lineitems import MoneyError
+from .mixed import MIXED_STATUSES
 from .notes import build_note_writer
 from .paypal_client import PayPalError
 from .webhook_verify import SelfVerifyUnavailable, sanitize_payment_event, self_verify
@@ -31,6 +33,8 @@ from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_
                     preset_for, result_card, timeline_view, evidence_log, evidence_summary, paypal_proves)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
                        Workflow, clean_message)
+
+MIXED_ATTENTION_STATUSES = tuple(x for x in MIXED_STATUSES if x != "MIXED_DONE")
 
 BASE = Path(__file__).parent
 EXCHANGE_COPY = ("Only a return leads to a refund. A size exchange goes to the supplier as a replacement request "
@@ -102,7 +106,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                      "audit trail (it no longer appears in the case list).")
         pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR,
                                                        REFUND_UNKNOWN, REFUND_FAILED, "ERROR",
-                                                       "NEEDS_HUMAN")
+                                                       "NEEDS_HUMAN", *MIXED_ATTENTION_STATUSES)
                    and (not current or c["id"] != current["id"])]
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
@@ -124,6 +128,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
             "cases": cases,
             "current": current,
+            "mixed": wf.mixed.view(current["id"]) if current and current["scenario"] == "M" else None,
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
             "audit_chain": db.verify_chain(current["id"]) if current else None,
             "evidence_summary": evidence_summary(db, current, bool(settings.paypal_webhook_id)) if current else [],
@@ -198,7 +203,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(404)
         if (refused := limited(request)) is not None:
             return refused
-        case_id = wf.run_scenario(scenario)
+        try:
+            case_id = wf.run_scenario(scenario)
+        except MoneyError as exc:  # e.g. the seeded mixed order in a zero-decimal currency
+            return render_dashboard(request, flash=f"Cannot create this demo case: {exc}", status_code=422)
         return back(case_id)
 
     @app.post("/cases/free")
@@ -290,6 +298,53 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if case and case["status"] == REFUND_FAILED:
             return guarded(request, case_id, wf.retry_failed_refund)
         return guarded(request, case_id, wf.execute_refund)
+
+    # ---- mixed orders: per-batch approval (items + exact total), never a whole-case approve ----------------
+    def mixed_guarded(request: Request, case_id: str, action) -> HTMLResponse | RedirectResponse:
+        c = db.get_case(case_id)
+        if c is None or c["scenario"] != "M":
+            raise HTTPException(404, "Case not found")
+        try:
+            action()
+        except RefundNotAllowed as exc:
+            return render_dashboard(request, case_id, flash=f"Refused: {exc}", status_code=409)
+        except (CaseFinalized, ValueError) as exc:
+            return render_dashboard(request, case_id, flash=f"Refused: {exc}", status_code=409)
+        except PayPalError:
+            pass  # recorded on the batch and shown in the UI
+        return back(case_id)
+
+    @app.post("/cases/{case_id}/batches/{batch_id}/approve")
+    def approve_batch(request: Request, case_id: str, batch_id: str, expected_total: str = Form(""),
+                      expected_hash: str = Form("")):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.approve_batch(
+            case_id, batch_id, expected_total or None, expected_hash or None))
+
+    @app.post("/cases/{case_id}/batches/{batch_id}/decline")
+    def decline_batch(request: Request, case_id: str, batch_id: str):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.decline_batch(case_id, batch_id))
+
+    @app.post("/cases/{case_id}/batches/{batch_id}/retry")
+    def retry_batch(request: Request, case_id: str, batch_id: str):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.retry_batch(case_id, batch_id))
+
+    @app.post("/cases/{case_id}/lines/{line_no}/resolve")
+    def resolve_line(request: Request, case_id: str, line_no: int, action: str = Form(""), reason: str = Form("UNKNOWN")):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.resolve_line(case_id, line_no, action, reason))
+
+    @app.post("/cases/{case_id}/mixed/propose")
+    def repropose(request: Request, case_id: str):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.repropose(case_id))
 
     @app.post("/cases/{case_id}/retry-policy")
     def retry_policy(request: Request, case_id: str):
@@ -468,8 +523,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             raise HTTPException(404)
         for k in [k for k in case if k.endswith("_json")]:
             case.pop(k, None)
-        return JSONResponse({"case": case, "timeline": db.timeline(case_id),
-                             "paypal_calls": db.paypal_calls(case_id)})
+        out = {"case": case, "timeline": db.timeline(case_id), "paypal_calls": db.paypal_calls(case_id)}
+        if case.get("scenario") == "M":
+            out["mixed"] = wf.mixed.api(case_id)
+        return JSONResponse(out)
 
     return app
 

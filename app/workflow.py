@@ -24,6 +24,7 @@ from .autonomy import decide_detailed
 from .config import Settings
 from .db import CaseFinalized, Database, next_seq
 from .disputes import DisputeService
+from .mixed import MIXED, MixedOrders
 from .intent import AssistFields, IntentExtractor
 from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
@@ -64,9 +65,11 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     # Mock-only demo: same loop as A, but the (mock) PayPal refund starts PENDING (ECHECK) and completes
     # ~20 s later, so PENDING -> COMPLETED via reconcile or a signed webhook can be shown on screen.
     "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
+    # Mixed order (DEMO-DATA line items, real Sandbox order + capture): per-line resolution, partial refund.
+    "M": {"customer_name": "Priya (demo customer)", "seeded_days_ago": None, "label": "Case M — mixed order (DEMO-DATA)"},
 }
 MAX_TRACKED_CASES = 500  # cap for per-case reconcile/throttle maps (locks are never evicted, see _lock)
-RUNNABLE = ("A", "B", "R", "D", "P")
+RUNNABLE = ("A", "B", "R", "D", "P", "M")
 MOCK_ONLY = ("P",)
 
 # Case statuses
@@ -113,6 +116,13 @@ class Workflow:
         self._pending_recovery_requests: set[str] = set()
         # UTC, to match PayPal timestamps.
         self.today = today or (lambda: datetime.now(timezone.utc).date())
+
+    @property
+    def mixed(self) -> MixedOrders:
+        """Mixed orders (several line items, per-line resolution, partial refunds)."""
+        if getattr(self, "_mixed", None) is None:
+            self._mixed = MixedOrders(self)
+        return self._mixed
 
     @property
     def disputes(self) -> DisputeService:
@@ -171,6 +181,8 @@ class Workflow:
                  days_ago: int | None = None) -> str:
         if scenario not in SCENARIOS:
             raise ValueError("unknown scenario")
+        if scenario == "M":
+            return self.mixed.create_case(message=message, label=label)
         spec = SCENARIOS[scenario]
         seeded = None
         if spec["seeded_days_ago"] and days_ago is None:
@@ -300,7 +312,9 @@ class Workflow:
                 self._running.discard(case_id)
 
     def _process(self, case_id: str) -> None:
-        self._case(case_id)  # raises CaseNotFound for an unknown id
+        if self._case(case_id)["scenario"] == "M":  # raises CaseNotFound for an unknown id
+            self.mixed.process(case_id)
+            return
         s = self.settings
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
@@ -618,6 +632,8 @@ class Workflow:
         try:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
+                if case.get("decision") == MIXED:
+                    raise RefundNotAllowed("A mixed order is approved per batch (items + exact total), not as a whole.")
                 if skip_if_approved and case["human_decision"] == "APPROVED":
                     self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — this case was already approved, "
                                   "nothing left to do",
@@ -703,7 +719,7 @@ class Workflow:
     def decline(self, case_id: str, approver: str = "merchant") -> None:
         with self._lock(case_id):
             case = self._case(case_id)
-            if case["status"] != PENDING_APPROVAL:
+            if case["status"] != PENDING_APPROVAL or case.get("decision") == MIXED:
                 raise RefundNotAllowed(f"Case {case_id} is not awaiting approval.")
             self.db.update_case(case_id, human_decision="DECLINED", human_at=self._now(),
                                 approval_source=HUMAN, status=DECLINED)
@@ -915,6 +931,7 @@ class Workflow:
         for case in self.db.list_cases(include_archived=True):
             if case.get("refund_status") == "PENDING" or case["status"] == REFUND_UNKNOWN:
                 n += self.auto_reconcile(case["id"], background=self.settings.reconcile_in_background)
+        n += self.mixed.resume()  # mixed orders: batches still PENDING / UNKNOWN
         return n
 
     def retry_policy_check(self, case_id: str) -> None:
@@ -968,6 +985,8 @@ class Workflow:
         case = self._case(case_id)
         if not case.get("capture_id"):
             return None
+        if case.get("decision") == MIXED:
+            return self.mixed.reconcile(case_id, RECONCILE_READ_TIMEOUT if timeout is None else timeout)
         timeout = RECONCILE_READ_TIMEOUT if timeout is None else timeout
         refund_id = case.get("refund_id")
         try:
@@ -1039,8 +1058,13 @@ class Workflow:
         per case per RECONCILE_MIN_INTERVAL seconds, in a background thread with short read timeouts
         so neither the page nor a webhook ever waits on PayPal. Everything else is button-only."""
         case = self.db.get_case(case_id)
-        if (not case or self.paypal_mode == "unconfigured"
-                or not (case.get("refund_status") == "PENDING" or case["status"] == REFUND_UNKNOWN)):
+        if not case or self.paypal_mode == "unconfigured":
+            return False
+        if case.get("decision") == MIXED:
+            pending = any(b["status"] in ("PENDING", "UNKNOWN") for b in self.db.list_batches(case_id))
+        else:
+            pending = case.get("refund_status") == "PENDING" or case["status"] == REFUND_UNKNOWN
+        if not pending:
             return False
         now = time.monotonic()
         with self._locks_guard:
@@ -1138,7 +1162,10 @@ class Workflow:
                                              transmission_time, log, info)
         if case_id in self._pending_recovery_requests:
             self._pending_recovery_requests.discard(case_id)
-            self.recover_unknown_refund(case_id, "verified PayPal webhook")
+            if (self.db.get_case(case_id) or {}).get("decision") == MIXED:
+                self.mixed.recover_unknown(case_id, "verified PayPal webhook")
+            else:
+                self.recover_unknown_refund(case_id, "verified PayPal webhook")
         return result
 
     def _record_webhook_locked(self, case_id, etype, resource, event_id, verified, age, transmission_time,
@@ -1195,6 +1222,8 @@ class Workflow:
 
     @staticmethod
     def _webhook_would_change_state(case: dict, etype: str, resource: dict) -> bool:
+        if case.get("decision") == MIXED:  # per-batch state lives in case_batches; reconcile() decides from PayPal's GET
+            return etype not in CAPTURE_WARNING_EVENTS and resource.get("status") in ("COMPLETED", "PENDING", "FAILED")
         return (etype not in CAPTURE_WARNING_EVENTS and case.get("refund_status") == "PENDING"
                 and case.get("refund_id") == resource.get("id")
                 and resource.get("status") in ("COMPLETED", "PENDING", "FAILED"))
@@ -1208,6 +1237,8 @@ class Workflow:
             return ("WARNING_NEEDS_HUMAN",
                     f"Verified PayPal webhook {etype}: {resource.get('id')} is {res_status} — "
                     "needs a human (no automatic change)")
+        if case.get("decision") == MIXED:
+            return self.mixed.apply_webhook(case, etype, resource, info)
         if (case["status"] == REFUND_UNKNOWN and not case.get("refund_id")
                 and etype in ("PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING")):
             # Matched via the refund's "up" link to this case's own capture. The payload is not applied;

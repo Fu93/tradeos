@@ -66,7 +66,8 @@ CREATE TABLE IF NOT EXISTS cases (
     error TEXT,
     refund_request_id TEXT,             -- PayPal-Request-Id of the current refund attempt (idempotency key)
     completed_via TEXT,                 -- refund_api / webhook / reconcile / recovery: who confirmed COMPLETED
-    archived_at TEXT                    -- demo reset archives cases (never DROPs them)
+    archived_at TEXT,                   -- demo reset archives cases (never DROPs them)
+    shipping_minor TEXT                 -- mixed orders: shipping in minor units (the order lines carry the rest)
 );
 
 CREATE TABLE IF NOT EXISTS audit_events (
@@ -133,6 +134,52 @@ CREATE TABLE IF NOT EXISTS disputes (
     updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_disputes_case ON disputes(case_id);
+
+-- Mixed orders (scenario M): one row per order line, and one row per refund/exchange BATCH. A batch is one PayPal
+-- partial refund (or an exchange-only approval) computed by code from the line prices (integer minor units).
+-- Every state change of either is also written to the case's hash chain via audit(); these rows are the queryable
+-- view, the chain is the evidence. Nothing here is read by the legacy single-refund path.
+CREATE TABLE IF NOT EXISTS case_items (
+    case_id TEXT NOT NULL REFERENCES cases(id),
+    line_no INTEGER NOT NULL,
+    sku TEXT NOT NULL,
+    name TEXT NOT NULL,
+    unit_minor INTEGER NOT NULL,
+    qty INTEGER NOT NULL,
+    tax_unit_minor INTEGER NOT NULL DEFAULT 0,
+    returnable INTEGER NOT NULL DEFAULT 1,
+    proposal_json TEXT,                 -- what the AI / a human PROPOSED (action, reason, qty; never an amount)
+    resolution TEXT,                    -- REFUND / EXCHANGE / REJECT / NEEDS_HUMAN (decided by code)
+    resolution_qty INTEGER,
+    resolution_detail TEXT,
+    PRIMARY KEY (case_id, line_no)
+);
+CREATE TABLE IF NOT EXISTS case_batches (
+    id TEXT PRIMARY KEY,                -- <case id>-B<n>
+    case_id TEXT NOT NULL REFERENCES cases(id),
+    batch_no INTEGER NOT NULL,
+    attempt INTEGER NOT NULL DEFAULT 0,
+    items_hash TEXT NOT NULL,
+    status TEXT NOT NULL,               -- PROPOSED / APPROVED / COMPLETED / PENDING / FAILED / ERROR / UNKNOWN / DECLINED / AMOUNT_MISMATCH
+    amount_minor INTEGER NOT NULL,
+    currency TEXT NOT NULL,
+    request_id TEXT,
+    quote_json TEXT NOT NULL,
+    summary TEXT,
+    approved_by TEXT,
+    approved_at TEXT,
+    refund_id TEXT,
+    refund_status TEXT,
+    refund_json TEXT,
+    paypal_amount TEXT,                 -- amount PayPal reported for the refund (PayPal proves)
+    debug_id TEXT,                      -- PayPal-Debug-Id of the refund call
+    error TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE (case_id, batch_no)
+);
+CREATE INDEX IF NOT EXISTS idx_case_batches_case ON case_batches(case_id);
+CREATE INDEX IF NOT EXISTS idx_case_batches_refund ON case_batches(refund_id);
 
 -- Secondary lookups: find_case_by (every webhook delivery), timeline, paypal_calls, webhook_events
 -- and verify_chain's coverage check would otherwise scan the whole table on every call.
@@ -223,7 +270,7 @@ class Database:
             have = {r[1] for r in conn.execute("PRAGMA table_info(cases)")}
             for col in ("label", "assist_json", "extraction_json", "note_json", "refund_fault", "duplicate_json",
                         "webhook_status", "webhook_json", "payer_note_json", "refund_request_id", "completed_via",
-                        "archived_at", "approval_source"):
+                        "archived_at", "approval_source", "shipping_minor"):
                 if col not in have:
                     conn.execute(f"ALTER TABLE cases ADD COLUMN {col} TEXT")
             have = {r[1] for r in conn.execute("PRAGMA table_info(paypal_calls)")}
@@ -371,7 +418,64 @@ class Database:
             raise ValueError(column)
         with self.connect() as conn:
             row = conn.execute(f"SELECT * FROM cases WHERE {column}=?", (value,)).fetchone()
+            if row is None and column == "refund_id":
+                # A mixed order has several refunds (one per batch); the webhook still matches by PayPal's refund id.
+                row = conn.execute("SELECT c.* FROM cases c JOIN case_batches b ON b.case_id = c.id "
+                                   "WHERE b.refund_id=?", (value,)).fetchone()
         return _decode_case(row) if row else None
+
+
+    # -- mixed orders (line items + refund batches) ----------------------------------------
+    def insert_items(self, case_id: str, rows: list[dict]) -> None:
+        with _chain_lock, self.connect() as conn:
+            for r in rows:
+                conn.execute("INSERT INTO case_items (case_id, line_no, sku, name, unit_minor, qty, tax_unit_minor, "
+                             "returnable) VALUES (?,?,?,?,?,?,?,?)",
+                             (case_id, r["line_no"], r["sku"], r["name"], r["unit_minor"], r["qty"],
+                              r["tax_unit_minor"], int(r["returnable"])))
+
+    def get_items(self, case_id: str) -> list[dict]:
+        rows = self._rows("SELECT * FROM case_items WHERE case_id=? ORDER BY line_no", (case_id,))
+        for r in rows:
+            r["returnable"] = bool(r["returnable"])
+            r["proposal"] = json.loads(r["proposal_json"]) if r.get("proposal_json") else None
+        return rows
+
+    def update_item(self, case_id: str, line_no: int, **fields: Any) -> None:
+        sets = ",".join(f"{k}=?" for k in fields)
+        with _chain_lock, self.connect() as conn:
+            conn.execute(f"UPDATE case_items SET {sets} WHERE case_id=? AND line_no=?", (*fields.values(), case_id, line_no))
+
+    def insert_batch(self, **fields: Any) -> None:
+        now = utcnow()
+        fields.setdefault("created_at", now)
+        fields.setdefault("updated_at", now)
+        cols = ",".join(fields)
+        marks = ",".join("?" for _ in fields)
+        with _chain_lock, self.connect() as conn:
+            conn.execute(f"INSERT INTO case_batches ({cols}) VALUES ({marks})", tuple(fields.values()))
+
+    def update_batch(self, batch_id: str, **fields: Any) -> None:
+        fields["updated_at"] = utcnow()
+        sets = ",".join(f"{k}=?" for k in fields)
+        with _chain_lock, self.connect() as conn:
+            conn.execute(f"UPDATE case_batches SET {sets} WHERE id=?", (*fields.values(), batch_id))
+
+    def get_batch(self, batch_id: str) -> dict | None:
+        rows = self._rows("SELECT * FROM case_batches WHERE id=?", (batch_id,))
+        return _decode_batch(rows[0]) if rows else None
+
+    def list_batches(self, case_id: str) -> list[dict]:
+        return [_decode_batch(r) for r in self._rows("SELECT * FROM case_batches WHERE case_id=? ORDER BY batch_no",
+                                                     (case_id,))]
+
+    def find_batch_by_refund(self, refund_id: str) -> dict | None:
+        rows = self._rows("SELECT * FROM case_batches WHERE refund_id=?", (refund_id,))
+        return _decode_batch(rows[0]) if rows else None
+
+    def unresolved_batches(self) -> list[dict]:
+        return [_decode_batch(r) for r in self._rows(
+            "SELECT * FROM case_batches WHERE status IN ('PENDING','UNKNOWN') ORDER BY created_at")]
 
     # -- audit ------------------------------------------------------------
     def audit(self, case_id: str, stage: str, title: str, detail: Any = None) -> None:
@@ -664,6 +768,13 @@ class Database:
             sql, args = sql + " WHERE case_id=?", [case_id]
         with self.connect() as conn:
             return [dict(r) for r in conn.execute(sql + " ORDER BY id", args).fetchall()]
+
+
+def _decode_batch(row: dict) -> dict:
+    d = dict(row)
+    d["quote"] = json.loads(d["quote_json"]) if d.get("quote_json") else None
+    d["refund"] = json.loads(d["refund_json"]) if d.get("refund_json") else None
+    return d
 
 
 def _decode_case(row: sqlite3.Row) -> dict:

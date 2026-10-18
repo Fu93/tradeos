@@ -183,15 +183,22 @@ class PayPalClient:
 
     # -- Orders v2 --------------------------------------------------------
     @staticmethod
-    def _purchase_unit(amount: str, currency: str, reference_id: str, description: str) -> dict:
-        return {
+    def _purchase_unit(amount: str, currency: str, reference_id: str, description: str,
+                       order_lines: dict | None = None) -> dict:
+        unit: dict[str, Any] = {
             "reference_id": reference_id[:256],
             "description": description[:127],
             "amount": {"currency_code": currency, "value": amount},
         }
+        if order_lines:
+            # Mixed order: items[] + amount.breakdown, built by code from integer minor units (lineitems.OrderModel).
+            # PayPal requires item_total = sum(unit_amount * quantity) and value = the breakdown's sum.
+            unit["amount"]["breakdown"] = order_lines["breakdown"]
+            unit["items"] = order_lines["items"]
+        return unit
 
     def create_order_with_card(self, amount: str, currency: str, reference_id: str, description: str,
-                               request_id: str) -> dict:
+                               request_id: str, order_lines: dict | None = None) -> dict:
         """Create an order paid with a sandbox test card. With intent CAPTURE PayPal
         normally captures immediately (order status COMPLETED)."""
         if not self.is_sandbox:
@@ -201,7 +208,7 @@ class PayPalClient:
         expiry = f"{date.today().year + 3}-12"
         body = {
             "intent": "CAPTURE",
-            "purchase_units": [self._purchase_unit(amount, currency, reference_id, description)],
+            "purchase_units": [self._purchase_unit(amount, currency, reference_id, description, order_lines)],
             "payment_source": {
                 "card": {
                     "number": SANDBOX_TEST_CARD,
@@ -252,8 +259,10 @@ class PayPalClient:
         return "sandbox" in self.base_url
 
     def refund_capture(self, capture_id: str, request_id: str, note_to_payer: str | None = None,
-                       mock_response: str | None = None) -> dict:
-        """Full refund (no amount). PayPal-Request-Id makes retries idempotent.
+                       mock_response: str | None = None, amount: dict | None = None,
+                       custom_id: str | None = None) -> dict:
+        """Full refund (no amount) or, with ``amount`` {currency_code, value}, a PARTIAL refund. PayPal-Request-Id
+        makes retries idempotent. ``custom_id`` (<= 127 chars) reconciles the refund in PayPal reports.
 
         ``note_to_payer`` (<= 255 chars) is shown to the buyer with the refund.
         ``mock_response`` = sandbox negative-testing error code (sandbox only).
@@ -265,6 +274,10 @@ class PayPalClient:
                                   sent=False)
             extra["PayPal-Mock-Response"] = _json.dumps({"mock_application_codes": mock_response})
         body: dict = {}
+        if amount:
+            body["amount"] = {"currency_code": amount["currency_code"], "value": amount["value"]}
+        if custom_id:
+            body["custom_id"] = custom_id[:127]
         if note_to_payer:
             body["note_to_payer"] = note_to_payer[:255]
         content = _json.dumps(body, ensure_ascii=False).encode() if body else b"{}"
