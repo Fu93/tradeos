@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <div class="demo-ribbon" role="status">
     <strong>HACKATHON DEMO</strong><span>PayPal Sandbox</span><span>No real money</span>
   </div>
@@ -33,7 +34,7 @@
       {% endif %}
     </div>
   </header>
-  <main>{% block content %}{% endblock %}</main>
+  <main id="main" tabindex="-1">{% block content %}{% endblock %}</main>
   <footer class="footer">
     Use AI where language is ambiguous. Use code where money is at stake. ·
     PayPal AI Hackathon MVP · Sandbox only · <a href="/api/docs">API</a>
