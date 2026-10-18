@@ -71,7 +71,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "M": {"customer_name": "Priya (demo customer)", "seeded_days_ago": None, "label": "Case M — mixed order (DEMO-DATA)"},
 }
 MAX_TRACKED_CASES = 500  # cap for per-case reconcile/throttle maps (locks are never evicted, see _lock)
-RUNNABLE = ("A", "B", "R", "D", "P", "M")
+RUNNABLE = ("A", "B", "R", "D", "P", "M", "M2")  # M2 = Case M with a two-step (multi-batch) message; not on the page
 MOCK_ONLY = ("P",)
 
 # Case statuses
@@ -89,6 +89,14 @@ ERROR = "ERROR"
 EXCHANGE_ARRANGED = "EXCHANGE_ARRANGED"  # human approved the exchange; supplier ships a replacement; no refund
 NEEDS_HUMAN = "NEEDS_HUMAN"              # e.g. exchange but the supplier is out of stock: offer a refund?
 NEEDS_SAFETY = SAFETY_STATUS             # v3.2 Safety Gate: a person reviews a possible hazard/injury; no refund/supplier path
+
+
+SAFETY_REVIEWED = "SAFETY_REVIEWED"      # terminal: a person read a safety-gated case and recorded a note (no money moved)
+SAFETY_NOTE_MAX = 500
+
+
+class SafetyNoteInvalid(ValueError):
+    """The reviewer note is missing or too long (HTTP 422)."""
 
 
 class RefundNotAllowed(Exception):
@@ -263,6 +271,11 @@ class Workflow:
         if scenario not in RUNNABLE:
             raise ValueError("unknown scenario")
         latest = self.db.latest_case(scenario)
+        if scenario == "M2":
+            from .mixed import TWO_STEP_MESSAGE
+            case_id = self.mixed.create_case(message=TWO_STEP_MESSAGE, label="Case M2 — two-step partial refunds (DEMO-DATA)")
+            self.process(case_id)
+            return case_id
         case_id = latest["id"] if latest and latest["status"] == NEW else self.new_case(scenario)
         self.process(case_id)
         return case_id
@@ -555,13 +568,35 @@ class Workflow:
     def _refuse_if_safety(self, case: dict) -> None:
         """Server-side backstop on every money entry point: re-scan the stored message and product, independent of
         the stored decision/status (so a stale or tampered row, or a direct POST, cannot reach a refund)."""
-        if case.get("status") == NEEDS_SAFETY or case.get("decision") == NEEDS_SAFETY:
+        if case.get("status") in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get("decision") == NEEDS_SAFETY:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: Safety Gate case {case['id']} cannot be approved or refunded here.")
         product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
         reason = (case.get("intent") or {}).get("reason")
         if safety_assess(case.get("customer_message"), product, reason).flagged:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
                                    "approval and refund are refused.")
+
+    def mark_safety_reviewed(self, case_id: str, note: str | None, reviewer: str = "merchant") -> bool:
+        """Human-gated, NO money: a person read a safety-gated case and records a note + decision on the hash chain.
+        Terminal SAFETY_REVIEWED. Never re-enters the refund flow (decision stays NEEDS_HUMAN_SAFETY_REVIEW, which every
+        money guard refuses), never calls PayPal, never creates a supplier task. Returns False on an idempotent repeat."""
+        text = clean_message(note, SAFETY_NOTE_MAX + 1)
+        with self._lock(case_id):
+            case = self._case(case_id)
+            if case["status"] == SAFETY_REVIEWED:
+                return False  # double submit: nothing written, the first note stands
+            if case["status"] != NEEDS_SAFETY:
+                raise RefundNotAllowed(f"Case {case_id} is not a safety-gated case awaiting review.")
+            if not text:
+                raise SafetyNoteInvalid("A reviewer note is required.")
+            if len(text) > SAFETY_NOTE_MAX:
+                raise SafetyNoteInvalid(f"Reviewer note too long (limit {SAFETY_NOTE_MAX} characters).")
+            self.db.update_case(case_id, human_decision=SAFETY_REVIEWED, human_at=self._now(),
+                                approval_source=HUMAN, status=SAFETY_REVIEWED)
+            self.db.audit(case_id, "human", "Human marked the safety case reviewed — no refund, Refund API not called",
+                          {"reviewer": reviewer, "decision": SAFETY_REVIEWED, "note": text,
+                           "refund_api_called": False, "supplier_contacted": False, "money_moved": False})
+            return True
 
     def _evaluate(self, case: dict, product: dict, intent, capture: dict, supplier_status: str | None,
                   require_supplier: bool) -> PolicyResult:

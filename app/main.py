@@ -31,7 +31,7 @@ from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, section_title, timeline_view, evidence_log, evidence_summary, paypal_proves)
-from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed,
+from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed, SafetyNoteInvalid,
                        Workflow, clean_message)
 
 MIXED_ATTENTION_STATUSES = tuple(x for x in MIXED_STATUSES if x != "MIXED_DONE")
@@ -302,6 +302,21 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if (refused := money_limited(request, case_id)) is not None:
             return refused
         return guarded(request, case_id, wf.decline)
+
+    @app.post("/cases/{case_id}/safety-reviewed")
+    def safety_reviewed(request: Request, case_id: str, note: str = Form("")):
+        """Safety Gate follow-up: a person records a note + decision. No money, no refund flow."""
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        try:
+            wf.mark_safety_reviewed(case_id, note)
+        except SafetyNoteInvalid as exc:
+            return render_dashboard(request, case_id, flash=f"Not recorded: {exc}", status_code=422)
+        except CaseNotFound:
+            raise HTTPException(404, "Case not found")
+        except (RefundNotAllowed, CaseFinalized) as exc:
+            return render_dashboard(request, case_id, flash=f"Refused: {exc}", status_code=409)
+        return back(case_id)
 
     @app.post("/cases/{case_id}/refund")
     def refund(request: Request, case_id: str):

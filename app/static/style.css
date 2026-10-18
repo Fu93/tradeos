@@ -297,3 +297,6 @@ a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visibl
 select:focus-visible { outline: 3px solid #0b5fff; outline-offset: 2px; }
 main:focus { outline: none; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+
+.safety-review { display: flex; flex-direction: column; gap: .4rem; max-width: 40rem; }
+.safety-review textarea { width: 100%; box-sizing: border-box; font: inherit; padding: .5rem; }

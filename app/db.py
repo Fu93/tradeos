@@ -204,7 +204,7 @@ JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "ext
 # webhook confirmations of an already-COMPLETED refund keep working), and refuses to change the
 # money fields frozen on a finalized case. This is what keeps a slow duplicate run of the same case
 # (a double-clicked Run button, two tabs) from flipping a completed refund back to PENDING_APPROVAL.
-TERMINAL_CASE_STATUSES = ("REFUND_COMPLETED", "REJECTED", "DECLINED_BY_HUMAN", "EXCHANGE_ARRANGED")
+TERMINAL_CASE_STATUSES = ("REFUND_COMPLETED", "REJECTED", "DECLINED_BY_HUMAN", "EXCHANGE_ARRANGED", "SAFETY_REVIEWED")
 # Chained money fields whose value must never change once the case is final — they are the evidence
 # the refund gate re-derives its decision from (_guard_refund compares the row against the chain).
 FROZEN_ON_TERMINAL = ("capture_id", "refund_id", "refund_status", "refund_request_id", "decision",

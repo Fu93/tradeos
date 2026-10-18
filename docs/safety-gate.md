@@ -53,6 +53,21 @@ That case is a test (`test_llm_misread_as_refund_damaged_still_routes_to_safety_
 3. The existing refund guard (policy `ELIGIBLE` + chained human `APPROVED` + verified audit chain) is unchanged and sits
    behind both.
 
+## Mark reviewed (human-gated record, no money)
+
+A person can close a safety-gated case with a **reviewer note** (required, 1–500 characters after cleaning):
+`POST /cases/{id}/safety-reviewed` (form field `note`; the dashboard shows a "Mark reviewed" box under the case).
+
+| | |
+|---|---|
+| Terminal state | `SAFETY_REVIEWED` (`human_decision = SAFETY_REVIEWED`, `decision` stays `NEEDS_HUMAN_SAFETY_REVIEW`). Frozen like the other terminal states. |
+| On the hash chain | One `case:update` entry (status + human decision) and one audit entry `Human marked the safety case reviewed — no refund, Refund API not called` carrying the note, `money_moved: false`, `refund_api_called: false`, `supplier_contacted: false`. |
+| Never | No money movement, no PayPal call, no supplier task, **no re-entry into the refund flow**, no approve button on the page afterwards. `_refuse_if_safety` also refuses the `SAFETY_REVIEWED` status, so approve / refund / retry stay refused even for a tampered row. |
+| Server-side | Only a case in `NEEDS_HUMAN_SAFETY_REVIEW` is accepted; any other case (A, B, mixed, completed...) is refused with HTTP 409. An empty or too-long note is refused with 422. |
+| Double submit | The second POST writes nothing (the first note stands) and redirects to the case: idempotent. |
+| Web hardening | Same-origin (CSRF) middleware as every POST; the money rate limiter (per IP, per hour, global); the note is HTML-escaped by the template (stored as data, never rendered as markup). |
+| Not claimed | This is a **record of a human reading the case**, not a safety verdict, a customer reply or a resolution of the hazard. Nothing is sent to the customer. |
+
 ## False positives (accepted, and what happens to them)
 
 * The gate **over-triggers on purpose**: a miss costs more than a read. Examples that route to a human although harmless:
@@ -60,9 +75,9 @@ That case is a test (`test_llm_misread_as_refund_damaged_still_routes_to_safety_
   used to suppress a hit**), "ampoule" (blister *or* bulb), "swollen" used about a price.
 * A false positive is **never an automatic rejection**. It becomes `NEEDS_HUMAN_SAFETY_REVIEW`: a person reads the message and
   follows up outside this workflow. Nothing is refunded, nothing is declined, and the customer is not sent an automatic "no".
-* The reverse is also true: nothing in this port lets a person approve a safety-flagged refund *inside* the app. A reviewer
-  who decides the flag was a false alarm has no in-app "release" button (not built); they would re-create the case or handle
-  it in PayPal. That is a known gap, listed under remaining risks.
+* The reverse is also true: nothing lets a person approve a safety-flagged refund *inside* the app. A reviewer who decides
+  the flag was a false alarm has **no in-app "release" button and none is planned**; they follow up outside this workflow
+  (re-create the case or handle it in PayPal). What a reviewer *can* do is **mark the case reviewed** (next section).
 * Normal returns without harm language still flow: "the sole came off / is damaged / cracked / detached", size and colour
   complaints, "the cut is too narrow", "hurts / too tight" (pain with no injury word) all reach `PENDING_APPROVAL` as before.
   (Table-tested in 6 languages.)
@@ -87,4 +102,4 @@ uses a different, deterministic pattern layer and was **not** run on that set. N
 * The product class on `main` is derived from category + name keywords; the demo catalogue is footwear / apparel, so the
   class × fault rule is exercised by tests with kettle / lamp / gas stove / power bank fixtures, not by live demo products.
 * Only the free-text customer message is scanned (not attachments, photos, order notes or webhooks).
-* No in-app release path for a reviewed false positive; no SLA / escalation / notification to a human.
+* No in-app "release" to the refund flow for a reviewed false positive (by design: reviewing records a note only); no SLA / escalation / notification to a human; nothing is sent to the customer.
