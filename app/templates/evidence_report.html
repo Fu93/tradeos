@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Evidence report · {{ r.case_id }} · TradeOS{% endblock %}
+{% block content %}
+<section class="card evidence-report">
+  <h1>Evidence report — case {{ r.case_id }}</h1>
+  <p class="muted small">Generated {{ r.generated_at }} · {{ r.environment.note }}. Read-only: this page moves no money and calls no PayPal API.
+    <a href="/?case={{ r.case_id }}">Back to the case</a> ·
+    <a href="/cases/{{ r.case_id }}/evidence.json" download>Download JSON</a> · <button type="button" class="btn small ghost" onclick="window.print()">Print / save as PDF</button></p>
+
+  <h2>Result</h2>
+  <dl class="kv">
+    {% for k, v in r.summary.items() %}<dt>{{ k }}</dt><dd>{{ v if v else "—" }}</dd>{% endfor %}
+  </dl>
+
+  <h2>PayPal ids</h2>
+  {% if r.paypal_ids %}
+  <dl class="kv">{% for k, v in r.paypal_ids.items() %}<dt>{{ k }}</dt><dd><code>{{ v }}</code></dd>{% endfor %}</dl>
+  {% else %}<p class="muted">No PayPal order was created for this case (nothing was captured or refunded).</p>{% endif %}
+
+  <h2>Audit hash chain</h2>
+  {% if r.verification.ok %}
+  <p><strong>Intact</strong> at generation time: {{ r.verification.entries }} entries. Head <code>{{ r.chain_head }}</code>. Record this head outside the server; a later chain that no longer reaches it was rewritten.</p>
+  {% else %}
+  <p class="flash bad" role="alert"><strong>Chain NOT intact:</strong> {{ r.verification.reason }}</p>
+  {% endif %}
+  <p class="small muted">{{ r.how_to_verify }}</p>
+  <div class="table-wrap"><table class="evtable">
+    <thead><tr><th scope="col">#</th><th scope="col">Type</th><th scope="col">Time</th><th scope="col">entry_hash</th></tr></thead>
+    <tbody>{% for e in r.chain_entries %}<tr><td>{{ e.seq }}</td><td>{{ e.type }}</td><td>{{ e.ts }}</td><td><code>{{ e.entry_hash[:16] }}…</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+
+  <h2>PayPal API calls</h2>
+  {% if r.paypal_calls %}
+  <div class="table-wrap"><table class="evtable">
+    <thead><tr><th scope="col">Time</th><th scope="col">Operation</th><th scope="col">OK</th><th scope="col">PayPal-Debug-Id</th><th scope="col">PayPal-Request-Id</th></tr></thead>
+    <tbody>{% for c in r.paypal_calls %}<tr><td>{{ c.ts }}</td><td>{{ c.operation }}</td><td>{{ "yes" if c.ok else "no" }}</td><td><code>{{ c.debug_id or "—" }}</code></td><td><code>{{ c.request_id or "—" }}</code></td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% else %}<p class="muted">No PayPal API call was made for this case.</p>{% endif %}
+  {% if not r.paypal_ids.refund_id %}<p><strong>Refund API: NOT CALLED</strong> — no PayPal refund exists for this case.</p>{% endif %}
+</section>
+{% endblock %}

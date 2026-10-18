@@ -530,6 +530,49 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                                                                "approval_source", "refund_status", "refund_id")}
         return JSONResponse(result)
 
+    def build_evidence_report(case_id: str) -> dict:
+        """Read-only, self-contained evidence bundle for one case: what a third party needs to re-check
+        the audit hash chain offline and to look the PayPal ids up in their own Sandbox account."""
+        case = db.get_case(case_id)
+        if not case:
+            raise HTTPException(404)
+        result, _state = db.verify_and_fold(case_id)
+        entries = []
+        for e in db.chain_entries(case_id):
+            entries.append({"seq": e["seq"], "type": e["type"], "ts": e["ts"], "prev_hash": e["prev_hash"],
+                            "entry_hash": e["entry_hash"], "payload": json.loads(e["payload_json"])})
+        calls = [{k: c.get(k) for k in ("ts", "operation", "ok", "result", "debug_id", "request_id")}
+                 for c in db.paypal_calls(case_id)]
+        ids = {k: case.get(k) for k in ("order_id", "capture_id", "refund_id") if case.get(k)}
+        return {
+            "report": "TradeOS case evidence", "generated_at": utcnow(), "case_id": case_id,
+            "environment": {"paypal_mode": wf.paypal_mode, "note": "PayPal Sandbox only — no real money"
+                            if wf.paypal_mode != "live" else "live"},
+            "summary": {k: case.get(k) for k in ("status", "decision", "human_decision", "approval_source",
+                                                 "refund_status")},
+            "paypal_ids": ids, "verification": result, "chain_head": entries[-1]["entry_hash"] if entries else None,
+            "chain_entries": entries, "paypal_calls": calls,
+            "how_to_verify": ("entry_hash = sha256(canonical_json({case_id, seq, type, ts, payload, prev_hash})); "
+                              "canonical_json = sorted keys, separators (',', ':'), UTF-8, ensure_ascii=False; "
+                              "entry 1 has prev_hash = 64 zeros. Record chain_head somewhere outside this server: "
+                              "tamper-evident, not tamper-proof."),
+        }
+
+    @app.get("/cases/{case_id}/evidence.json")
+    def evidence_json(case_id: str):
+        """Downloadable evidence bundle (JSON). Read-only; moves no money and calls no PayPal API."""
+        return JSONResponse(build_evidence_report(case_id), headers={
+            "Content-Disposition": f'attachment; filename="tradeos-evidence-{case_id}.json"'})
+
+    @app.get("/cases/{case_id}/evidence", response_class=HTMLResponse)
+    def evidence_page(request: Request, case_id: str):
+        """Printable evidence report (use the browser's Save as PDF). Read-only."""
+        return templates.TemplateResponse(request, "evidence_report.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id), "r": build_evidence_report(case_id),
+            "json": json})
+
     @app.get("/audit/heads")
     def audit_heads():
         """The chain head of every case, for retention OUTSIDE this database (the deploy-verify
