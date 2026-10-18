@@ -260,6 +260,9 @@ re-run after the **fallback injection guard**: before it, two injections contain
 the keyword rules. Now, when the LLM is unavailable and a message looks like a prompt injection, the fallback forces
 `UNKNOWN`. The case goes to a human with no Approve button, and the timeline says why. The LLM path is unchanged.
 
+See also [docs/impact-proof.md](docs/impact-proof.md): outcomes by case category from the committed eval artifacts, with
+the three validation levels (test results / human adjudication of specific labels / full human audit, **not done**) kept apart.
+
 ## Architecture
 
 ```
