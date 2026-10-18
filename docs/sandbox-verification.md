@@ -48,3 +48,13 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
 2. Apply: same command with `--apply`. Expect `updated PAYPAL_WEBHOOK_ID=<same id> (unchanged)` and five events: `PAYMENT.CAPTURE.REFUNDED`, `PAYMENT.REFUND.PENDING`, `PAYMENT.REFUND.FAILED`, `PAYMENT.CAPTURE.REVERSED`, `PAYMENT.CAPTURE.DECLINED`. If it says `created`, set the new ID as `PAYPAL_WEBHOOK_ID` on Render and redeploy.
 3. Deploy (adds the `cryptography` dependency), then run `sandbox_verify.py`; it reports the verification method.
 4. `PAYMENT.REFUND.PENDING` / `FAILED` cannot be forced on a Sandbox card refund (they complete instantly), so they are covered by tests, not by the live check. The Webhooks simulator can deliver them, but its events are signed for `WEBHOOK_ID` and will correctly show as *not verified*.
+
+
+## Optional live checks (not part of the default 31)
+
+* `--mixed-only`: Case M, one real partial refund (see `docs/partial-refunds.md`).
+* `--multi-batch-only` (or `--multi-batch` on a full run): **Case M2**, two partial refunds on one capture. The seeded message leaves two lines
+  with a person; resolving one creates batch 2 on the same capture. Asserts: no refund before approval, two different refund ids and Debug-Ids,
+  PayPal-reported = computed per batch, cumulative <= capture, third attempts refused with no new refund call, one verified signed webhook per refund id.
+* `--paypal-overrefund-probe` (with the above): one direct Sandbox refund call above the remaining capture using the env credentials. It is a probe of PayPal, outside the app.
+* Last run: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS (logs kept outside the repo).

@@ -12,7 +12,7 @@ handles this per line, and only **code** ever computes money.
 |---|---|---|
 | **A. Unit / property / integration tests (offline, mock PayPal)** | amount math, ledger, gate, idempotency, recovery, UI | Done. See "Tests". |
 | **B. Local mock run of `scripts/sandbox_verify.py --mixed-only --allow-mock`** | the whole HTTP flow end to end against the mock | Done. Output is labelled `[MOCK - not live proof]`. |
-| **C. Live PayPal Sandbox** | PayPal accepting `items[]` + breakdown for the card capture, and one real partial refund whose PayPal-reported amount equals the computed one, with a `PayPal-Debug-Id` | **NOT done.** Runs only after the user approves merge + deploy: `python scripts/sandbox_verify.py <url> --mixed` |
+| **C. Live PayPal Sandbox** | PayPal accepting `items[]` + breakdown for the card capture, and one real partial refund whose PayPal-reported amount equals the computed one, with a `PayPal-Debug-Id` | **Done for Case M** (one partial refund) and **Case M2** (two partial refunds on one capture): `python scripts/sandbox_verify.py <url> --mixed` / `--multi-batch-only`. Nothing else is live-proven. |
 | **D. Not built / not covered** | see "Known limits" | Not covered |
 
 The mock enforces what PayPal documents (zero-decimal currencies, currency match, item/tax breakdown sums, cumulative
@@ -130,14 +130,16 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
   first run had 7 survivors; they exposed 5 test gaps (now covered). Four mutants are reported as **equivalent** (a second independent guard already catches the same bug), not
   hidden.
 * `scripts/sandbox_verify.py`: the original 31 checks are untouched. `--mixed` adds the mixed-order live check;
-  `--mixed-only --allow-mock` runs only that and is for local mock runs (labelled not live proof).
+  `--mixed-only --allow-mock` runs only that and is for local mock runs (labelled not live proof). `--multi-batch-only` / `--multi-batch`
+  runs Case M2 (two batches on one capture, third attempts refused, one webhook per refund id); `--paypal-overrefund-probe` adds one direct Sandbox over-refund call using `PAYPAL_CLIENT_ID/SECRET` from the environment (PayPal's own refusal, outside the app). Tax-inclusive pricing is not modelled and was not tested; per-item tax is what Case M / M2 already send.
 
 Screens: `docs/img/mixed-approval-desktop.png`, `docs/img/mixed-approval-mobile-390.png` (headless Chrome, mock data,
 DEMO-DATA badge visible).
 
 ## Known limits (NOT covered)
 
-* Live Sandbox proof exists for **one** seeded scenario only (Case M, 2026-10-18, `sandbox_verify.py --mixed`: partial refund
+* Live Sandbox proof exists for **two** seeded scenarios only. Case M2 (two-step, 2026-10-18, main `3ad67b3`, `sandbox_verify.py --multi-batch-only --paypal-overrefund-probe`, 23 checks, log kept outside the repo): two partial refunds on ONE capture (55.74 USD then 85.32 USD, each approved by a person; cumulative 141.06 of 191.21 USD, 50.15 remaining), two different PayPal refund ids, two PayPal-Debug-Ids, each PayPal-reported amount equal to the computed one, each refund id matched by its own verified signed `PAYMENT.CAPTURE.REFUNDED` webhook; third attempts (re-approving either batch, re-returning a refunded line, asking for another batch, the legacy refund endpoint) were refused by the app with no third refund call, and one direct Sandbox over-refund of 50.16 USD (probe outside the app, not a TradeOS path) was refused by PayPal with `REFUND_AMOUNT_EXCEEDED` (HTTP 422).
+* Case M ( 2026-10-18, `sandbox_verify.py --mixed`: partial refund
   161.69 of 191.21 USD, PayPal-reported amount equal to the computed amount, PayPal-Debug-Id captured, signed webhook and
   reconcile matched; run logs are kept outside the repo). Other item mixes, shipping policies and currencies are covered by
   mock tests only.
