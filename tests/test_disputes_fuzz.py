@@ -216,3 +216,11 @@ def test_disputes_page_has_no_inline_styles_or_handlers(settings):
     html = client.get("/disputes").text
     assert "PP-D-STYLE" in html
     assert not re.search(r"\sstyle\s*=|\son[a-z]+\s*=|<style|<script(?![^>]*src=)", html)
+
+
+@pytest.mark.parametrize("value", ["NaN", "-1", "-0.01", "Infinity", "1e999", "9" * 30, "abc", "", "1,5"])
+def test_unusable_amounts_are_stored_as_unknown_not_shown(ctx, value):
+    from app.disputes import parse_dispute
+    rec = parse_dispute(dispute("D-A", amount=value))
+    assert rec["amount"] is None and rec["currency"] is None
+    assert parse_dispute(dispute("D-B", amount="49.99"))["amount"] == "49.99"
