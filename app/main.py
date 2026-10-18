@@ -148,6 +148,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash=reason, status_code=429)
         return None
 
+    def disputes_limited(request: Request) -> HTMLResponse | None:
+        # Same limiter, but a refusal stays on the Disputes page (it used to render the dashboard).
+        reason = limiter.check(ip(request))
+        return render_disputes(request, flash=reason, status_code=429) if reason else None
+
     def money_limited(request: Request, case_id: str | None = None) -> HTMLResponse | None:
         reason = money_limiter.check(ip(request))
         if reason:
@@ -388,7 +393,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     @app.post("/disputes/sync")
     def disputes_sync(request: Request):
         """Read-only: GET the dispute list (and each dispute) from PayPal and store it. No write calls exist."""
-        if (refused := limited(request)) is not None:
+        if (refused := disputes_limited(request)) is not None:
             return refused
         if (reason := sync_gate.check("sync")) is not None:
             return render_disputes(request, flash=reason, status_code=429)
@@ -397,7 +402,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/disputes/{dispute_id}/refresh")
     def disputes_refresh(request: Request, dispute_id: str):
-        if (refused := limited(request)) is not None:
+        if (refused := disputes_limited(request)) is not None:
             return refused
         if wf.db.get_dispute(dispute_id) is None:
             raise HTTPException(404, "Dispute not found")
