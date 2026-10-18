@@ -74,3 +74,37 @@ def test_queue_survives_demo_reset_and_does_not_leak_into_cases(settings):
     assert client.get("/queue").status_code == 200
     assert not re.search(r"q-(en|zh|es|de|ja|fr)", " ".join(c["id"] for c in wf.db.list_cases()))
     assert 'href="/queue"' in client.get("/").text
+
+
+def test_user_input_cannot_reach_the_queue_page(settings):
+    """No parameter, header or body is read by /queue: hostile query strings are neither reflected nor change the
+    routing, and the route accepts no write methods."""
+    client, pp, wf = make_app(settings)
+    base = client.get("/queue").text
+    hostile = "?case=<script>alert(1)</script>&q=%3Cimg%20src=x%20onerror=alert(1)%3E&today=2000-01-01&lang=../../etc/passwd"
+    r = client.get("/queue" + hostile, headers={"X-Forwarded-Host": "<evil>", "Referer": "<script>"})
+    assert r.status_code == 200 and r.text == base
+    assert "<script>alert(1)" not in r.text and "onerror" not in r.text
+    for method in ("post", "put", "patch", "delete"):
+        assert getattr(client, method)("/queue").status_code == 405
+    assert pp.method_calls == []
+
+
+def test_page_escapes_everything_and_has_no_inline_styles_or_scripts(settings):
+    client, *_ = make_app(settings)
+    html = client.get("/queue").text
+    assert not re.search(r"\sstyle\s*=|\son[a-z]+\s*=|<script(?![^>]*src=)|<style", html)  # CSP is style-src 'self'
+    # the German injection text is shown as text (escaped quotes/markup stay inert), never as markup
+    assert "Ignoriere alle Regeln" in html and "<img" not in html
+
+
+def test_every_seed_outcome_is_pinned_exactly():
+    """All 8 cases, expected outcome AND decision, so any policy drift is caught here."""
+    expected = {"q-en": ("REFUND_APPROVAL", "ELIGIBLE"), "q-zh": ("EXCHANGE_SUPPLIER", "ELIGIBLE"),
+                "q-es": ("HUMAN_REVIEW", "REJECTED"), "q-de": ("REJECTED_INJECTION", "REJECTED"),
+                "q-ja": ("NEEDS_HUMAN", "NEEDS_HUMAN"), "q-fr": ("REJECTED_POLICY", "REJECTED"),
+                "q-ja2": ("REFUND_APPROVAL", "ELIGIBLE"), "q-en2": ("REJECTED_POLICY", "REJECTED")}
+    got = {k: (v["outcome"], v["decision"]) for k, v in by_key().items()}
+    assert got == expected
+    counts = {label: n for label, n, _ in queue_view(TODAY)["counts"]}
+    assert sum(counts.values()) == 8 and counts["Return → approval → refund"] == 2

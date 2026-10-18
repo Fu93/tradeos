@@ -241,4 +241,4 @@ table.evidence tr.bad td{background:#fef2f2}
 .qroute.ok { border-color: var(--ok); } .qroute.warn { border-color: var(--warn); } .qroute.bad { border-color: var(--bad); }
 .qchecks { margin: 0; padding-left: 18px; font-size: 12.5px; } .qchecks .no { color: var(--bad); }
 .qsummary { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
-@media (max-width: 640px) { .mainnav { width: 100%; } .qgrid { grid-template-columns: 1fr; } main { padding: 14px 12px 30px; } }
+@media (max-width: 640px) { .mainnav { width: 100%; } .qgrid { grid-template-columns: 1fr; } }
