@@ -144,3 +144,8 @@ window.addEventListener("pageshow", function (e) {
   }
   timer = setTimeout(tick, delay);
 })();
+
+// Print / save as PDF buttons (no inline handlers: the CSP is script-src 'self').
+document.querySelectorAll("[data-print]").forEach(function (b) {
+  b.addEventListener("click", function () { window.print(); });
+});

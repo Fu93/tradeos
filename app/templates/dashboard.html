@@ -210,6 +210,7 @@
         <span class="chain-badge bad">Audit trail BROKEN at entry {{ audit_chain.broken_at }}: {{ audit_chain.reason }}</span>
         {% endif %}
         <a class="btn small ghost" href="/cases/{{ current.id }}/audit/verify">Verify audit trail</a>
+        <a class="btn small ghost" href="/cases/{{ current.id }}/evidence">Evidence report</a>
       </div>
       <p class="muted small">Each record is SHA-256 hash-chained to the one before. This detects edits to stored records; it cannot stop someone with database access from rewriting the whole chain unless the head hash was noted elsewhere.</p>
       {% endif %}
