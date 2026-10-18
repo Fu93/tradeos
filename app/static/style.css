@@ -288,3 +288,12 @@ form.inline { display: inline-block; margin-left: 6px; }
   .actions form, .actions .btn { max-width: 100%; }
   form.inline { display: block; margin: 6px 0 0; }
 }
+
+/* Accessibility: keyboard focus, skip link, reduced motion */
+.skip-link { position: absolute; left: 8px; top: -48px; z-index: 100; background: var(--navy); color: #fff;
+  padding: 8px 14px; border-radius: 6px; font-weight: 700; text-decoration: none; }
+.skip-link:focus { top: 8px; }
+a:focus-visible, button:focus-visible, summary:focus-visible, input:focus-visible, textarea:focus-visible,
+select:focus-visible { outline: 3px solid #0b5fff; outline-offset: 2px; }
+main:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

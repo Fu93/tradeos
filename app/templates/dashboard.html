@@ -53,7 +53,7 @@
 <nav class="tabs" aria-label="Cases">
   <span class="muted small">Cases:</span>
   {% for c in cases[:14] %}
-    <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}" title="{{ c.label }}">
+    <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}"{% if current and c.id == current.id %} aria-current="true"{% endif %} title="{{ c.label }}">
       <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span> {{ status_chip(c) }}</a>
   {% endfor %}
 </nav>
