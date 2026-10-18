@@ -31,6 +31,7 @@ from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
+from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
 from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
@@ -109,11 +110,14 @@ class CaseNotFound(Exception):
 
 class Workflow:
     def __init__(self, db: Database, settings: Settings, extractor: IntentExtractor, paypal: Any = None,
-                 today: Callable[[], date] | None = None, note_writer: Any = None) -> None:
+                 today: Callable[[], date] | None = None, note_writer: Any = None,
+                 safety_ai: SafetyClassifier | None = None) -> None:
         self.db = db
         self.settings = settings
         self.extractor = extractor
         self.note_writer = note_writer or TemplateNoteWriter()
+        # Opt-in second safety layer (escalate-only, fail-safe). None unless TRADEOS_SAFETY_AI=1 (or injected by a test).
+        self.safety_ai = safety_ai if safety_ai is not None else build_safety_classifier(settings)
         self._paypal = paypal
         self._locks: dict[str, threading.Lock] = {}
         self._locks_guard = threading.Lock()
@@ -411,6 +415,7 @@ class Workflow:
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
         # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
         gate = safety_assess(case["customer_message"], product, extraction.result.reason)
+        gate, ai_info = self.safety_screen(gate, case["customer_message"], product)
         assist = extraction.assist.model_dump() if extraction.assist else None  # info only
         self.db.update_case(case_id, intent_json=json.dumps(intent),
                             assist_json=json.dumps(assist, ensure_ascii=False) if assist else None,
@@ -418,12 +423,12 @@ class Workflow:
                                                         "assist_note": extraction.assist_note,
                                                         "injection_guard": extraction.injection_guard,
                                                         "llm_unavailable": extraction.llm_unavailable,
-                                                        "safety": gate.to_dict()}))
+                                                        "safety": gate.to_dict(), "safety_ai": ai_info}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
                        "assist": assist, "assist_note": extraction.assist_note})
         if gate.flagged:
-            self._route_to_safety_review(case_id, gate, intent)
+            self._route_to_safety_review(case_id, gate, intent, ai_info)
             return
         if extraction.injection_guard:
             self.db.audit(case_id, "intent",
@@ -555,13 +560,19 @@ class Workflow:
                           {"why": verdict.reason, **limits})
         return verdict
 
-    def _route_to_safety_review(self, case_id: str, gate, llm_intent: dict | None = None) -> None:
+    def safety_screen(self, gate, message: str | None, product: dict | None):
+        """Optional AI layer on top of the keyword gate. Escalate-only and fail-safe (see app/safety_ai.py)."""
+        return safety_combine(gate, self.safety_ai, message, product)
+
+    def _route_to_safety_review(self, case_id: str, gate, llm_intent: dict | None = None,
+                                ai_info: dict | None = None) -> None:
         """Safety Gate hit: the case goes to a person BEFORE policy / refund / supplier. No PayPal capture lookup,
         no supplier draft, no approve path (decision and status are neither ELIGIBLE nor PENDING_APPROVAL)."""
         self.db.update_case(case_id, decision=NEEDS_SAFETY, status=NEEDS_SAFETY)
         self.db.audit(case_id, "safety", f"Safety Gate: {SAFETY_LABEL} — ahead of refund and supplier tasks",
                       {"trigger": gate.trigger, "product_class": gate.product_class, "summary": gate.summary,
                        "signals": [x.to_dict() for x in gate.signals], "llm_reading_ignored": llm_intent,
+                       **({"safety_ai": ai_info} if ai_info and ai_info.get("ai_layer") != "off" else {}),
                        "refund_api_called": False, "supplier_contacted": False, "refund_id": None,
                        "false_positives": "possible and accepted: routed to a person, never auto-rejected"})
 

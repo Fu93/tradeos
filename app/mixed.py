@@ -201,8 +201,9 @@ class MixedOrders:
         self.db.audit(case_id, "request", "Customer request received",
                       {"customer": case["customer_name"], "message": case["customer_message"]})
         gate = safety_assess(case["customer_message"], None, None)
+        gate, ai_info = wf.safety_screen(gate, case["customer_message"], None)
         if gate.flagged:  # Safety Gate first: no policy lines, no batch, no refund, whatever the per-line reading says
-            wf._route_to_safety_review(case_id, gate)
+            wf._route_to_safety_review(case_id, gate, None, ai_info)
             return
         self.evaluate(case_id)
 
