@@ -29,7 +29,7 @@ Today one person reads it, checks the order, decides, and clicks refund in PayPa
 **What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
 only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
 a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
-is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**.
+is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
 
 | Principle | How it is enforced (in code, not in the prompt) |
 |---|---|
@@ -60,10 +60,10 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo, [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
-| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed`, 16 checks; run logs are kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo (last run on `5325db7`, 19 Oct 2026: 31/31 PASS), [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed`, 16 checks; re-run on `5325db7`, 19 Oct 2026: 16/16; run logs are kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
-| **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe`; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Tax-inclusive pricing (not modelled), other item mixes, currencies, production PayPal |
+| **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on `5325db7`, 19 Oct 2026, without the probe: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Tax-inclusive pricing (not modelled), other item mixes, currencies, production PayPal |
 | **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
 | **Evals (synthetic messages)** | Multilingual intent and safety routing | [`docs/eval/`](docs/eval/results.md), [`docs/impact-proof.md`](docs/impact-proof.md) (states what is and is not human-checked) | Real-world accuracy |
 | **Seeded / mock demo data** | `/queue` view, supplier replies, cost model | Labelled DEMO / MOCK on screen | Any measured saving or merchant validation |
@@ -71,7 +71,7 @@ flowchart LR
 
 ### Built during the hackathon
 
-First commit **8 Oct 2026**; every commit in this repository is dated 8-18 Oct 2026. 52 pull requests were merged up to #59 (#9 and the dependabot PRs are not merged). Highlights:
+First commit **8 Oct 2026**; every commit on `main` up to `5325db7` is dated 8-18 Oct 2026. As of `5325db7`, 64 pull requests were merged, up to #68 (not merged: the experimental #9, the closed #33 and two dependabot PRs). Highlights:
 
 | Date | What landed |
 |---|---|
@@ -287,7 +287,7 @@ calls: the model reads it as a refund request without a stated reason, and the h
 An order with several line items (e.g. 3 returned, 1 exchanged) is resolved per line; one batch becomes one PayPal
 **partial** refund whose amount is computed only by code from item prices, capped by the remaining refundable balance,
 and approved by a person on a screen showing the exact total. Demo: `POST /demo/run/M` (seeded, labelled DEMO-DATA).
-Details, evidence tiers (tests vs. live Sandbox proof, which is **not yet done**) and the shipping/tax policy:
+Details, evidence tiers (tests vs. live Sandbox proof, which exists for two seeded scenarios: Case M, one partial refund, and Case M2, two partial refunds on one capture) and the shipping/tax policy:
 [docs/partial-refunds.md](docs/partial-refunds.md).
 
 ## Postman collection (dev-time tooling)
@@ -490,8 +490,10 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON, including the case state folded from
   the chain (`status`, `decision`, `human_decision`, `approval_source`, `refund_status`, `refund_id`) so a verifier
   outside this process can confirm not just *that* a refund was approved but *who* approved it. `GET /cases/{id}/evidence` (printable) and `GET /cases/{id}/evidence.json` (download) bundle the chain, its head, the PayPal ids and the PayPal call log of one case, read-only, so a third party can recompute the hashes offline. `GET /audit/heads`
-  returns every chain's head hash for retention OUTSIDE the database: the deploy-verify workflow saves one such list
-  per deployment as a workflow artifact, and two lists from different times are what make a truncated or rewritten
+  returns every chain's head hash for retention OUTSIDE the database. The deploy-verify workflow is built to save one such
+  list per deployment as a workflow artifact, but it only runs when the `TRADEOS_DEPLOY_URL` repository secret is set;
+  that secret is **not set** for this repository, so today no head list is retained outside the database (the workflow
+  reports "skipped"; save `GET /audit/heads` yourself if you need one). Two lists from different times are what make a truncated or rewritten
   chain detectable — the one thing the in-database chain cannot prove about itself. Verification also checks that the
   timeline and PayPal-call rows still match what was hashed and that none of them is missing from the chain (this
   catches a deleted last entry while its record remains; deleting both is only visible against an external head hash). Existing databases are backfilled on start (marked
@@ -610,7 +612,8 @@ ever calls an auto approval a human one), and the forward migration of a kept da
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
 989 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
-(incl. eval dataset checks and the fallback injection guard).
+(incl. eval dataset checks and the fallback injection guard). CI passed on `main` `5325db7` (both jobs, `test` and
+`audit`). The repository is public, so GitHub's standard hosted runners cost nothing here.
 
 ### Verify a deployment
 
@@ -623,12 +626,13 @@ AUTO_ENABLED=1 uvicorn app.main:app --port 8000 &          # or a local one with
 python scripts/sandbox_verify.py http://localhost:8000
 ```
 
-The `Deploy verify` workflow automates this after every push to `main`: it waits until `/healthz` reports the pushed
-commit (Render injects `RENDER_GIT_COMMIT`, which `/healthz` exposes as `version`), then runs the script against the
-live instance. Set the `TRADEOS_DEPLOY_URL` repository secret (e.g. `https://<your-app>.onrender.com`) to enable it;
-without the secret the workflow is a skipped notice. Each run creates one real Sandbox order/refund set, then
-  saves `GET /audit/heads` as a workflow artifact (`audit-heads-<commit>`), so every deployment leaves an externally
-  retained audit-chain head list.
+The `Deploy verify` workflow can automate this after every push to `main`: it waits until `/healthz` reports the pushed
+commit (Render injects `RENDER_GIT_COMMIT`, which `/healthz` exposes as `version`), runs the script against the
+live instance, and saves `GET /audit/heads` as a workflow artifact (`audit-heads-<commit>`). It needs the
+`TRADEOS_DEPLOY_URL` repository secret (e.g. `https://<your-app>.onrender.com`). **That secret is not set for this
+repository, so the workflow does not verify anything today:** its verify job is skipped and the run summary says so. A
+green "Deploy verify" run is not a live check. The live checks for the current commit were run by hand with the script
+(see [`docs/sandbox-verification.md`](docs/sandbox-verification.md) for the last run).
 
 Autonomy must be **off** on the hosted demo: the script fails (before creating any case) if `/healthz` reports
 `auto_enabled` or `auto_exchange_enabled` true, unless `--allow-autonomy` / `ALLOW_AUTONOMY=1` is given for a deliberate
@@ -673,7 +677,13 @@ not a measured or verified saving.
 
 ## Deploy
 
-`render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, health check `/healthz`).
+`render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, hash-pinned
+`requirements.lock`, health check `/healthz`). **The hosted demo does not follow the Blueprint in two respects:** that
+service's settings differ from the Blueprint: it installs `requirements.txt` (exact `==` pins, no hashes) and has
+**no health check path** configured (checked through the Render API on 19 Oct 2026). Without a health check path, Render
+only checks that the new instance accepts TCP connections on its port before switching traffic to it
+([Render docs](https://render.com/docs/health-checks)); it does not check that `/healthz` answers. So after each deploy we
+check `/healthz` and run `sandbox_verify.py` by hand.
 Secrets are entered in the Render dashboard. For the webhook, run `scripts/register_webhook.py` once against the public
 URL and set `PAYPAL_WEBHOOK_ID`. The service has no persistent disk, so `/tmp` is wiped on restart or deploy (Starter does not sleep); webhooks for cases from before a
 restart are acknowledged and ignored.

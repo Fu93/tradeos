@@ -88,6 +88,13 @@ A person can close a safety-gated case with a **reviewer note** (required, 1–5
 `openai/gpt-oss-20b` on Groq). Timeout `TRADEOS_SAFETY_AI_TIMEOUT_S` (default 8 s). Without the flag nothing changes: no
 extra LLM call, no new audit field.
 
+**Off on the hosted demo, on purpose.** The demo's `LLM_API_KEY` is on Groq's **free tier**. Each case already makes about
+two model calls (intent and note translation); the classifier would add a third to every message the keywords do not flag.
+Free-tier rate limits ([Groq rate limits](https://console.groq.com/docs/rate-limits)) would then be reached sooner when
+several judges use the demo at once, and on a 429 the layer gives "no opinion", so it would silently be absent exactly
+when it is busiest. So the hosted demo runs the keyword layer only, and the numbers below are from offline runs, not
+from the hosted demo.
+
 | Rule | How it is enforced |
 |---|---|
 | Escalate-only | `combine()` returns the keyword result untouched when it is already flagged (the model is not even called). When it is not flagged, the model can only turn it on (`trigger = ai_classifier`, signal layer `ai`). An answer of "no" changes nothing. Any layer triggering = `NEEDS_HUMAN_SAFETY_REVIEW`. |

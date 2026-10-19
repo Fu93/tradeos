@@ -3,8 +3,9 @@ name: Deploy verify
 # real Sandbox order+refund set (Case A), ONE Case B, one exchange and ONE Case R per run, and
 # asserts the outcome against the deployment's own autonomy settings.
 #
-# Needs the TRADEOS_DEPLOY_URL repository secret (https://<your-app>.onrender.com); without it the
-# job is a no-op notice. The wait loop compares /healthz's "version" (Render injects RENDER_GIT_COMMIT)
+# Needs the TRADEOS_DEPLOY_URL repository secret (https://<your-app>.onrender.com). Without it the `config` job
+# writes "SKIPPED: no live check ran" to the run summary and the `sandbox-verify` job is skipped (shown as skipped,
+# not as passed), so a green run of this workflow is never mistaken for a live check. The wait loop compares /healthz's "version" (Render injects RENDER_GIT_COMMIT)
 # so it verifies THE new deployment, not the previous one still serving while the new build is underway.
 # Free-tier builds are usually done in a few minutes; the loop gives them 10 minutes before failing.
 on:
@@ -19,7 +20,33 @@ concurrency:
   group: deploy-verify
   cancel-in-progress: true
 jobs:
+  config:
+    # Secrets cannot be read in a job-level `if`, so this job turns "is the secret set?" into an output.
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - id: check
+        env:
+          TRADEOS_DEPLOY_URL: ${{ secrets.TRADEOS_DEPLOY_URL }}
+        run: |
+          if [ -z "$TRADEOS_DEPLOY_URL" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::warning title=Deploy verify skipped::TRADEOS_DEPLOY_URL is not set, so no live check ran for ${GITHUB_SHA}."
+            {
+              echo "## Deploy verify: SKIPPED (no live check ran)"
+              echo ""
+              echo "The \`TRADEOS_DEPLOY_URL\` repository secret is not set, so \`scripts/sandbox_verify.py\` was **not** run"
+              echo "against the deployment and no audit-heads artifact was saved for \`${GITHUB_SHA}\`."
+              echo "This run being green says nothing about the live service."
+            } >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+            echo "## Deploy verify: enabled (see the sandbox-verify job)" >> "$GITHUB_STEP_SUMMARY"
+          fi
   sandbox-verify:
+    needs: config
+    if: needs.config.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -33,8 +60,8 @@ jobs:
           EXPECTED_SHA: ${{ github.sha }}
         run: |
           if [ -z "$TRADEOS_DEPLOY_URL" ]; then
-            echo "::notice::Set the TRADEOS_DEPLOY_URL repository secret (https://<app>.onrender.com) to enable post-deploy verification."
-            exit 0
+            echo "::error::TRADEOS_DEPLOY_URL is empty although the config job saw it set"
+            exit 1
           fi
           base="${TRADEOS_DEPLOY_URL%/}"
           for i in $(seq 1 40); do
@@ -45,6 +72,11 @@ jobs:
               set +e
               python scripts/sandbox_verify.py "$base"
               rc=$?
+              if [ "$rc" = 0 ]; then
+                echo "## Deploy verify: PASS (sandbox_verify.py against \`$EXPECTED_SHA\`)" >> "$GITHUB_STEP_SUMMARY"
+              else
+                echo "## Deploy verify: FAIL (sandbox_verify.py exit $rc)" >> "$GITHUB_STEP_SUMMARY"
+              fi
               set -e
               # External retention for the audit chains: one head list per deployment, kept as a
               # workflow artifact. Two lists from different times detect a truncated/rewritten chain.
