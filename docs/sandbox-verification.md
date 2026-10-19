@@ -57,4 +57,12 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   with a person; resolving one creates batch 2 on the same capture. Asserts: no refund before approval, two different refund ids and Debug-Ids,
   PayPal-reported = computed per batch, cumulative <= capture, third attempts refused with no new refund call, one verified signed webhook per refund id.
 * `--paypal-overrefund-probe` (with the above): one direct Sandbox refund call above the remaining capture using the env credentials. It is a probe of PayPal, outside the app.
-* Last run: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS (logs kept outside the repo).
+* Last run: main `5325db7` (the deployed commit, `/healthz` `version` 5325db7…), 2026-10-19 09:12–09:23 BST: default 31/31 PASS
+  (webhook verification method `self`), `--mixed-only` 16/16 PASS (partial refund 161.69 of 191.21 USD), `--multi-batch-only`
+  21/21 PASS (55.74 + 85.32 USD on one capture, two refund ids, one verified signed webhook each; the over-refund probe was
+  not run this time). A first `--multi-batch-only` attempt stopped when PayPal Sandbox timed out on order creation
+  (`ReadTimeout`, no capture, no money moved); the script then raised a `TypeError` instead of a clean FAIL line. The
+  retry passed. Logs are kept outside the repo.
+* Previous run: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS.
+* The `Deploy verify` GitHub workflow does **not** run these checks for this repository: the `TRADEOS_DEPLOY_URL` secret
+  is not set, so its verify job is skipped. The runs above were started by hand.
