@@ -60,10 +60,10 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo (last run on `5325db7`, 19 Oct 2026: 31/31 PASS), [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
-| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed`, 16 checks; re-run on `5325db7`, 19 Oct 2026: 16/16; run logs are kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo (last run on tip `1acae45`, 19 Oct 2026 15:38–15:40 BST: 31/31 PASS; earlier same-day re-run on `5325db7`: 31/31), [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last run on tip `1acae45`, 19 Oct 2026: 16/16; earlier same-day on `5325db7`: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
-| **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on `5325db7`, 19 Oct 2026, without the probe: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
+| **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
 | **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
 | **Evals (synthetic messages)** | Multilingual intent and safety routing | [`docs/eval/`](docs/eval/results.md), [`docs/impact-proof.md`](docs/impact-proof.md) (states what is and is not human-checked) | Real-world accuracy |
 | **Seeded / mock demo data** | `/queue` view, supplier replies, cost model | Labelled DEMO / MOCK on screen | Any measured saving or merchant validation |
@@ -610,10 +610,11 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-1005 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
+1029 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
 a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
-(incl. eval dataset checks, VAT-inclusive mock tests, and CPSC sample integrity). Count verified locally after
-merging #69+#70+#71 onto `5325db7` (989 + 13 tax-inclusive + 3 CPSC integrity). The repository is public, so
+(incl. eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate line-product
+scan, and discipline invariants). Count verified locally after merging #69+#70+#71+#72+#73
+(1005 + 3 mixed Safety Gate + 21 discipline invariants = 1029). The repository is public, so
 GitHub's standard hosted runners cost nothing here.
 
 ### Verify a deployment
