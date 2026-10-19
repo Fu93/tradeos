@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 from . import lineitems as li
 from .intent import looks_like_injection
-from .safety import assess as safety_assess
+from .safety import assess_any as safety_assess_any
 from .paypal_client import PayPalError, first_capture
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -200,8 +200,11 @@ class MixedOrders:
             return
         self.db.audit(case_id, "request", "Customer request received",
                       {"customer": case["customer_name"], "message": case["customer_message"]})
-        gate = safety_assess(case["customer_message"], None, None)
-        gate, ai_info = wf.safety_screen(gate, case["customer_message"], None)
+        # Safety Gate over EVERY line's catalogue product (not just product=None): harm language OR a
+        # gated-product fault on any SKU routes to human review before any batch is proposed.
+        products = [wf.db.get_product(r["sku"]) for r in self.db.get_items(case_id)]
+        gate = safety_assess_any(case["customer_message"], products, None)
+        gate, ai_info = wf.safety_screen(gate, case["customer_message"], products[0] if products else None)
         if gate.flagged:  # Safety Gate first: no policy lines, no batch, no refund, whatever the per-line reading says
             wf._route_to_safety_review(case_id, gate, None, ai_info)
             return

@@ -32,7 +32,7 @@ from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
-from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess
+from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
@@ -581,8 +581,22 @@ class Workflow:
         the stored decision/status (so a stale or tampered row, or a direct POST, cannot reach a refund)."""
         if case.get("status") in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get("decision") == NEEDS_SAFETY:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: Safety Gate case {case['id']} cannot be approved or refunded here.")
-        product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
         reason = (case.get("intent") or {}).get("reason")
+        if case.get("decision") == MIXED:
+            products = [self.db.get_product(r["sku"]) for r in self.db.get_items(case["id"])]
+            # Per-line proposal reason can only ADD a fault signal (DAMAGED on a gated SKU).
+            line_reasons = [(r.get("proposal") or {}).get("reason") for r in self.db.get_items(case["id"])]
+            flagged = safety_assess_any(case.get("customer_message"), products, reason).flagged
+            if not flagged:
+                for product, lr in zip(products, line_reasons):
+                    if safety_assess(case.get("customer_message"), product, lr).flagged:
+                        flagged = True
+                        break
+            if flagged:
+                raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
+                                       "approval and refund are refused.")
+            return
+        product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
         if safety_assess(case.get("customer_message"), product, reason).flagged:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
                                    "approval and refund are refused.")
