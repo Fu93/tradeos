@@ -85,8 +85,9 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
   **Limits (not claimed):** this is a defensible default, not legal advice, and not jurisdiction detection. TradeOS does
   not know whether the buyer chose express delivery, so it treats the order's shipping as standard delivery (an express
   upgrade should be reviewed by the human approver; use `MERCHANT_ERROR` if you do not want to refund shipping on
-  withdrawal). Return postage is never refunded. Shipping tax and tax-inclusive pricing are not modelled (the sandbox
-  order carries tax per item only). The 14-day statutory refund deadline and "goods diminished in value" deductions are
+  withdrawal). Return postage is never refunded. Shipping tax is not modelled, and there is no "prices include tax" mode
+  (the sandbox order carries tax per item only). A VAT-inclusive order sent with gross prices and no item tax is
+  refunded at the right amount (see "VAT-inclusive prices" below), but the VAT part is not shown. The 14-day statutory refund deadline and "goods diminished in value" deductions are
   not modelled. Withdrawal rights are statutory for UK/EU consumers; outside them this is merchant policy.
 * **Cumulative cap:** `refunded or reserved (all batches that are not DECLINED/FAILED) + this batch <= captured`.
   The check is made when proposing, when approving, and again at send time against PayPal's own capture amount.
@@ -131,7 +132,7 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
   hidden.
 * `scripts/sandbox_verify.py`: the original 31 checks are untouched. `--mixed` adds the mixed-order live check;
   `--mixed-only --allow-mock` runs only that and is for local mock runs (labelled not live proof). `--multi-batch-only` / `--multi-batch`
-  runs Case M2 (two batches on one capture, third attempts refused, one webhook per refund id); `--paypal-overrefund-probe` adds one direct Sandbox over-refund call using `PAYPAL_CLIENT_ID/SECRET` from the environment (PayPal's own refusal, outside the app). Tax-inclusive pricing is not modelled and was not tested; per-item tax is what Case M / M2 already send.
+  runs Case M2 (two batches on one capture, third attempts refused, one webhook per refund id); `--paypal-overrefund-probe` adds one direct Sandbox over-refund call using `PAYPAL_CLIENT_ID/SECRET` from the environment (PayPal's own refusal, outside the app). There is no tax-inclusive pricing mode. VAT-inclusive gross prices with no item tax are covered by mock tests only (`tests/test_tax_inclusive.py`, see below), not live. Per-item tax is what Case M / M2 send.
 
 Screens: `docs/img/mixed-approval-desktop.png`, `docs/img/mixed-approval-mobile-390.png` (headless Chrome, mock data,
 DEMO-DATA badge visible).
@@ -161,6 +162,39 @@ DEMO-DATA badge visible).
 2. Tax is refunded in proportion to the returned units using the order's per-unit tax. Confirm that matches your tax
    rules (it does not cover tax-inclusive pricing, shipping tax or tax rounding differences vs. PayPal's per-line rounding; per-unit tax is the exact amount recorded on the order, so no rounding is introduced by TradeOS).
 3. Is "last unit of a line" the right trigger for refunding a merchant-error line's shipping share? (It is conservative: a partly-returned line never releases shipping.)
+
+## VAT-inclusive prices (worked example; mock tests only)
+
+Many UK/EU shops show prices that already include VAT. With PayPal Orders v2 such an order is sent as the **gross**
+`unit_amount` with **no** item `tax`. Only tax that is not already in the price goes into `tax_total`, and PayPal checks
+`amount = item_total + tax_total + shipping + ...` ([Orders v2](https://developer.paypal.com/docs/api/orders/v2/#orders_create)).
+Sending the included VAT again as item tax would count it twice. TradeOS refunds `unit x qty + tax_unit x qty
+(+ shipping share)`, so for such an order **every refund is the gross price x the returned units**. The VAT goes back
+inside that amount, at the rate of the original sale, without any rounding by TradeOS.
+
+Example: GBP, prices include 20 % VAT, no item tax.
+
+| Line | Gross price | Qty | Resolution |
+|---|---|---|---|
+| Trainers | 49.99 | 1 | return (wrong size) |
+| Rain jacket | 79.00 | 1 | open (a person decides) |
+| Wool socks | 6.00 | 3 | return 1 pair (changed mind) |
+| T-shirt | 24.00 | 1 | exchange |
+| Shipping (VAT-inclusive) | 4.99 | | |
+
+* PayPal order: `item_total` 170.99, shipping 4.99, no `tax_total`, total **175.98**.
+* Refund batch (shipping policy `NEVER`): 49.99 + 1 x 6.00 = **55.99 GBP**, exactly what the customer paid for those
+  units. The VAT inside it is 55.99 x 1/6 = **9.33** (trainers 8.33 + socks 1.00), which is what the shop's books need.
+  **TradeOS does not show that 9.33**: the approval screen shows "+ tax 0.00 each" and "Tax refunded 0.00", and the stored quote has `tax_minor` 0, because the order carries no item tax. A merchant would have to work out the VAT part in their own books.
+* With the default `WITHDRAWAL_FULL` and damaged trainers (merchant error), the trainers' share of the VAT-inclusive
+  shipping (1.46 of 4.99, by item value) is added. On mock PayPal the refund call sent is `57.45 GBP` (49.99 + 1.46 + 6.00).
+* A return of everything over three batches refunds exactly 175.98 (no penny drift), and a fourth attempt is refused.
+* A shop that sends net + per-unit VAT that adds back up to the gross price (e.g. 41.66 + 8.33 = 49.99) gets the same
+  refund amounts. Drift can only come from a split that does not add back up, and TradeOS does not make one.
+
+Proven by `tests/test_tax_inclusive.py` (13 tests: pure maths plus one end-to-end run on mock PayPal). **Not proven
+live** on PayPal Sandbox. **Not claimed:** showing the VAT part, a VAT rate per line, changes of VAT rate between sale
+and refund, shipping-tax rules, or PayPal's own per-line rounding.
 
 ## Rollback
 
