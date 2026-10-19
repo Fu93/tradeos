@@ -477,3 +477,59 @@ def test_mixed_batch_approve_is_refused_when_the_message_carries_a_safety_signal
                     data={"expected_total": li.to_str(b["amount_minor"], b["currency"]), "expected_hash": b["items_hash"]})
     assert r.status_code == 409 and "Needs human safety review" in r.text
     assert wf.db.get_batch(b["id"])["status"] == "PROPOSED" and not wf.db.paypal_calls(cid, "refund_capture")
+
+
+# ------------------------------------------------------------------------------------------ mixed: all line products
+def test_assess_any_ors_across_line_products_and_is_escalate_only():
+    """Harm language wins without a product; a fault on ANY gated SKU is enough; apparel-only stays quiet."""
+    from app.safety import assess_any
+    msg_fault = "The kettle is broken and no longer heats."
+    assert not assess(msg_fault, SHOE).flagged
+    assert assess(msg_fault, KETTLE).flagged
+    assert assess_any(msg_fault, [SHOE, JACKET]).flagged is False
+    hit = assess_any(msg_fault, [SHOE, KETTLE, JACKET])
+    assert hit.flagged and hit.trigger == "gated_product_fault" and hit.product_class == "MAINS_HEATING"
+    # llm_reason can only add
+    assert assess_any("colour is wrong", [KETTLE], None).flagged is False
+    assert assess_any("colour is wrong", [KETTLE], "DAMAGED").flagged is True
+    harm = assess_any("It caught fire.", [SHOE, None])
+    assert harm.flagged and harm.trigger == "harm_language"
+    assert assess_any("fine thanks", []).flagged is False
+    assert assess_any("fine thanks", None).flagged is False
+
+
+def test_mixed_order_with_gated_sku_and_fault_language_routes_to_safety_before_batch(settings):
+    """Regression: mixed used to call assess(message, None), so a 'broken kettle' line never flagged."""
+    from app import mixed as mx
+    client, pp, wf = make_app(settings)
+    # Seed a mixed case whose second line is re-labelled as a kettle (gated) before process runs.
+    cid = wf.mixed.create_case(message="The electric kettle on line 2 is broken and stopped working. Refund it.")
+    # Relabel line 2's SKU into a gated product before PayPal + gate run.
+    items = wf.db.get_items(cid)
+    kettle_sku = items[1]["sku"]
+    wf.db.upsert_product(kettle_sku, "Electric kettle 1.7 L", "appliance", True, "79.00", "demo")
+    wf.mixed.process(cid)
+    case = wf.db.get_case(cid)
+    assert case["status"] == SAFETY_STATUS and case["decision"] == SAFETY_STATUS
+    assert not wf.db.list_batches(cid) and not wf.db.paypal_calls(cid, "refund_capture")
+    # Money endpoints refuse (409 path via RefundNotAllowed)
+    r = client.post(f"/cases/{cid}/approve", follow_redirects=False)
+    assert r.status_code == 409 and "Safety Gate" in r.text
+
+
+def test_mixed_batch_approve_refused_when_a_line_sku_is_gated_and_message_reports_fault(settings):
+    """Approve-time re-scan must look at ALL line products, not only cases.product_sku (line 1)."""
+    from app import lineitems as li
+    client, pp, wf = make_app(settings)
+    cid = case_from(client.post("/demo/run/M", follow_redirects=False))
+    b = wf.db.get_batch(f"{cid}-B1")
+    assert b and b["status"] == "PROPOSED"
+    # Line 1 stays sneakers (case.product_sku); line 2 becomes a kettle. Message reports a fault only.
+    items = wf.db.get_items(cid)
+    wf.db.upsert_product(items[1]["sku"], "Electric kettle 1.7 L", "appliance", True, "79.00", "demo")
+    wf.db.update_case(cid, force=True, customer_message="The kettle is broken and does not work. Please refund.")
+    r = client.post(f"/cases/{cid}/batches/{b['id']}/approve", follow_redirects=False,
+                    data={"expected_total": li.to_str(b["amount_minor"], b["currency"]),
+                          "expected_hash": b["items_hash"]})
+    assert r.status_code == 409 and "Needs human safety review" in r.text
+    assert wf.db.get_batch(b["id"])["status"] == "PROPOSED" and not wf.db.paypal_calls(cid, "refund_capture")

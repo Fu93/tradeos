@@ -291,3 +291,27 @@ def assess(message: str | None, product: dict | None = None, llm_reason: str | N
         if fault:
             return SafetyAssessment(True, "gated_product_fault", cls, tuple(fault))
     return SafetyAssessment(False, "none", cls)
+
+
+def assess_any(message: str | None, products: list[dict | None] | None = None,
+               llm_reason: str | None = None) -> SafetyAssessment:
+    """Safety Gate over one or more catalogue products (mixed orders). Escalate-only OR:
+
+    * harm language is product-independent (checked once);
+    * a gated-product fault on ANY line is enough;
+    * ``llm_reason`` can only add a flag, never remove one.
+
+    An empty / missing product list still runs the harm-language rule (same as ``assess(..., None)``).
+    """
+    harm_first = assess(message, None, None)
+    if harm_first.flagged:
+        return harm_first
+    seen: list[dict | None] = []
+    for p in (products or [None]):
+        if p in seen:
+            continue
+        seen.append(p)
+        a = assess(message, p, llm_reason)
+        if a.flagged:
+            return a
+    return harm_first if not seen else assess(message, seen[-1], llm_reason)
