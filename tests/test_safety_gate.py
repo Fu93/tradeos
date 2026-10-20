@@ -502,15 +502,27 @@ def test_mixed_order_with_gated_sku_and_fault_language_routes_to_safety_before_b
     """Regression: mixed used to call assess(message, None), so a 'broken kettle' line never flagged."""
     from app import mixed as mx
     client, pp, wf = make_app(settings)
+    # Drive the real mixed-order entry point (app.mixed.MixedOrders), not the single-product workflow path.
+    assert isinstance(wf.mixed, mx.MixedOrders)
     # Seed a mixed case whose second line is re-labelled as a kettle (gated) before process runs.
-    cid = wf.mixed.create_case(message="The electric kettle on line 2 is broken and stopped working. Refund it.")
+    msg = "The electric kettle on line 2 is broken and stopped working. Refund it."
+    cid = wf.mixed.create_case(message=msg)
     # Relabel line 2's SKU into a gated product before PayPal + gate run.
     items = wf.db.get_items(cid)
+    assert len(items) >= 2 and items[1]["sku"] != items[0]["sku"]
     kettle_sku = items[1]["sku"]
     wf.db.upsert_product(kettle_sku, "Electric kettle 1.7 L", "appliance", True, "79.00", "demo")
+    # Precondition: only line 2 can trip the gate. The message alone (product=None, the pre-#72 call) and
+    # line 1's product do not flag, so a pass below proves the gate scanned beyond line 1.
+    assert not assess(msg, None).flagged
+    assert not assess(msg, wf.db.get_product(items[0]["sku"])).flagged
+    assert assess(msg, wf.db.get_product(kettle_sku)).flagged
     wf.mixed.process(cid)
     case = wf.db.get_case(cid)
     assert case["status"] == SAFETY_STATUS and case["decision"] == SAFETY_STATUS
+    ev = next(e for e in wf.db.timeline(cid) if e["stage"] == "safety")
+    assert ev["detail"]["trigger"] == "gated_product_fault" and ev["detail"]["product_class"] == "MAINS_HEATING"
+    assert ev["detail"]["refund_api_called"] is False
     assert not wf.db.list_batches(cid) and not wf.db.paypal_calls(cid, "refund_capture")
     # Money endpoints refuse (409 path via RefundNotAllowed)
     r = client.post(f"/cases/{cid}/approve", follow_redirects=False)
