@@ -462,6 +462,16 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   changes, the event ID is not consumed and the endpoint answers 500 so PayPal's retry can be processed later. The
   rejections return 200, because a non-2xx would only make PayPal resend the same message.
   This limits replays; it is not complete replay protection.
+
+  | Threat | What TradeOS does | Covered by |
+  |---|---|---|
+  | Re-send of an already-processed event id (incl. old transmission time) | Logged *stale/replay rejected*; no state change; HTTP 200 so PayPal stops retrying | `tests/test_replay.py::test_replay_of_processed_event_with_old_time_rejected`, `tests/test_webhook_state.py::test_duplicate_verified_delivery_is_noop` |
+  | Future-dated transmission time | Rejected without consuming the event id | `test_future_dated_event_rejected_without_claiming_event_id` |
+  | Old, never-seen event (late delivery / unclear retry clock) | Payload not trusted for a state change; refund re-read with `GET`, scoped to this case's capture/refund ids | `test_old_unseen_event_uses_paypal_get_not_payload`, `test_get_result_must_belong_to_this_case` |
+  | Late `GET` fails | Nothing changes; event id not consumed; HTTP 500 so PayPal can retry | `test_late_event_get_failure_no_body_trust_no_success_id_not_consumed` |
+  | Unsigned / bad signature | Unverified path; no money-state change | `tests/test_webhook_state.py::test_unverified_completed_changes_nothing` |
+  | Dedupe store wiped on ephemeral restart | Pre-restart cases are gone too; a replayed id finds no case and is ignored; residual shrinks only with a persistent disk (not enabled on the hosted demo) | Disclosed; no test claims otherwise |
+
 - **Unknown refund outcome.** If the refund call times out or PayPal returns 5xx, the case becomes
   `REFUND_OUTCOME_UNKNOWN` ("checking with PayPal" — never "no money moved", which is shown only when PayPal answered
   with an error). TradeOS GETs the capture in the background (5 s timeout) and refuses a retry (409) until that check
