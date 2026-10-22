@@ -14,10 +14,10 @@ from pathlib import Path
 
 import pytest
 
-from app import autonomy, lineitems as li, policy, safety
+from app import autonomy, lineitems as li, safety
 from app.intent import IntentResult
 from app.policy import PolicyInput, evaluate
-from tests.helpers import FakeExtractor, case_from, make_app
+from tests.helpers import case_from, make_app
 
 ROOT = Path(__file__).resolve().parents[1]
 TODAY = date(2026, 10, 19)
