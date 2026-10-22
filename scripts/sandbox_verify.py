@@ -50,8 +50,15 @@ def mixed_checks(c: httpx.Client, check, allow_mock: bool = False) -> None:
         return
     cid = r.headers["location"].split("case=")[1]
     d = api(cid)
-    mixed, batches = d["mixed"], d["mixed"]["batches"]
-    res = sorted(i["resolution"] for i in mixed["items"])
+    mixed = d.get("mixed") or {}
+    items = mixed.get("items") or []
+    batches = mixed.get("batches") or []
+    resolutions = [i.get("resolution") for i in items]
+    if not items or any(r is None for r in resolutions):
+        check(False, f"Mixed {cid}: incomplete after create (resolutions={resolutions}); "
+              f"often a PayPal Sandbox timeout — report FAIL, do not crash")
+        return
+    res = sorted(resolutions)
     check(res == ["EXCHANGE", "REFUND", "REFUND", "REFUND"], f"Mixed {cid}: 3 items resolved REFUND, 1 EXCHANGE ({res})")
     check(len(batches) == 1 and batches[0]["status"] == "PROPOSED" and batches[0]["amount_minor"] > 0,
           f"Mixed {cid}: one batch awaits approval (computed {batches[0]['amount_minor'] if batches else None} minor units)")
@@ -120,7 +127,13 @@ def multi_batch_checks(c: httpx.Client, check, allow_mock: bool = False, probe: 
         return
     cid = r.headers["location"].split("case=")[1]
     d = api(cid)
-    res = sorted(i["resolution"] for i in d["mixed"]["items"])
+    items = ((d.get("mixed") or {}).get("items") or [])
+    resolutions = [i.get("resolution") for i in items]
+    if not items or any(r is None for r in resolutions):
+        check(False, f"MB {cid}: incomplete after create (resolutions={resolutions}); "
+              f"often a PayPal Sandbox timeout — report FAIL, do not crash")
+        return
+    res = sorted(resolutions)
     check(res == ["EXCHANGE", "NEEDS_HUMAN", "NEEDS_HUMAN", "REFUND"], f"MB {cid}: lines resolved by code {res}")
     b1 = d["mixed"]["batches"][0]
     cap_minor = d["mixed"]["ledger"]["captured_minor"]
@@ -217,18 +230,24 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
             fails.append(label)
 
     if multi_only:
-        health = c.get("/healthz").json()
-        check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
-              f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
-        multi_batch_checks(c, check, allow_mock, probe)
+        try:
+            health = c.get("/healthz").json()
+            check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
+                  f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
+            multi_batch_checks(c, check, allow_mock, probe)
+        except httpx.TimeoutException as exc:
+            check(False, f"MB: HTTP timeout talking to app/PayPal path ({exc.__class__.__name__})")
         print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
         return 0 if not fails else 1
 
     if mixed_only:
-        health = c.get("/healthz").json()
-        check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
-              f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
-        mixed_checks(c, check, allow_mock)
+        try:
+            health = c.get("/healthz").json()
+            check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
+                  f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
+            mixed_checks(c, check, allow_mock)
+        except httpx.TimeoutException as exc:
+            check(False, f"Mixed: HTTP timeout talking to app/PayPal path ({exc.__class__.__name__})")
         print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
         return 0 if not fails else 1
 
