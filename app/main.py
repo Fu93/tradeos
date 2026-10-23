@@ -537,7 +537,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.get("/cases/{case_id}/audit/verify")
     def audit_verify(case_id: str):
-        """Recompute the case's hash chain. Read-only. See README 'Hash-chained audit trail' for limits."""
+        """Recompute the case's hash chain. Read-only. See docs/how-it-works.md 'Hash-chained audit trail' for limits."""
         if not db.get_case(case_id):
             raise HTTPException(404)
         result, chained = db.verify_and_fold(case_id)
@@ -604,7 +604,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def audit_heads():
         """The chain head of every case, for retention OUTSIDE this database (the deploy-verify
         workflow saves one list per deployment as a workflow artifact). Two head lists recorded at
-        different times are what make a truncated or rewritten chain detectable — README
+        different times are what make a truncated or rewritten chain detectable — docs/how-it-works.md
         'Hash-chained audit trail': tamper-evident, not tamper-proof."""
         return JSONResponse({"generated_at": utcnow(), "heads": db.chain_heads()})
 

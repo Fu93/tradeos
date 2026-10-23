@@ -376,7 +376,7 @@ def test_F9_zwnj_and_zwj_preserved():
 # ---------------------------------------------------------------- unchanged by design (documented)
 def test_F4_injection_phrased_as_exchange_reaches_human_with_fixed_amount(tmp_path):
     """The intent/policy model is unchanged: an LLM steered into EXCHANGE makes the case ELIGIBLE, but the
-    amount stays the backend's 49.99 and nothing moves without a human approval (README states this)."""
+    amount stays the backend's 49.99 and nothing moves without a human approval (docs/how-it-works.md states this)."""
     class InjectedLLM:
         name = "fake-llm"
 
