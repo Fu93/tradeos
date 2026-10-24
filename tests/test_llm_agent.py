@@ -262,20 +262,66 @@ def site(tmp_path):
         client.__exit__(None, None, None)
 
 
+def start_live(client, goal: str) -> str:
+    """POST the button, follow it to the run page's id, and wait for the background run to finish."""
+    r = client.post("/demo/live-agent", data={"goal": goal}, follow_redirects=False)
+    assert r.status_code == 303 and r.headers["location"].startswith("/agent-runs/")
+    run_id = r.headers["location"].rsplit("/", 1)[1]
+    client.app.state.agent_runs.join(run_id, timeout=20)
+    return run_id
+
+
 def test_dashboard_live_adversarial_run_is_recorded_and_shown(site):
     client, wf, paypal = site(FakeModel(adversarial))
-    r = client.post("/demo/live-agent", data={"goal": "adversarial"}, follow_redirects=False)
-    assert r.status_code == 303 and r.headers["location"].endswith("#live-run")
+    run_id = start_live(client, "adversarial")
+    run = client.get(f"/api/agent-runs/{run_id}").json()
+    assert run["status"] == "done" and run["stop_reason"] == "the model finished" and len(run["steps"]) == 4
     case = wf.db.latest_case("G", "Live AI agent: get $500")
-    assert case["status"] == "REJECTED" and paypal.refund_capture.call_count == 0
+    assert run["case_id"] == case["id"] and case["status"] == "REJECTED" and paypal.refund_capture.call_count == 0
     chained = [json.loads(e["payload_json"]) for e in wf.db.chain_entries(case["id"]) if e["type"] == "audit:agent"]
     record = next(e["detail"] for e in chained if e["title"].startswith("Live AI agent run"))
     assert record["goal"] == "adversarial" and record["agent_can_approve"] is False and len(record["steps"]) == 4
     assert wf.db.verify_chain(case["id"])["ok"]
+    run_page = client.get(f"/agent-runs/{run_id}").text
+    assert 'data-status="done"' in run_page and "approve_refund" in run_page and f"/?case={case['id']}" in run_page
     page = client.get(f"/?case={case['id']}").text
     assert 'id="live-run"' in page and "approve_refund" in page and "no such tool" in page
     panel = client.get("/").text
     assert "Live AI agent: get $500" in panel and "REJECTED · refund calls: 0" in panel
+
+
+def test_progress_is_visible_while_the_model_is_still_working(site):
+    import threading
+    gate = threading.Event()
+
+    def slow(messages, turn):
+        if turn == 2:
+            gate.wait(10)  # the model "thinks" until the test has looked
+        return honest(messages, turn)
+    client, _, _ = site(FakeModel(slow))
+    r = client.post("/demo/live-agent", data={"goal": "honest"}, follow_redirects=False)
+    run_id = r.headers["location"].rsplit("/", 1)[1]
+    try:
+        for _ in range(200):
+            mid = client.get(f"/api/agent-runs/{run_id}").json()
+            if len(mid["steps"]) == 2 and mid["phase"] == "thinking":
+                break
+            import time
+            time.sleep(0.02)
+        assert mid["status"] == "running" and mid["model_calls"] == 3 and mid["case_id"] is None
+        assert [s["tool"] for s in mid["steps"]] == ["place_demo_order", "request_return"]
+        page = client.get(f"/agent-runs/{run_id}").text
+        assert 'data-status="running"' in page and "call 3 of at most 6" in page and "request_return" in page
+        busy = client.post("/demo/live-agent", data={"goal": "adversarial"})
+        assert busy.status_code == 409 and f"/agent-runs/{run_id}" in busy.text
+    finally:
+        gate.set()
+        client.app.state.agent_runs.join(run_id, timeout=20)
+    assert client.get(f"/api/agent-runs/{run_id}").json()["status"] == "done"
+    # the click refused while busy did not use up that address's cooldown: after the run, a new one would start
+    # (the per-address cooldown from the first click is what stops it, not the refused second click)
+    assert "Run live AI agent was used from your address" in client.post("/demo/live-agent",
+                                                                          data={"goal": "honest"}).text
 
 
 def test_dashboard_escapes_what_the_model_writes(site):
@@ -284,10 +330,10 @@ def test_dashboard_escapes_what_the_model_writes(site):
             return call("place_demo_order", {"buyer_name": "<img src=x onerror=alert(1)>", "agent_name": "a"})
         return say("<script>alert('pwned')</script>")
     client, wf, _ = site(FakeModel(xss))
-    client.post("/demo/live-agent", data={"goal": "honest"})
-    page = client.get(f"/?case={wf.db.latest_case('G')['id']}").text
-    assert "<script>alert('pwned')</script>" not in page and "&lt;script&gt;" in page
-    assert "<img src=x" not in page
+    run_id = start_live(client, "honest")
+    for page in (client.get(f"/?case={wf.db.latest_case('G')['id']}").text, client.get(f"/agent-runs/{run_id}").text):
+        assert "<script>alert('pwned')</script>" not in page and "&lt;script&gt;" in page
+        assert "<img src=x" not in page
 
 
 def test_dashboard_without_a_model_explains_instead_of_offering(site):
@@ -300,21 +346,54 @@ def test_dashboard_without_a_model_explains_instead_of_offering(site):
 def test_dashboard_live_agent_guards(site):
     client, _, _ = site(FakeModel(honest))
     assert client.post("/demo/live-agent", data={"goal": "steal"}).status_code == 404
-    assert client.post("/demo/live-agent", data={"goal": "honest"}, follow_redirects=False).status_code == 303
+    start_live(client, "honest")
     again = client.post("/demo/live-agent", data={"goal": "honest"})
     assert again.status_code == 429 and "Run live AI agent was used from your address" in again.text
 
 
-def test_dashboard_reports_a_run_that_placed_no_order(site):
+def test_a_run_that_placed_no_order_says_so(site):
     client, wf, _ = site(FakeModel(honest, status=429))
-    r = client.post("/demo/live-agent", data={"goal": "adversarial"})
-    assert r.status_code == 502 and "placed no order" in r.text and "rate limit" in r.text
+    run_id = start_live(client, "adversarial")
+    run = client.get(f"/api/agent-runs/{run_id}").json()
+    assert run["status"] == "done" and run["case_id"] is None and "rate limit" in run["stop_reason"]
+    assert "placed no order" in client.get(f"/agent-runs/{run_id}").text
     assert not wf.db.list_cases(scenario="G")
+
+
+def test_a_run_that_crashes_is_reported_as_failed_not_spinning(site, monkeypatch):
+    client, wf, _ = site(FakeModel(honest))
+
+    def broken(case_id, record):
+        raise RuntimeError("disk full")
+    monkeypatch.setattr(wf.agents, "record_run", broken)
+    run_id = start_live(client, "honest")
+    run = client.get(f"/api/agent-runs/{run_id}").json()
+    assert run["status"] == "failed" and run["error"] == "RuntimeError" and "disk full" not in str(run)
+    assert "Nothing was approved or refunded" in client.get(f"/agent-runs/{run_id}").text
+
+
+def test_unknown_runs_are_404(site):
+    client, _, _ = site(FakeModel(honest))
+    assert client.get("/api/agent-runs/nope").status_code == 404
+    assert client.get("/agent-runs/nope").status_code == 404
 
 
 def test_dashboard_live_agent_shares_the_run_limit(site):
     client, _, _ = site(FakeModel(honest), rate_limit_per_minute=0)
     assert client.post("/demo/live-agent", data={"goal": "honest"}).status_code == 429
+
+
+def test_registry_keeps_a_bounded_number_of_finished_runs():
+    from app.agent_runs import MAX_KEPT, AgentRunRegistry
+    from app.llm_agent import AgentRun
+    reg = AgentRunRegistry()
+    ids = []
+    for _ in range(MAX_KEPT + 5):
+        run_id = reg.start(GOALS["honest"], "m", lambda progress: AgentRun("honest", "m"), lambda run: None)
+        reg.join(run_id, 5)
+        ids.append(run_id)
+    assert reg.get(ids[0]) is None and reg.get(ids[-1])["status"] == "done"
+    assert sum(reg.get(i) is not None for i in ids) == MAX_KEPT
 
 
 def test_arguments_that_are_json_but_not_an_object_run_nothing(server):
@@ -330,3 +409,26 @@ def test_list_arguments_are_capped_too(server):
         return call("get_case_status", {"order_id": "G-X", "extra": ["y" * 900]}) if turn == 0 else say("done")
     run = play(srv, FakeModel(decide))
     assert run.steps[0]["args"]["extra"][0].endswith("…") and len(run.steps[0]["args"]["extra"][0]) == 601
+
+
+def test_registry_refuses_a_second_run_that_raced_past_the_route_check():
+    import threading
+    from app.agent_runs import AgentRunRegistry
+    from app.llm_agent import AgentRun
+    reg, hold = AgentRunRegistry(), threading.Event()
+
+    def slow(progress):
+        hold.wait(5)
+        return AgentRun("honest", "m")
+    first = reg.start(GOALS["honest"], "m", slow, lambda run: None)
+    assert reg.running() == first
+    assert reg.start(GOALS["adversarial"], "m", slow, lambda run: None) is None
+    hold.set()
+    reg.join(first, 5)
+    assert reg.running() is None
+
+
+def test_progress_for_an_unknown_run_is_ignored():
+    from app.agent_runs import AgentRunRegistry
+    from app.llm_agent import AgentRun
+    AgentRunRegistry()._progress("gone", AgentRun("honest", "m"), "step")  # no exception, nothing created

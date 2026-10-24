@@ -19,7 +19,8 @@ import anyio
 
 from .agent_gateway import mount_mcp
 from .agent_scenes import LIVE_LABELS, agent_panel, agent_provenance, live_run, run_scenes
-from .llm_agent import GOALS, ToolCallingLLM, run_agent
+from .agent_runs import AgentRunRegistry
+from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
@@ -128,6 +129,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         agent_llm = ToolCallingLLM(settings.llm_api_key, settings.llm_base_url, settings.llm_model)
     live_cooldown = Cooldown(120, 60, action="Run live AI agent",
                              done_by_other="A live AI agent ran less than a minute ago (model rate limit)")
+    agent_runs = AgentRunRegistry()
+    app.state.agent_runs = agent_runs
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
@@ -300,17 +303,48 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         chosen = GOALS.get(goal)
         if chosen is None:
             raise HTTPException(404, "Unknown goal")
+        if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
+            return render_dashboard(request, flash="A live AI agent is already running. Watch it at "
+                                    f"/agent-runs/{busy}", status_code=409)
         if (reason := live_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Live agent not run: {reason}", status_code=429)
         if (refused := limited(request)) is not None:
             return refused
-        run = anyio.run(run_agent, app.state.mcp_server, agent_llm, chosen)
-        if run.order_id is None:
-            return render_dashboard(request, flash=f"The live agent placed no order ({run.stop_reason}). "
-                                    "Nothing was recorded or refunded.", status_code=502)
-        db.update_case(run.order_id, label=LIVE_LABELS[chosen.key])  # a display label (not a chained field)
-        wf.record_agent_run(run.order_id, run.record())
-        return RedirectResponse(f"/?case={run.order_id}#live-run", status_code=303)
+        server, llm = app.state.mcp_server, agent_llm
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: run_agent(server, llm, chosen, on_progress=on_progress))
+
+        def finish(run: AgentRun) -> str | None:
+            if run.order_id is None:
+                return None  # nothing to record on: the page shows the stop reason
+            db.update_case(run.order_id, label=LIVE_LABELS[chosen.key])  # a display label (not a chained field)
+            wf.agents.record_run(run.order_id, run.record())
+            return run.order_id
+
+        run_id = agent_runs.start(chosen, llm.model, execute, finish)
+        if run_id is None:
+            return render_dashboard(request, flash="A live AI agent is already running.", status_code=409)
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    @app.get("/agent-runs/{run_id}", response_class=HTMLResponse)
+    def agent_run_page(request: Request, run_id: str):
+        """Watch a live agent run. Rendered with what has happened so far; static/app.js polls for the rest."""
+        run = agent_runs.get(run_id)
+        if run is None:
+            raise HTTPException(404, "This live agent run is not known here (it finished long ago, or the demo "
+                                     "restarted). If it placed an order, the order still carries its transcript.")
+        return templates.TemplateResponse(request, "agent_run.html", {
+            "run": run, "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id)})
+
+    @app.get("/api/agent-runs/{run_id}")
+    def agent_run_api(run_id: str):
+        run = agent_runs.get(run_id)
+        if run is None:
+            raise HTTPException(404, "unknown run")
+        return run
 
     @app.post("/cases/free")
     def run_free_text(request: Request, message: str = Form(""), late: str = Form(""), preset: str = Form("")):

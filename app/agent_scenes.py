@@ -123,6 +123,6 @@ def agent_provenance(wf: Workflow, case: dict | None) -> dict[str, Any] | None:
     """Who asked, for whom, and what was verified, for the dashboard's card (None for a non-agent case)."""
     if not case or case.get("scenario") != AGENT:
         return None
-    info = wf.agent_provenance(case["id"])
+    info = wf.agents.provenance(case["id"])
     info["agent"] = info["agent"] or "an AI agent"
     return info

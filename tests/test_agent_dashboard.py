@@ -91,7 +91,7 @@ def test_agent_case_shows_who_asked_and_the_real_reason_it_needs_a_person(site):
 
 def test_card_for_an_order_with_no_request_yet(site):
     client, wf, _ = site()
-    order_id = wf.place_agent_order("Tom", agent="Some agent")
+    order_id = wf.agents.place_order("Tom", agent="Some agent")
     page = client.get(f"/?case={order_id}").text
     assert "Order placed by <strong>Some agent</strong> for Tom; no request on it yet." in page
     assert agent_provenance(wf, None) is None

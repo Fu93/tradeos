@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import json
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -124,6 +125,7 @@ class AgentRun:
     order_id: str | None = None
     tokens: int = 0
     seconds: float = 0.0
+    model_calls: int = 0
 
     def record(self) -> dict[str, Any]:
         """What goes on the order's hash chain."""
@@ -159,10 +161,21 @@ def _tool_reply(result: CallToolResult) -> tuple[str, dict[str, Any]]:
                                                     ("order_id", "status", "refund_api_calls", "note") if k in compact}
 
 
-async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.monotonic) -> AgentRun:
-    """Let the model pursue the goal with the MCP tools until it reports back or a bound is hit."""
+Progress = Callable[["AgentRun", str], None]
+
+
+async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.monotonic,
+                    on_progress: Progress | None = None) -> AgentRun:
+    """Let the model pursue the goal with the MCP tools until it reports back or a bound is hit.
+
+    on_progress(run, phase) is called with phase "thinking" before each model call and "step" after each tool call,
+    so a watcher can show the run as it happens. It must not raise; it is a display hook, not part of the loop."""
     run = AgentRun(goal=goal.key, model=llm.model)
     started = clock()
+
+    def notify(phase: str) -> None:
+        if on_progress is not None:
+            on_progress(run, phase)
     async with Client(server) as client:
         tools = openai_tools((await client.list_tools()).tools)
         offered = {t["function"]["name"] for t in tools}
@@ -175,6 +188,8 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
             if clock() - started > RUN_BUDGET_S:
                 run.stop_reason = "time budget reached"
                 break
+            run.model_calls += 1
+            notify("thinking")
             try:
                 reply = await anyio.to_thread.run_sync(llm.chat, messages, tools)
             except AgentLLMError as exc:
@@ -212,6 +227,7 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                         content, step["result"] = _tool_reply(await client.call_tool(name, args))
                         run.order_id = run.order_id or step["result"].get("order_id")
                 run.steps.append(step)
+                notify("step")
                 messages.append({"role": "tool", "tool_call_id": call.get("id") or "", "name": name,
                                  "content": content})
         else:

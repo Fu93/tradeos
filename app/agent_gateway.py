@@ -89,11 +89,11 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
             if not 0 <= purchased_days_ago <= MAX_DAYS_AGO:
                 raise ToolError(f"purchased_days_ago must be between 0 and {MAX_DAYS_AGO}.")
             try:
-                case_id = wf.place_agent_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago,
+                case_id = wf.agents.place_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago,
                                                caller=caller_of(ctx))
             except RefundNotAllowed as exc:
                 raise ToolError(str(exc)) from None
-            view = wf.agent_case_view(case_id)
+            view = wf.agents.view(case_id)
             if view["status"] == "ERROR":
                 # Reported as a failure, not as an order: the agent must not tell the buyer it bought anything.
                 error = (wf.db.get_case(case_id) or {}).get("error") or "no detail"
@@ -113,13 +113,13 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
     def request_return(order_id: str, message: str, agent_name: str, on_behalf_of: str,
                        ctx: Context) -> dict[str, Any]:
         try:
-            evaluated = wf.submit_agent_request(order_id, message, agent=agent_name, on_behalf_of=on_behalf_of,
+            evaluated = wf.agents.submit_request(order_id, message, agent=agent_name, on_behalf_of=on_behalf_of,
                                                 caller=caller_of(ctx))
         except CaseNotFound:
             raise not_found(order_id) from None
         except (ValueError, RefundNotAllowed) as exc:
             raise ToolError(str(exc)) from None
-        view = wf.agent_case_view(order_id)
+        view = wf.agents.view(order_id)
         if not evaluated:
             view["note"] = "This order already has a request (or one is in progress); its outcome is unchanged."
         return view
@@ -134,7 +134,7 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
     )
     def get_case_status(order_id: str) -> dict[str, Any]:
         try:
-            return wf.agent_case_view(order_id)
+            return wf.agents.view(order_id)
         except CaseNotFound:
             raise not_found(order_id) from None
 

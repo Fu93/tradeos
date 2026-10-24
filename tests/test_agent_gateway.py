@@ -547,7 +547,7 @@ def test_agents_and_the_dashboard_share_one_run_budget_per_address(http):
     ("REFUND_PENDING", "C"), ("REFUND_OUTCOME_UNKNOWN", "C"), ("REFUND_FAILED", "C"), ("REFUND_ERROR", "C"),
     ("EXCHANGE_ARRANGED", "C"), ("DECLINED_BY_HUMAN", "C"), ("SOMETHING_NEW", "C"), ("REFUND_COMPLETED", "C")])
 def test_next_step_never_tells_an_agent_a_refund_is_done_before_paypal_says_so(status, capture):
-    from app.workflow import _agent_next_step
+    from app.agent_desk import next_step as _agent_next_step
     step = _agent_next_step({"status": status, "capture_id": capture})
     assert ("COMPLETED" in step) == (status == "REFUND_COMPLETED")
     if status in ("REFUND_PENDING", "REFUND_OUTCOME_UNKNOWN"):
@@ -629,7 +629,7 @@ def test_in_process_calls_record_their_transport(make):
     wf, _, server = make()
     order_id = order(server)
     ok(ask(server, order_id))
-    provenance = wf.agent_provenance(order_id)
+    provenance = wf.agents.provenance(order_id)
     assert provenance["transport"] == "in-process" and provenance["identity_verified"] is False
 
 

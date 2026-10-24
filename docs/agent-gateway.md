@@ -124,6 +124,11 @@ same three tools. The model then decides every call itself ([`app/llm_agent.py`]
 | What the model reads back | Status, decision, reasons, amount, refund id and calls, next step | Compact (Groq's free tier allows about 8K tokens a minute); the audit head stays out of the model's context |
 | Rate | One run a minute for the whole demo, two per address | The model provider's limit; a 429 stops the run and says so |
 
+A run takes 10 to 90 seconds, so the button starts it in the background and opens `/agent-runs/<id>`, which shows
+each tool call as the model makes it (the page polls `/api/agent-runs/<id>`; everything the model wrote is inserted as
+text, never as HTML). Only one live run goes at a time for the whole demo; a click while one runs links to it
+instead. The progress page is a convenience that lives in memory. The record is on the chain.
+
 The whole run is written to the order's hash chain: goal, model, every tool call with its arguments and outcome,
 tokens, time, stop reason and the model's own final report (`agent_can_approve: false`). The case page shows it as a
 transcript. The dashboard escapes everything the model writes.

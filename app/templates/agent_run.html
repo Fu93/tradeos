@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Live AI agent · {{ run.title }} · TradeOS{% endblock %}
+{% macro step_line(s) -%}
+  <code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | tojson }}</span>{% endif %}
+  → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% else %}{{ (s.result.status or '') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}
+{%- endmacro %}
+{% block content %}
+<section class="block live-run-page" data-agent-run="{{ run.id }}" data-status="{{ run.status }}">
+  <p class="small"><a href="/#agents">← Back to the dashboard</a></p>
+  <h1>{{ run.title }} <span class="chip agent">Live AI agent</span></h1>
+  <p class="small muted">Model <code>{{ run.model }}</code> chooses every tool call itself. It is offered the same three MCP tools as
+    any agent, and none of them can approve or refund. Each step appears here as the model takes it.</p>
+
+  <p class="run-status" id="run-status" role="status" aria-live="polite">
+    {% if run.status == "running" %}<span class="chip warn">Running</span> {% if run.phase == "thinking" %}the model is deciding (call {{ run.model_calls }} of at most 6)…{% elif run.phase == "step" %}tool call done; the model is reading the result…{% else %}starting…{% endif %}
+    {% elif run.status == "failed" %}<span class="chip bad">Failed</span> the run stopped with an internal error ({{ run.error }}). Nothing was approved or refunded.
+    {% else %}<span class="chip ok">Finished</span> {{ run.stop_reason }} · {{ run.model_calls }} model calls · {{ run.tokens }} tokens · {{ run.seconds }} s{% endif %}
+  </p>
+
+  <ol class="run-steps small" id="run-steps">
+    {% for s in run.steps %}<li>{{ step_line(s) }}</li>{% endfor %}
+  </ol>
+  <p class="small muted" id="run-empty"{% if run.steps %} hidden{% endif %}>No tool calls yet.</p>
+
+  <div id="run-final"{% if run.status == "running" %} hidden{% endif %}>
+    <p class="small"><strong>The model's report:</strong> <span id="run-report">{{ run.final_report or '—' }}</span></p>
+    <p class="small" id="run-outcome">
+      {% if run.case_id %}<a class="btn small" id="run-case" href="/?case={{ run.case_id }}#live-run">Open the order and its audit trail</a>
+      {% elif run.status != "running" %}The model placed no order, so nothing was recorded on a case and nothing was refunded.{% endif %}
+    </p>
+  </div>
+  <noscript><p class="small muted">JavaScript is off: reload this page to see new steps.</p></noscript>
+</section>
+{% endblock %}
