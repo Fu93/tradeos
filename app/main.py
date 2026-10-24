@@ -18,7 +18,8 @@ from fastapi.templating import Jinja2Templates
 import anyio
 
 from .agent_gateway import mount_mcp
-from .agent_scenes import agent_panel, agent_provenance, run_scenes
+from .agent_scenes import LIVE_LABELS, agent_panel, agent_provenance, live_run, run_scenes
+from .llm_agent import GOALS, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
@@ -59,7 +60,7 @@ WEBHOOK_MAX_BODY = 64 * 1024
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
-               today=None, note_writer=None) -> FastAPI:
+               today=None, note_writer=None, agent_llm: ToolCallingLLM | None = None) -> FastAPI:
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
@@ -121,6 +122,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # click is allowed once a minute per address and once every 20 s for the whole demo.
     agent_cooldown = Cooldown(60, 20, action="Run agent scenes",
                               done_by_other="Someone else just ran the agent scenes")
+    # A live LLM agent: the same provider as the extractor, unless a test injects one. Groq's free tier allows about
+    # 8K tokens a minute and a run uses several thousand, so one run a minute for the whole demo, two per address.
+    if agent_llm is None and settings.llm_configured:
+        agent_llm = ToolCallingLLM(settings.llm_api_key, settings.llm_base_url, settings.llm_model)
+    live_cooldown = Cooldown(120, 60, action="Run live AI agent",
+                             done_by_other="A live AI agent ran less than a minute ago (model rate limit)")
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
@@ -195,7 +202,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
             "agent": agent_provenance(wf, current),
-            "agents": agent_panel(db, mcp_tools(), settings.agent_demo_orders) if app.state.mcp_server else None,
+            "agents": (agent_panel(db, mcp_tools(), settings.agent_demo_orders,
+                                   agent_llm.model if agent_llm else None) if app.state.mcp_server else None),
+            "live_run": live_run(db, current),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -282,6 +291,26 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return render_dashboard(request, flash="Agent scenes: " + "; ".join(
                 f"{o['scene']}: {o['error']}" for o in failed), status_code=502)
         return RedirectResponse(f"/?case={honest}#agents", status_code=303)
+
+    @app.post("/demo/live-agent")
+    def run_live_agent(request: Request, goal: str = Form("")):
+        """A real model pursues a goal with the MCP tools. Its whole run is recorded on the order's hash chain."""
+        if app.state.mcp_server is None or not settings.agent_demo_orders or agent_llm is None:
+            raise HTTPException(404)
+        chosen = GOALS.get(goal)
+        if chosen is None:
+            raise HTTPException(404, "Unknown goal")
+        if (reason := live_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Live agent not run: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        run = anyio.run(run_agent, app.state.mcp_server, agent_llm, chosen)
+        if run.order_id is None:
+            return render_dashboard(request, flash=f"The live agent placed no order ({run.stop_reason}). "
+                                    "Nothing was recorded or refunded.", status_code=502)
+        db.update_case(run.order_id, label=LIVE_LABELS[chosen.key])  # a display label (not a chained field)
+        wf.record_agent_run(run.order_id, run.record())
+        return RedirectResponse(f"/?case={run.order_id}#live-run", status_code=303)
 
     @app.post("/cases/free")
     def run_free_text(request: Request, message: str = Form(""), late: str = Form(""), preset: str = Form("")):

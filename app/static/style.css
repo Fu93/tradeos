@@ -311,3 +311,14 @@ main:focus { outline: none; }
 .agents-grid { grid-template-columns: repeat(3, 1fr); }
 @media (max-width: 1000px) { .agents-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .agents-run { flex-direction: column; align-items: flex-start; } }
+
+/* Live AI agent */
+.live-agent { margin: 6px 0 14px; padding: 10px 12px; border: 1px dashed var(--agent); border-radius: 10px; background: #fbfeff; }
+.live-agent h3, .live-run h3 { margin: 0 0 6px; font-size: 15px; }
+.live-agent p { margin: 0 0 8px; }
+.live-results { margin: 8px 0 0; padding-left: 18px; }
+.btn.danger-outline { border-color: #f1a39b; color: var(--bad); }
+.live-run { margin: 0 0 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fcfdff; overflow-wrap: anywhere; }
+.live-run ol { margin: 6px 0; padding-left: 20px; }
+.live-run li { margin: 3px 0; }
+.bad-text { color: var(--bad); }

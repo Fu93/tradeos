@@ -4,11 +4,12 @@ Run: 2026-10-08T23:04:09+00:00 · dataset: 52 hand-labelled messages ([dataset.j
 
 Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).
 
-> **Staleness caveat (added 2026-10-11):** this eval was measured against the *pre-exchange* policy, when every refund request was routed to a human and only `EXCHANGE_REQUEST` could be handled autonomously. The policy has since changed (the merchant's own settings may approve a size exchange too; `approval_source` records who handled each case). The LLM numbers below describe the extractor, which is unchanged, but the policy-level "unwarranted accept" column no longer reflects the current rules — the eval has not been re-run under them (README says the same).
+> **Policy rows rescored 2026-10-24T08:52:49+00:00 (no model calls).** The rows that ask what the policy would do ("same outcome as the label", "would accept a request it should not", injections, "missed") were recomputed with the policy engine as it was at that time, where a return with a stated reason and a size exchange are both requests the policy accepts. The LLM's outputs themselves are still the ones from the 2026-10-08T23:04:09+00:00 run, made with the extractor prompt from before the return-vs-exchange change (10 Oct 2026). A full re-run with today's prompt needs `LLM_API_KEY`: `python scripts/eval_intent.py`. These rows check the policy's request rule alone; in production the instruction-text heuristic also rejects injection-like messages, so the live system is at least this strict.
 
-**Keyword-fallback column re-run 2026-10-08T23:50:54+00:00 (keyword-only, no LLM calls), after the fallback injection guard:** when the LLM is unavailable and the message looks like a prompt injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged from the 2026-10-08T23:04:09+00:00 run.
+**Keyword-fallback column re-run 2026-10-24T08:52:49+00:00 (keyword-only, no LLM calls), after the fallback injection guard:** when the LLM is unavailable and the message looks like a prompt injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged from the 2026-10-08T23:04:09+00:00 run.
 
 * Before (keyword run 2026-10-08T23:04:09+00:00): exact match 10/52; injections the policy would wrongly accept: 2 (m37, m52).
+* Before (keyword run 2026-10-08T23:50:54+00:00): exact match 8/52; injections the policy would wrongly accept: 0.
 * After: exact match 8/52; injections the policy would wrongly accept: 0.
 
 ## Headline
@@ -27,9 +28,9 @@ Labels were written by hand from the schema in `app/intent.py` before the run an
 | `intent` accuracy | 94% (49/52) | 21% (11/52) |
 | `reason` accuracy | 81% (42/52) | 27% (14/52) |
 | `requested_action` accuracy | 92% (48/52) | 21% (11/52) |
-| Same policy request-check outcome as the label | 98% (51/52) | 65% (34/52) |
+| Same policy request-check outcome as the label | 98% (51/52) | 38% (20/52) |
 | Policy would accept a request it should not | 0  | 0  |
-| Exchange missed → routed to a human | 1 | 18 |
+| Acceptable request missed → routed to a human | 1 | 32 |
 
 ## Exact match per language
 

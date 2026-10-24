@@ -88,8 +88,19 @@ def scene_ok(scene: Scene, case: dict, refund_calls: int) -> bool:
     return status == REJECTED and refund_calls == 0
 
 
-def agent_panel(db: Database, tools: list[str], demo_orders: bool) -> dict[str, Any]:
-    """The dashboard's AI-agents block: the tools agents get, and the latest run of each scene."""
+LIVE_LABELS = {"honest": "Live AI agent: honest buyer", "adversarial": "Live AI agent: get $500"}
+
+
+def live_run(db: Database, case: dict | None) -> dict[str, Any] | None:
+    """The latest live LLM agent run recorded on this case's chain (None if no live agent worked on it)."""
+    if not case or case.get("scenario") != AGENT:
+        return None
+    runs = [e for e in db.timeline(case["id"]) if e["stage"] == "agent" and e["title"].startswith("Live AI agent run")]
+    return runs[-1].get("detail") if runs else None
+
+
+def agent_panel(db: Database, tools: list[str], demo_orders: bool, live_model: str | None = None) -> dict[str, Any]:
+    """The dashboard's AI-agents block: the tools agents get, the latest run of each scene, and the live agent."""
     scenes = []
     for scene in SCENES:
         case = db.latest_case(AGENT, scene.label)
@@ -99,7 +110,13 @@ def agent_panel(db: Database, tools: list[str], demo_orders: bool) -> dict[str, 
             "result": (f"{case['status'].replace('_', ' ')} · refund calls: {calls}") if case else None,
             "ok": scene_ok(scene, case, calls) if case else False,
         })
-    return {"tools": tools, "scenes": scenes, "demo_orders": demo_orders}
+    live = []
+    for key, label in LIVE_LABELS.items():
+        case = db.latest_case(AGENT, label)
+        calls = len(db.paypal_calls(case["id"], "refund_capture")) if case else 0
+        live.append({"key": key, "label": label, "case": case,
+                     "result": (f"{case['status'].replace('_', ' ')} · refund calls: {calls}") if case else None})
+    return {"tools": tools, "scenes": scenes, "demo_orders": demo_orders, "live_model": live_model, "live": live}
 
 
 def agent_provenance(wf: Workflow, case: dict | None) -> dict[str, Any] | None:

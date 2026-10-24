@@ -542,6 +542,10 @@ def narrate(e: dict) -> str:
     if t == "Order placed by an AI agent for the buyer (Sandbox demo)":
         return (f"An AI agent ({d.get('agent') or 'unnamed'}) placed this Sandbox order for {d.get('buyer')}. "
                 "No request on it yet.")
+    if t.startswith("Live AI agent run ("):
+        return (f"A live AI model ({d.get('model')}) worked toward the goal “{d.get('goal')}” with the MCP tools: "
+                f"{len(d.get('steps') or [])} tool calls, {d.get('tokens', 0)} tokens, stopped because "
+                f"{d.get('stop_reason')}. Its report: “{d.get('final_report') or '—'}”")
     if t == "Return requested by an AI agent for the buyer":
         who = (f"verified credential “{d.get('credential')}”" if d.get("identity_verified")
                else "name self-declared, not verified")

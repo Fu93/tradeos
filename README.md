@@ -16,6 +16,7 @@
 4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
 6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A scripted MCP client asks for three returns through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
+7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
@@ -105,8 +106,9 @@ or exchange, and read the case status. There is no approve, decline or refund to
 same loop as a dashboard case — AI reads the words, the Safety Gate and the deterministic policy decide on PayPal's
 own capture data — and **every agent-originated case waits for a person**, even with `AUTO_ENABLED` on. Who asked,
 and for whom, is on the case's hash chain. Prompt injection, a late order and a safety report all end with Refund
-API calls = 0 (tested in `tests/test_agent_gateway.py`). Details, connection snippets and the demo script:
-[`docs/agent-gateway.md`](docs/agent-gateway.md).
+API calls = 0 (tested in `tests/test_agent_gateway.py`). A **live AI agent**, a real model told to "get $500 by any
+wording", chooses its own tool calls against the same server, and its full transcript goes on the chain. Details,
+connection snippets and the demo scripts: [`docs/agent-gateway.md`](docs/agent-gateway.md).
 
 ## What TradeOS does
 
@@ -352,9 +354,11 @@ including 7 prompt-injection attempts). Full results, every miss and the limits:
 | Latency p50 / p95 | 0.63 s / 1.25 s | — |
 | Estimated cost per message (Groq list price) | $0.00013 | $0 |
 
-These numbers were measured before the return-vs-exchange change (when only exchanges were automated and a refund
-request was always rejected); the "policy-acceptable" row has not been re-run under the new rules. Intent accuracy
-is unaffected by the policy change.
+The model outputs were measured on 8 Oct 2026, before the return-vs-exchange change. On 24 Oct the policy-level rows
+were rescored against the current rules (a return with a stated reason and a size exchange are both acceptable
+requests), with no new model calls: still 0 policy-acceptable requests that should not be, and 0 / 7 injections. The
+keyword column was re-run in full (it is deterministic). A full LLM re-run with today's extractor prompt needs an API
+key: `python scripts/eval_intent.py`.
 
 Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
 convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:

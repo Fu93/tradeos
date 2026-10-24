@@ -822,6 +822,13 @@ class Workflow:
                             identity_verified=bool(detail.get("identity_verified")))
         return info
 
+    def record_agent_run(self, case_id: str, record: dict) -> None:
+        """A live LLM agent's run (goal, model, every tool call it made, its final report) goes onto the order's hash
+        chain, so what the model tried is part of the audit trail. Recording changes no state and moves no money."""
+        self._agent_case(case_id)
+        self.db.audit(case_id, "agent", f"Live AI agent run ({record.get('model')}): "
+                      f"{len(record.get('steps') or [])} tool calls, {record.get('stop_reason')}", record)
+
     def agent_case_view(self, case_id: str) -> dict:
         """What the agent may read back: the outcome and the evidence, never the dashboard's controls."""
         case = self._agent_case(case_id)

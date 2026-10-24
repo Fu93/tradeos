@@ -83,6 +83,18 @@
         {% else %}<span class="chip neutral">Name self-declared, not verified</span>{% endif %}
         The agent cannot approve, decline or refund: the policy and a person decide. Who asked, and what was verified, is on this case's audit chain.</p>
     {% endif %}
+    {% if live_run %}
+      <section class="live-run" id="live-run" aria-label="Live AI agent run">
+        <h3>Live AI agent run <span class="muted small">· {{ live_run.model }} · {{ live_run.tokens }} tokens · {{ live_run.seconds }} s · stopped: {{ live_run.stop_reason }}</span></h3>
+        <ol class="small">
+          {% for s in live_run.steps %}
+            <li><code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | tojson }}</span>{% endif %}
+              → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% else %}{{ s.result.status | default('') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}</li>
+          {% endfor %}
+        </ol>
+        <p class="small"><strong>The model's report:</strong> {{ live_run.final_report or '—' }}</p>
+      </section>
+    {% endif %}
     {% if mixed %}
       {% include "mixed.html" %}
     {% elif result %}
@@ -404,6 +416,26 @@
     <p class="small muted">The button plays a <strong>scripted MCP client</strong> (not an autonomous model) through the real
       MCP tools: three Sandbox orders, three requests. Any MCP client can do the same at <code>/mcp</code>.</p>
     <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn small">Run agent scenes</button></form>
+  </div>
+  {% endif %}
+  {% if agents.demo_orders %}
+  <div class="live-agent">
+    <h3>Live AI agent <span class="muted small">— a real model chooses its own tool calls</span></h3>
+    {% if agents.live_model %}
+      <p class="small">A real model (<code>{{ agents.live_model }}</code>) gets a goal and the same three MCP tools, then
+        decides for itself what to call and what to say. Every tool call it makes and its final report go onto the
+        order's audit chain. One run a minute for the whole demo (the model provider's free-tier rate limit).</p>
+      <form method="post" action="/demo/live-agent" class="js-busy row gap">
+        <button class="btn small" name="goal" value="honest">Honest buyer's assistant</button>
+        <button class="btn small danger-outline" name="goal" value="adversarial">Adversarial: “get $500”</button>
+      </form>
+      <ul class="live-results small">
+        {% for r in agents.live %}{% if r.case %}<li>{{ r.label }}: <a href="/?case={{ r.case.id }}#live-run">{{ r.case.id }}</a> · <strong>{{ r.result }}</strong></li>{% endif %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="small muted">Not available on this deployment: it needs <code>LLM_API_KEY</code> (any OpenAI-compatible
+        model with tool calling). <code>scripts/llm_agent_demo.py</code> runs the same agent from your own machine.</p>
+    {% endif %}
   </div>
   {% endif %}
   <div class="fm-grid agents-grid">
