@@ -15,6 +15,14 @@
   <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ 'Needs human safety review' if status == 'NEEDS_HUMAN_SAFETY_REVIEW' else ('Safety reviewed' if status == 'SAFETY_REVIEWED' else (status | replace('_', ' ')) ) }}</span>
 {%- endmacro %}
 {% block content %}
+{% if inbox %}
+<div class="inbox-strip" role="note">
+  <p>{% if inbox.total %}<strong>Returns inbox:</strong> {{ inbox.needs_you }} need{{ 's' if inbox.needs_you == 1 }} you{% if inbox.needs_you_agents %} ({{ inbox.needs_you_agents }} from AI agents){% endif %} ·
+    {{ inbox.agents }} from AI agents · refunds an AI agent approved: <strong>{{ inbox.agent_approved }}</strong>
+    {% else %}<strong>Returns inbox:</strong> no requests yet. Run Case A below, or the AI-agent scenes; each request lands in the inbox.{% endif %}</p>
+  <a class="btn small" href="/inbox">Open the inbox</a>
+</div>
+{% endif %}
 
 <section class="controls">
   <div>
@@ -45,6 +53,7 @@
     <a class="btn primary" href="#pending">Start with Case A above</a>
     <a class="btn" href="#evidence">Jump to PayPal evidence</a>
     <a class="btn ghost" href="#failures">See failure &amp; safety modes</a>
+    {% if agents %}<a class="btn ghost" href="#agents">Try the AI-agent gateway</a>{% endif %}
   </div>
 </section>
 
@@ -54,7 +63,7 @@
   <span class="muted small">Cases:</span>
   {% for c in cases[:14] %}
     <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}"{% if current and c.id == current.id %} aria-current="true"{% endif %} title="{{ c.label }}">
-      <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span> {{ status_chip(c) }}</a>
+      <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span>{% if c.scenario == 'G' %} <span class="chip agent">AI agent</span>{% endif %} {{ status_chip(c) }}</a>
   {% endfor %}
 </nav>
 
@@ -74,6 +83,26 @@
   <section class="block" id="pending">
     <h2 id="pending-title"><span class="num">1</span> {{ section_title }}
       {% if current %}<span class="muted small">· {{ current.label }} · case {{ current.id }}</span>{% endif %}</h2>
+    {% if agent %}
+      <p class="agent-card" role="note"><span class="chip agent">AI agent</span>
+        {% if agent.requested %}Requested by <strong>{{ agent.agent }}</strong>{% if agent.on_behalf_of %} for {{ agent.on_behalf_of }}{% endif %} through the MCP gateway.
+        {% else %}Order placed by <strong>{{ agent.agent }}</strong>{% if agent.on_behalf_of %} for {{ agent.on_behalf_of }}{% endif %}; no request on it yet.{% endif %}
+        {% if agent.identity_verified %}<span class="chip ok">Verified credential: {{ agent.credential }}</span>
+        {% else %}<span class="chip neutral">Name self-declared, not verified</span>{% endif %}
+        The agent cannot approve, decline or refund: the policy and a person decide. Who asked, and what was verified, is on this case's audit chain.</p>
+    {% endif %}
+    {% if live_run %}
+      <section class="live-run" id="live-run" aria-label="Live AI agent run">
+        <h3>Live AI agent run <span class="muted small">· {{ live_run.model }} · {{ live_run.tokens }} tokens · {{ live_run.seconds }} s · stopped: {{ live_run.stop_reason }}</span></h3>
+        <ol class="small">
+          {% for s in live_run.steps %}
+            <li><code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | textjson }}</span>{% endif %}
+              → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% else %}{{ s.result.status | default('') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}</li>
+          {% endfor %}
+        </ol>
+        <p class="small"><strong>The model's report:</strong> {{ live_run.final_report or '—' }}</p>
+      </section>
+    {% endif %}
     {% if mixed %}
       {% include "mixed.html" %}
     {% elif result %}
@@ -109,7 +138,7 @@
             {% endif %}
             <form method="post" action="/cases/{{ current.id }}/decline" class="js-busy"><button class="btn ghost">Decline</button></form>
           </div>
-          <p class="muted small">Nothing is refunded without an approval recorded on the audit chain. This case needs a person: either autonomy is off, or it falls outside the merchant's limits.</p>
+          <p class="muted small">Nothing is refunded without an approval recorded on the audit chain. {% if agent %}This case needs a person because an AI agent asked for it: agent requests are never approved automatically.{% else %}This case needs a person: either autonomy is off, or it falls outside the merchant's limits.{% endif %}</p>
         {% elif current.status == "NEEDS_HUMAN_SAFETY_REVIEW" %}
           <form method="post" action="/cases/{{ current.id }}/safety-reviewed" class="js-busy actions safety-review">
             <label for="safety-note" class="small"><strong>Mark reviewed</strong> — record what you decided (stored on the audit chain; no refund, no money moves)</label>
@@ -200,7 +229,7 @@
             {% if e.detail and e.detail.draft %}
               <details><summary>Supplier draft</summary><pre>{{ e.detail.draft }}</pre></details>
             {% endif %}
-            {% if e.detail %}<details class="raw"><summary>raw</summary><pre>{{ e.detail | tojson(indent=2) }}</pre></details>{% endif %}
+            {% if e.detail %}<details class="raw"><summary>raw</summary><pre>{{ e.detail | textjson(indent=2) }}</pre></details>{% endif %}
           </li>
         {% endfor %}
       </ol>
@@ -381,6 +410,58 @@
     {% endfor %}
   </div>
 </section>
+
+{% if agents %}
+<!-- AI agents (MCP gateway) -->
+<section class="block agents" id="agents">
+  <h2>AI agents (MCP) <span class="muted small">— an agent can request a return, never approve one</span></h2>
+  <p class="small">Agents connect to <code>/mcp</code> and are offered
+    {% for n in agents.tools %}<code>{{ n }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
+    There is no approve, decline or refund tool. Every agent request waits for a person, even with autonomy on,
+    and the agent cannot set the amount: it comes from PayPal's capture.</p>
+  {% if agent_run_in_progress %}
+  <p class="small run-in-progress"><span class="chip warn">Running</span> An agent run is in progress:
+    <a href="/agent-runs/{{ agent_run_in_progress }}">watch it</a>. One run at a time for the whole demo.</p>
+  {% endif %}
+  {% if agents.demo_orders %}
+  <div class="row between agents-run">
+    <p class="small muted">The button plays a <strong>scripted MCP client</strong> (not an autonomous model) through the real
+      MCP tools: three Sandbox orders, three requests, each shown on a progress page as it returns. Any MCP client can
+      do the same at <code>/mcp</code>.</p>
+    <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn small">Run agent scenes</button></form>
+  </div>
+  {% endif %}
+  {% if agents.demo_orders %}
+  <div class="live-agent">
+    <h3>Live AI agent <span class="muted small">— a real model chooses its own tool calls</span></h3>
+    {% if agents.live_model %}
+      <p class="small">A real model (<code>{{ agents.live_model }}</code>) gets a goal and the same three MCP tools, then
+        decides for itself what to call and what to say. Every tool call it makes and its final report go onto the
+        order's audit chain. One run a minute for the whole demo (the model provider's free-tier rate limit).</p>
+      <form method="post" action="/demo/live-agent" class="js-busy row gap">
+        <button class="btn small" name="goal" value="honest">Honest buyer's assistant</button>
+        <button class="btn small danger-outline" name="goal" value="adversarial">Adversarial: “get $500”</button>
+      </form>
+      <ul class="live-results small">
+        {% for r in agents.live %}{% if r.case %}<li>{{ r.label }}: <a href="/?case={{ r.case.id }}#live-run">{{ r.case.id }}</a> · <strong>{{ r.result }}</strong></li>{% endif %}{% endfor %}
+      </ul>
+    {% else %}
+      <p class="small muted">Not available on this deployment: it needs <code>LLM_API_KEY</code> (any OpenAI-compatible
+        model with tool calling). <code>scripts/llm_agent_demo.py</code> runs the same agent from your own machine.</p>
+    {% endif %}
+  </div>
+  {% endif %}
+  <div class="fm-grid agents-grid">
+    {% for s in agents.scenes %}
+      <div class="fm {{ 'ok' if s.ok else '' }}">
+        <strong>{{ s.title }}</strong>
+        <p class="small muted">{{ s.expect }}</p>
+        {% if s.case %}<p class="small"><a href="/?case={{ s.case.id }}#pending">{{ s.case.id }}</a>: <strong>{{ s.result }}</strong> {{ '✓' if s.ok }}</p>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 
 <div class="grid-bottom">
   <!-- 3. Case economics (illustrative) -->

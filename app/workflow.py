@@ -19,7 +19,7 @@ import time
 import uuid
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
-from typing import Any, Callable
+from typing import TYPE_CHECKING, Any, Callable
 
 from .autonomy import decide_detailed
 from .config import Settings
@@ -35,6 +35,9 @@ from .safety_ai import SafetyClassifier, build_safety_classifier, combine as saf
 from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .agent_desk import AgentDesk
 
 HUMAN = "human"
 # Timeline actor for entries the merchant's autonomy policy wrote (never "human": no person was involved).
@@ -70,7 +73,11 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
     # Mixed order (DEMO-DATA line items, real Sandbox order + capture): per-line resolution, partial refund.
     "M": {"customer_name": "Priya (demo customer)", "seeded_days_ago": None, "label": "Case M — mixed order (DEMO-DATA)"},
+    # Agent gateway (MCP): an order an AI agent placed for a buyer, and later the agent's return request on it.
+    # Never runnable from the page (not in RUNNABLE); it is driven only through the agent_* methods below.
+    "G": {"customer_name": "Agent buyer", "seeded_days_ago": None, "label": "Agent order"},
 }
+AGENT = "G"
 MAX_TRACKED_CASES = 500  # cap for per-case reconcile/throttle maps (locks are never evicted, see _lock)
 RUNNABLE = ("A", "B", "R", "D", "P", "M", "M2")  # M2 = Case M with a two-step (multi-batch) message; not on the page
 MOCK_ONLY = ("P",)
@@ -90,10 +97,19 @@ ERROR = "ERROR"
 EXCHANGE_ARRANGED = "EXCHANGE_ARRANGED"  # human approved the exchange; supplier ships a replacement; no refund
 NEEDS_HUMAN = "NEEDS_HUMAN"              # e.g. exchange but the supplier is out of stock: offer a refund?
 NEEDS_SAFETY = SAFETY_STATUS             # v3.2 Safety Gate: a person reviews a possible hazard/injury; no refund/supplier path
+# Agent gateway: an order an agent placed, with no request yet. Not NEW, so process() never runs on it; only
+# wf.agents.submit_request() (app/agent_desk.py) moves it on, through the same _after_capture() loop a dashboard case takes.
+AGENT_ORDERED = "AGENT_ORDERED"
 
 
 SAFETY_REVIEWED = "SAFETY_REVIEWED"      # terminal: a person read a safety-gated case and recorded a note (no money moved)
 SAFETY_NOTE_MAX = 500
+
+
+def _is_mixed(case: dict) -> bool:
+    """A mixed order (Case M): its decision is MIXED once evaluated, and its scenario says so from the start (also
+    while it is in ERROR before any decision). Either marks it as refundable only batch by batch."""
+    return case.get("decision") == MIXED or case.get("scenario") == "M"
 
 
 class SafetyNoteInvalid(ValueError):
@@ -138,6 +154,14 @@ class Workflow:
         if getattr(self, "_mixed", None) is None:
             self._mixed = MixedOrders(self)
         return self._mixed
+
+    @property
+    def agents(self) -> "AgentDesk":
+        """The agent gateway's operations (app/agent_desk.py): place an order, request a return, read the outcome."""
+        if getattr(self, "_agents", None) is None:
+            from .agent_desk import AgentDesk  # imported here: agent_desk imports this module's statuses
+            self._agents = AgentDesk(self)
+        return self._agents
 
     @property
     def disputes(self) -> DisputeService:
@@ -193,7 +217,7 @@ class Workflow:
             self.new_case(scenario)
 
     def new_case(self, scenario: str, message: str | None = None, label: str | None = None,
-                 days_ago: int | None = None) -> str:
+                 days_ago: int | None = None, customer_name: str | None = None, status: str = NEW) -> str:
         if scenario not in SCENARIOS:
             raise ValueError("unknown scenario")
         if scenario == "M":
@@ -209,8 +233,8 @@ class Workflow:
         # chars so the PayPal-Request-Ids derived from it stay within PayPal's 38-char guidance.
         case_id = f"{scenario}-{uuid.uuid4().hex[:16].upper()}"
         self.db.insert_case(
-            id=case_id, scenario=scenario, label=label or spec["label"], status=NEW,
-            customer_name=spec["customer_name"], customer_message=message or DEMO_MESSAGE,
+            id=case_id, scenario=scenario, label=label or spec["label"], status=status,
+            customer_name=customer_name or spec["customer_name"], customer_message=message or DEMO_MESSAGE,
             product_sku=DEMO_PRODUCT["sku"], amount=self.settings.order_amount, currency=self.settings.currency,
             purchase_date_seeded=seeded,
             refund_fault=self.settings.refund_failure_mock_code if scenario == "R" else None,
@@ -335,6 +359,12 @@ class Workflow:
         if self._case(case_id)["scenario"] == "M":  # raises CaseNotFound for an unknown id
             self.mixed.process(case_id)
             return
+        if self._order_and_capture(case_id):
+            self._after_capture(case_id)
+
+    def _order_and_capture(self, case_id: str) -> bool:
+        """Step 1: PayPal Sandbox order + capture. True when the capture is recorded; False when the case now waits
+        for the sandbox buyer (AWAITING_BUYER) or PayPal failed (ERROR, recorded on the case)."""
         s = self.settings
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
@@ -361,12 +391,12 @@ class Workflow:
                 self.db.update_case(case_id, status=AWAITING_BUYER, approve_url=approve)
                 self.db.audit(case_id, "payment", "Waiting for sandbox buyer approval",
                               {"approve_url": approve, "order_status": order.get("status")})
-                return
+                return False
             self._record_capture(case_id, order, capture)
         except PayPalError as exc:
             self._fail(case_id, "payment", exc)
-            return
-        self._after_capture(case_id)
+            return False
+        return True
 
     def complete_buyer_approval(self, case_id: str) -> None:
         """Fallback path: buyer approved in the PayPal sandbox, now capture. This moves money, so it
@@ -387,6 +417,14 @@ class Workflow:
             self._record_capture(case_id, order, capture)
         except PayPalError as exc:
             self._fail(case_id, "payment", exc)
+            return
+        if case["scenario"] == AGENT:
+            # An agent order carries no request yet (its message is a placeholder). Evaluating it here would
+            # reject the order on that placeholder and use up its one request, so it goes back to waiting for
+            # the agent's request_return.
+            self.db.update_case(case_id, status=AGENT_ORDERED)
+            self.db.audit(case_id, "agent", "Buyer approved the payment at PayPal; the order now waits for the "
+                          "agent's request", {"capture_id": self._case(case_id)["capture_id"]})
             return
         self._after_capture(case_id)
 
@@ -547,6 +585,7 @@ class Workflow:
             injection_suspected=looks_like_injection(case.get("customer_message") or ""),
             intent_is_unknown=extraction.result.intent == "UNKNOWN",
             action=policy.action,
+            agent_originated=case.get("scenario") == AGENT,
         )
         limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount),
                   "auto_exchange_enabled": s.auto_exchange_enabled}
@@ -723,7 +762,7 @@ class Workflow:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
                 self._refuse_if_safety(case)
-                if case.get("decision") == MIXED:
+                if _is_mixed(case):
                     raise RefundNotAllowed("A mixed order is approved per batch (items + exact total), not as a whole.")
                 if skip_if_approved and case["human_decision"] == "APPROVED":
                     self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — this case was already approved, "
@@ -818,6 +857,8 @@ class Workflow:
 
     def _guard_refund(self, case: dict) -> None:
         self._refuse_if_safety(case)
+        if _is_mixed(case):  # batches have their own guarded path; a whole-capture refund would pay for exchanged items
+            raise RefundNotAllowed("A mixed order is refunded per batch (items + exact total), never as a whole.")
         if case["decision"] != "ELIGIBLE":
             raise RefundNotAllowed(f"Policy decision is {case['decision'] or 'missing'}; refund refused.")
         if case["human_decision"] != "APPROVED":
@@ -1035,7 +1076,12 @@ class Workflow:
                 raise RefundNotAllowed("Only a captured case that failed before the policy decision can be re-checked.")
             self.db.update_case(case_id, status=NEW, error=None)
             self.db.audit(case_id, "policy", "Retrying the policy check (PayPal could not be read last time)", {})
-        self._after_capture(case_id)
+        if _is_mixed(case):
+            # A mixed order is judged line by line into batches. The single-item flow would judge the whole order as
+            # one return and could make the full capture refundable, items meant for exchange included.
+            self.mixed.evaluate(case_id)
+        else:
+            self._after_capture(case_id)
 
     def refresh_refund(self, case_id: str) -> None:
         """Manual 'Refresh status' button: a full reconciliation against PayPal."""

@@ -539,6 +539,18 @@ def narrate(e: dict) -> str:
         return f"PayPal captured the payment — capture {d.get('capture_id')} is {d.get('status')}."
     if t == "Customer request received":
         return f"{d.get('customer')} wrote: “{d.get('message')}”"
+    if t == "Order placed by an AI agent for the buyer (Sandbox demo)":
+        return (f"An AI agent ({d.get('agent') or 'unnamed'}) placed this Sandbox order for {d.get('buyer')}. "
+                "No request on it yet.")
+    if t.startswith("Live AI agent run ("):
+        return (f"A live AI model ({d.get('model')}) worked toward the goal “{d.get('goal')}” with the MCP tools: "
+                f"{len(d.get('steps') or [])} tool calls, {d.get('tokens', 0)} tokens, stopped because "
+                f"{d.get('stop_reason')}. Its report: “{d.get('final_report') or '—'}”")
+    if t == "Return requested by an AI agent for the buyer":
+        who = (f"verified credential “{d.get('credential')}”" if d.get("identity_verified")
+               else "name self-declared, not verified")
+        return (f"AI agent {d.get('agent')} ({who}) asked for this on behalf of {d.get('on_behalf_of') or 'the buyer'}: "
+                f"“{d.get('message')}”. The agent cannot approve it; the merchant's policy and a person decide.")
     if t == "Intent extracted":
         lang = (d.get("assist") or {}).get("language")
         who = "The AI" if str(d.get("extractor", "")).startswith("llm") else "The keyword fallback"

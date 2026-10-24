@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Returns inbox · TradeOS{% endblock %}
+{% block head %}
+  <link rel="stylesheet" href="/static/vendor/ag-grid/ag-grid.min.css">
+  <link rel="stylesheet" href="/static/vendor/ag-grid/ag-theme-quartz-no-font.min.css">
+{% endblock %}
+{% block scripts %}<script src="/static/vendor/ag-grid/ag-grid-community.min.noStyle.js"></script>{% endblock %}
+{% block content %}
+<section class="inbox-head">
+  <div>
+    <h1>Returns inbox</h1>
+    <p class="muted">Every return request in one place, whether a customer wrote it in their own language or a buyer's
+      AI agent sent it through the <a href="/#agents">MCP gateway</a>. AI reads the language. Code decides what the
+      return policy allows. You approve the money. PayPal confirms it.</p>
+  </div>
+</section>
+
+<div class="inbox-stats" aria-label="Inbox summary">
+  <div class="stat needs"><strong>{{ summary.needs_you }}</strong><span>need you{% if summary.needs_you_agents %} · {{ summary.needs_you_agents }} from AI agents{% endif %}</span></div>
+  <div class="stat"><strong>{{ summary.waiting }}</strong><span>waiting on the buyer or PayPal</span></div>
+  <div class="stat"><strong>{{ summary.closed }}</strong><span>closed</span></div>
+  <div class="stat agent"><strong>{{ summary.agents }}</strong><span>requests from AI agents</span></div>
+  <div class="stat proof" title="Agent requests approved by anything other than a person. The gateway offers agents no approve or refund tool, and the autonomy policy always escalates agent requests to a person.">
+    <strong>{{ summary.agent_approved }}</strong><span>refunds an AI agent approved</span></div>
+</div>
+
+{% if rows %}
+{% if summary.total > rows|length %}<p class="small muted">Showing the newest {{ rows|length }} of {{ summary.total }} requests. The counts above cover all of them.</p>{% endif %}
+<div class="inbox-tools" id="inbox-tools" hidden>
+  <div class="seg" role="group" aria-label="Show">
+    <button type="button" class="chip-btn" data-inbox-filter="needs_you" aria-pressed="false">Needs you</button>
+    <button type="button" class="chip-btn" data-inbox-filter="agents" aria-pressed="false">From AI agents</button>
+    <button type="button" class="chip-btn" data-inbox-filter="all" aria-pressed="true">All</button>
+  </div>
+  <label class="small inbox-search">Search <input type="search" id="inbox-search" placeholder="buyer, agent, status…" autocomplete="off"></label>
+</div>
+<div id="inbox-grid" class="ag-theme-quartz inbox-grid" hidden aria-label="Return requests"></div>
+
+<div class="table-wrap" id="inbox-table">
+  <table class="inbox-table">
+    <caption class="sr-only">Return requests, newest first</caption>
+    <thead><tr><th scope="col">Received (UTC)</th><th scope="col">Needs</th><th scope="col">From</th><th scope="col">Buyer</th>
+      <th scope="col">Request</th><th scope="col">Amount</th><th scope="col">Status</th><th scope="col">Next step</th>
+      <th scope="col">Refund API calls</th><th scope="col">Audit chain</th></tr></thead>
+    <tbody>
+    {% for r in rows %}
+      <tr class="bucket-{{ r.bucket }}">
+        <td><a href="/?case={{ r.id }}">{{ r.received | ts }}</a></td>
+        <td><span class="chip {{ 'warn' if r.bucket == 'needs_you' else ('neutral' if r.bucket == 'waiting' else 'ok') }}">{{ r.bucket_label }}</span></td>
+        <td>{% if r.from_agent %}<span class="chip agent">AI agent</span> {{ r.requested_by }}
+              <span class="small {{ 'ok-text' if r.verified else 'muted' }}">{{ 'verified credential' if r.verified else 'name self-declared' }}</span>
+            {% else %}Customer message{% endif %}</td>
+        <td>{{ r.buyer }}</td>
+        <td>{{ r.request }}</td>
+        <td>{{ r.amount }}</td>
+        <td>{{ r.status | replace('_', ' ') }}</td>
+        <td class="small">{{ r.next_step }}{% if r.why %}<br><span class="muted">{{ r.why }}</span>{% endif %}</td>
+        <td>{{ r.refund_api_calls }}</td>
+        <td>{{ 'intact' if r.chain_ok else 'BROKEN' }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="inbox-empty">
+  <h2>No return requests yet</h2>
+  <p>Requests appear here as they arrive. To see the loop:</p>
+  <ul>
+    <li><a href="/">Cases</a>: run Case A, a customer's eligible return (a real PayPal Sandbox order and capture).</li>
+    <li><a href="/#agents">AI agents</a>: let a scripted client or a live model ask for returns through <code>/mcp</code>.</li>
+  </ul>
+</div>
+{% endif %}
+{% endblock %}

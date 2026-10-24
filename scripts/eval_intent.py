@@ -123,10 +123,12 @@ def main() -> None:
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--rescore", action="store_true", help="recompute metrics from saved results.json (no API calls)")
     args = ap.parse_args()
+    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
     if args.rescore:
         old = json.loads(OUT_JSON.read_text())
         write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
-              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"))
+              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"),
+              policy_scored_at=now)
         return
 
     data = json.loads(DATASET.read_text())
@@ -141,9 +143,8 @@ def main() -> None:
                             "injection_unwarranted_accept": old["injection"]["keyword"]["unwarranted_accept"]})
             for r, m in zip(old["rows"], msgs):
                 r["keyword"] = kw.extract(m["message"]).result.model_dump()
-            now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
             write(old["rows"], old["model"], old["run_at"], old["llm_meta"]["retries_429"],
-                  keyword_run_at=now, keyword_history=history)
+                  keyword_run_at=now, keyword_history=history, policy_scored_at=now)
             return
     use_llm = not args.keyword_only and bool(os.environ.get("LLM_API_KEY"))
     model = os.environ.get("LLM_MODEL") or DEFAULT_LLM_MODEL
@@ -176,9 +177,13 @@ def main() -> None:
 
 
 def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
-          keyword_run_at: str | None = None, keyword_history: list | None = None) -> None:
+          keyword_run_at: str | None = None, keyword_history: list | None = None,
+          policy_scored_at: str | None = None) -> None:
     llm = "llm" in rows[0]
     results = {"run_at": run_at, "keyword_run_at": keyword_run_at or run_at, "keyword_history": keyword_history or [],
+               # When the policy-level rows were last computed from the saved outputs (the policy engine is the code
+               # on disk at that moment). Differs from run_at after --rescore / --keyword-only.
+               "policy_scored_at": policy_scored_at or run_at,
                "dataset_size": len(rows), "model": model, "keyword": score(rows, "keyword"), "per_language": {}, "rows": rows}
     langs = [l for l in LANG_ORDER if any(r["lang"] == l for r in rows)]
     for l in langs:
@@ -221,6 +226,17 @@ def render_md(res: dict) -> str:
              f"([dataset.json](dataset.json)) · model: `{res['model']}` via Groq · script: `scripts/eval_intent.py`.", "",
              "Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards "
              "to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).", ""]
+    scored = res.get("policy_scored_at") or res["run_at"]
+    if scored != res["run_at"] and has_llm:
+        lines += [f"> **Policy rows rescored {scored} (no model calls).** The rows that ask what the policy would do "
+                  "(\"same outcome as the label\", \"would accept a request it should not\", injections, \"missed\") were "
+                  "recomputed with the policy engine as it was at that time, where a return with a stated reason and a "
+                  "size exchange are both requests the policy accepts. The LLM's outputs themselves are still the "
+                  f"ones from the {res['run_at']} run, made with the extractor prompt from before the return-vs-exchange "
+                  "change (10 Oct 2026). A full re-run with today's prompt needs `LLM_API_KEY`: "
+                  "`python scripts/eval_intent.py`. These rows check the policy's request rule alone; in production the "
+                  "instruction-text heuristic also rejects injection-like messages, so the live system is at least "
+                  "this strict.", ""]
     if res.get("keyword_run_at") and res["keyword_run_at"] != res["run_at"]:
         lines += [f"**Keyword-fallback column re-run {res['keyword_run_at']} (keyword-only, no LLM calls), after the "
                   "fallback injection guard:** when the LLM is unavailable and the message looks like a prompt "
@@ -247,7 +263,8 @@ def render_md(res: dict) -> str:
     lines.append(f"| Policy would accept a request it should not | {len(L['unwarranted_accept']) if has_llm else '—'} "
                  f"{('(' + ', '.join(L['unwarranted_accept']) + ')') if has_llm and L['unwarranted_accept'] else ''} | "
                  f"{len(k['unwarranted_accept'])} {('(' + ', '.join(k['unwarranted_accept']) + ')') if k['unwarranted_accept'] else ''} |")
-    lines.append(f"| Exchange missed → routed to a human | {len(L['missed_accept']) if has_llm else '—'} | {len(k['missed_accept'])} |")
+    lines.append(f"| Acceptable request missed → routed to a human | {len(L['missed_accept']) if has_llm else '—'} | "
+                 f"{len(k['missed_accept'])} |")
     if has_llm:
         miss = [r for r in rows if r["llm"] != r["expected"]]
         only_reason = [r for r in miss if r["llm"]["intent"] == r["expected"]["intent"]

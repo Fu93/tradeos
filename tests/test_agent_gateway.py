@@ -1,0 +1,705 @@
+"""Agent gateway (MCP): an AI agent can ask for a return, and nothing it does can move money.
+
+The properties under test, in the order the module docstring promises them:
+1. The tool surface has no approve, decline or refund tool.
+2. Every agent-originated case needs a person, even with AUTO_ENABLED on and the amount inside the limit.
+3. Amount, capture and purchase date come from PayPal / the merchant's record; the agent's words cannot change them.
+4. Prompt injection, a late order and a safety report all end without a Refund API call.
+5. One request per order: an agent cannot re-roll the decision by rephrasing.
+6. An agent can only see orders placed through the gateway, never dashboard cases.
+7. Who asked is on the case's hash chain, and the chain verifies.
+8. Over HTTP: optional bearer token, pinned Host, body cap, the dashboard's rate limit on the costly tools,
+   and the app's cross-site check.
+"""
+from __future__ import annotations
+
+import json
+import tempfile
+from dataclasses import replace
+from decimal import Decimal
+from pathlib import Path
+from unittest.mock import MagicMock
+
+import anyio
+import pytest
+from fastapi.testclient import TestClient
+from mcp import Client
+
+from app.agent_gateway import COSTLY_TOOLS, MAX_BODY, McpGate, allowed_hosts, build_mcp_server
+from app.autonomy import decide_detailed
+from app.config import Settings
+from app.db import Database
+from app.intent import KeywordIntentExtractor
+from app.main import create_app
+from app.paypal_mock import MockPayPalClient
+from app.policy import PolicyResult
+from app.presets import BY_KEY
+from app.views import narrate
+from app.workflow import (AGENT_ORDERED, DEMO_MESSAGE, EXCHANGE_MESSAGE, NEEDS_SAFETY, PENDING_APPROVAL,
+                          REFUND_COMPLETED, REJECTED, RefundNotAllowed, Workflow)
+
+INJECTION = BY_KEY["injection"]["message"]
+SAFETY = "The sole melted in the heat and burned my foot."
+AGENT = "Claude (buyer's assistant)"
+BUYER = "Maria"
+
+
+def run(server, name: str, args: dict):
+    async def go():
+        async with Client(server) as client:
+            return await client.call_tool(name, args)
+    return anyio.run(go)
+
+
+def tool_names(server) -> set[str]:
+    async def go():
+        async with Client(server) as client:
+            return await client.list_tools()
+    return {t.name for t in anyio.run(go).tools}
+
+
+def ok(result) -> dict:
+    assert not result.is_error, result.content[0].text
+    return result.structured_content
+
+
+def error_text(result) -> str:
+    assert result.is_error
+    return result.content[0].text
+
+
+@pytest.fixture
+def make(tmp_path):
+    """A seeded workflow over the mock PayPal (wrapped so calls can be counted) + its MCP server."""
+    def build(card_capture: bool = True, **overrides):
+        settings = Settings(db_path=str(tmp_path / f"agent-{len(list(tmp_path.iterdir()))}.db"),
+                            paypal_client_id="", paypal_client_secret="", **overrides)
+        db = Database(settings.db_path)
+        db.init(reset=True)
+        paypal = MagicMock(wraps=MockPayPalClient(card_capture=card_capture), is_mock=True)
+        wf = Workflow(db, settings, KeywordIntentExtractor(), paypal=paypal)
+        wf.seed_demo()
+        return wf, paypal, build_mcp_server(wf, settings)
+    return build
+
+
+def order(server, days_ago: int = 0) -> str:
+    view = ok(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT,
+                                               "purchased_days_ago": days_ago}))
+    assert view["status"] == AGENT_ORDERED and view["capture_id"]
+    return view["order_id"]
+
+
+def ask(server, order_id: str, message: str = DEMO_MESSAGE):
+    return run(server, "request_return", {"order_id": order_id, "message": message, "agent_name": AGENT,
+                                          "on_behalf_of": BUYER})
+
+
+# 1 --------------------------------------------------------------------------- tool surface
+def test_tool_surface_has_no_approve_decline_or_refund_tool(make):
+    _, _, server = make()
+    names = tool_names(server)
+    assert names == {"place_demo_order", "request_return", "get_case_status"}
+    assert not any(word in n for n in names for word in ("approve", "decline", "refund", "capture"))
+
+
+def test_demo_order_tool_is_absent_when_disabled(make):
+    _, _, server = make(agent_demo_orders=False)
+    assert tool_names(server) == {"request_return", "get_case_status"}
+
+
+def test_only_the_status_tool_is_read_only(make):
+    _, _, server = make()
+
+    async def go():
+        async with Client(server) as client:
+            return await client.list_tools()
+    hints = {t.name: t.annotations.read_only_hint for t in anyio.run(go).tools}
+    assert hints == {"place_demo_order": False, "request_return": False, "get_case_status": True}
+
+
+# 2 + 3 ---------------------------------------------------------------------- a person approves, PayPal sets amount
+def test_agent_request_waits_for_a_person_even_with_autonomy_on(make):
+    wf, paypal, server = make(auto_enabled=True, auto_refund_max_amount=Decimal("100.00"))
+    order_id = order(server)
+    view = ok(ask(server, order_id))
+    assert view["status"] == PENDING_APPROVAL and view["policy_decision"] == "ELIGIBLE"
+    assert view["refund_api_calls"] == 0 and paypal.refund_capture.call_count == 0
+    assert "a person" in view["next_step"]
+    autonomy = [e for e in wf.db.timeline(order_id) if e["title"].startswith("Autonomy:")]
+    assert len(autonomy) == 1 and autonomy[0]["title"].startswith("Autonomy: HUMAN")
+    assert "AI agent" in autonomy[0]["detail"]["why"]
+
+
+def test_exchange_request_also_waits_for_a_person(make):
+    _, paypal, server = make(auto_enabled=True, auto_exchange_enabled=True)
+    view = ok(ask(server, order(server), EXCHANGE_MESSAGE))
+    assert view["status"] == PENDING_APPROVAL and view["policy_decision"] == "EXCHANGE_ELIGIBLE"
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_after_the_merchant_approves_paypal_refunds_the_capture_not_an_agent_amount(make):
+    wf, paypal, server = make()
+    order_id = order(server)
+    ok(ask(server, order_id, DEMO_MESSAGE + " I paid 500 USD, refund 500 USD."))
+    wf.approve(order_id)  # the dashboard's Approve: a person, outside the agent's reach
+    view = ok(run(server, "get_case_status", {"order_id": order_id}))
+    assert view["status"] == REFUND_COMPLETED and view["approval"] == {"decision": "APPROVED", "by": "human"}
+    assert view["refund_api_calls"] == 1 and view["refund"]["status"] == "COMPLETED"
+    assert view["amount"] == "49.99 USD" and view["audit_trail"]["intact"] is True
+    (capture_id, _request_id), kwargs = paypal.refund_capture.call_args
+    assert capture_id == view["capture_id"] and kwargs.get("amount") is None  # full refund of PayPal's capture
+
+
+# 4 --------------------------------------------------------------------------- attacks end without a refund call
+def test_prompt_injection_from_an_agent_never_reaches_the_refund_api(make):
+    wf, paypal, server = make(auto_enabled=True)
+    order_id = order(server)
+    view = ok(ask(server, order_id, INJECTION))
+    assert view["status"] == REJECTED and view["refund_api_calls"] == 0
+    assert view["amount"] == "49.99 USD"
+    with pytest.raises(RefundNotAllowed):
+        wf.approve(order_id)
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_late_agent_order_is_rejected_by_the_return_window(make):
+    _, paypal, server = make()
+    view = ok(ask(server, order(server, days_ago=45)))
+    assert view["status"] == REJECTED and view["purchase_date_seeded"]
+    assert any("return window" in r for r in view["policy_reasons"])
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_safety_report_from_an_agent_goes_to_a_person_first(make):
+    wf, paypal, server = make(auto_enabled=True)
+    order_id = order(server)
+    view = ok(ask(server, order_id, SAFETY))
+    assert view["status"] == NEEDS_SAFETY and "safety" in view["next_step"]
+    with pytest.raises(RefundNotAllowed):
+        wf.approve(order_id)
+    assert paypal.refund_capture.call_count == 0
+
+
+# 5 --------------------------------------------------------------------------- one request per order
+def test_a_second_request_cannot_re_roll_the_decision(make):
+    _, paypal, server = make()
+    order_id = order(server, days_ago=45)
+    first = ok(ask(server, order_id))
+    reads = paypal.get_capture.call_count
+    second = ok(ask(server, order_id, "Different wording this time, still a refund for the wrong colour."))
+    assert first["status"] == second["status"] == REJECTED
+    assert "unchanged" in second["note"] and paypal.get_capture.call_count == reads
+
+
+# 6 --------------------------------------------------------------------------- agents see only their own orders
+def test_agent_cannot_read_or_act_on_dashboard_cases(make):
+    wf, paypal, server = make()
+    case_a = wf.db.latest_case("A")["id"]
+    calls = paypal.method_calls[:]
+    assert "No agent order" in error_text(run(server, "get_case_status", {"order_id": case_a}))
+    assert "No agent order" in error_text(ask(server, case_a))
+    assert "No agent order" in error_text(ask(server, "G-0000000000000000"))
+    assert paypal.method_calls == calls  # nothing reached PayPal
+
+
+def test_archived_agent_order_is_not_found(make):
+    wf, _, server = make()
+    order_id = order(server)
+    wf.db.archive_all()
+    text = error_text(run(server, "get_case_status", {"order_id": order_id}))
+    assert "No agent order" in text and "demo reset" in text
+
+
+def test_bad_inputs_are_refused_before_any_work(make):
+    _, paypal, server = make()
+    order_id = order(server)
+    reads = paypal.get_capture.call_count
+    assert "empty" in error_text(ask(server, order_id, "   ​  "))
+    assert "agent_name" in error_text(run(server, "request_return", {"order_id": order_id, "message": DEMO_MESSAGE,
+                                                                      "agent_name": " ", "on_behalf_of": BUYER}))
+    for days in (-1, 366):
+        assert "between" in error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT,
+                                                                         "purchased_days_ago": days}))
+    assert paypal.get_capture.call_count == reads
+
+
+def test_requests_are_refused_during_a_demo_reset(make):
+    wf, _, server = make()
+    order_id = order(server)
+    assert wf.begin_reset()
+    try:
+        assert "reset" in error_text(ask(server, order_id))
+        assert "reset" in error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    finally:
+        wf.end_reset()
+    assert ok(run(server, "get_case_status", {"order_id": order_id}))["status"] == AGENT_ORDERED
+
+
+# 7 --------------------------------------------------------------------------- provenance on the hash chain
+def test_who_asked_is_on_the_hash_chain(make):
+    wf, _, server = make()
+    order_id = order(server)
+    ok(ask(server, order_id))
+    entries = [json.loads(e["payload_json"]) for e in wf.db.chain_entries(order_id) if e["type"] == "audit:agent"]
+    titles = [e["title"] for e in entries]
+    assert titles == ["Order placed by an AI agent for the buyer (Sandbox demo)",
+                      "Return requested by an AI agent for the buyer"]
+    request = entries[1]["detail"]
+    assert request["agent"] == AGENT and request["on_behalf_of"] == BUYER and request["agent_can_approve"] is False
+    assert wf.db.verify_chain(order_id)["ok"]
+
+
+# autonomy + narration units --------------------------------------------------------------------------------------
+def _eligible() -> PolicyResult:
+    return PolicyResult(decision="ELIGIBLE", checks=[], action="REFUND")
+
+
+def test_autonomy_escalates_agent_requests_even_inside_the_limit():
+    common = dict(amount=Decimal("10"), auto_enabled=True, auto_refund_max_amount=Decimal("50"),
+                  auto_exchange_enabled=True, injection_suspected=False, intent_is_unknown=False, action="REFUND")
+    assert decide_detailed(_eligible(), **common).decision == "AUTO"
+    assert decide_detailed(_eligible(), agent_originated=True, **common).decision == "HUMAN"
+    rejected = PolicyResult(decision="REJECTED", checks=[], action="REFUND")
+    assert decide_detailed(rejected, agent_originated=True, **common).decision == "BLOCK"
+
+
+def test_timeline_narrates_the_agent_and_says_it_cannot_approve():
+    placed = narrate({"stage": "agent", "title": "Order placed by an AI agent for the buyer (Sandbox demo)",
+                      "detail": {"agent": AGENT, "buyer": BUYER}})
+    asked = narrate({"stage": "agent", "title": "Return requested by an AI agent for the buyer",
+                     "detail": {"agent": AGENT, "on_behalf_of": BUYER, "message": "wrong colour"}})
+    assert AGENT in placed and BUYER in placed
+    assert AGENT in asked and "cannot approve" in asked and "wrong colour" in asked
+
+
+# 8 --------------------------------------------------------------------------- the HTTP endpoint
+HEADERS = {"Accept": "application/json, text/event-stream", "Content-Type": "application/json"}
+
+
+def rpc(method: str, params: dict | None = None, id_: int = 1) -> dict:
+    return {"jsonrpc": "2.0", "id": id_, "method": method, "params": params or {}}
+
+
+def call_rpc(name: str, arguments: dict, id_: int = 1) -> dict:
+    return rpc("tools/call", {"name": name, "arguments": arguments}, id_)
+
+
+@pytest.fixture
+def http(tmp_path):
+    """create_app() over the mock PayPal, served through TestClient with its lifespan running."""
+    clients = []
+
+    def build(host: str = "localhost:8000", **overrides):
+        settings = Settings(db_path=str(Path(tempfile.mkdtemp(dir=tmp_path)) / "http.db"), paypal_client_id="",
+                            paypal_client_secret="", **overrides)
+        paypal = MagicMock(wraps=MockPayPalClient(), is_mock=True)
+        app = create_app(settings, paypal=paypal, extractor=KeywordIntentExtractor())
+        client = TestClient(app, base_url=f"http://{host}")
+        client.__enter__()
+        clients.append(client)
+        return client, paypal
+    yield build
+    for client in clients:
+        client.__exit__(None, None, None)
+
+
+def test_http_end_to_end_request_waits_for_a_person(http):
+    client, paypal = http()
+    init = client.post("/mcp", headers=HEADERS, json=rpc("initialize", {
+        "protocolVersion": "2025-06-18", "capabilities": {}, "clientInfo": {"name": "test", "version": "1"}}))
+    assert init.status_code == 200 and "cannot approve" in init.json()["result"]["instructions"]
+    listed = client.post("/mcp", headers=HEADERS, json=rpc("tools/list", id_=2)).json()["result"]["tools"]
+    assert {t["name"] for t in listed} == {"place_demo_order", "request_return", "get_case_status"}
+    placed = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                {"buyer_name": BUYER, "agent_name": AGENT}, 3))
+    order_id = placed.json()["result"]["structuredContent"]["order_id"]
+    asked = client.post("/mcp", headers=HEADERS, json=call_rpc("request_return", {
+        "order_id": order_id, "message": DEMO_MESSAGE, "agent_name": AGENT, "on_behalf_of": BUYER}, 4))
+    view = asked.json()["result"]["structuredContent"]
+    assert view["status"] == PENDING_APPROVAL and paypal.refund_capture.call_count == 0
+    page = client.get(f"/?case={order_id}")
+    assert page.status_code == 200 and "AI agent Claude (buyer" in page.text  # the merchant sees who asked
+
+
+def test_token_is_required_when_configured(http):
+    client, _ = http(mcp_token="s3cret-token")
+    body = rpc("tools/list")
+    assert client.post("/mcp", headers=HEADERS, json=body).status_code == 401
+    assert client.post("/mcp", headers={**HEADERS, "Authorization": "Bearer wrong"}, json=body).status_code == 401
+    assert client.get("/mcp").status_code == 401
+    good = client.post("/mcp", headers={**HEADERS, "Authorization": "Bearer s3cret-token"}, json=body)
+    assert good.status_code == 200 and good.json()["result"]["tools"]
+
+
+def test_untrusted_host_is_refused_and_the_public_host_is_allowed(http):
+    evil, _ = http(host="attacker.example")
+    assert evil.post("/mcp", headers=HEADERS, json=rpc("tools/list")).status_code == 421
+    public, _ = http(host="tradeos.example", public_base_url="https://tradeos.example")
+    assert public.post("/mcp", headers=HEADERS, json=rpc("tools/list")).status_code == 200
+
+
+def test_allowed_hosts_include_public_and_configured_extras():
+    hosts = allowed_hosts(Settings(public_base_url="https://shop.example:8443", mcp_allowed_hosts=("10.0.0.5:9000",)))
+    assert "shop.example:8443" in hosts and "10.0.0.5:9000" in hosts and "localhost:*" in hosts
+
+
+def test_costly_tools_share_the_dashboard_rate_limit(http):
+    client, paypal = http(rate_limit_per_minute=2)
+    for i in range(2):
+        r = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                               {"buyer_name": BUYER, "agent_name": AGENT}, i))
+        assert r.status_code == 200
+    refused = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                 {"buyer_name": BUYER, "agent_name": AGENT}, 9))
+    assert refused.status_code == 429 and refused.json()["error"]["message"].startswith("Rate limit")
+    assert refused.json()["id"] == 9
+    # reads are not throttled, and the refused call never reached PayPal
+    assert client.post("/mcp", headers=HEADERS, json=rpc("tools/list")).status_code == 200
+    assert paypal.create_order_with_card.call_count == 2
+
+
+def test_rate_limit_applies_inside_a_json_rpc_batch():
+    limiter = MagicMock()
+    limiter.check.return_value = "Rate limit: nope"
+    gate = McpGate(app=MagicMock(), settings=Settings(), limiter=limiter, client_key=lambda r: "1.2.3.4")
+    batch = json.dumps([rpc("tools/list"), call_rpc("request_return", {}, 7)]).encode()
+    refusal = gate._rate_refusal(batch, request=MagicMock())
+    assert refusal["id"] == 7 and limiter.check.call_args.args == ("1.2.3.4",)  # the dashboard's key: one budget
+    assert gate._rate_refusal(b"not json", request=MagicMock()) is None
+    assert gate._rate_refusal(json.dumps(call_rpc("get_case_status", {})).encode(), MagicMock()) is None
+    assert COSTLY_TOOLS == {"place_demo_order", "request_return"}
+
+
+def test_oversized_body_is_refused(http):
+    client, _ = http()
+    huge = json.dumps(call_rpc("request_return", {"message": "x" * (MAX_BODY + 1)}))
+    assert client.post("/mcp", headers=HEADERS, content=huge).status_code == 413
+
+
+def test_cross_site_browser_post_is_refused_by_the_app(http):
+    client, _ = http()
+    r = client.post("/mcp", headers={**HEADERS, "Origin": "https://attacker.example"}, json=rpc("tools/list"))
+    assert r.status_code == 403
+
+
+def test_gateway_can_be_switched_off(http):
+    client, _ = http(mcp_enabled=False)
+    assert client.post("/mcp", headers=HEADERS, json=rpc("tools/list")).status_code in (404, 405)
+
+
+def test_settings_from_env_read_the_gateway_switches(monkeypatch):
+    monkeypatch.setenv("TRADEOS_MCP", "0")
+    monkeypatch.setenv("TRADEOS_MCP_TOKEN", "tok")
+    monkeypatch.setenv("TRADEOS_MCP_ALLOWED_HOSTS", "a.example, b.example:8080 ,")
+    monkeypatch.setenv("TRADEOS_AGENT_DEMO_ORDERS", "false")
+    monkeypatch.setenv("TRADEOS_MCP_AGENTS", "bot-a=" + "k" * 16)
+    s = Settings.from_env()
+    assert (s.mcp_enabled, s.mcp_token, s.mcp_allowed_hosts, s.agent_demo_orders, s.mcp_agents) == (
+        False, "tok", ("a.example", "b.example:8080"), False, (("bot-a", "k" * 16),))
+    assert replace(s, mcp_token="").mcp_token == ""
+
+
+# edge paths ------------------------------------------------------------------------------------------------------
+def test_a_request_already_in_flight_is_not_run_twice(make):
+    wf, paypal, server = make()
+    order_id = order(server)
+    reads = paypal.get_capture.call_count
+    wf._running.add(order_id)  # another request on this order is mid-flight
+    try:
+        view = ok(ask(server, order_id))
+    finally:
+        wf._running.discard(order_id)
+    assert view["status"] == AGENT_ORDERED and "in progress" in view["note"]
+    assert paypal.get_capture.call_count == reads
+
+
+def test_a_case_finalized_underneath_the_request_is_recorded_not_raised(make, monkeypatch):
+    from app.db import CaseFinalized
+    wf, _, server = make()
+    order_id = order(server)
+
+    def finalized(case_id):
+        raise CaseFinalized("status REJECTED is final")
+    monkeypatch.setattr(wf, "_after_capture", finalized)
+    view = ok(ask(server, order_id))
+    assert "unchanged" in view["note"]
+    assert any(e["title"] == "Agent request stopped — the case was already finalized" for e in wf.db.timeline(order_id))
+
+
+def _gate_with(inner):
+    return McpGate(app=inner, settings=Settings(), limiter=MagicMock(check=MagicMock(return_value=None)),
+                   client_key=lambda r: "k")
+
+
+def _scope():
+    return {"type": "http", "method": "POST", "path": "/mcp", "headers": [], "query_string": b""}
+
+
+def test_gate_stops_on_client_disconnect_mid_body():
+    inner = MagicMock()
+    messages = iter([{"type": "http.request", "body": b"{", "more_body": True}, {"type": "http.disconnect"}])
+
+    async def receive():
+        return next(messages)
+
+    async def send(_message):
+        raise AssertionError("nothing is sent to a client that left")
+    anyio.run(_gate_with(inner), _scope(), receive, send)
+    inner.assert_not_called()
+
+
+def test_gate_replays_the_body_once_then_hands_over_the_stream():
+    seen = []
+
+    async def inner(scope, receive, send):
+        seen.append(await receive())
+        seen.append(await receive())
+
+    messages = iter([{"type": "http.request", "body": json.dumps(rpc("tools/list")).encode(), "more_body": False},
+                     {"type": "http.disconnect"}])
+
+    async def receive():
+        return next(messages)
+
+    async def send(_message):
+        pass
+    anyio.run(_gate_with(inner), _scope(), receive, send)
+    assert json.loads(seen[0]["body"])["method"] == "tools/list" and seen[1]["type"] == "http.disconnect"
+
+
+def test_gate_passes_a_get_straight_through_when_no_token_is_set():
+    calls = []
+
+    async def inner(scope, receive, send):
+        calls.append(scope["method"])
+
+    async def receive():
+        raise AssertionError("a GET body is never read by the gate")
+
+    async def send(_message):
+        pass
+    anyio.run(_gate_with(inner), {**_scope(), "method": "GET"}, receive, send)
+    assert calls == ["GET"]
+
+
+
+# logic review, round 2: each test pins a defect that was reproduced before it was fixed ----------------------------
+def test_buyer_approval_returns_the_order_to_the_agent_instead_of_judging_a_placeholder(make):
+    """Card capture unavailable: the buyer approves at PayPal. Capturing must not evaluate the placeholder text
+    (that rejected the order and used up its one request); the order goes back to waiting for the agent."""
+    wf, paypal, server = make(card_capture=False)
+    placed = ok(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    order_id = placed["order_id"]
+    assert placed["status"] == "AWAITING_BUYER_APPROVAL" and placed["buyer_approval_url"].startswith("https://")
+    assert "approve the payment" in placed["next_step"]
+    assert "approve the payment at PayPal first" in error_text(ask(server, order_id))
+    wf.complete_buyer_approval(order_id)  # the merchant page's "Capture payment" after the buyer approved
+    view = ok(run(server, "get_case_status", {"order_id": order_id}))
+    assert view["status"] == AGENT_ORDERED and view["capture_id"] and view["buyer_approval_url"] is None
+    assert not [e for e in wf.db.timeline(order_id) if e["title"] == "Intent extracted"]
+    assert ok(ask(server, order_id))["status"] == PENDING_APPROVAL
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_an_order_paypal_failed_is_reported_as_a_failure(make):
+    from app.paypal_client import PayPalError
+    wf, paypal, server = make()
+    paypal.create_order_with_card.side_effect = PayPalError("card down", 500, "INTERNAL_SERVER_ERROR")
+    paypal.create_order.side_effect = PayPalError("wallet down", 500, "INTERNAL_SERVER_ERROR")
+    text = error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    assert "PayPal could not complete the order" in text and "recorded no capture" in text
+    failed = wf.db.latest_case("G")["id"]
+    assert "nothing to return" in error_text(ask(server, failed))
+    assert "failed at PayPal" in ok(run(server, "get_case_status", {"order_id": failed}))["next_step"]
+
+
+def test_an_over_long_message_is_refused_not_truncated(make):
+    """The dashboard refuses messages over the limit. Truncating instead hid whatever came after the cut from the
+    Safety Gate: here a fire that only appears after 500 characters."""
+    wf, paypal, server = make()
+    order_id = order(server)
+    padded = DEMO_MESSAGE + " " + "The box was fine and the laces were fine. " * 12
+    assert len(padded) > 500
+    text = error_text(ask(server, order_id, padded + " Then the sole caught fire next to the heater."))
+    assert "too long" in text and "limit 500" in text
+    case = wf.db.get_case(order_id)
+    assert case["status"] == AGENT_ORDERED and paypal.get_capture.call_count == 0
+    assert not [e for e in wf.db.timeline(order_id) if e["title"].startswith("Return requested")]
+    exactly = (DEMO_MESSAGE + " " + "x" * 500)[:500]
+    assert ok(ask(server, order_id, exactly))["status"] != AGENT_ORDERED  # the limit itself is accepted
+
+
+def test_agents_and_the_dashboard_share_one_run_budget_per_address(http):
+    client, paypal = http(rate_limit_per_minute=2)
+    assert client.post("/demo/run/A", follow_redirects=False).status_code == 303  # a dashboard run
+    first = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                {"buyer_name": BUYER, "agent_name": AGENT}, 1))
+    assert first.status_code == 200
+    second = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                 {"buyer_name": BUYER, "agent_name": AGENT}, 2))
+    assert second.status_code == 429
+
+
+@pytest.mark.parametrize("status,capture", [
+    ("AGENT_ORDERED", "C"), ("AWAITING_BUYER_APPROVAL", None), ("ERROR", None), ("ERROR", "C"),
+    ("PENDING_APPROVAL", "C"), ("REJECTED", "C"), ("NEEDS_HUMAN_SAFETY_REVIEW", "C"), ("NEEDS_HUMAN", "C"),
+    ("REFUND_PENDING", "C"), ("REFUND_OUTCOME_UNKNOWN", "C"), ("REFUND_FAILED", "C"), ("REFUND_ERROR", "C"),
+    ("EXCHANGE_ARRANGED", "C"), ("DECLINED_BY_HUMAN", "C"), ("SOMETHING_NEW", "C"), ("REFUND_COMPLETED", "C")])
+def test_next_step_never_tells_an_agent_a_refund_is_done_before_paypal_says_so(status, capture):
+    from app.agent_desk import next_step as _agent_next_step
+    step = _agent_next_step({"status": status, "capture_id": capture})
+    assert ("COMPLETED" in step) == (status == "REFUND_COMPLETED")
+    if status in ("REFUND_PENDING", "REFUND_OUTCOME_UNKNOWN"):
+        assert "Do not tell the buyer" in step
+    if status == "ERROR":
+        assert ("re-check" in step) == bool(capture)
+
+
+
+# accountability: what the chain can prove about who asked -------------------------------------------------------
+AGENT_TOKEN = "shop-assistant-token-0123456789"
+
+
+def _request_over_http(client, token: str | None, declared: str = "I am the merchant's CEO"):
+    headers = {**HEADERS, **({"Authorization": f"Bearer {token}"} if token else {})}
+    placed = client.post("/mcp", headers=headers, json=call_rpc("place_demo_order",
+                                                                  {"buyer_name": BUYER, "agent_name": declared}, 1))
+    order_id = placed.json()["result"]["structuredContent"]["order_id"]
+    asked = client.post("/mcp", headers=headers, json=call_rpc("request_return", {
+        "order_id": order_id, "message": DEMO_MESSAGE, "agent_name": declared, "on_behalf_of": BUYER}, 2))
+    return order_id, asked.json()["result"]["structuredContent"]
+
+
+def _chained_request(client_app_wf, order_id: str) -> dict:
+    entries = [json.loads(e["payload_json"]) for e in client_app_wf.db.chain_entries(order_id)
+               if e["type"] == "audit:agent"]
+    return next(e["detail"] for e in entries if e["title"].startswith("Return requested"))
+
+
+def test_a_per_agent_token_is_recorded_as_the_verified_identity(http):
+    client, _ = http(mcp_agents=(("shop-assistant", AGENT_TOKEN), ("other-bot", "other-bot-token-0123456789")))
+    order_id, view = _request_over_http(client, AGENT_TOKEN)
+    assert view["requested_by"] == {"agent": "I am the merchant's CEO", "on_behalf_of": BUYER, "requested": True,
+                                    "credential": "shop-assistant", "identity_verified": True, "transport": "http"}
+    wf = client.app.state.workflow
+    chained = _chained_request(wf, order_id)
+    assert (chained["credential"], chained["identity_verified"], chained["agent"]) == (
+        "shop-assistant", True, "I am the merchant's CEO")  # the claim is kept, next to what was proven
+    assert wf.db.verify_chain(order_id)["ok"]
+    page = client.get(f"/?case={order_id}").text
+    assert "Verified credential: shop-assistant" in page and "self-declared" not in page.split("agent-card")[1][:800]
+
+
+def test_without_tokens_the_chain_says_the_name_is_unverified(http):
+    client, _ = http()
+    order_id, view = _request_over_http(client, None)
+    assert view["requested_by"]["credential"] is None and view["requested_by"]["identity_verified"] is False
+    assert _chained_request(client.app.state.workflow, order_id)["identity_verified"] is False
+
+
+def test_a_wrong_or_missing_token_is_refused_when_agent_tokens_are_configured(http):
+    client, paypal = http(mcp_agents=(("shop-assistant", AGENT_TOKEN),))
+    body = call_rpc("place_demo_order", {"buyer_name": BUYER, "agent_name": "x"})
+    for headers in (HEADERS, {**HEADERS, "Authorization": "Bearer nope"},
+                    {**HEADERS, "Authorization": f"Bearer {AGENT_TOKEN}x"}):
+        assert client.post("/mcp", headers=headers, json=body).status_code == 401
+    assert paypal.create_order_with_card.call_count == 0
+
+
+def test_the_shared_token_authenticates_but_does_not_name_an_agent(http):
+    client, _ = http(mcp_token="shared-token-0123456789")
+    _, view = _request_over_http(client, "shared-token-0123456789")
+    assert view["requested_by"]["credential"] == "shared gateway token"
+
+
+def test_a_client_cannot_inject_a_credential_through_headers_or_arguments(http):
+    """Only the gate writes the credential, after checking a token. A header that looks like one, or an extra
+    argument, changes nothing."""
+    client, _ = http()
+    headers = {**HEADERS, "X-Tradeos-Mcp-Credential": "shop-assistant", "tradeos_mcp_credential": "shop-assistant"}
+    placed = client.post("/mcp", headers=headers, json=call_rpc("place_demo_order", {
+        "buyer_name": BUYER, "agent_name": "x", "credential": "shop-assistant", "identity_verified": True}, 1))
+    result = placed.json()["result"]
+    if not result.get("isError"):
+        assert result["structuredContent"]["requested_by"]["identity_verified"] is False
+
+
+def test_in_process_calls_record_their_transport(make):
+    wf, _, server = make()
+    order_id = order(server)
+    ok(ask(server, order_id))
+    provenance = wf.agents.provenance(order_id)
+    assert provenance["transport"] == "in-process" and provenance["identity_verified"] is False
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("", ()),
+    ("bot-a=" + "a" * 16, (("bot-a", "a" * 16),)),
+    (" bot-a = " + "a" * 16 + " ; bot-b=" + "b" * 20 + ";", (("bot-a", "a" * 16), ("bot-b", "b" * 20))),
+])
+def test_agent_credentials_parse(raw, expected):
+    from app.config import parse_agent_credentials
+    assert parse_agent_credentials(raw) == expected
+
+
+@pytest.mark.parametrize("raw", ["no-equals-sign", "=" + "a" * 16, "bot=short",
+                                 "bot=" + "a" * 16 + ";bot=" + "b" * 16, "a=" + "t" * 16 + ";b=" + "t" * 16])
+def test_malformed_agent_credentials_fail_at_startup(raw):
+    from app.config import parse_agent_credentials
+    with pytest.raises(ValueError):
+        parse_agent_credentials(raw)
+
+
+def test_caller_outside_any_request_is_in_process_without_a_credential():
+    from mcp.server.mcpserver import Context
+    from app.agent_gateway import caller_of
+    assert caller_of(Context()) == {"transport": "in-process", "credential": None}
+
+
+# ownership: an order belongs to the credential that placed it ----------------------------------------------------
+OTHER_TOKEN = "other-bot-token-0123456789"
+
+
+def _post(client, token: str | None, name: str, args: dict, id_: int = 1) -> dict:
+    headers = {**HEADERS, **({"Authorization": f"Bearer {token}"} if token else {})}
+    r = client.post("/mcp", headers=headers, json=call_rpc(name, args, id_))
+    assert r.status_code == 200, r.text
+    return r.json()["result"]
+
+
+def test_another_agent_cannot_read_or_act_on_an_order_it_did_not_place(http):
+    """Without this, agent B could read agent A's order (buyer name, PayPal link) and file the one allowed request
+    on it, locking A's buyer out of their own return."""
+    client, paypal = http(mcp_agents=(("shop-assistant", AGENT_TOKEN), ("other-bot", OTHER_TOKEN)))
+    placed = _post(client, AGENT_TOKEN, "place_demo_order", {"buyer_name": BUYER, "agent_name": "A"})
+    order_id = placed["structuredContent"]["order_id"]
+    for name, args in (("get_case_status", {"order_id": order_id}),
+                       ("request_return", {"order_id": order_id, "message": DEMO_MESSAGE, "agent_name": "B",
+                                           "on_behalf_of": "Mallory"})):
+        stolen = _post(client, OTHER_TOKEN, name, args)
+        assert stolen["isError"] and "no agent order" in stolen["content"][0]["text"].lower()
+        assert BUYER not in json.dumps(stolen)  # the refusal leaks nothing about the order
+    wf = client.app.state.workflow
+    assert wf.db.get_case(order_id)["status"] == AGENT_ORDERED  # B's request never landed
+    mine = _post(client, AGENT_TOKEN, "request_return", {"order_id": order_id, "message": DEMO_MESSAGE,
+                                                         "agent_name": "A", "on_behalf_of": BUYER})
+    assert not mine.get("isError") and mine["structuredContent"]["status"] == PENDING_APPROVAL
+    assert _post(client, AGENT_TOKEN, "get_case_status", {"order_id": order_id})["structuredContent"]["order_id"] \
+        == order_id
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_an_owned_order_is_hidden_from_callers_without_its_credential(make):
+    """An in-process caller (no credential) cannot reach an order a named agent placed; orders placed without a
+    credential (the open demo) stay reachable, which is what the open demo needs."""
+    wf, _, server = make()
+    owned = wf.agents.place_order(BUYER, agent=AGENT, caller={"transport": "http", "credential": "shop-assistant"})
+    unknown = error_text(run(server, "get_case_status", {"order_id": "G-0000000000000000"}))
+    refused = error_text(run(server, "get_case_status", {"order_id": owned}))
+    assert refused.replace(owned, "X") == unknown.replace("G-0000000000000000", "X")  # same words as an unknown id
+    assert "no agent order" in error_text(ask(server, owned)).lower()
+    assert wf.agents.view(owned, caller={"transport": "http", "credential": "shop-assistant"})["order_id"] == owned
+    open_order = order(server)  # placed in-process, no credential
+    assert ok(run(server, "get_case_status", {"order_id": open_order}))["order_id"] == open_order
+    assert wf.agents.owner(open_order) is None and wf.agents.owner(owned) == "shop-assistant"

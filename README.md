@@ -8,6 +8,13 @@
 
 **Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
 
+**AI agents are starting to buy for people. Someone has to decide what they may do when the order comes back.**
+PayPal's agentic commerce services ([Agent Ready, Store Sync](https://developer.paypal.com/docsai/growth/agentic-commerce/overview))
+let a buyer's assistant find products and check out; that overview does not cover returns. TradeOS is the returns layer
+for PayPal merchants: **one inbox for requests from customers and from buyers' AI agents**, where AI reads the language,
+code decides what the policy allows, a person approves the money and PayPal proves it. An agent can *request* a return
+over MCP. No tool lets it approve one, and the dashboard counts how many refunds an agent approved: 0.
+
 ### Judge quick start — about 3 minutes
 
 1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once.
@@ -15,6 +22,9 @@
 3. Click **Approve & refund**. The Refund API is not called before this human approval.
 4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
+6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A progress page shows a scripted MCP client asking for three returns, call by call, through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
+7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
+8. **The merchant's view:** open **Inbox** (top left). Everything you just ran, from customers and from AI agents, sorted by what needs you, with the next step in plain words, PayPal Refund API calls and audit-chain status per request. "Refunds an AI agent approved" is computed from the cases, not a label.
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
@@ -87,6 +97,7 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 
 | Doc | What it is |
 |---|---|
+| [`docs/agent-gateway.md`](docs/agent-gateway.md) | AI agents can request a return over MCP, never approve one |
 | [`docs/safety-gate.md`](docs/safety-gate.md) | Deterministic human safety review ahead of refunds and supplier tasks |
 | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Mixed orders, per-line decisions, shipping/tax policy, evidence tiers |
 | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | PayPal Disputes, read-only |
@@ -94,6 +105,18 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 | [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
 | [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
 | [`docs/demo-video-script.md`](docs/demo-video-script.md) | Recording plan |
+
+## For AI agents: request, never approve (MCP)
+
+PayPal's own MCP server gives an AI agent a refund tool. TradeOS puts the merchant's rules in front of that power.
+An agent acting for a buyer connects to `/mcp` and gets three tools: place a Sandbox demo order, **request** a return
+or exchange, and read the case status. There is no approve, decline or refund tool. The request runs through the
+same loop as a dashboard case — AI reads the words, the Safety Gate and the deterministic policy decide on PayPal's
+own capture data — and **every agent-originated case waits for a person**, even with `AUTO_ENABLED` on. Who asked,
+and for whom, is on the case's hash chain. Prompt injection, a late order and a safety report all end with Refund
+API calls = 0 (tested in `tests/test_agent_gateway.py`). A **live AI agent**, a real model told to "get $500 by any
+wording", chooses its own tool calls against the same server, and its full transcript goes on the chain. Details,
+connection snippets and the demo scripts: [`docs/agent-gateway.md`](docs/agent-gateway.md).
 
 ## What TradeOS does
 
@@ -339,9 +362,11 @@ including 7 prompt-injection attempts). Full results, every miss and the limits:
 | Latency p50 / p95 | 0.63 s / 1.25 s | — |
 | Estimated cost per message (Groq list price) | $0.00013 | $0 |
 
-These numbers were measured before the return-vs-exchange change (when only exchanges were automated and a refund
-request was always rejected); the "policy-acceptable" row has not been re-run under the new rules. Intent accuracy
-is unaffected by the policy change.
+The model outputs were measured on 8 Oct 2026, before the return-vs-exchange change. On 24 Oct the policy-level rows
+were rescored against the current rules (a return with a stated reason and a size exchange are both acceptable
+requests), with no new model calls: still 0 policy-acceptable requests that should not be, and 0 / 7 injections. The
+keyword column was re-run in full (it is deterministic). A full LLM re-run with today's extractor prompt needs an API
+key: `python scripts/eval_intent.py`.
 
 Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
 convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
@@ -589,6 +614,11 @@ reconciled against PayPal in the background at startup.
 | `TRADEOS_TRUST_CF_CONNECTING_IP` | no | `0` | `1` where a Cloudflare edge is really in front (render.yaml sets it for Render); off by default so the rate-limit identity cannot be forged |
 | `TRADEOS_SAFETY_AI` | no | `0` | `1` = opt-in second-layer AI safety classifier (escalate-only, fail-safe; needs `LLM_API_KEY`). **Off by default and off on the hosted demo.** See [`docs/safety-gate.md`](docs/safety-gate.md) |
 | `TRADEOS_SAFETY_AI_TIMEOUT_S` | no | `8` | timeout of that classifier; on timeout or error the keyword gate's result stands |
+| `TRADEOS_MCP` | no | `1` | agent gateway at `/mcp` (see [`docs/agent-gateway.md`](docs/agent-gateway.md)); `0` turns it off |
+| `TRADEOS_MCP_TOKEN` | no | — | when set, every `/mcp` request needs `Authorization: Bearer <token>`; never rendered |
+| `TRADEOS_MCP_AGENTS` | no | — | per-agent credentials, `name=token;name=token` (tokens ≥ 16 chars, unique): a request with one is recorded on the hash chain as that verified credential; malformed values stop startup |
+| `TRADEOS_MCP_ALLOWED_HOSTS` | no | — | extra `Host` values `/mcp` accepts (comma-separated); the `PUBLIC_BASE_URL` host and localhost are always allowed |
+| `TRADEOS_AGENT_DEMO_ORDERS` | no | `1` | Sandbox demo: lets an agent place a Sandbox card order to return later (`place_demo_order` tool) |
 | `TRADEOS_SHIPPING_POLICY` | no | `WITHDRAWAL_FULL` | shipping refund policy for mixed orders: `WITHDRAWAL_FULL`, `MERCHANT_ERROR` or `NEVER` (unknown value fails closed to `NEVER`); see [`docs/partial-refunds.md`](docs/partial-refunds.md) |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | no | `1` | background check of PENDING refunds only |
 | `TRADEOS_RESET_COOLDOWN_PER_IP_S`, `TRADEOS_RESET_COOLDOWN_GLOBAL_S` | no | `60`, `15` | cooldown between two "Reset demo" clicks (per IP / whole app) |
