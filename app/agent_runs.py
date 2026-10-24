@@ -79,9 +79,9 @@ class AgentRunRegistry:
             run_id = secrets.token_urlsafe(9)
             self._runs[run_id] = RunState(run_id, goal.key, goal.title, model, self._clock())
             self._evict()
-        thread = threading.Thread(target=self._work, args=(run_id, execute, finish), daemon=True,
-                                  name=f"agent-run-{run_id}")
-        self._threads[run_id] = thread
+            thread = threading.Thread(target=self._work, args=(run_id, execute, finish), daemon=True,
+                                      name=f"agent-run-{run_id}")
+            self._threads[run_id] = thread
         thread.start()
         return run_id
 

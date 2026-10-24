@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import json
 import os
+import threading
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -114,11 +115,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # the first dashboard render, in a worker thread, not here: create_app() also runs at import time, and an ASGI
     # server may import the app inside its running event loop, where anyio.run() would raise.
     tool_names: list[str] = []
+    tool_names_lock = threading.Lock()  # concurrent first renders must not each append the list
 
     def mcp_tools() -> list[str]:
-        if app.state.mcp_server is not None and not tool_names:
-            tool_names.extend(t.name for t in anyio.run(app.state.mcp_server.list_tools))
-        return tool_names
+        with tool_names_lock:
+            if app.state.mcp_server is not None and not tool_names:
+                tool_names.extend(t.name for t in anyio.run(app.state.mcp_server.list_tools))
+            return list(tool_names)
     # One-click agent scenes create three Sandbox orders and three LLM runs, so on top of the run limiter a
     # click is allowed once a minute per address and once every 20 s for the whole demo.
     agent_cooldown = Cooldown(60, 20, action="Run agent scenes",

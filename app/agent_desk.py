@@ -29,13 +29,31 @@ class AgentDesk:
     def __init__(self, wf: "Workflow") -> None:
         self.wf = wf
 
-    def case(self, case_id: str) -> dict:
+    def case(self, case_id: str, caller: dict | None = None, *, check_owner: bool = True,
+             include_archived: bool = False) -> dict:
         """An agent may only see orders that were placed through the agent gateway. Any other id, including a real
-        dashboard case, is reported as not found, so an agent cannot probe or act on other customers' cases."""
+        dashboard case, is reported as not found, so an agent cannot probe or act on other customers' cases.
+
+        An order placed under a verified credential belongs to that credential: any other caller, including one
+        with no credential (the open gateway, or an in-process agent such as the live LLM demo), gets "not found"
+        too. Orders placed without a credential stay open to every caller, as the open demo gateway always was.
+        check_owner=False is for the server's own bookkeeping (recording a run), never for a tool."""
         case = self.wf.db.get_case(case_id) if isinstance(case_id, str) else None
-        if not case or case.get("scenario") != AGENT or case.get("archived_at"):
+        if not case or case.get("scenario") != AGENT or (case.get("archived_at") and not include_archived):
             raise CaseNotFound(case_id)
+        if check_owner:
+            owner = self.owner(case_id)
+            if owner is not None and (caller or {}).get("credential") != owner:
+                raise CaseNotFound(case_id)
         return case
+
+    def owner(self, case_id: str) -> str | None:
+        """The verified credential that placed the order (None for an order placed without one), read from the
+        order's own hash-chained placement entry."""
+        for event in self.wf.db.timeline(case_id):
+            if event["stage"] == "agent" and event["title"].startswith("Order placed"):
+                return (event.get("detail") or {}).get("credential")
+        return None
 
     def place_order(self, buyer: str, agent: str = "", days_ago: int | None = None,
                     caller: dict | None = None) -> str:
@@ -75,7 +93,7 @@ class AgentDesk:
         on_behalf_of = clean_message(on_behalf_of, AGENT_TEXT_MAX)
         if not agent:
             raise ValueError("agent_name is required: the audit trail records which agent asked.")
-        self.case(case_id)
+        self.case(case_id, caller)
         with self.wf._locks_guard:
             if self.wf._resetting:
                 raise RefundNotAllowed("A demo reset is in progress — try again in a moment.")
@@ -126,14 +144,17 @@ class AgentDesk:
 
     def record_run(self, case_id: str, record: dict) -> None:
         """A live LLM agent's run (goal, model, every tool call it made, its final report) goes onto the order's hash
-        chain, so what the model tried is part of the audit trail. Recording changes no state and moves no money."""
-        self.case(case_id)
+        chain, so what the model tried is part of the audit trail. Recording changes no state and moves no money.
+
+        The server records this itself (not a tool), so ownership is not checked, and an order a demo reset archived
+        while the model was still working is still recorded: archiving keeps the chain, and the run is evidence."""
+        self.case(case_id, check_owner=False, include_archived=True)
         self.wf.db.audit(case_id, "agent", f"Live AI agent run ({record.get('model')}): "
                       f"{len(record.get('steps') or [])} tool calls, {record.get('stop_reason')}", record)
 
-    def view(self, case_id: str) -> dict:
+    def view(self, case_id: str, caller: dict | None = None) -> dict:
         """What the agent may read back: the outcome and the evidence, never the dashboard's controls."""
-        case = self.case(case_id)
+        case = self.case(case_id, caller)
         policy = case.get("policy") or {}
         chain_result = self.wf.db.verify_chain(case_id)
         refund_calls = self.wf.db.paypal_calls(case_id, "refund_capture")

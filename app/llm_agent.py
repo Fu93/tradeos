@@ -35,6 +35,9 @@ from mcp.types import CallToolResult, TextContent
 
 MAX_STEPS = 6            # model calls per run (each may request several tool calls)
 MAX_TOOL_CALLS = 8       # tool executions per run, across all steps
+# Per-tool caps inside one run. In-process calls skip the HTTP gateway's rate limiter, so without this a single
+# click could have the model place a Sandbox order on every one of its tool calls.
+PER_TOOL_LIMITS = {"place_demo_order": 2}
 CALL_TIMEOUT_S = 25.0    # one model call
 RUN_BUDGET_S = 90.0      # the whole run
 MAX_OUTPUT_TOKENS = 700  # per model call; gpt-oss spends part of this on reasoning
@@ -184,6 +187,7 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                                                         f"the buyer is {goal.buyer}."},
             {"role": "user", "content": goal.user}]
         executed = 0
+        per_tool: dict[str, int] = {}
         for _step in range(MAX_STEPS):
             if clock() - started > RUN_BUDGET_S:
                 run.stop_reason = "time budget reached"
@@ -213,6 +217,10 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                 elif name not in offered:
                     content = json.dumps({"error": f"no tool named {name!r}; offered: {sorted(offered)}"})
                     step["result"] = {"error": "no such tool: refused, nothing ran"}
+                elif per_tool.get(name, 0) >= PER_TOOL_LIMITS.get(name, MAX_TOOL_CALLS):
+                    content = json.dumps({"error": f"{name} may be called at most {PER_TOOL_LIMITS[name]} times "
+                                                   "in one run"})
+                    step["result"] = {"error": f"per-run limit for {name} reached: nothing ran"}
                 else:
                     try:
                         args = json.loads(raw)
@@ -224,12 +232,24 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                     else:
                         step["args"] = _cap(args)
                         executed += 1
-                        content, step["result"] = _tool_reply(await client.call_tool(name, args))
-                        run.order_id = run.order_id or step["result"].get("order_id")
+                        per_tool[name] = per_tool.get(name, 0) + 1
+                        try:
+                            result = await client.call_tool(name, args)
+                        except Exception as exc:  # transport failure (e.g. the HTTP connection dropped)
+                            content = json.dumps({"error": "the tool call failed before the server answered"})
+                            step["result"] = {"error": f"tool call failed in transport: {type(exc).__name__}"}
+                            run.stop_reason = "the connection to the merchant's tools failed"
+                        else:
+                            content, step["result"] = _tool_reply(result)
+                            run.order_id = run.order_id or step["result"].get("order_id")
                 run.steps.append(step)
                 notify("step")
                 messages.append({"role": "tool", "tool_call_id": call.get("id") or "", "name": name,
                                  "content": content})
+                if run.stop_reason:
+                    break
+            if run.stop_reason:
+                break
         else:
             run.stop_reason = "step limit reached"
     run.seconds = clock() - started

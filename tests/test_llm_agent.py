@@ -432,3 +432,89 @@ def test_progress_for_an_unknown_run_is_ignored():
     from app.agent_runs import AgentRunRegistry
     from app.llm_agent import AgentRun
     AgentRunRegistry()._progress("gone", AgentRun("honest", "m"), "step")  # no exception, nothing created
+
+
+# found by the deep debug pass ------------------------------------------------------------------------------------
+def test_one_run_cannot_spam_sandbox_orders(server):
+    """In-process calls skip the HTTP rate limiter, so a model that orders on every call used to place 8 Sandbox
+    orders from one click. place_demo_order now has its own per-run cap."""
+    wf, paypal, srv = server
+
+    def shopaholic(messages, turn):
+        return call("place_demo_order", {"buyer_name": "Tom", "agent_name": "x"}, f"c{turn}")
+    run = play(srv, FakeModel(shopaholic))
+    placed = [s for s in run.steps if "order_id" in s["result"]]
+    refused = [s for s in run.steps if "per-run limit" in str(s["result"].get("error"))]
+    assert len(placed) == 2 and len(refused) == MAX_STEPS - 2
+    assert paypal.create_order_with_card.call_count == 2
+    assert len([c for c in wf.db.list_cases(scenario="G")]) == 2
+
+
+def test_a_transport_failure_mid_call_is_a_step_error_not_a_crash(server, monkeypatch):
+    """Over a network (scripts/llm_agent_demo.py) the MCP connection can drop mid-call. The run records that step
+    as failed and stops, keeping what already happened, instead of raising out of the loop."""
+    from mcp import Client as McpClient
+    wf, paypal, srv = server
+    real = McpClient.call_tool
+    calls = [0]
+
+    async def flaky(self, name, arguments=None, *a, **kw):
+        calls[0] += 1
+        if calls[0] == 2:
+            raise httpx.ConnectError("connection reset")
+        return await real(self, name, arguments, *a, **kw)
+    monkeypatch.setattr(McpClient, "call_tool", flaky)
+    model = FakeModel(honest)
+    run = play(srv, model)
+    assert [s["tool"] for s in run.steps] == ["place_demo_order", "request_return"]
+    assert run.steps[1]["result"] == {"error": "tool call failed in transport: ConnectError"}
+    assert run.stop_reason == "the connection to the merchant's tools failed" and len(model.requests) == 2
+    assert run.order_id and wf.db.get_case(run.order_id)["status"] == "AGENT_ORDERED"
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_a_demo_reset_mid_run_still_records_the_run(site):
+    """Someone may press Reset while the model is thinking. The run used to fail with CaseNotFound and its
+    transcript was lost; archiving keeps the chain, so the run is recorded on the archived order."""
+    holder: dict = {}
+
+    def reset_then_finish(messages, turn):
+        if turn == 3:
+            holder["wf"].db.init(reset=True)  # what POST /demo/reset does to the cases
+        return honest(messages, turn)
+    client, wf, _ = site(FakeModel(reset_then_finish))
+    holder["wf"] = wf
+    run = client.get(f"/api/agent-runs/{start_live(client, 'honest')}").json()
+    assert run["status"] == "done" and run["case_id"], run
+    case = wf.db.get_case(run["case_id"])
+    assert case["archived_at"]
+    assert any(e["title"].startswith("Live AI agent run") for e in wf.db.timeline(case["id"]))
+    assert wf.db.verify_chain(case["id"])["ok"]
+
+
+def test_concurrent_first_renders_list_the_tools_once(site):
+    """The tool list is read lazily on the first render. Two first renders at once used to both append it, and the
+    dashboard then showed every tool twice (or four times) until restart."""
+    import threading
+    client, _, _ = site(None)
+    server = client.app.state.mcp_server
+    real = server.list_tools
+    barrier = threading.Barrier(4, timeout=5)
+
+    async def slow_list_tools():
+        tools = await real()
+        try:
+            barrier.wait(0.3)  # without the lock, all four renders get here together
+        except threading.BrokenBarrierError:
+            pass
+        return tools
+    server.list_tools = slow_list_tools
+    pages: list[str] = []
+    threads = [threading.Thread(target=lambda: pages.append(client.get("/").text)) for _ in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(10)
+    assert len(pages) == 4
+    assert all(p.count("<code>place_demo_order</code>") == 1 for p in pages)
+    assert client.get("/").text.count("<code>request_return</code>") == 1

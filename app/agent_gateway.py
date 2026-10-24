@@ -72,8 +72,10 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
     server = MCPServer(name="tradeos", title="TradeOS agent gateway", instructions=INSTRUCTIONS)
 
     def not_found(order_id: str) -> ToolError:
-        return ToolError(f"No agent order {order_id!r}: it is unknown, or a demo reset archived it. Only orders "
-                         "placed through this gateway can be used.")
+        # One message for every case (unknown, archived, another agent's), so a refusal never confirms an id exists.
+        return ToolError(f"No agent order {order_id!r} for this caller: it is unknown, was placed with another "
+                         "agent's credential, or a demo reset archived it. Only orders placed through this gateway "
+                         "can be used.")
 
     if settings.agent_demo_orders:
         @server.tool(
@@ -93,7 +95,7 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
                                                caller=caller_of(ctx))
             except RefundNotAllowed as exc:
                 raise ToolError(str(exc)) from None
-            view = wf.agents.view(case_id)
+            view = wf.agents.view(case_id, caller=caller_of(ctx))
             if view["status"] == "ERROR":
                 # Reported as a failure, not as an order: the agent must not tell the buyer it bought anything.
                 error = (wf.db.get_case(case_id) or {}).get("error") or "no detail"
@@ -119,7 +121,7 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
             raise not_found(order_id) from None
         except (ValueError, RefundNotAllowed) as exc:
             raise ToolError(str(exc)) from None
-        view = wf.agents.view(order_id)
+        view = wf.agents.view(order_id, caller=caller_of(ctx))
         if not evaluated:
             view["note"] = "This order already has a request (or one is in progress); its outcome is unchanged."
         return view
@@ -132,9 +134,9 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
         annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True,
                                     open_world_hint=False),
     )
-    def get_case_status(order_id: str) -> dict[str, Any]:
+    def get_case_status(order_id: str, ctx: Context) -> dict[str, Any]:
         try:
-            return wf.agents.view(order_id)
+            return wf.agents.view(order_id, caller=caller_of(ctx))
         except CaseNotFound:
             raise not_found(order_id) from None
 

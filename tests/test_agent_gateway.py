@@ -655,3 +655,51 @@ def test_caller_outside_any_request_is_in_process_without_a_credential():
     from mcp.server.mcpserver import Context
     from app.agent_gateway import caller_of
     assert caller_of(Context()) == {"transport": "in-process", "credential": None}
+
+
+# ownership: an order belongs to the credential that placed it ----------------------------------------------------
+OTHER_TOKEN = "other-bot-token-0123456789"
+
+
+def _post(client, token: str | None, name: str, args: dict, id_: int = 1) -> dict:
+    headers = {**HEADERS, **({"Authorization": f"Bearer {token}"} if token else {})}
+    r = client.post("/mcp", headers=headers, json=call_rpc(name, args, id_))
+    assert r.status_code == 200, r.text
+    return r.json()["result"]
+
+
+def test_another_agent_cannot_read_or_act_on_an_order_it_did_not_place(http):
+    """Without this, agent B could read agent A's order (buyer name, PayPal link) and file the one allowed request
+    on it, locking A's buyer out of their own return."""
+    client, paypal = http(mcp_agents=(("shop-assistant", AGENT_TOKEN), ("other-bot", OTHER_TOKEN)))
+    placed = _post(client, AGENT_TOKEN, "place_demo_order", {"buyer_name": BUYER, "agent_name": "A"})
+    order_id = placed["structuredContent"]["order_id"]
+    for name, args in (("get_case_status", {"order_id": order_id}),
+                       ("request_return", {"order_id": order_id, "message": DEMO_MESSAGE, "agent_name": "B",
+                                           "on_behalf_of": "Mallory"})):
+        stolen = _post(client, OTHER_TOKEN, name, args)
+        assert stolen["isError"] and "no agent order" in stolen["content"][0]["text"].lower()
+        assert BUYER not in json.dumps(stolen)  # the refusal leaks nothing about the order
+    wf = client.app.state.workflow
+    assert wf.db.get_case(order_id)["status"] == AGENT_ORDERED  # B's request never landed
+    mine = _post(client, AGENT_TOKEN, "request_return", {"order_id": order_id, "message": DEMO_MESSAGE,
+                                                         "agent_name": "A", "on_behalf_of": BUYER})
+    assert not mine.get("isError") and mine["structuredContent"]["status"] == PENDING_APPROVAL
+    assert _post(client, AGENT_TOKEN, "get_case_status", {"order_id": order_id})["structuredContent"]["order_id"] \
+        == order_id
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_an_owned_order_is_hidden_from_callers_without_its_credential(make):
+    """An in-process caller (no credential) cannot reach an order a named agent placed; orders placed without a
+    credential (the open demo) stay reachable, which is what the open demo needs."""
+    wf, _, server = make()
+    owned = wf.agents.place_order(BUYER, agent=AGENT, caller={"transport": "http", "credential": "shop-assistant"})
+    unknown = error_text(run(server, "get_case_status", {"order_id": "G-0000000000000000"}))
+    refused = error_text(run(server, "get_case_status", {"order_id": owned}))
+    assert refused.replace(owned, "X") == unknown.replace("G-0000000000000000", "X")  # same words as an unknown id
+    assert "no agent order" in error_text(ask(server, owned)).lower()
+    assert wf.agents.view(owned, caller={"transport": "http", "credential": "shop-assistant"})["order_id"] == owned
+    open_order = order(server)  # placed in-process, no credential
+    assert ok(run(server, "get_case_status", {"order_id": open_order}))["order_id"] == open_order
+    assert wf.agents.owner(open_order) is None and wf.agents.owner(owned) == "shop-assistant"
