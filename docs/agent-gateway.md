@@ -177,8 +177,8 @@ changed.
 |---|---|---|---|---|
 | `create_refund` | not offered | offered (`payments.createRefund`) | `capture_id`, optional `amount` ("If not specified, the full captured amount is refunded"), `note_to_payer` | no such tool; a person approves, the amount is PayPal's capture |
 | `accept_dispute_claim` | offered (`disputes.create`) | offered | `dispute_id`, a free-text `note`; PayPal's description: "PayPal automatically refunds money to the customer from the merchant's account" | disputes are read-only in TradeOS |
-| `pay_order` | offered (`orders.capture`) | offered | `order_id` | not offered (`place_demo_order` is a Sandbox demo with a fixed product and price) |
-| Tools in total | 42 | 47 | | 3, none of which moves money on the agent's word |
+| `pay_order` | offered (`orders.capture`) | offered | `order_id` | not offered as a PayPal tool. `place_demo_order` does take a **Sandbox** test-card payment on an agent's call, but only a Sandbox one: the demo sneakers at a fixed price, or (with a catalogue key) a product the server looked up itself, under a price cap. The agent picks which product, never the price, currency or payee |
+| Tools in total | 42 | 47 | | 3 (4 with a catalogue key); none can refund, and the only one that charges is the Sandbox-only `place_demo_order` |
 
 These toolkits are the right tools for a merchant's **own** agent, which the merchant trusts with refunds. A **buyer's**
 agent should not get them, and a merchant's agent that reads buyer messages can be talked into using them.
@@ -198,7 +198,7 @@ refund requests through TradeOS's `request_return`, where the policy decides and
 | Bearer token | `TRADEOS_MCP_AGENTS`, `TRADEOS_MCP_TOKEN` | When either is set, every `/mcp` request needs `Authorization: Bearer <token>` matching one of them (constant-time compare against all), else 401. A per-agent token becomes the case's verified credential. |
 | Host pinning | `PUBLIC_BASE_URL`, `TRADEOS_MCP_ALLOWED_HOSTS` | Requests whose `Host` is not the public host, localhost or a listed extra get 421. This stops DNS rebinding, which the app's Origin check cannot see because Origin and Host then agree. |
 | Cross-site browsers | (always) | A browser POST with a foreign `Origin` is refused with 403 by the app's CSRF check. |
-| Rate limit | `RATE_LIMIT_PER_MINUTE` and friends | `place_demo_order` and `request_return` draw on the same per-address budget as the dashboard's Run buttons (one bucket, not two), including inside JSON-RPC batches. Reads are not throttled. |
+| Rate limit | `RATE_LIMIT_PER_MINUTE` and friends | `place_demo_order`, `request_return` and `find_product` draw on the same per-address budget as the dashboard's Run buttons (one bucket, not two), including inside JSON-RPC batches. Reads are not throttled. |
 | Body cap | (fixed) | Bodies over 64 KB get 413 before the SDK sees them. |
 | Off switch | `TRADEOS_MCP=0` | No `/mcp` route at all. |
 
@@ -215,5 +215,6 @@ refund requests through TradeOS's `request_return`, where the policy decides and
   would look up an order the buyer actually placed instead of offering `place_demo_order`.
 - **One merchant, open demo.** Like the rest of TradeOS, there are no merchant accounts yet, and on Render the
   SQLite database is wiped on every restart or deploy.
+- **The Channel3 integration has only been tested against a mock** built from Channel3's published OpenAPI schema (`httpx.MockTransport`), not against the live API: it needs a key, and none was available when it was written. The first live run (the "Shop, buy, return" goal on the demo) is its first real test.
 - **The contrast with PayPal's own toolkits is measured from their tool tables, not by calling them.** No test calls
-  PayPal's MCP server or toolkit; what an agent would be offered is read from the published packages (see below).
+  PayPal's MCP server or toolkit; what an agent would be offered is read from the published packages (see the measured table above).
