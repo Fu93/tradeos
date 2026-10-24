@@ -25,6 +25,7 @@
 </div>
 
 {% if rows %}
+{% if summary.total > rows|length %}<p class="small muted">Showing the newest {{ rows|length }} of {{ summary.total }} requests. The counts above cover all of them.</p>{% endif %}
 <div class="inbox-tools" id="inbox-tools" hidden>
   <div class="seg" role="group" aria-label="Show">
     <button type="button" class="chip-btn" data-inbox-filter="needs_you" aria-pressed="false">Needs you</button>

@@ -183,3 +183,96 @@ def test_the_dashboard_strip_reads_only_the_cases_table(site, monkeypatch):
     monkeypatch.setattr(wf.db, "paypal_calls", expensive)
     rows = inbox.inbox_rows(wf, evidence=False)
     assert inbox.inbox_summary(rows)["needs_you_agents"] == 1
+
+
+# found by the logic review ---------------------------------------------------------------------------------------
+from app.config import Settings as _Settings  # noqa: E402
+from app.intent import Extraction, IntentResult  # noqa: E402
+from app.paypal_client import PayPalError  # noqa: E402
+from tests.helpers import FakeExtractor, make_wf  # noqa: E402
+
+
+class ModelDown:
+    """The LLM failed and the keyword fallback could not read the message (e.g. Chinese)."""
+    name = "keyword-fallback"
+
+    def extract(self, message):
+        return Extraction(result=IntentResult(intent="UNKNOWN", reason="UNKNOWN", requested_action="UNKNOWN"),
+                          extractor=self.name, llm_unavailable=True)
+
+
+def by_id(wf) -> dict[str, dict]:
+    return {r["id"]: r for r in inbox.inbox_rows(wf)}
+
+
+def test_two_causes_two_sets_of_words(tmp_path):
+    """NEEDS_HUMAN means 'out of stock' or 'the model could not read it'; ERROR means 'payment failed, nothing to
+    refund' or 'PayPal could not be read during the policy check, retry it'. The inbox must say which."""
+    def wf_with(name, **kw):
+        return make_wf(_Settings(db_path=str(tmp_path / f"{name}.db"), paypal_client_id="", paypal_client_secret="",
+                                 **kw.pop("settings", {})), **kw)
+
+    wf, _ = wf_with("down", extractor=ModelDown())
+    down = wf.run_scenario("A")
+    assert wf.db.get_case(down)["status"] == "NEEDS_HUMAN"
+    assert "could not read this message" in by_id(wf)[down]["next_step"]
+
+    wf, _ = wf_with("stock", settings={"mock_supplier_out_of_stock": True}, extractor=FakeExtractor(
+        core={"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}))
+    stock = wf.run_scenario("A")
+    assert wf.db.get_case(stock)["status"] == "NEEDS_HUMAN"
+    assert "out of stock" in by_id(wf)[stock]["next_step"]
+
+    wf, pp = wf_with("payfail")
+    pp.create_order_with_card.side_effect = PayPalError("card declined", status_code=422)
+    pp.create_order.side_effect = PayPalError("PayPal unavailable", status_code=503)  # the wallet fallback too
+    failed = wf.run_scenario("A")
+    row = by_id(wf)[failed]
+    assert row["status"] == "ERROR" and row["bucket"] == "closed" and "nothing to refund" in row["next_step"]
+
+    wf, pp = wf_with("readfail")
+    pp.get_capture.side_effect = PayPalError("timeout", status_code=503)
+    unread = wf.run_scenario("A")
+    row = by_id(wf)[unread]
+    assert row["status"] == "ERROR" and row["bucket"] == "needs_you" and "Retry the check" in row["next_step"]
+
+
+def test_agent_orders_that_never_got_a_request_are_not_requests(tmp_path):
+    """An agent's order waiting for the buyer's PayPal approval, or one that failed at PayPal, has no request on
+    it: the agent never asked. It must not show up as something the merchant has to handle."""
+    from app.paypal_mock import MockPayPalClient
+    from unittest.mock import MagicMock
+    settings = _Settings(db_path=str(tmp_path / "a.db"), paypal_client_id="", paypal_client_secret="")
+    wf, _ = make_wf(settings, paypal=MagicMock(wraps=MockPayPalClient(card_capture=False), is_mock=True))
+    waiting = wf.agents.place_order("Maria", agent="Shop assistant")
+    assert wf.db.get_case(waiting)["status"] == "AWAITING_BUYER_APPROVAL"
+    wf2, pp2 = make_wf(_Settings(db_path=str(tmp_path / "b.db"), paypal_client_id="", paypal_client_secret=""))
+    pp2.create_order_with_card.side_effect = PayPalError("card declined", status_code=422)
+    pp2.create_order.side_effect = PayPalError("PayPal unavailable", status_code=503)
+    failed = wf2.agents.place_order("Tom", agent="Shop assistant")
+    assert wf2.db.get_case(failed)["status"] == "ERROR"
+    assert waiting not in by_id(wf) and failed not in by_id(wf2)
+    assert inbox.inbox_summary(inbox.inbox_rows(wf2, None, evidence=False))["total"] == 0
+
+
+def test_an_agent_request_is_received_when_the_agent_asked_not_when_it_ordered(site):
+    client, wf = site()
+    order = wf.agents.place_order("Maria", agent="Shop assistant")
+    wf.db.update_case(order, created_at="2026-01-01T00:00:00+00:00")  # ordered long ago
+    wf.agents.submit_request(order, DEMO_MESSAGE, agent="Shop assistant", on_behalf_of="Maria")
+    customer = client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1]
+    rows = client.get("/api/inbox").json()["rows"]
+    assert rows[0]["id"] == customer or rows[0]["received"] >= rows[1]["received"]
+    agent_row = next(r for r in rows if r["id"] == order)
+    assert not agent_row["received"].startswith("2026-01-01")  # the request time, today
+
+
+def test_the_counts_cover_every_request_even_when_the_table_is_cut(site, monkeypatch):
+    client, wf = site()
+    ids = [client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1] for _ in range(3)]
+    monkeypatch.setattr(inbox, "MAX_ROWS", 2)
+    data = client.get("/api/inbox").json()
+    assert len(data["rows"]) == 2 and data["summary"]["total"] == 3 and data["summary"]["needs_you"] == 3
+    page = client.get("/inbox").text
+    assert "Showing the newest 2 of 3 requests" in page and ">3<" in page.replace("<strong>3</strong>", ">3<")
+    assert set(ids) >= {r["id"] for r in data["rows"]}

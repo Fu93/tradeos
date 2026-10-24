@@ -10,7 +10,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from .agent_desk import AGENT_NO_REQUEST
 from .mixed import MIXED, S_ATTENTION, S_DONE, S_NEEDS, S_PENDING, S_PROGRESS, S_UNKNOWN
+from .supplier import OUT_OF_STOCK
 from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
                        NEEDS_SAFETY, NEW, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
                        REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SAFETY_REVIEWED, Workflow)
@@ -23,12 +25,14 @@ BUCKET_LABELS = {NEEDS_YOU: "Needs you", WAITING: "Waiting on someone else", CLO
 # status -> (bucket, what the merchant should know or do, in plain words)
 NEXT_STEP: dict[str, tuple[str, str]] = {
     PENDING_APPROVAL: (NEEDS_YOU, "Policy says eligible. Approve to refund, or decline."),
-    NEEDS_HUMAN: (NEEDS_YOU, "The supplier cannot exchange it. Decide whether to offer a refund."),
+    NEEDS_HUMAN: (NEEDS_YOU, "A person has to decide. Nothing was refunded."),  # refined by _next_step()
     NEEDS_SAFETY: (NEEDS_YOU, "Possible safety issue. Read it and record what you did; no money moves."),
-    REFUND_FAILED: (NEEDS_YOU, "PayPal refused the refund. Read why, then retry or contact the buyer."),
-    REFUND_ERROR: (NEEDS_YOU, "PayPal returned an error; no refund was made. Retry when ready."),
-    REFUND_UNKNOWN: (NEEDS_YOU, "PayPal did not answer. Check with PayPal before doing anything else."),
-    ERROR: (NEEDS_YOU, "Something failed before PayPal was asked. Open the case for the error."),
+    REFUND_FAILED: (NEEDS_YOU, "PayPal reports the refund FAILED. Retry from the case (the policy is re-checked "
+                               "first) or contact the buyer."),
+    REFUND_ERROR: (NEEDS_YOU, "PayPal rejected the refund request, so no refund was made. Read the error, then "
+                              "retry from the case."),
+    REFUND_UNKNOWN: (NEEDS_YOU, "PayPal did not answer the refund call. Check with PayPal before anything else."),
+    ERROR: (NEEDS_YOU, "PayPal could not be read during the policy check. Retry the check from the case."),  # refined
     AWAITING_BUYER: (WAITING, "Waiting for the buyer to approve the payment in PayPal."),
     REFUND_PENDING: (WAITING, "Refund sent; PayPal reports it pending. Shown as done only when PayPal says so."),
     REFUND_COMPLETED: (CLOSED, "Refunded. PayPal confirmed COMPLETED."),
@@ -45,6 +49,27 @@ NEXT_STEP: dict[str, tuple[str, str]] = {
     S_DONE: (CLOSED, "Every item is settled: refunded, exchanged or refused."),
 }
 NOT_A_REQUEST = (NEW, AGENT_ORDERED)  # a seeded case not run yet, or an agent's order with no request on it
+
+
+def _is_request(case: dict) -> bool:
+    """A case is a return request once someone asked. An agent's order carries a placeholder message until the agent
+    calls request_return, whatever its status (also AWAITING_BUYER, or an order that failed at PayPal)."""
+    if case["status"] in NOT_A_REQUEST:
+        return False
+    return not (case["scenario"] == AGENT and case["customer_message"] == AGENT_NO_REQUEST)
+
+
+def _next_step(case: dict) -> tuple[str, str]:
+    """(bucket, plain words). Two statuses have more than one cause, and the words must match the cause."""
+    status = case["status"]
+    if status == NEEDS_HUMAN:
+        if case.get("supplier_reply") == OUT_OF_STOCK:
+            return NEEDS_YOU, "The replacement is out of stock. Decide whether to offer a refund."
+        return NEEDS_YOU, ("The AI could not read this message (the model was unavailable). Read it yourself and "
+                           "decide. Nothing was refunded.")
+    if status == ERROR and not case.get("capture_id"):
+        return CLOSED, "The payment failed at PayPal, so nothing was captured and there is nothing to refund."
+    return NEXT_STEP.get(status, (NEEDS_YOU, "Open the case."))
 
 REQUEST_LABELS = {"REFUND": "Refund", "EXCHANGE": "Exchange", "INFO": "Question", "UNKNOWN": "Unclear"}
 
@@ -63,15 +88,25 @@ def _why(case: dict) -> str:
     return str(reasons[0]) if reasons else ""
 
 
-def inbox_rows(wf: Workflow, limit: int = MAX_ROWS, *, evidence: bool = True) -> list[dict[str, Any]]:
-    """One row per return request, newest first. evidence=False skips everything per case that reads more than the
-    cases table (agent provenance, the chain check, the PayPal call count): the dashboard's strip renders on every
-    page view and only needs counts."""
-    cases = [c for c in wf.db.list_cases() if c["status"] not in NOT_A_REQUEST]
+def _requested_at(wf: Workflow, case: dict) -> str:
+    """When the request arrived. A customer case is opened by its message; an agent's order may be placed well before
+    the agent asks, so its request time is the chained "Return requested" entry."""
+    if case["scenario"] != AGENT:
+        return case["created_at"]
+    asked = [e["ts"] for e in wf.db.timeline(case["id"])
+             if e["stage"] == "agent" and e["title"].startswith("Return requested")]
+    return asked[0] if asked else case["created_at"]
+
+
+def inbox_rows(wf: Workflow, limit: int | None = 0, *, evidence: bool = True) -> list[dict[str, Any]]:
+    """One row per return request, newest request first; limit 0 means MAX_ROWS (read at call time), None means all. evidence=False skips everything per
+    case that reads more than the cases table (request time, agent provenance, the chain check, the PayPal call
+    count): the dashboard's strip renders on every page view and only needs counts."""
+    cases = [c for c in wf.db.list_cases() if _is_request(c)]
     cases.sort(key=lambda c: c["created_at"], reverse=True)
     rows = []
-    for case in cases[:limit]:
-        bucket, step = NEXT_STEP.get(case["status"], (NEEDS_YOU, "Open the case."))
+    for case in cases[:MAX_ROWS if limit == 0 else limit]:
+        bucket, step = _next_step(case)
         from_agent = case["scenario"] == AGENT
         row: dict[str, Any] = {
             "id": case["id"], "received": case["created_at"], "label": case.get("label") or "",
@@ -88,9 +123,12 @@ def inbox_rows(wf: Workflow, limit: int = MAX_ROWS, *, evidence: bool = True) ->
             row["buyer"] = who["on_behalf_of"] or case["customer_name"]
             row["verified"] = who["identity_verified"]
         if evidence:
+            row["received"] = _requested_at(wf, case)
             row["refund_api_calls"] = len(wf.db.paypal_calls(case["id"], "refund_capture"))
             row["chain_ok"] = bool(wf.db.verify_chain(case["id"])["ok"])
         rows.append(row)
+    if evidence:
+        rows.sort(key=lambda r: r["received"], reverse=True)
     return rows
 
 

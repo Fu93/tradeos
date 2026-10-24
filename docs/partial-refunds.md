@@ -45,6 +45,11 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
 
 ## Money rules (all integer minor units)
 
+* **A mixed order is never refunded as a whole.** The whole-case approve and the single-refund guard refuse any case
+  whose scenario is `M`, whatever its decision says, and "Retry the policy check" after a PayPal read failure
+  evaluates the order line by line again. Before 2026-10-24 that retry ran the single-item flow: with a refund
+  reading, the whole capture (191.21 USD, the exchanged item included) became approvable
+  (`tests/test_mixed_retry.py`).
 * Amounts are `int` minor units, converted with exact `Decimal` parsing. Extra decimals are an error (never rounded
   silently), as are negatives, exponents, NaN, and a decimal point on JPY/HUF/TWD.
   Currency exponent: JPY, HUF, TWD = 0; the other PayPal-supported codes = 2 (PayPal's currency table).

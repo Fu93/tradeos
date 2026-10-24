@@ -220,7 +220,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                                    agent_llm.model if agent_llm else None) if app.state.mcp_server else None),
             "live_run": live_run(db, current),
             "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
-            "inbox": inbox_summary(inbox_rows(wf, evidence=False)),
+            "inbox": inbox_summary(inbox_rows(wf, None, evidence=False)),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -270,14 +270,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return templates.TemplateResponse(request, "inbox.html", {
             "settings": settings, "paypal_mode": wf.paypal_mode,
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
-            "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows, "summary": inbox_summary(rows),
-            "buckets": BUCKET_LABELS})
+            "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows,
+            # Counts cover every request; the table shows the newest MAX_ROWS and says so when it is cut.
+            "summary": inbox_summary(inbox_rows(wf, None, evidence=False)), "buckets": BUCKET_LABELS})
 
     @app.get("/api/inbox")
     def inbox_api():
         """The inbox rows as JSON (what the grid loads). Read-only."""
-        rows = inbox_rows(wf)
-        return {"rows": rows, "summary": inbox_summary(rows)}
+        return {"rows": inbox_rows(wf), "summary": inbox_summary(inbox_rows(wf, None, evidence=False))}
 
     @app.get("/healthz")
     def healthz():

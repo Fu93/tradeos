@@ -106,6 +106,12 @@ SAFETY_REVIEWED = "SAFETY_REVIEWED"      # terminal: a person read a safety-gate
 SAFETY_NOTE_MAX = 500
 
 
+def _is_mixed(case: dict) -> bool:
+    """A mixed order (Case M): its decision is MIXED once evaluated, and its scenario says so from the start (also
+    while it is in ERROR before any decision). Either marks it as refundable only batch by batch."""
+    return case.get("decision") == MIXED or case.get("scenario") == "M"
+
+
 class SafetyNoteInvalid(ValueError):
     """The reviewer note is missing or too long (HTTP 422)."""
 
@@ -756,7 +762,7 @@ class Workflow:
             with self._money_op(), self._lock(case_id):
                 case = self._case(case_id)
                 self._refuse_if_safety(case)
-                if case.get("decision") == MIXED:
+                if _is_mixed(case):
                     raise RefundNotAllowed("A mixed order is approved per batch (items + exact total), not as a whole.")
                 if skip_if_approved and case["human_decision"] == "APPROVED":
                     self.db.audit(case_id, POLICY_ACTOR, "Autonomy: AUTO — this case was already approved, "
@@ -851,6 +857,8 @@ class Workflow:
 
     def _guard_refund(self, case: dict) -> None:
         self._refuse_if_safety(case)
+        if _is_mixed(case):  # batches have their own guarded path; a whole-capture refund would pay for exchanged items
+            raise RefundNotAllowed("A mixed order is refunded per batch (items + exact total), never as a whole.")
         if case["decision"] != "ELIGIBLE":
             raise RefundNotAllowed(f"Policy decision is {case['decision'] or 'missing'}; refund refused.")
         if case["human_decision"] != "APPROVED":
@@ -1068,7 +1076,12 @@ class Workflow:
                 raise RefundNotAllowed("Only a captured case that failed before the policy decision can be re-checked.")
             self.db.update_case(case_id, status=NEW, error=None)
             self.db.audit(case_id, "policy", "Retrying the policy check (PayPal could not be read last time)", {})
-        self._after_capture(case_id)
+        if _is_mixed(case):
+            # A mixed order is judged line by line into batches. The single-item flow would judge the whole order as
+            # one return and could make the full capture refundable, items meant for exchange included.
+            self.mixed.evaluate(case_id)
+        else:
+            self._after_capture(case_id)
 
     def refresh_refund(self, case_id: str) -> None:
         """Manual 'Refresh status' button: a full reconciliation against PayPal."""
