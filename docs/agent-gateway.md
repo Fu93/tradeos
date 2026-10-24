@@ -4,7 +4,7 @@ PayPal's own MCP server lets an AI agent issue refunds directly. That is the rig
 and the wrong one for an agent that acts for a **buyer**: nothing between the agent and the Refund API checks the
 merchant's return policy, notices a prompt injection, or asks a person.
 
-TradeOS exposes a second door for that kind of agent. It is an MCP server at `/mcp` with three tools, and it has no
+TradeOS exposes a second door for that kind of agent. It is an MCP server at `/mcp` with three tools (a fourth, read-only product search, with a catalogue key), and it has no
 approve, decline or refund tool. A request from an agent runs through the same loop as a dashboard case. Every
 agent-originated case then waits for a person at the merchant, even with `AUTO_ENABLED` on.
 
@@ -13,6 +13,7 @@ agent-originated case then waits for a person at the merchant, even with `AUTO_E
 | Tool | What it does | Moves money? |
 |---|---|---|
 | `place_demo_order` | Sandbox demo only: buys the demo sneakers (49.99 USD) with a PayPal Sandbox test card, so the buyer has an order to return. `purchased_days_ago` seeds an older purchase date (labelled demo data). Off with `TRADEOS_AGENT_DEMO_ORDERS=0`. | A Sandbox capture, like the dashboard's Run buttons |
+| `find_product` | Only with `CHANNEL3_API_KEY`: searches [Channel3](https://docs.trychannel3.com)'s catalogue of real products and returns up to 5 (id, title, brand, category, retailer, price). Prices above `TRADEOS_CATALOG_MAX_PRICE` (200 USD) are left out. | No (read-only; spends catalogue credits, so it shares the run limit) |
 | `request_return` | Asks for a return (refund) or a size exchange on that order, with the buyer's words. One request per order. | No |
 | `get_case_status` | Reads the outcome: policy decision and reasons, who approved, PayPal refund id and status, Refund API call count, audit-chain verification, and a plain-words `next_step` that never calls a refund done before PayPal reports COMPLETED. While a payment waits for the buyer, `buyer_approval_url` is the PayPal link to hand them. | No |
 | approve / decline / refund | **Not offered.** Only a person on the dashboard (or the merchant's own autonomy policy, for non-agent cases) approves. | — |
@@ -39,7 +40,7 @@ was also mutation-checked: removing each defence below makes at least one test f
 
 | Property | How |
 |---|---|
-| No tool can approve, decline or refund | The server registers exactly three tools; the test asserts the set and that no name contains approve, decline, refund or capture. |
+| No tool can approve, decline or refund | The server registers three tools (four with a product catalogue: the read-only `find_product`); the tests assert the set and that no name contains approve, decline, refund or capture, and no tool accepts an amount, a currency or a capture id. |
 | Every agent request waits for a person | `autonomy.decide_detailed(..., agent_originated=True)` returns HUMAN before any limit is read. Asserted with `AUTO_ENABLED=1` and the amount inside the limit, for refunds and exchanges. |
 | The agent cannot set the amount | The refund is PayPal's whole capture (no `amount` sent), and the policy reads amount, currency, status and date from `GET /v2/payments/captures/{id}`. A message claiming "500 USD" changes nothing. |
 | Prompt injection, a late order and a safety report end with Refund API calls = 0 | Same policy, injection heuristic and Safety Gate as the dashboard; `approve()` is refused afterwards too. |
@@ -49,6 +50,24 @@ was also mutation-checked: removing each defence below makes at least one test f
 | Nothing is truncated | A message over the 500-character limit is refused, as on the dashboard. Cutting it would hide whatever came after the cut (a fire, an injury) from the Safety Gate. |
 | Failures are reported as failures | An order PayPal could not complete is a tool error, not an order. A request on an order with no capture yet says the buyer must approve the payment first. After the buyer approves, the order waits for the agent's request; it is never evaluated on placeholder text. |
 | Who asked is on the hash chain | `audit:agent` entries record the agent name, the buyer it acts for, the message and `agent_can_approve: false`. The chain verifies. |
+
+## Real products: discover, pay, return (Channel3)
+
+With `CHANNEL3_API_KEY` set, an agent can do the whole buyer journey on a real product: `find_product` searches
+Channel3's catalogue, `place_demo_order(product_id=…)` buys it in the PayPal Sandbox, and `request_return` asks for the
+return. What the agent can and cannot set:
+
+| | Set by | Why |
+|---|---|---|
+| Which product | the agent, by `product_id` from `find_product` | that is the agent's job |
+| Name, category, retailer, price | **the server**, which looks the product up again by id at Channel3 | an agent could otherwise buy a "kettle" named "socks" to dodge the Safety Gate, or set its own price |
+| Price limit | the merchant (`TRADEOS_CATALOG_MAX_PRICE`); `find_product`'s `max_price` can only lower it | a Sandbox demo should not take large amounts |
+| Refund amount | PayPal's capture, as for every order | unchanged |
+
+The product's real category reaches the Safety Gate, which classes products by name and category: "it stopped working
+after two days" on an electric kettle goes to a person's safety review, the same words on sneakers do not (tested).
+The order-placed entry on the hash chain records the product and that the server looked it up. Channel3 is faked in
+the tests (`tests/test_catalog.py`, shaped like its documented API); a live run needs a key.
 
 ## Accountability: what the audit chain can prove
 

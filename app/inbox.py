@@ -129,6 +129,9 @@ def inbox_rows(wf: Workflow, limit: int | None = 0, *, evidence: bool = True) ->
             row["verified"] = who["identity_verified"]
         if evidence:
             row["received"] = _requested_at(wf, case)
+            if str(case.get("product_sku") or "").startswith("C3-"):  # a real product an agent bought (Channel3)
+                product = wf.db.get_product(case["product_sku"]) or {}
+                row["item"] = product.get("name") or ""
             row["refund_api_calls"] = len(wf.db.paypal_calls(case["id"], "refund_capture"))
             row["chain_ok"] = bool(wf.db.verify_chain(case["id"])["ok"])
         rows.append(row)

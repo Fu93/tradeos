@@ -184,6 +184,7 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     if (s.args) { li.appendChild(document.createTextNode(" ")); li.appendChild(el("span", "muted", JSON.stringify(s.args))); }
     li.appendChild(document.createTextNode(" → "));
     if (r.error) { li.appendChild(el("span", "bad-text", r.error)); return li; }
+    if (r.found) { li.appendChild(document.createTextNode("found " + r.found.length + (r.found.length ? ": " + r.found.join("; ") : ""))); return li; }
     var parts = [String(r.status || "").replace(/_/g, " ")];
     if (r.refund_api_calls !== undefined) parts.push("refund calls: " + r.refund_api_calls);
     if (r.note) parts.push(r.note);
@@ -285,7 +286,9 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
         return wrap;
       } },
     { headerName: "Buyer", field: "buyer", flex: 1, minWidth: 110, tooltipField: "buyer", hide: narrow },
-    { headerName: "Request", field: "request", width: 106, tooltipField: "request", hide: narrow },
+    { headerName: "Request", field: "request", width: 106, hide: narrow,
+      tooltipValueGetter: function (p) { return p.data.item ? p.value + " · " + p.data.item : p.value; },
+      getQuickFilterText: function (p) { return p.value + " " + (p.data.item || ""); } },
     { headerName: "Amount", field: "amount", width: 108, type: "rightAligned" },
     { headerName: "Next step", field: "next_step", flex: 2, minWidth: 240,
       cellRenderer: function (p) { return node("div", "clamp2", p.value); },

@@ -141,6 +141,7 @@ class Workflow:
         self.db = db
         self.settings = settings
         self.extractor = extractor
+        self.catalog: Any = None  # app/catalog.py Channel3Catalog when CHANNEL3_API_KEY is set (create_app)
         self.note_writer = note_writer or TemplateNoteWriter()
         # Opt-in second safety layer (escalate-only, fail-safe). None unless TRADEOS_SAFETY_AI=1 (or injected by a test).
         self.safety_ai = safety_ai if safety_ai is not None else build_safety_classifier(settings)
@@ -227,7 +228,8 @@ class Workflow:
             self.new_case(scenario)
 
     def new_case(self, scenario: str, message: str | None = None, label: str | None = None,
-                 days_ago: int | None = None, customer_name: str | None = None, status: str = NEW) -> str:
+                 days_ago: int | None = None, customer_name: str | None = None, status: str = NEW,
+                 product_sku: str | None = None, amount: str | None = None) -> str:
         if scenario not in SCENARIOS:
             raise ValueError("unknown scenario")
         if scenario == "M":
@@ -245,7 +247,8 @@ class Workflow:
         self.db.insert_case(
             id=case_id, scenario=scenario, label=label or spec["label"], status=status,
             customer_name=customer_name or spec["customer_name"], customer_message=message or DEMO_MESSAGE,
-            product_sku=DEMO_PRODUCT["sku"], amount=self.settings.order_amount, currency=self.settings.currency,
+            product_sku=product_sku or DEMO_PRODUCT["sku"], amount=amount or self.settings.order_amount,
+            currency=self.settings.currency,
             purchase_date_seeded=seeded,
             refund_fault=self.settings.refund_failure_mock_code if scenario == "R" else None,
         )
@@ -379,11 +382,13 @@ class Workflow:
         A card charge whose reply was lost is asked again once with the same PayPal-Request-Id, never followed by a
         second (wallet) order: that would ask the buyer to pay twice. Only a definite PayPal "no" falls back."""
         s = self.settings
+        # The case's own amount: the demo product's price, or a catalogue product's (an agent order from Channel3).
+        amount = self._case(case_id)["amount"]
         unknown = False  # set once PayPal may have taken the money; nothing after that can make it certain again
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
             def card() -> dict:
-                return self._pp(case_id, "create_order_with_card", s.order_amount, s.currency, case_id,
+                return self._pp(case_id, "create_order_with_card", amount, s.currency, case_id,
                                 f"TradeOS demo {case_id}", f"tradeos-order-{case_id}")
             try:
                 order = card()
@@ -397,14 +402,14 @@ class Workflow:
                     unknown = False  # PayPal answered: the order (and its capture, if any) is now known
                 else:
                     self._card_fallback(case_id, card_err)
-                    order = self._pp(case_id, "create_order", s.order_amount, s.currency, case_id,
+                    order = self._pp(case_id, "create_order", amount, s.currency, case_id,
                                  f"TradeOS demo {case_id}", f"tradeos-wallet-{case_id}",
                                  f"{s.public_base_url}/cases/{case_id}/paypal-return",
                                  f"{s.public_base_url}/?case={case_id}")
             self.db.update_case(case_id, order_id=order["id"], order_status=order.get("status"))
             self.db.audit(case_id, "payment", "PayPal order created",
                           {"order_id": order["id"], "status": order.get("status"),
-                           "amount": f"{s.order_amount} {s.currency}"})
+                           "amount": f"{amount} {s.currency}"})
 
             if order.get("status") == "APPROVED":
                 try:

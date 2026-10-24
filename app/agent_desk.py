@@ -14,6 +14,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from .db import CaseFinalized
+from .catalog import CatalogProduct
 from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
                        NEEDS_SAFETY, PAYMENT_UNKNOWN, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
                        REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SCENARIOS, CaseNotFound, RefundNotAllowed, clean_message)
@@ -56,19 +57,28 @@ class AgentDesk:
         return None
 
     def place_order(self, buyer: str, agent: str = "", days_ago: int | None = None,
-                    caller: dict | None = None) -> str:
-        """Sandbox demo: the agent buys the demo product with a Sandbox test card, so it has an order to return.
+                    caller: dict | None = None, product: CatalogProduct | None = None) -> str:
+        """Sandbox demo: the agent buys a product with a Sandbox test card, so it has an order to return.
 
-        The case starts AGENT_ORDERED with no request on it. days_ago > 0 seeds an older purchase date (labelled
-        demo data, like Case B) so the return window can be shown rejecting a late request."""
+        The product is the demo sneakers, or a catalogue product the SERVER looked up by id (app/catalog.py): its
+        name, category and price never come from the agent. The case starts AGENT_ORDERED with no request on it.
+        days_ago > 0 seeds an older purchase date (labelled demo data, like Case B) so the return window can be shown
+        rejecting a late request."""
         buyer = clean_message(buyer, AGENT_TEXT_MAX) or SCENARIOS[AGENT]["customer_name"]
         agent = clean_message(agent, AGENT_TEXT_MAX)
         with self.wf._money_op():
+            if product is not None:
+                self.wf.db.upsert_product(product.sku, product.title, product.category or "catalogue product",
+                                          True, product.price, product.retailer or "Channel3")
             case_id = self.wf.new_case(AGENT, message=AGENT_NO_REQUEST, days_ago=days_ago or None,
-                                    customer_name=buyer, status=AGENT_ORDERED)
+                                    customer_name=buyer, status=AGENT_ORDERED,
+                                    product_sku=product.sku if product else None,
+                                    amount=product.price if product else None)
             self.wf.db.audit(case_id, "agent", "Order placed by an AI agent for the buyer (Sandbox demo)",
                           {"agent": agent or None, "buyer": buyer, "channel": "mcp", **caller_fields(caller),
-                           "purchase_date_seeded": self.wf._case(case_id)["purchase_date_seeded"]})
+                           "purchase_date_seeded": self.wf._case(case_id)["purchase_date_seeded"],
+                           "product": ({**product.view(), "source": "Channel3 catalogue (looked up by the server)"}
+                                       if product else None)})
             self.wf._order_and_capture(case_id)
         return case_id
 

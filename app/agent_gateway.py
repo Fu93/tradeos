@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import hmac
 import json
+from decimal import Decimal
 from typing import Any, Callable
 from urllib.parse import urlsplit
 
@@ -33,11 +34,12 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .config import Settings
 from .ratelimit import RateLimiter
+from .catalog import CatalogError
 from .workflow import PAYMENT_UNKNOWN, CaseNotFound, RefundNotAllowed, Workflow
 
 MCP_PATH = "/mcp"
 # Tool calls that create a Sandbox order or run the LLM + PayPal reads. They share the dashboard's run budget.
-COSTLY_TOOLS = frozenset({"place_demo_order", "request_return"})
+COSTLY_TOOLS = frozenset({"place_demo_order", "request_return", "find_product"})  # find_product spends API credits
 MAX_BODY = 64 * 1024  # a tool call is a few hundred bytes; anything bigger is not a legitimate request
 MAX_DAYS_AGO = 365
 # Request-scope key the gate writes after verifying a token. Set server-side only: a client header never sets it.
@@ -77,22 +79,56 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
                          "agent's credential, or a demo reset archived it. Only orders placed through this gateway "
                          "can be used.")
 
+    catalog = wf.catalog if settings.agent_demo_orders else None
+    if catalog is not None:
+        @server.tool(
+            title="Find a product",
+            description=(f"Search {catalog.name}'s product catalogue (real products from real retailers). Returns up "
+                         f"to 5 products with a product_id, title, brand, category, retailer and price in "
+                         f"{catalog.currency}. Pass a product_id to place_demo_order to buy it in the Sandbox. "
+                         "Read-only: nothing is bought here."),
+            annotations=ToolAnnotations(read_only_hint=True, open_world_hint=True),
+        )
+        def find_product(query: str, max_price: float | None = None) -> dict[str, Any]:
+            cap = settings.catalog_max_price
+            limit = min(cap, Decimal(str(max_price))) if max_price is not None and max_price > 0 else cap
+            try:
+                found = catalog.search(query, limit)
+            except CatalogError as exc:
+                raise ToolError(str(exc)) from None
+            return {"products": [p.view() for p in found if Decimal(p.price) <= cap],
+                    "note": f"Sandbox demo orders are limited to {cap} {catalog.currency}."}
+
     if settings.agent_demo_orders:
         @server.tool(
             title="Place a Sandbox demo order",
-            description=("Sandbox demo only: buy the demo sneakers (49.99 USD) with a PayPal Sandbox test card so "
-                         "the buyer has an order to return. purchased_days_ago > 0 seeds an older purchase date "
-                         "(labelled demo data) to show the 30-day return window. Returns the order_id."),
+            description=("Sandbox demo only: buy a product with a PayPal Sandbox test card so the buyer has an order "
+                         "to return. Without product_id it is the demo sneakers (49.99 USD); with a product_id from "
+                         "find_product (when offered) it is that product at its catalogue price, looked up by the "
+                         "merchant. purchased_days_ago > 0 seeds an older purchase date (labelled demo data) to show "
+                         "the 30-day return window. Returns the order_id."),
             annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False,
                                         open_world_hint=True),
         )
         def place_demo_order(buyer_name: str, agent_name: str, ctx: Context,
-                             purchased_days_ago: int = 0) -> dict[str, Any]:
+                             purchased_days_ago: int = 0, product_id: str | None = None) -> dict[str, Any]:
             if not 0 <= purchased_days_ago <= MAX_DAYS_AGO:
                 raise ToolError(f"purchased_days_ago must be between 0 and {MAX_DAYS_AGO}.")
+            product = None
+            if product_id:
+                if catalog is None:
+                    raise ToolError("This merchant has no product catalogue: leave product_id out to buy the demo "
+                                    "sneakers.")
+                try:
+                    product = catalog.get(product_id)  # the merchant's own lookup: the agent sets no price
+                except CatalogError as exc:
+                    raise ToolError(str(exc)) from None
+                if Decimal(product.price) > settings.catalog_max_price:
+                    raise ToolError(f"That product costs {product.price} {product.currency}; Sandbox demo orders are "
+                                    f"limited to {settings.catalog_max_price}.")
             try:
                 case_id = wf.agents.place_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago,
-                                               caller=caller_of(ctx))
+                                               caller=caller_of(ctx), product=product)
             except RefundNotAllowed as exc:
                 raise ToolError(str(exc)) from None
             view = wf.agents.view(case_id, caller=caller_of(ctx))

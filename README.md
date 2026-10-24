@@ -633,6 +633,8 @@ reconciled against PayPal in the background at startup.
 | `TRADEOS_MCP_AGENTS` | no | — | per-agent credentials, `name=token;name=token` (tokens ≥ 16 chars, unique): a request with one is recorded on the hash chain as that verified credential; malformed values stop startup |
 | `TRADEOS_MCP_ALLOWED_HOSTS` | no | — | extra `Host` values `/mcp` accepts (comma-separated); the `PUBLIC_BASE_URL` host and localhost are always allowed |
 | `TRADEOS_AGENT_DEMO_ORDERS` | no | `1` | Sandbox demo: lets an agent place a Sandbox card order to return later (`place_demo_order` tool) |
+| `CHANNEL3_API_KEY` | no | — | Real products for agents from [Channel3](https://trychannel3.com/developers)'s catalogue: adds the read-only `find_product` tool, `place_demo_order(product_id=…)` and the live agent's "Shop, buy, return" goal. Empty = demo sneakers only |
+| `TRADEOS_CATALOG_MAX_PRICE` | no | `200.00` | Highest price of a catalogue product an agent may buy in the Sandbox demo |
 | `TRADEOS_SHIPPING_POLICY` | no | `WITHDRAWAL_FULL` | shipping refund policy for mixed orders: `WITHDRAWAL_FULL`, `MERCHANT_ERROR` or `NEVER` (unknown value fails closed to `NEVER`); see [`docs/partial-refunds.md`](docs/partial-refunds.md) |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | no | `1` | background check of PENDING refunds only |
 | `TRADEOS_RESET_COOLDOWN_PER_IP_S`, `TRADEOS_RESET_COOLDOWN_GLOBAL_S` | no | `60`, `15` | cooldown between two "Reset demo" clicks (per IP / whole app) |

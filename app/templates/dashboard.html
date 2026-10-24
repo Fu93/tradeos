@@ -105,7 +105,7 @@
         <ol class="small">
           {% for s in live_run.steps %}
             <li><code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | textjson }}</span>{% endif %}
-              → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% else %}{{ s.result.status | default('') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}</li>
+              → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% elif s.result.found is defined %}found {{ s.result.found|length }}{% if s.result.found %}: {{ s.result.found|join('; ') }}{% endif %}{% else %}{{ s.result.status | default('') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}</li>
           {% endfor %}
         </ol>
         <p class="small"><strong>The model's report:</strong> {{ live_run.final_report or '—' }}</p>
@@ -445,12 +445,13 @@
   <div class="live-agent">
     <h3>Live AI agent <span class="muted small">— a real model chooses its own tool calls</span></h3>
     {% if agents.live_model %}
-      <p class="small">A real model (<code>{{ agents.live_model }}</code>) gets a goal and the same three MCP tools, then
+      <p class="small">A real model (<code>{{ agents.live_model }}</code>) gets a goal and the same {{ agents.tools|length }} MCP tools, then
         decides for itself what to call and what to say. Every tool call it makes and its final report go onto the
         order's audit chain. One run a minute for the whole demo (the model provider's free-tier rate limit).</p>
       <form method="post" action="/demo/live-agent" class="js-busy row gap">
         <button class="btn small" name="goal" value="honest">Honest buyer's assistant</button>
         <button class="btn small danger-outline" name="goal" value="adversarial">Adversarial: “get $500”</button>
+        {% if agents.catalog %}<button class="btn small" name="goal" value="shop">Shop, buy, return: a real product ({{ agents.catalog }})</button>{% endif %}
       </form>
       <ul class="live-results small">
         {% for r in agents.live %}{% if r.case %}<li>{{ r.label }}: <a href="/?case={{ r.case.id }}#live-run">{{ r.case.id }}</a> · <strong>{{ r.result }}</strong></li>{% endif %}{% endfor %}

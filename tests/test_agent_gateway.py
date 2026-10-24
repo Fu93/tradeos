@@ -368,7 +368,9 @@ def test_rate_limit_applies_inside_a_json_rpc_batch():
     assert refusal["id"] == 7 and limiter.check.call_args.args == ("1.2.3.4",)  # the dashboard's key: one budget
     assert gate._rate_refusal(b"not json", request=MagicMock()) is None
     assert gate._rate_refusal(json.dumps(call_rpc("get_case_status", {})).encode(), MagicMock()) is None
-    assert COSTLY_TOOLS == {"place_demo_order", "request_return"}
+    # find_product spends the merchant's catalogue credits, so it draws on the same budget
+    assert COSTLY_TOOLS == {"place_demo_order", "request_return", "find_product"}
+    assert gate._rate_refusal(json.dumps(call_rpc("find_product", {"query": "x"}, 9)).encode(), MagicMock())["id"] == 9
 
 
 def test_oversized_body_is_refused(http):

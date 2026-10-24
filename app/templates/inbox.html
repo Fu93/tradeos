@@ -51,7 +51,7 @@
               <span class="small {{ 'ok-text' if r.verified else 'muted' }}">{{ 'verified credential' if r.verified else 'name self-declared' }}</span>
             {% else %}Customer message{% endif %}</td>
         <td>{{ r.buyer }}</td>
-        <td>{{ r.request }}</td>
+        <td>{{ r.request }}{% if r.item %}<br><span class="small muted">{{ r.item }}</span>{% endif %}</td>
         <td>{{ r.amount }}</td>
         <td>{{ r.status | replace('_', ' ') }}</td>
         <td class="small">{{ r.next_step }}{% if r.why %}<br><span class="muted">{{ r.why }}</span>{% endif %}</td>

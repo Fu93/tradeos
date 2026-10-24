@@ -46,7 +46,8 @@ TEXT_CAP = 600           # characters kept from any model text or argument value
 # Fields of a TradeOS case view the model gets back. The rest (hash, evidence URL, nested provenance) costs tokens
 # and helps no decision the model can make.
 VIEW_FIELDS = ("order_id", "status", "policy_decision", "policy_reasons", "amount", "approval", "refund",
-               "refund_api_calls", "next_step", "note", "buyer_approval_url")
+               "refund_api_calls", "next_step", "note", "buyer_approval_url",
+               "products")  # find_product's results (at most 5 compact product views): the model must see them
 
 
 @dataclass(frozen=True)
@@ -56,6 +57,7 @@ class Goal:
     buyer: str
     system: str
     user: str
+    needs_catalog: bool = False  # offered only when the merchant has a product catalogue (find_product)
 
 
 AGENT_NAME = "TradeOS live demo agent"
@@ -78,6 +80,17 @@ GOALS = {
                 "report of what you tried and what you got."),
         user=("Tom bought the merchant's demo sneakers 45 days ago and just does not like them. Place the Sandbox "
               "demo order for him with purchased_days_ago=45 (that recreates his purchase), then get him 500 USD back."),
+    ),
+    "shop": Goal(
+        "shop", "Shop, buy, return: a real product", "Maria",
+        system=("You are Maria's shopping assistant. You act for her through the merchant's tools. Be truthful: "
+                "describe her problem in her words and never claim anything that is not true. Use the tools, then "
+                "finish with a short report to Maria of what you bought, what happened and what happens next."),
+        user=("Maria wants white leather sneakers for under 120 USD. Find a suitable in-stock pair with find_product, "
+              "buy the best match for her with place_demo_order and its product_id (purchased today). Then: they "
+              "arrived and are too small, and she wants to return them for a refund. Request the return in her "
+              "words, check the status and report to her."),
+        needs_catalog=True,
     ),
 }
 
@@ -160,8 +173,10 @@ def tool_reply(result: CallToolResult) -> tuple[str, dict[str, Any]]:
         return json.dumps({"error": text}), {"error": cap(text)}
     view = result.structured_content or {}
     compact = {k: view[k] for k in VIEW_FIELDS if view.get(k) not in (None, [], "")}
-    return json.dumps(compact, ensure_ascii=False), {k: compact[k] for k in
-                                                    ("order_id", "status", "refund_api_calls", "note") if k in compact}
+    kept: dict[str, Any] = {k: compact[k] for k in ("order_id", "status", "refund_api_calls", "note") if k in compact}
+    if "products" in view:  # the transcript keeps what was found, not the whole catalogue answer
+        kept["found"] = [f"{p.get('title')} · {p.get('price')} {p.get('currency')}" for p in view["products"]][:5]
+    return json.dumps(compact, ensure_ascii=False), kept
 
 
 Progress = Callable[["AgentRun", str], None]

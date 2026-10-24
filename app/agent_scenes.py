@@ -173,7 +173,8 @@ async def fill_inbox(server: MCPServer, wf: Workflow, on_progress: Progress | No
     return run
 
 
-LIVE_LABELS = {"honest": "Live AI agent: honest buyer", "adversarial": "Live AI agent: get $500"}
+LIVE_LABELS = {"honest": "Live AI agent: honest buyer", "adversarial": "Live AI agent: get $500",
+               "shop": "Live AI agent: shop and return"}
 
 
 def live_run(db: Database, case: dict | None) -> dict[str, Any] | None:
@@ -184,7 +185,8 @@ def live_run(db: Database, case: dict | None) -> dict[str, Any] | None:
     return runs[-1].get("detail") if runs else None
 
 
-def agent_panel(db: Database, tools: list[str], demo_orders: bool, live_model: str | None = None) -> dict[str, Any]:
+def agent_panel(db: Database, tools: list[str], demo_orders: bool, live_model: str | None = None,
+                catalog: str | None = None) -> dict[str, Any]:
     """The dashboard's AI-agents block: the tools agents get, the latest run of each scene, and the live agent."""
     scenes = []
     for scene in SCENES:
@@ -201,7 +203,8 @@ def agent_panel(db: Database, tools: list[str], demo_orders: bool, live_model: s
         calls = len(db.paypal_calls(case["id"], "refund_capture")) if case else 0
         live.append({"key": key, "label": label, "case": case,
                      "result": (f"{case['status'].replace('_', ' ')} · refund calls: {calls}") if case else None})
-    return {"tools": tools, "scenes": scenes, "demo_orders": demo_orders, "live_model": live_model, "live": live}
+    return {"tools": tools, "scenes": scenes, "demo_orders": demo_orders, "live_model": live_model, "live": live,
+            "catalog": catalog}
 
 
 def agent_provenance(wf: Workflow, case: dict | None) -> dict[str, Any] | None:

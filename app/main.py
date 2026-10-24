@@ -24,6 +24,7 @@ from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_prove
                            play_scenes)
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
 from .inbox import BUCKET_LABELS, inbox_rows, inbox_summary
+from .catalog import Channel3Catalog
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
@@ -65,7 +66,8 @@ WEBHOOK_MAX_BODY = 64 * 1024
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
-               today=None, note_writer=None, agent_llm: ToolCallingLLM | None = None) -> FastAPI:
+               today=None, note_writer=None, agent_llm: ToolCallingLLM | None = None,
+               catalog: Channel3Catalog | None = None) -> FastAPI:
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
@@ -111,6 +113,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.workflow = wf
+    # Real products for agents (Channel3), only with a key. Set before the MCP server is built: it offers find_product.
+    if catalog is None and settings.channel3_api_key:
+        catalog = Channel3Catalog(settings.channel3_api_key, currency=settings.currency)
+    wf.catalog = catalog
     # Agent gateway at /mcp: an AI agent can request a return, never approve one (app/agent_gateway.py). Order-
     # creating tools share the dashboard's run budget (same limiter, keyed per address).
     app.state.mcp_server = mount_mcp(app, wf, settings, limiter, ip) if settings.mcp_enabled else None
@@ -220,7 +226,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "exchange_copy": EXCHANGE_COPY,
             "agent": agent_provenance(wf, current),
             "agents": (agent_panel(db, mcp_tools(), settings.agent_demo_orders,
-                                   agent_llm.model if agent_llm else None) if app.state.mcp_server else None),
+                                   agent_llm.model if agent_llm else None,
+                                   wf.catalog.name if wf.catalog else None) if app.state.mcp_server else None),
             "live_run": live_run(db, current),
             "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
             "inbox": inbox_summary(inbox_rows(wf, None, evidence=False)),
@@ -372,7 +379,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if app.state.mcp_server is None or not settings.agent_demo_orders or agent_llm is None:
             raise HTTPException(404)
         chosen = GOALS.get(goal)
-        if chosen is None:
+        if chosen is None or (chosen.needs_catalog and wf.catalog is None):
             raise HTTPException(404, "Unknown goal")
         if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
             return busy_flash(request, busy)

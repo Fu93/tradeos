@@ -155,6 +155,10 @@ class Settings:
     mcp_allowed_hosts: tuple[str, ...] = ()
     # Sandbox demo only: lets an agent place a Sandbox card order so it has something to return.
     agent_demo_orders: bool = True
+    # Optional: Channel3's product catalogue (app/catalog.py). With a key, agents can find a real product and the
+    # Sandbox demo order is placed at its price, up to catalog_max_price. Never rendered.
+    channel3_api_key: str = ""
+    catalog_max_price: Decimal = Decimal("200.00")
 
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
@@ -217,5 +221,7 @@ class Settings:
             mcp_agents=parse_agent_credentials(_env("TRADEOS_MCP_AGENTS")),
             mcp_allowed_hosts=tuple(h.strip() for h in _env("TRADEOS_MCP_ALLOWED_HOSTS").split(",") if h.strip()),
             agent_demo_orders=_env_bool("TRADEOS_AGENT_DEMO_ORDERS", True),
+            channel3_api_key=_env("CHANNEL3_API_KEY"),
+            catalog_max_price=Decimal(_env("TRADEOS_CATALOG_MAX_PRICE", "200.00")),
             costs=CostAssumptions.from_env(),
         )
