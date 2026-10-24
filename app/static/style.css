@@ -2,6 +2,7 @@
   --bg: #f5f7fb; --card: #fff; --ink: #1a2233; --muted: #667085; --line: #e3e8f0;
   --blue: #0b5fff; --navy: #0a2540; --ok: #0f7b3f; --ok-bg: #e7f6ee; --bad: #b42318; --bad-bg: #fdecea;
   --warn: #9a6700; --warn-bg: #fff6db; --mock: #7a3cc4; --mock-bg: #f3ebfc;
+  --agent: #0b5470; --agent-bg: #e3f3f9;
 }
 * { box-sizing: border-box; }
 body { margin: 0; font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "PingFang TC", "Hiragino Sans", "Microsoft JhengHei", "Noto Sans CJK TC", sans-serif; background: var(--bg); color: var(--ink); }
@@ -54,6 +55,7 @@ form.inline { display: inline; }
 .chip.ok { background: var(--ok-bg); color: var(--ok); } .chip.bad { background: var(--bad-bg); color: var(--bad); }
 .chip.warn { background: var(--warn-bg); color: var(--warn); } .chip.neutral { background: #eef1f6; color: var(--muted); }
 .chip.mock { background: var(--mock-bg); color: var(--mock); }
+.chip.agent { background: var(--agent-bg); color: var(--agent); }
 .pending-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 12px; background: #fcfdff; }
 .quote { font-style: italic; margin: 8px 0; }
 .kv { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 8px 0; }
@@ -300,3 +302,12 @@ main:focus { outline: none; }
 
 .safety-review { display: flex; flex-direction: column; gap: .4rem; max-width: 40rem; }
 .safety-review textarea { width: 100%; box-sizing: border-box; font: inherit; padding: .5rem; }
+
+/* AI agents (MCP gateway) */
+.agent-card { margin: 0 0 10px; padding: 8px 12px; border-left: 3px solid var(--agent); background: var(--agent-bg); border-radius: 8px; font-size: 13.5px; overflow-wrap: anywhere; }
+.agent-card .chip { margin-right: 4px; }
+.agents-run { gap: 12px; align-items: center; margin: 4px 0 10px; }
+.agents-run p { margin: 0; flex: 1; }
+.agents-grid { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1000px) { .agents-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .agents-run { flex-direction: column; align-items: flex-start; } }

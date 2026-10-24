@@ -15,7 +15,10 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
+import anyio
+
 from .agent_gateway import mount_mcp
+from .agent_scenes import agent_panel, agent_provenance, run_scenes
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
@@ -105,6 +108,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # Agent gateway at /mcp: an AI agent can request a return, never approve one (app/agent_gateway.py). Order-
     # creating tools share the dashboard's run budget (same limiter, keyed per address).
     app.state.mcp_server = mount_mcp(app, wf, settings, limiter, ip) if settings.mcp_enabled else None
+    # What agents are offered, read from the server itself (shown on the dashboard, never hand-maintained).
+    mcp_tools = ([t.name for t in anyio.run(app.state.mcp_server.list_tools)]
+                 if app.state.mcp_server is not None else [])
+    # One-click agent scenes create three Sandbox orders and three LLM runs, so on top of the run limiter a
+    # click is allowed once a minute per address and once every 20 s for the whole demo.
+    agent_cooldown = Cooldown(60, 20, action="Run agent scenes",
+                              done_by_other="Someone else just ran the agent scenes")
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
@@ -178,6 +188,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_a": latest_a,
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
+            "agent": agent_provenance(db, current),
+            "agents": agent_panel(db, mcp_tools, settings.agent_demo_orders) if mcp_tools else None,
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -247,6 +259,23 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         except MoneyError as exc:  # e.g. the seeded mixed order in a zero-decimal currency
             return render_dashboard(request, flash=f"Cannot create this demo case: {exc}", status_code=422)
         return back(case_id)
+
+    @app.post("/demo/agent-scenes")
+    def run_agent_scenes(request: Request):
+        """Judge path for the agent gateway: a scripted MCP client plays three scenes through the real tools."""
+        if app.state.mcp_server is None or not settings.agent_demo_orders:
+            raise HTTPException(404)
+        if (reason := agent_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Agent scenes not run: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        outcomes = run_scenes(app.state.mcp_server, db)
+        failed = [o for o in outcomes if o.get("error")]
+        honest = next((o["order_id"] for o in outcomes if o["scene"] == "honest" and o.get("order_id")), None)
+        if failed or honest is None:
+            return render_dashboard(request, flash="Agent scenes: " + "; ".join(
+                f"{o['scene']}: {o['error']}" for o in failed), status_code=502)
+        return RedirectResponse(f"/?case={honest}#agents", status_code=303)
 
     @app.post("/cases/free")
     def run_free_text(request: Request, message: str = Form(""), late: str = Form(""), preset: str = Form("")):
