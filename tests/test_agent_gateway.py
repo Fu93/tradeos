@@ -71,12 +71,12 @@ def error_text(result) -> str:
 @pytest.fixture
 def make(tmp_path):
     """A seeded workflow over the mock PayPal (wrapped so calls can be counted) + its MCP server."""
-    def build(**overrides):
+    def build(card_capture: bool = True, **overrides):
         settings = Settings(db_path=str(tmp_path / f"agent-{len(list(tmp_path.iterdir()))}.db"),
                             paypal_client_id="", paypal_client_secret="", **overrides)
         db = Database(settings.db_path)
         db.init(reset=True)
-        paypal = MagicMock(wraps=MockPayPalClient(), is_mock=True)
+        paypal = MagicMock(wraps=MockPayPalClient(card_capture=card_capture), is_mock=True)
         wf = Workflow(db, settings, KeywordIntentExtractor(), paypal=paypal)
         wf.seed_demo()
         return wf, paypal, build_mcp_server(wf, settings)
@@ -207,7 +207,8 @@ def test_archived_agent_order_is_not_found(make):
     wf, _, server = make()
     order_id = order(server)
     wf.db.archive_all()
-    assert "No agent order" in error_text(run(server, "get_case_status", {"order_id": order_id}))
+    text = error_text(run(server, "get_case_status", {"order_id": order_id}))
+    assert "No agent order" in text and "demo reset" in text
 
 
 def test_bad_inputs_are_refused_before_any_work(make):
@@ -364,7 +365,7 @@ def test_rate_limit_applies_inside_a_json_rpc_batch():
     gate = McpGate(app=MagicMock(), settings=Settings(), limiter=limiter, client_key=lambda r: "1.2.3.4")
     batch = json.dumps([rpc("tools/list"), call_rpc("request_return", {}, 7)]).encode()
     refusal = gate._rate_refusal(batch, request=MagicMock())
-    assert refusal["id"] == 7 and limiter.check.call_args.args == ("mcp:1.2.3.4",)
+    assert refusal["id"] == 7 and limiter.check.call_args.args == ("1.2.3.4",)  # the dashboard's key: one budget
     assert gate._rate_refusal(b"not json", request=MagicMock()) is None
     assert gate._rate_refusal(json.dumps(call_rpc("get_case_status", {})).encode(), MagicMock()) is None
     assert COSTLY_TOOLS == {"place_demo_order", "request_return"}
@@ -479,3 +480,76 @@ def test_gate_passes_a_get_straight_through_when_no_token_is_set():
         pass
     anyio.run(_gate_with(inner), {**_scope(), "method": "GET"}, receive, send)
     assert calls == ["GET"]
+
+
+
+# logic review, round 2: each test pins a defect that was reproduced before it was fixed ----------------------------
+def test_buyer_approval_returns_the_order_to_the_agent_instead_of_judging_a_placeholder(make):
+    """Card capture unavailable: the buyer approves at PayPal. Capturing must not evaluate the placeholder text
+    (that rejected the order and used up its one request); the order goes back to waiting for the agent."""
+    wf, paypal, server = make(card_capture=False)
+    placed = ok(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    order_id = placed["order_id"]
+    assert placed["status"] == "AWAITING_BUYER_APPROVAL" and placed["buyer_approval_url"].startswith("https://")
+    assert "approve the payment" in placed["next_step"]
+    assert "approve the payment at PayPal first" in error_text(ask(server, order_id))
+    wf.complete_buyer_approval(order_id)  # the merchant page's "Capture payment" after the buyer approved
+    view = ok(run(server, "get_case_status", {"order_id": order_id}))
+    assert view["status"] == AGENT_ORDERED and view["capture_id"] and view["buyer_approval_url"] is None
+    assert not [e for e in wf.db.timeline(order_id) if e["title"] == "Intent extracted"]
+    assert ok(ask(server, order_id))["status"] == PENDING_APPROVAL
+    assert paypal.refund_capture.call_count == 0
+
+
+def test_an_order_paypal_failed_is_reported_as_a_failure(make):
+    from app.paypal_client import PayPalError
+    wf, paypal, server = make()
+    paypal.create_order_with_card.side_effect = PayPalError("card down", 500, "INTERNAL_SERVER_ERROR")
+    paypal.create_order.side_effect = PayPalError("wallet down", 500, "INTERNAL_SERVER_ERROR")
+    text = error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    assert "PayPal could not complete the order" in text and "recorded no capture" in text
+    failed = wf.db.latest_case("G")["id"]
+    assert "nothing to return" in error_text(ask(server, failed))
+    assert "failed at PayPal" in ok(run(server, "get_case_status", {"order_id": failed}))["next_step"]
+
+
+def test_an_over_long_message_is_refused_not_truncated(make):
+    """The dashboard refuses messages over the limit. Truncating instead hid whatever came after the cut from the
+    Safety Gate: here a fire that only appears after 500 characters."""
+    wf, paypal, server = make()
+    order_id = order(server)
+    padded = DEMO_MESSAGE + " " + "The box was fine and the laces were fine. " * 12
+    assert len(padded) > 500
+    text = error_text(ask(server, order_id, padded + " Then the sole caught fire next to the heater."))
+    assert "too long" in text and "limit 500" in text
+    case = wf.db.get_case(order_id)
+    assert case["status"] == AGENT_ORDERED and paypal.get_capture.call_count == 0
+    assert not [e for e in wf.db.timeline(order_id) if e["title"].startswith("Return requested")]
+    exactly = (DEMO_MESSAGE + " " + "x" * 500)[:500]
+    assert ok(ask(server, order_id, exactly))["status"] != AGENT_ORDERED  # the limit itself is accepted
+
+
+def test_agents_and_the_dashboard_share_one_run_budget_per_address(http):
+    client, paypal = http(rate_limit_per_minute=2)
+    assert client.post("/demo/run/A", follow_redirects=False).status_code == 303  # a dashboard run
+    first = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                {"buyer_name": BUYER, "agent_name": AGENT}, 1))
+    assert first.status_code == 200
+    second = client.post("/mcp", headers=HEADERS, json=call_rpc("place_demo_order",
+                                                                 {"buyer_name": BUYER, "agent_name": AGENT}, 2))
+    assert second.status_code == 429
+
+
+@pytest.mark.parametrize("status,capture", [
+    ("AGENT_ORDERED", "C"), ("AWAITING_BUYER_APPROVAL", None), ("ERROR", None), ("ERROR", "C"),
+    ("PENDING_APPROVAL", "C"), ("REJECTED", "C"), ("NEEDS_HUMAN_SAFETY_REVIEW", "C"), ("NEEDS_HUMAN", "C"),
+    ("REFUND_PENDING", "C"), ("REFUND_OUTCOME_UNKNOWN", "C"), ("REFUND_FAILED", "C"), ("REFUND_ERROR", "C"),
+    ("EXCHANGE_ARRANGED", "C"), ("DECLINED_BY_HUMAN", "C"), ("SOMETHING_NEW", "C"), ("REFUND_COMPLETED", "C")])
+def test_next_step_never_tells_an_agent_a_refund_is_done_before_paypal_says_so(status, capture):
+    from app.workflow import _agent_next_step
+    step = _agent_next_step({"status": status, "capture_id": capture})
+    assert ("COMPLETED" in step) == (status == "REFUND_COMPLETED")
+    if status in ("REFUND_PENDING", "REFUND_OUTCOME_UNKNOWN"):
+        assert "Do not tell the buyer" in step
+    if status == "ERROR":
+        assert ("re-check" in step) == bool(capture)

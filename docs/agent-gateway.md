@@ -14,7 +14,7 @@ agent-originated case then waits for a person at the merchant, even with `AUTO_E
 |---|---|---|
 | `place_demo_order` | Sandbox demo only: buys the demo sneakers (49.99 USD) with a PayPal Sandbox test card, so the buyer has an order to return. `purchased_days_ago` seeds an older purchase date (labelled demo data). Off with `TRADEOS_AGENT_DEMO_ORDERS=0`. | A Sandbox capture, like the dashboard's Run buttons |
 | `request_return` | Asks for a return (refund) or a size exchange on that order, with the buyer's words. One request per order. | No |
-| `get_case_status` | Reads the outcome: policy decision and reasons, who approved, PayPal refund id and status, Refund API call count, audit-chain verification. | No |
+| `get_case_status` | Reads the outcome: policy decision and reasons, who approved, PayPal refund id and status, Refund API call count, audit-chain verification, and a plain-words `next_step` that never calls a refund done before PayPal reports COMPLETED. While a payment waits for the buyer, `buyer_approval_url` is the PayPal link to hand them. | No |
 | approve / decline / refund | **Not offered.** Only a person on the dashboard (or the merchant's own autonomy policy, for non-agent cases) approves. | — |
 
 ```mermaid
@@ -45,6 +45,8 @@ was also mutation-checked: removing each defence below makes at least one test f
 | Prompt injection, a late order and a safety report end with Refund API calls = 0 | Same policy, injection heuristic and Safety Gate as the dashboard; `approve()` is refused afterwards too. |
 | No re-rolls | Only an `AGENT_ORDERED` case is evaluated. A second `request_return` on the same order returns the first outcome without another LLM call or PayPal read. |
 | An agent sees only gateway orders | Any other id, including a real dashboard case, is "not found". Archived orders too. |
+| Nothing is truncated | A message over the 500-character limit is refused, as on the dashboard. Cutting it would hide whatever came after the cut (a fire, an injury) from the Safety Gate. |
+| Failures are reported as failures | An order PayPal could not complete is a tool error, not an order. A request on an order with no capture yet says the buyer must approve the payment first. After the buyer approves, the order waits for the agent's request; it is never evaluated on placeholder text. |
 | Who asked is on the hash chain | `audit:agent` entries record the agent name, the buyer it acts for, the message and `agent_can_approve: false`. The chain verifies. |
 
 ## Connecting an agent
@@ -88,7 +90,7 @@ Each scene creates a Sandbox order and runs the LLM, so the script shares the se
 | Bearer token | `TRADEOS_MCP_TOKEN` | When set, every `/mcp` request needs `Authorization: Bearer <token>` (constant-time compare), else 401. |
 | Host pinning | `PUBLIC_BASE_URL`, `TRADEOS_MCP_ALLOWED_HOSTS` | Requests whose `Host` is not the public host, localhost or a listed extra get 421. This stops DNS rebinding, which the app's Origin check cannot see because Origin and Host then agree. |
 | Cross-site browsers | (always) | A browser POST with a foreign `Origin` is refused with 403 by the app's CSRF check. |
-| Rate limit | `RATE_LIMIT_PER_MINUTE` and friends | `place_demo_order` and `request_return` share the dashboard's run budget per address, including inside JSON-RPC batches. Reads are not throttled. |
+| Rate limit | `RATE_LIMIT_PER_MINUTE` and friends | `place_demo_order` and `request_return` draw on the same per-address budget as the dashboard's Run buttons (one bucket, not two), including inside JSON-RPC batches. Reads are not throttled. |
 | Body cap | (fixed) | Bodies over 64 KB get 413 before the SDK sees them. |
 | Off switch | `TRADEOS_MCP=0` | No `/mcp` route at all. |
 
@@ -97,6 +99,8 @@ Each scene creates a Sandbox order and runs the LLM, so the script shares the se
 - **The agent's name is a label, not an identity.** `agent_name` and `on_behalf_of` are recorded, not verified.
   The bearer token says a caller may use the gateway; it does not say which buyer they speak for. Verifying the
   buyer's intent (for example with signed AP2-style mandates) is not built.
+- **One request per order cuts both ways.** It stops an agent from rephrasing until it gets a yes, and it also
+  means a buyer cannot correct a first request through the agent. Follow-ups go to a person at the merchant.
 - **Demo orders are Sandbox only.** In production, orders would come from the merchant's store, and the gateway
   would look up an order the buyer actually placed instead of offering `place_demo_order`.
 - **One merchant, open demo.** Like the rest of TradeOS, there are no merchant accounts yet, and on Render the

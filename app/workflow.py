@@ -403,6 +403,14 @@ class Workflow:
         except PayPalError as exc:
             self._fail(case_id, "payment", exc)
             return
+        if case["scenario"] == AGENT:
+            # An agent order carries no request yet (its message is a placeholder). Evaluating it here would
+            # reject the order on that placeholder and use up its one request, so it goes back to waiting for
+            # the agent's request_return.
+            self.db.update_case(case_id, status=AGENT_ORDERED)
+            self.db.audit(case_id, "agent", "Buyer approved the payment at PayPal; the order now waits for the "
+                          "agent's request", {"capture_id": self._case(case_id)["capture_id"]})
+            return
         self._after_capture(case_id)
 
     def _record_capture(self, case_id: str, order: dict, capture: dict) -> None:
@@ -750,9 +758,15 @@ class Workflow:
 
         Idempotent: only an AGENT_ORDERED case is evaluated. A second request on the same order changes nothing
         and returns False, so an agent cannot re-roll the decision by rephrasing."""
-        text = clean_message(message, self.settings.free_text_max_chars)
+        limit = self.settings.free_text_max_chars
+        text = clean_message(message, len(message or "") + 1)
         if not text:
             raise ValueError("Message is empty.")
+        if len(text) > limit:
+            # Same rule as the dashboard (422 above the limit). Never truncate: a fault or injury mentioned after
+            # the cut would be invisible to the Safety Gate, and the policy would judge a different request.
+            raise ValueError(f"Message too long: {len(text)} characters (limit {limit}). Send the buyer's "
+                             "request in fewer words.")
         agent = clean_message(agent, AGENT_TEXT_MAX)
         on_behalf_of = clean_message(on_behalf_of, AGENT_TEXT_MAX)
         if not agent:
@@ -765,7 +779,14 @@ class Workflow:
                 return False
             self._running.add(case_id)
         try:
-            if self._case(case_id)["status"] != AGENT_ORDERED:
+            case = self._case(case_id)
+            if case["status"] == AWAITING_BUYER:
+                raise ValueError("This order has no PayPal capture yet: the buyer has to approve the payment at "
+                                 "PayPal first (buyer_approval_url in get_case_status).")
+            if case["status"] == ERROR and not case.get("capture_id"):
+                raise ValueError("This order failed at PayPal before any payment was captured, so there is "
+                                 "nothing to return. Place a new order.")
+            if case["status"] != AGENT_ORDERED:
                 return False
             self.db.update_case(case_id, customer_message=text)
             self.db.audit(case_id, "agent", "Return requested by an AI agent for the buyer",
@@ -798,6 +819,7 @@ class Workflow:
             "approval": {"decision": case.get("human_decision"), "by": case.get("approval_source")},
             "refund": {"id": case.get("refund_id"), "status": case.get("refund_status")},
             "refund_api_calls": len(refund_calls),
+            "buyer_approval_url": case.get("approve_url") if case["status"] == AWAITING_BUYER else None,
             "audit_trail": {"intact": chain_result["ok"], "entries": chain_result["entries"],
                             "head": chain_result["head"]},
             "next_step": _agent_next_step(case),
@@ -1570,7 +1592,22 @@ def _agent_next_step(case: dict) -> str:
         return "The merchant approved an exchange. No money moves."
     if status == DECLINED:
         return "A person at the merchant declined the request. No refund was made."
-    return f"Status {status}. A person at the merchant handles it from here."
+    if status == AWAITING_BUYER:
+        return ("The buyer has to approve the payment at PayPal (buyer_approval_url). After that, call "
+                "request_return.")
+    if status == ERROR:
+        if case.get("capture_id"):
+            return ("PayPal could not be read while checking the request. A person at the merchant will re-check "
+                    "it. No refund was made.")
+        return "The order failed at PayPal. No payment was captured and nothing can be returned."
+    if status == REFUND_PENDING:
+        return "Approved. PayPal reports the refund PENDING: it is not completed yet. Do not tell the buyer it is."
+    if status == REFUND_UNKNOWN:
+        return ("Approved. The refund's outcome is being checked with PayPal: it is not confirmed. Do not tell "
+                "the buyer it is refunded.")
+    if status in (REFUND_FAILED, REFUND_ERROR):
+        return "Approved, but PayPal did not complete the refund. A person at the merchant handles it."
+    return f"Status {status}. A person at the merchant handles it from here. Nothing is confirmed as refunded."
 
 
 def clean_message(message: str | None, max_chars: int) -> str:

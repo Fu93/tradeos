@@ -53,7 +53,8 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
     server = MCPServer(name="tradeos", title="TradeOS agent gateway", instructions=INSTRUCTIONS)
 
     def not_found(order_id: str) -> ToolError:
-        return ToolError(f"No agent order {order_id!r}. Only orders placed through this gateway can be used.")
+        return ToolError(f"No agent order {order_id!r}: it is unknown, or a demo reset archived it. Only orders "
+                         "placed through this gateway can be used.")
 
     if settings.agent_demo_orders:
         @server.tool(
@@ -71,7 +72,13 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
                 case_id = wf.place_agent_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago)
             except RefundNotAllowed as exc:
                 raise ToolError(str(exc)) from None
-            return wf.agent_case_view(case_id)
+            view = wf.agent_case_view(case_id)
+            if view["status"] == "ERROR":
+                # Reported as a failure, not as an order: the agent must not tell the buyer it bought anything.
+                error = (wf.db.get_case(case_id) or {}).get("error") or "no detail"
+                raise ToolError(f"PayPal could not complete the order ({error}). "
+                                "TradeOS recorded no capture; do not tell the buyer the order was placed.")
+            return view
 
     @server.tool(
         title="Request a return or exchange",
@@ -181,7 +188,7 @@ class McpGate:
                 continue
             name = (call.get("params") or {}).get("name") if isinstance(call.get("params"), dict) else None
             if name in COSTLY_TOOLS:
-                reason = self.limiter.check(f"mcp:{self.client_key(request)}")
+                reason = self.limiter.check(self.client_key(request))
                 if reason:
                     return {"jsonrpc": "2.0", "id": call.get("id"),
                             "error": {"code": -32000, "message": reason}}
