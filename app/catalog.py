@@ -59,6 +59,21 @@ def _price(raw: Any) -> Decimal | None:
     return price if price.is_finite() and price > 0 else None
 
 
+def _category(raw: Any) -> str:
+    """Channel3's CategorySummary: {slug, title, path: [{slug, title}, ...] (root first, last = this category)}.
+    Titles only, and the leaf is kept when the text is cut (the Safety Gate reads the category's words)."""
+    if not isinstance(raw, dict):
+        return ""
+    path = raw.get("path")
+    if isinstance(path, str):
+        parts = [path]
+    else:
+        parts = [str(c.get("title") if isinstance(c, dict) else c) for c in path or [] if c]
+    if not parts and raw.get("title"):
+        parts = [str(raw["title"])]
+    return " > ".join(p for p in parts if p and p != "None")[-120:]
+
+
 def normalize(raw: Any, currency: str) -> CatalogProduct | None:
     """One Channel3 product -> the fields TradeOS uses, priced from its first in-stock offer in our currency.
     None when the product has no such offer (it cannot be bought here)."""
@@ -73,13 +88,16 @@ def normalize(raw: Any, currency: str) -> CatalogProduct | None:
             continue
         brands = raw.get("brands") or []
         brand = brands[0].get("name", "") if brands and isinstance(brands[0], dict) else ""
-        category = raw.get("category") or {}
-        cat = (category.get("path") or category.get("title") or "") if isinstance(category, dict) else ""
-        if isinstance(cat, list):
-            cat = " > ".join(str(c) for c in cat)
+        cat = _category(raw.get("category"))
+        try:
+            cents = price.quantize(Decimal("0.01"))
+        except InvalidOperation:  # absurdly large: unusable, like an unreadable price
+            continue
+        if cents <= 0:  # 0.001 rounds to 0.00
+            continue
         return CatalogProduct(id=str(raw["id"])[:40], title=" ".join(str(raw["title"]).split())[:120],
-                              brand=str(brand)[:60], category=str(cat)[:120],
-                              price=str(price.quantize(Decimal("0.01"))), currency=currency,
+                              brand=str(brand)[:60], category=cat,
+                              price=str(cents), currency=currency,
                               retailer=str(offer.get("domain") or "")[:80])
     return None
 
@@ -121,7 +139,7 @@ class Channel3Catalog:
 
     def get(self, product_id: str) -> CatalogProduct:
         product_id = str(product_id or "").strip()
-        if not product_id or len(product_id) > 64 or not all(c.isalnum() or c in "-_" for c in product_id):
+        if not product_id or len(product_id) > 64 or not all((c.isascii() and c.isalnum()) or c in "-_" for c in product_id):
             raise CatalogError("product_id must be an id returned by find_product")
         product = normalize(self._call("GET", f"/v1/products/{product_id}"), self.currency)
         if product is None:
