@@ -108,9 +108,15 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # Agent gateway at /mcp: an AI agent can request a return, never approve one (app/agent_gateway.py). Order-
     # creating tools share the dashboard's run budget (same limiter, keyed per address).
     app.state.mcp_server = mount_mcp(app, wf, settings, limiter, ip) if settings.mcp_enabled else None
-    # What agents are offered, read from the server itself (shown on the dashboard, never hand-maintained).
-    mcp_tools = ([t.name for t in anyio.run(app.state.mcp_server.list_tools)]
-                 if app.state.mcp_server is not None else [])
+    # What agents are offered, read from the server itself (shown on the dashboard, never hand-maintained). Read on
+    # the first dashboard render, in a worker thread, not here: create_app() also runs at import time, and an ASGI
+    # server may import the app inside its running event loop, where anyio.run() would raise.
+    tool_names: list[str] = []
+
+    def mcp_tools() -> list[str]:
+        if app.state.mcp_server is not None and not tool_names:
+            tool_names.extend(t.name for t in anyio.run(app.state.mcp_server.list_tools))
+        return tool_names
     # One-click agent scenes create three Sandbox orders and three LLM runs, so on top of the run limiter a
     # click is allowed once a minute per address and once every 20 s for the whole demo.
     agent_cooldown = Cooldown(60, 20, action="Run agent scenes",
@@ -188,8 +194,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_a": latest_a,
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
-            "agent": agent_provenance(db, current),
-            "agents": agent_panel(db, mcp_tools, settings.agent_demo_orders) if mcp_tools else None,
+            "agent": agent_provenance(wf, current),
+            "agents": agent_panel(db, mcp_tools(), settings.agent_demo_orders) if app.state.mcp_server else None,
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)

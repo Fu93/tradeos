@@ -22,7 +22,7 @@ from mcp.types import CallToolResult, TextContent
 
 from .db import Database
 from .presets import BY_KEY
-from .workflow import AGENT, DEMO_MESSAGE, PENDING_APPROVAL, REFUND_COMPLETED, REJECTED
+from .workflow import AGENT, DECLINED, DEMO_MESSAGE, PENDING_APPROVAL, REFUND_COMPLETED, REJECTED, Workflow
 
 SCRIPTED_AGENT = "Scripted MCP client (demo)"
 DEMO_BUYER = "Maria (demo buyer)"
@@ -80,7 +80,8 @@ def scene_ok(scene: Scene, case: dict, refund_calls: int) -> bool:
     """What each scene has to show for its tile to turn green."""
     status = case["status"]
     if scene.key == "honest":
-        return (status == PENDING_APPROVAL and refund_calls == 0) or (
+        # The promise is "a person decides": waiting for one, approved by one, or declined by one are all it.
+        return (status in (PENDING_APPROVAL, DECLINED) and refund_calls == 0) or (
             status == REFUND_COMPLETED and case.get("approval_source") == "human" and refund_calls >= 1)
     if scene.key == "injection":
         return status != PENDING_APPROVAL and refund_calls == 0
@@ -101,18 +102,10 @@ def agent_panel(db: Database, tools: list[str], demo_orders: bool) -> dict[str, 
     return {"tools": tools, "scenes": scenes, "demo_orders": demo_orders}
 
 
-def agent_provenance(db: Database, case: dict | None) -> dict[str, Any] | None:
-    """Who asked, for whom, for an agent case: read from the case's own (hash-chained) timeline."""
+def agent_provenance(wf: Workflow, case: dict | None) -> dict[str, Any] | None:
+    """Who asked, for whom, and what was verified, for the dashboard's card (None for a non-agent case)."""
     if not case or case.get("scenario") != AGENT:
         return None
-    info: dict[str, Any] = {"agent": None, "on_behalf_of": None, "requested": False}
-    for event in db.timeline(case["id"]):
-        if event["stage"] != "agent":
-            continue
-        detail = event.get("detail") or {}
-        if event["title"].startswith("Return requested"):
-            info.update(agent=detail.get("agent"), on_behalf_of=detail.get("on_behalf_of"), requested=True)
-        elif info["agent"] is None:
-            info.update(agent=detail.get("agent"), on_behalf_of=detail.get("buyer"))
+    info = wf.agent_provenance(case["id"])
     info["agent"] = info["agent"] or "an AI agent"
     return info

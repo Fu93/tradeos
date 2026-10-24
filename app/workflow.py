@@ -735,7 +735,8 @@ class Workflow:
             raise CaseNotFound(case_id)
         return case
 
-    def place_agent_order(self, buyer: str, agent: str = "", days_ago: int | None = None) -> str:
+    def place_agent_order(self, buyer: str, agent: str = "", days_ago: int | None = None,
+                          caller: dict | None = None) -> str:
         """Sandbox demo: the agent buys the demo product with a Sandbox test card, so it has an order to return.
 
         The case starts AGENT_ORDERED with no request on it. days_ago > 0 seeds an older purchase date (labelled
@@ -746,12 +747,13 @@ class Workflow:
             case_id = self.new_case(AGENT, message=AGENT_NO_REQUEST, days_ago=days_ago or None,
                                     customer_name=buyer, status=AGENT_ORDERED)
             self.db.audit(case_id, "agent", "Order placed by an AI agent for the buyer (Sandbox demo)",
-                          {"agent": agent or None, "buyer": buyer, "channel": "mcp",
+                          {"agent": agent or None, "buyer": buyer, "channel": "mcp", **_caller_fields(caller),
                            "purchase_date_seeded": self._case(case_id)["purchase_date_seeded"]})
             self._order_and_capture(case_id)
         return case_id
 
-    def submit_agent_request(self, case_id: str, message: str, agent: str, on_behalf_of: str) -> bool:
+    def submit_agent_request(self, case_id: str, message: str, agent: str, on_behalf_of: str,
+                             caller: dict | None = None) -> bool:
         """An agent asks for a return / exchange on an order it placed. Runs the same _after_capture() loop as a
         dashboard case (AI intent, Safety Gate, PayPal GET capture, deterministic policy), then stops at the
         approval step: autonomy treats every agent-originated case as HUMAN.
@@ -791,7 +793,7 @@ class Workflow:
             self.db.update_case(case_id, customer_message=text)
             self.db.audit(case_id, "agent", "Return requested by an AI agent for the buyer",
                           {"agent": agent, "on_behalf_of": on_behalf_of or None, "channel": "mcp",
-                           "message": text, "agent_can_approve": False})
+                           **_caller_fields(caller), "message": text, "agent_can_approve": False})
             self._after_capture(case_id)
             return True
         except CaseFinalized as exc:
@@ -801,6 +803,24 @@ class Workflow:
         finally:
             with self._locks_guard:
                 self._running.discard(case_id)
+
+    def agent_provenance(self, case_id: str) -> dict:
+        """Who asked, for whom, and what the server could verify, read from the case's hash-chained timeline (the
+        request entry wins over the order entry). agent / on_behalf_of are what the agent declared; credential is
+        what the gateway verified (None when the gateway is open or the call was in-process)."""
+        info: dict[str, Any] = {"agent": None, "on_behalf_of": None, "requested": False, "credential": None,
+                                "identity_verified": False, "transport": None}
+        for event in self.db.timeline(case_id):
+            if event["stage"] != "agent":
+                continue
+            detail = event.get("detail") or {}
+            is_request = event["title"].startswith("Return requested")
+            if is_request or not info["requested"]:
+                info.update(agent=detail.get("agent"), requested=is_request,
+                            on_behalf_of=detail.get("on_behalf_of") if is_request else detail.get("buyer"),
+                            credential=detail.get("credential"), transport=detail.get("transport"),
+                            identity_verified=bool(detail.get("identity_verified")))
+        return info
 
     def agent_case_view(self, case_id: str) -> dict:
         """What the agent may read back: the outcome and the evidence, never the dashboard's controls."""
@@ -822,6 +842,7 @@ class Workflow:
             "buyer_approval_url": case.get("approve_url") if case["status"] == AWAITING_BUYER else None,
             "audit_trail": {"intact": chain_result["ok"], "entries": chain_result["entries"],
                             "head": chain_result["head"]},
+            "requested_by": self.agent_provenance(case_id),
             "next_step": _agent_next_step(case),
             "evidence_url": f"{self.settings.public_base_url.rstrip('/')}/cases/{case_id}/evidence",
         }
@@ -1570,6 +1591,15 @@ def _same_money(pp_amount: dict, local_value: str, local_currency: str) -> bool:
     except ArithmeticError:
         return False
     return same_value and (pp_amount.get("currency_code") or local_currency) == local_currency
+
+
+def _caller_fields(caller: dict | None) -> dict:
+    """What the audit chain records about the caller. Only a credential the gateway verified counts as identity; the
+    agent's name argument stays a self-declared label."""
+    caller = caller or {}
+    credential = caller.get("credential")
+    return {"transport": caller.get("transport") or "in-process", "credential": credential,
+            "identity_verified": credential is not None}
 
 
 def _agent_next_step(case: dict) -> str:

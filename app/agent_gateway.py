@@ -22,7 +22,7 @@ import json
 from typing import Any, Callable
 from urllib.parse import urlsplit
 
-from mcp.server.mcpserver import MCPServer
+from mcp.server.mcpserver import Context, MCPServer
 from mcp.server.mcpserver.exceptions import ToolError
 from mcp.server.transport_security import TransportSecuritySettings
 from mcp.types import ToolAnnotations
@@ -40,6 +40,25 @@ MCP_PATH = "/mcp"
 COSTLY_TOOLS = frozenset({"place_demo_order", "request_return"})
 MAX_BODY = 64 * 1024  # a tool call is a few hundred bytes; anything bigger is not a legitimate request
 MAX_DAYS_AGO = 365
+# Request-scope key the gate writes after verifying a token. Set server-side only: a client header never sets it.
+CREDENTIAL_KEY = "tradeos_mcp_credential"
+SHARED_CREDENTIAL = "shared gateway token"
+
+
+def caller_of(ctx: Context) -> dict[str, Any]:
+    """Who is calling, as far as the server can prove it. The credential comes from McpGate (a verified bearer token),
+    never from a header or an argument. In-process calls (stdio, the dashboard's scripted scenes) have no HTTP
+    request and no credential."""
+    try:
+        request = ctx.request_context.request
+    except ValueError:  # no request context at all
+        request = None
+    scope = getattr(request, "scope", None)
+    if not isinstance(scope, dict):
+        return {"transport": "in-process", "credential": None}
+    state = scope.get("state")
+    credential = state.get(CREDENTIAL_KEY) if isinstance(state, dict) else None
+    return {"transport": "http", "credential": credential}
 
 INSTRUCTIONS = (
     "TradeOS handles post-purchase requests for a merchant. You may act for a buyer: request a return or exchange "
@@ -65,11 +84,13 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
             annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=False,
                                         open_world_hint=True),
         )
-        def place_demo_order(buyer_name: str, agent_name: str, purchased_days_ago: int = 0) -> dict[str, Any]:
+        def place_demo_order(buyer_name: str, agent_name: str, ctx: Context,
+                             purchased_days_ago: int = 0) -> dict[str, Any]:
             if not 0 <= purchased_days_ago <= MAX_DAYS_AGO:
                 raise ToolError(f"purchased_days_ago must be between 0 and {MAX_DAYS_AGO}.")
             try:
-                case_id = wf.place_agent_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago)
+                case_id = wf.place_agent_order(buyer_name, agent=agent_name, days_ago=purchased_days_ago,
+                                               caller=caller_of(ctx))
             except RefundNotAllowed as exc:
                 raise ToolError(str(exc)) from None
             view = wf.agent_case_view(case_id)
@@ -89,9 +110,11 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
         annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=True,
                                     open_world_hint=False),
     )
-    def request_return(order_id: str, message: str, agent_name: str, on_behalf_of: str) -> dict[str, Any]:
+    def request_return(order_id: str, message: str, agent_name: str, on_behalf_of: str,
+                       ctx: Context) -> dict[str, Any]:
         try:
-            evaluated = wf.submit_agent_request(order_id, message, agent=agent_name, on_behalf_of=on_behalf_of)
+            evaluated = wf.submit_agent_request(order_id, message, agent=agent_name, on_behalf_of=on_behalf_of,
+                                                caller=caller_of(ctx))
         except CaseNotFound:
             raise not_found(order_id) from None
         except (ValueError, RefundNotAllowed) as exc:
@@ -130,7 +153,8 @@ def allowed_hosts(settings: Settings) -> list[str]:
 
 
 class McpGate:
-    """ASGI wrapper in front of the MCP endpoint: bearer token, body cap, rate limit on the costly tools."""
+    """ASGI wrapper in front of the MCP endpoint: verified credential (bearer token), body cap, rate limit on the
+    costly tools."""
 
     def __init__(self, app: ASGIApp, settings: Settings, limiter: RateLimiter,
                  client_key: Callable[[Request], str]) -> None:
@@ -141,13 +165,22 @@ class McpGate:
             await self.app(scope, receive, send)
             return
         request = Request(scope)
-        token = self.settings.mcp_token
-        if token:
-            given = request.headers.get("authorization", "")
-            if not hmac.compare_digest(given.encode(), f"Bearer {token}".encode()):
+        credentials = self._credentials()
+        credential = None
+        if credentials:
+            given = request.headers.get("authorization", "").encode()
+            for name, token in credentials:  # every token is compared, so timing does not reveal which one matched
+                if hmac.compare_digest(given, f"Bearer {token}".encode()):
+                    credential = name
+            if credential is None:
                 await JSONResponse({"error": "unauthorized"}, status_code=401,
                                    headers={"WWW-Authenticate": "Bearer"})(scope, receive, send)
                 return
+        # Always written, so a value can never be left over from elsewhere: None means the gateway is open.
+        state = scope.get("state")
+        if not isinstance(state, dict):
+            state = scope["state"] = {}
+        state[CREDENTIAL_KEY] = credential
         if scope.get("method") != "POST":
             await self.app(scope, receive, send)
             return
@@ -176,6 +209,12 @@ class McpGate:
             return await receive()
 
         await self.app(scope, replay, send)
+
+    def _credentials(self) -> list[tuple[str, str]]:
+        pairs = list(self.settings.mcp_agents)
+        if self.settings.mcp_token:
+            pairs.append((SHARED_CREDENTIAL, self.settings.mcp_token))
+        return pairs
 
     def _rate_refusal(self, body: bytes, request: Request) -> dict | None:
         try:

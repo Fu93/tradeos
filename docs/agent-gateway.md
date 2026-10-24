@@ -49,6 +49,27 @@ was also mutation-checked: removing each defence below makes at least one test f
 | Failures are reported as failures | An order PayPal could not complete is a tool error, not an order. A request on an order with no capture yet says the buyer must approve the payment first. After the buyer approves, the order waits for the agent's request; it is never evaluated on placeholder text. |
 | Who asked is on the hash chain | `audit:agent` entries record the agent name, the buyer it acts for, the message and `agent_can_approve: false`. The chain verifies. |
 
+## Accountability: what the audit chain can prove
+
+Each agent case answers four questions from its own hash chain, which `get_case_status` and the evidence export
+both expose.
+
+| Question | Recorded as | Proven? |
+|---|---|---|
+| Which agent asked? | `credential`: the name of the token the gateway verified (`TRADEOS_MCP_AGENTS`), next to the agent's self-declared `agent` name | **Yes** when per-agent tokens are configured. With the shared `TRADEOS_MCP_TOKEN` the caller is authenticated but not individually named. With an open gateway (the hosted demo) the chain records `identity_verified: false`, and the dashboard says "Name self-declared, not verified". |
+| For which buyer? | `on_behalf_of` | **No.** It is the agent's claim. Proving it needs buyer-signed mandates (AP2-style), not built. |
+| What did it ask? | The exact message after cleaning (control and invisible characters removed, never truncated) | Yes: hashed into the chain. |
+| Who approved the money? | `approval_source: human` plus the approval entry | **Partly.** It proves a person used the merchant dashboard, not which person: the demo dashboard has no logins. |
+
+Only the gateway can set `credential`, after checking a token with a constant-time compare against every
+configured token. Headers and tool arguments cannot set it (tested). An agent can also keep the `audit_trail.head`
+hash from `get_case_status` as its own receipt. Because that copy lives outside TradeOS's database, a later rewrite
+of the case's chain would no longer match it.
+
+The hosted demo keeps SQLite under `/tmp`, so a restart or deploy wipes every chain, and no head list is retained
+off-site (the deploy-verify secret is not set). Accountability that has to survive a deploy needs a persistent
+database and external head retention.
+
 ## Connecting an agent
 
 Any MCP client that speaks Streamable HTTP can point at `https://<your-host>/mcp`. The endpoint is stateless and
@@ -87,7 +108,7 @@ Each scene creates a Sandbox order and runs the LLM, so the script shares the se
 
 | Layer | Setting | Behaviour |
 |---|---|---|
-| Bearer token | `TRADEOS_MCP_TOKEN` | When set, every `/mcp` request needs `Authorization: Bearer <token>` (constant-time compare), else 401. |
+| Bearer token | `TRADEOS_MCP_AGENTS`, `TRADEOS_MCP_TOKEN` | When either is set, every `/mcp` request needs `Authorization: Bearer <token>` matching one of them (constant-time compare against all), else 401. A per-agent token becomes the case's verified credential. |
 | Host pinning | `PUBLIC_BASE_URL`, `TRADEOS_MCP_ALLOWED_HOSTS` | Requests whose `Host` is not the public host, localhost or a listed extra get 421. This stops DNS rebinding, which the app's Origin check cannot see because Origin and Host then agree. |
 | Cross-site browsers | (always) | A browser POST with a foreign `Origin` is refused with 403 by the app's CSRF check. |
 | Rate limit | `RATE_LIMIT_PER_MINUTE` and friends | `place_demo_order` and `request_return` draw on the same per-address budget as the dashboard's Run buttons (one bucket, not two), including inside JSON-RPC batches. Reads are not throttled. |
@@ -96,9 +117,9 @@ Each scene creates a Sandbox order and runs the LLM, so the script shares the se
 
 ## Limits (stated plainly)
 
-- **The agent's name is a label, not an identity.** `agent_name` and `on_behalf_of` are recorded, not verified.
-  The bearer token says a caller may use the gateway; it does not say which buyer they speak for. Verifying the
-  buyer's intent (for example with signed AP2-style mandates) is not built.
+- **Identity is only as strong as the configuration.** Without `TRADEOS_MCP_AGENTS` the agent's name is a label.
+  `on_behalf_of` is always the agent's claim, and the dashboard approver is never a named person (see
+  Accountability above).
 - **One request per order cuts both ways.** It stops an agent from rephrasing until it gets a yes, and it also
   means a buyer cannot correct a first request through the agent. Follow-ups go to a person at the merchant.
 - **Demo orders are Sandbox only.** In production, orders would come from the merchant's store, and the gateway

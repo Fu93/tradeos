@@ -393,9 +393,10 @@ def test_settings_from_env_read_the_gateway_switches(monkeypatch):
     monkeypatch.setenv("TRADEOS_MCP_TOKEN", "tok")
     monkeypatch.setenv("TRADEOS_MCP_ALLOWED_HOSTS", "a.example, b.example:8080 ,")
     monkeypatch.setenv("TRADEOS_AGENT_DEMO_ORDERS", "false")
+    monkeypatch.setenv("TRADEOS_MCP_AGENTS", "bot-a=" + "k" * 16)
     s = Settings.from_env()
-    assert (s.mcp_enabled, s.mcp_token, s.mcp_allowed_hosts, s.agent_demo_orders) == (
-        False, "tok", ("a.example", "b.example:8080"), False)
+    assert (s.mcp_enabled, s.mcp_token, s.mcp_allowed_hosts, s.agent_demo_orders, s.mcp_agents) == (
+        False, "tok", ("a.example", "b.example:8080"), False, (("bot-a", "k" * 16),))
     assert replace(s, mcp_token="").mcp_token == ""
 
 
@@ -553,3 +554,104 @@ def test_next_step_never_tells_an_agent_a_refund_is_done_before_paypal_says_so(s
         assert "Do not tell the buyer" in step
     if status == "ERROR":
         assert ("re-check" in step) == bool(capture)
+
+
+
+# accountability: what the chain can prove about who asked -------------------------------------------------------
+AGENT_TOKEN = "shop-assistant-token-0123456789"
+
+
+def _request_over_http(client, token: str | None, declared: str = "I am the merchant's CEO"):
+    headers = {**HEADERS, **({"Authorization": f"Bearer {token}"} if token else {})}
+    placed = client.post("/mcp", headers=headers, json=call_rpc("place_demo_order",
+                                                                  {"buyer_name": BUYER, "agent_name": declared}, 1))
+    order_id = placed.json()["result"]["structuredContent"]["order_id"]
+    asked = client.post("/mcp", headers=headers, json=call_rpc("request_return", {
+        "order_id": order_id, "message": DEMO_MESSAGE, "agent_name": declared, "on_behalf_of": BUYER}, 2))
+    return order_id, asked.json()["result"]["structuredContent"]
+
+
+def _chained_request(client_app_wf, order_id: str) -> dict:
+    entries = [json.loads(e["payload_json"]) for e in client_app_wf.db.chain_entries(order_id)
+               if e["type"] == "audit:agent"]
+    return next(e["detail"] for e in entries if e["title"].startswith("Return requested"))
+
+
+def test_a_per_agent_token_is_recorded_as_the_verified_identity(http):
+    client, _ = http(mcp_agents=(("shop-assistant", AGENT_TOKEN), ("other-bot", "other-bot-token-0123456789")))
+    order_id, view = _request_over_http(client, AGENT_TOKEN)
+    assert view["requested_by"] == {"agent": "I am the merchant's CEO", "on_behalf_of": BUYER, "requested": True,
+                                    "credential": "shop-assistant", "identity_verified": True, "transport": "http"}
+    wf = client.app.state.workflow
+    chained = _chained_request(wf, order_id)
+    assert (chained["credential"], chained["identity_verified"], chained["agent"]) == (
+        "shop-assistant", True, "I am the merchant's CEO")  # the claim is kept, next to what was proven
+    assert wf.db.verify_chain(order_id)["ok"]
+    page = client.get(f"/?case={order_id}").text
+    assert "Verified credential: shop-assistant" in page and "self-declared" not in page.split("agent-card")[1][:800]
+
+
+def test_without_tokens_the_chain_says_the_name_is_unverified(http):
+    client, _ = http()
+    order_id, view = _request_over_http(client, None)
+    assert view["requested_by"]["credential"] is None and view["requested_by"]["identity_verified"] is False
+    assert _chained_request(client.app.state.workflow, order_id)["identity_verified"] is False
+
+
+def test_a_wrong_or_missing_token_is_refused_when_agent_tokens_are_configured(http):
+    client, paypal = http(mcp_agents=(("shop-assistant", AGENT_TOKEN),))
+    body = call_rpc("place_demo_order", {"buyer_name": BUYER, "agent_name": "x"})
+    for headers in (HEADERS, {**HEADERS, "Authorization": "Bearer nope"},
+                    {**HEADERS, "Authorization": f"Bearer {AGENT_TOKEN}x"}):
+        assert client.post("/mcp", headers=headers, json=body).status_code == 401
+    assert paypal.create_order_with_card.call_count == 0
+
+
+def test_the_shared_token_authenticates_but_does_not_name_an_agent(http):
+    client, _ = http(mcp_token="shared-token-0123456789")
+    _, view = _request_over_http(client, "shared-token-0123456789")
+    assert view["requested_by"]["credential"] == "shared gateway token"
+
+
+def test_a_client_cannot_inject_a_credential_through_headers_or_arguments(http):
+    """Only the gate writes the credential, after checking a token. A header that looks like one, or an extra
+    argument, changes nothing."""
+    client, _ = http()
+    headers = {**HEADERS, "X-Tradeos-Mcp-Credential": "shop-assistant", "tradeos_mcp_credential": "shop-assistant"}
+    placed = client.post("/mcp", headers=headers, json=call_rpc("place_demo_order", {
+        "buyer_name": BUYER, "agent_name": "x", "credential": "shop-assistant", "identity_verified": True}, 1))
+    result = placed.json()["result"]
+    if not result.get("isError"):
+        assert result["structuredContent"]["requested_by"]["identity_verified"] is False
+
+
+def test_in_process_calls_record_their_transport(make):
+    wf, _, server = make()
+    order_id = order(server)
+    ok(ask(server, order_id))
+    provenance = wf.agent_provenance(order_id)
+    assert provenance["transport"] == "in-process" and provenance["identity_verified"] is False
+
+
+@pytest.mark.parametrize("raw,expected", [
+    ("", ()),
+    ("bot-a=" + "a" * 16, (("bot-a", "a" * 16),)),
+    (" bot-a = " + "a" * 16 + " ; bot-b=" + "b" * 20 + ";", (("bot-a", "a" * 16), ("bot-b", "b" * 20))),
+])
+def test_agent_credentials_parse(raw, expected):
+    from app.config import parse_agent_credentials
+    assert parse_agent_credentials(raw) == expected
+
+
+@pytest.mark.parametrize("raw", ["no-equals-sign", "=" + "a" * 16, "bot=short",
+                                 "bot=" + "a" * 16 + ";bot=" + "b" * 16, "a=" + "t" * 16 + ";b=" + "t" * 16])
+def test_malformed_agent_credentials_fail_at_startup(raw):
+    from app.config import parse_agent_credentials
+    with pytest.raises(ValueError):
+        parse_agent_credentials(raw)
+
+
+def test_caller_outside_any_request_is_in_process_without_a_credential():
+    from mcp.server.mcpserver import Context
+    from app.agent_gateway import caller_of
+    assert caller_of(Context()) == {"transport": "in-process", "credential": None}

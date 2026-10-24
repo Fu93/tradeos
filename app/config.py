@@ -29,6 +29,23 @@ def _env_bool(name: str, default: bool) -> bool:
     return raw.strip().lower() in {"1", "true", "yes", "on"}
 
 
+def parse_agent_credentials(raw: str) -> tuple[tuple[str, str], ...]:
+    """TRADEOS_MCP_AGENTS="shop-assistant=<token>;returns-bot=<token>" -> (("shop-assistant", "<token>"), ...).
+    A malformed entry is an error at startup, never silently dropped (a dropped entry would lock that agent out,
+    or worse, look configured when it is not)."""
+    pairs = []
+    for entry in (e.strip() for e in raw.split(";")):
+        if not entry:
+            continue
+        name, sep, token = entry.partition("=")
+        if not sep or not name.strip() or len(token.strip()) < 16:
+            raise ValueError("TRADEOS_MCP_AGENTS entries must be name=token with a token of at least 16 characters")
+        pairs.append((name.strip(), token.strip()))
+    if len({n for n, _ in pairs}) != len(pairs) or len({t for _, t in pairs}) != len(pairs):
+        raise ValueError("TRADEOS_MCP_AGENTS: every agent name and every token must be unique")
+    return tuple(pairs)
+
+
 @dataclass(frozen=True)
 class CostAssumptions:
     """Illustrative cost model (plan §6). All values are assumptions, not measurements."""
@@ -130,6 +147,9 @@ class Settings:
     mcp_enabled: bool = True
     # Optional shared secret: when set, every /mcp request needs "Authorization: Bearer <token>". Never rendered.
     mcp_token: str = ""
+    # Optional per-agent credentials, (name, token) pairs: a request bearing one of these tokens is recorded on the
+    # hash chain as that verified credential, next to the agent's self-declared name. Never rendered.
+    mcp_agents: tuple[tuple[str, str], ...] = ()
     # Extra Host values the MCP endpoint accepts (DNS-rebinding protection). The PUBLIC_BASE_URL host and
     # localhost are always allowed.
     mcp_allowed_hosts: tuple[str, ...] = ()
@@ -194,6 +214,7 @@ class Settings:
             else "NEVER",  # an unknown value fails closed: no shipping refund
             mcp_enabled=_env_bool("TRADEOS_MCP", True),
             mcp_token=_env("TRADEOS_MCP_TOKEN"),
+            mcp_agents=parse_agent_credentials(_env("TRADEOS_MCP_AGENTS")),
             mcp_allowed_hosts=tuple(h.strip() for h in _env("TRADEOS_MCP_ALLOWED_HOSTS").split(",") if h.strip()),
             agent_demo_orders=_env_bool("TRADEOS_AGENT_DEMO_ORDERS", True),
             costs=CostAssumptions.from_env(),

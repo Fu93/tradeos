@@ -604,6 +604,7 @@ reconciled against PayPal in the background at startup.
 | `TRADEOS_SAFETY_AI_TIMEOUT_S` | no | `8` | timeout of that classifier; on timeout or error the keyword gate's result stands |
 | `TRADEOS_MCP` | no | `1` | agent gateway at `/mcp` (see [`docs/agent-gateway.md`](docs/agent-gateway.md)); `0` turns it off |
 | `TRADEOS_MCP_TOKEN` | no | — | when set, every `/mcp` request needs `Authorization: Bearer <token>`; never rendered |
+| `TRADEOS_MCP_AGENTS` | no | — | per-agent credentials, `name=token;name=token` (tokens ≥ 16 chars, unique): a request with one is recorded on the hash chain as that verified credential; malformed values stop startup |
 | `TRADEOS_MCP_ALLOWED_HOSTS` | no | — | extra `Host` values `/mcp` accepts (comma-separated); the `PUBLIC_BASE_URL` host and localhost are always allowed |
 | `TRADEOS_AGENT_DEMO_ORDERS` | no | `1` | Sandbox demo: lets an agent place a Sandbox card order to return later (`place_demo_order` tool) |
 | `TRADEOS_SHIPPING_POLICY` | no | `WITHDRAWAL_FULL` | shipping refund policy for mixed orders: `WITHDRAWAL_FULL`, `MERCHANT_ERROR` or `NEVER` (unknown value fails closed to `NEVER`); see [`docs/partial-refunds.md`](docs/partial-refunds.md) |

@@ -79,7 +79,9 @@
       <p class="agent-card" role="note"><span class="chip agent">AI agent</span>
         {% if agent.requested %}Requested by <strong>{{ agent.agent }}</strong>{% if agent.on_behalf_of %} for {{ agent.on_behalf_of }}{% endif %} through the MCP gateway.
         {% else %}Order placed by <strong>{{ agent.agent }}</strong>{% if agent.on_behalf_of %} for {{ agent.on_behalf_of }}{% endif %}; no request on it yet.{% endif %}
-        The agent cannot approve, decline or refund: the policy and a person decide. Who asked is on this case's audit chain.</p>
+        {% if agent.identity_verified %}<span class="chip ok">Verified credential: {{ agent.credential }}</span>
+        {% else %}<span class="chip neutral">Name self-declared, not verified</span>{% endif %}
+        The agent cannot approve, decline or refund: the policy and a person decide. Who asked, and what was verified, is on this case's audit chain.</p>
     {% endif %}
     {% if mixed %}
       {% include "mixed.html" %}

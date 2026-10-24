@@ -81,6 +81,7 @@ def test_agent_case_shows_who_asked_and_the_real_reason_it_needs_a_person(site):
     page = client.get(f"/?case={honest}").text
     assert re.search(r'class="agent-card".*Requested by <strong>Scripted MCP client \(demo\)</strong> for Maria',
                      page, re.S)
+    assert "Name self-declared, not verified" in page  # in-process scenes carry no credential
     assert "because an AI agent asked for it" in page and "either autonomy is off" not in page
     assert page.count('<span class="chip agent">AI agent</span>') >= 4  # three tabs + the card
     case_a = wf.db.latest_case("A")["id"]
@@ -93,7 +94,7 @@ def test_card_for_an_order_with_no_request_yet(site):
     order_id = wf.place_agent_order("Tom", agent="Some agent")
     page = client.get(f"/?case={order_id}").text
     assert "Order placed by <strong>Some agent</strong> for Tom; no request on it yet." in page
-    assert agent_provenance(wf.db, None) is None
+    assert agent_provenance(wf, None) is None
 
 
 def test_second_click_waits_with_its_own_wording(site):
@@ -136,3 +137,24 @@ def test_cooldown_wording_defaults_to_reset():
     assert reset.check("b").startswith("The demo was just reset by someone else")
     scenes = Cooldown(60, 20, clock=lambda: t[0], action="Run agent scenes", done_by_other="Someone else ran them")
     assert scenes.check("a") is None and scenes.check("b").startswith("Someone else ran them")
+
+
+def test_honest_tile_counts_a_person_declining_as_the_promise_kept(site):
+    client, wf, paypal = site()
+    client.post("/demo/agent-scenes")
+    honest = wf.db.latest_case("G", "Agent: honest return")["id"]
+    client.post(f"/cases/{honest}/decline")
+    assert wf.db.get_case(honest)["status"] == "DECLINED_BY_HUMAN"
+    assert agents_section(client.get("/").text).count('class="fm ok"') == 3 and paypal.refund_capture.call_count == 0
+
+
+def test_create_app_works_inside_a_running_event_loop(tmp_path):
+    """An ASGI server may import app.main inside its event loop. create_app() used to call anyio.run() at startup,
+    which raises there ("Already running asyncio in this thread")."""
+    import asyncio
+
+    async def boot():
+        app = create_app(Settings(db_path=str(tmp_path / "loop.db")), paypal=MockPayPalClient(),
+                         extractor=KeywordIntentExtractor())
+        return app.state.mcp_server is not None
+    assert asyncio.run(boot())

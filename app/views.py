@@ -543,7 +543,9 @@ def narrate(e: dict) -> str:
         return (f"An AI agent ({d.get('agent') or 'unnamed'}) placed this Sandbox order for {d.get('buyer')}. "
                 "No request on it yet.")
     if t == "Return requested by an AI agent for the buyer":
-        return (f"AI agent {d.get('agent')} asked for this on behalf of {d.get('on_behalf_of') or 'the buyer'}: "
+        who = (f"verified credential “{d.get('credential')}”" if d.get("identity_verified")
+               else "name self-declared, not verified")
+        return (f"AI agent {d.get('agent')} ({who}) asked for this on behalf of {d.get('on_behalf_of') or 'the buyer'}: "
                 f"“{d.get('message')}”. The agent cannot approve it; the merchant's policy and a person decide.")
     if t == "Intent extracted":
         lang = (d.get("assist") or {}).get("language")
