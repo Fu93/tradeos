@@ -15,6 +15,14 @@
   <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ 'Needs human safety review' if status == 'NEEDS_HUMAN_SAFETY_REVIEW' else ('Safety reviewed' if status == 'SAFETY_REVIEWED' else (status | replace('_', ' ')) ) }}</span>
 {%- endmacro %}
 {% block content %}
+{% if inbox %}
+<div class="inbox-strip" role="note">
+  <p>{% if inbox.total %}<strong>Returns inbox:</strong> {{ inbox.needs_you }} need{{ 's' if inbox.needs_you == 1 }} you{% if inbox.needs_you_agents %} ({{ inbox.needs_you_agents }} from AI agents){% endif %} ·
+    {{ inbox.agents }} from AI agents · refunds an AI agent approved: <strong>{{ inbox.agent_approved }}</strong>
+    {% else %}<strong>Returns inbox:</strong> no requests yet. Run Case A below, or the AI-agent scenes; each request lands in the inbox.{% endif %}</p>
+  <a class="btn small" href="/inbox">Open the inbox</a>
+</div>
+{% endif %}
 
 <section class="controls">
   <div>

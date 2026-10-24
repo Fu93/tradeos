@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
@@ -21,6 +22,7 @@ import anyio
 from .agent_gateway import mount_mcp
 from .agent_scenes import LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, live_run, play_scenes
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
+from .inbox import BUCKET_LABELS, inbox_rows, inbox_summary
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
@@ -135,6 +137,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     agent_runs = AgentRunRegistry()
     app.state.agent_runs = agent_runs
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
+    # The inbox's grid script is 1.4 MB; gzip makes it about 390 KB (and the HTML and JSON smaller too).
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
     # JSON shown as text. Jinja's tojson is for <script> contexts: it returns markup with ' < > & as \u0027 and so
@@ -216,6 +220,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                                    agent_llm.model if agent_llm else None) if app.state.mcp_server else None),
             "live_run": live_run(db, current),
             "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
+            "inbox": inbox_summary(inbox_rows(wf, evidence=False)),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -255,6 +260,24 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "settings": settings, "paypal_mode": wf.paypal_mode,
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
             "webhook_configured": bool(settings.paypal_webhook_id), "q": queue_view(wf.today())})
+
+    @app.head("/inbox", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/inbox", response_class=HTMLResponse)
+    def inbox_page(request: Request):
+        """The returns inbox: every request from customers and AI agents, and what each needs from the merchant.
+        Server-rendered as a table (works without JavaScript); static/app.js upgrades it to a sortable grid."""
+        rows = inbox_rows(wf)
+        return templates.TemplateResponse(request, "inbox.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows, "summary": inbox_summary(rows),
+            "buckets": BUCKET_LABELS})
+
+    @app.get("/api/inbox")
+    def inbox_api():
+        """The inbox rows as JSON (what the grid loads). Read-only."""
+        rows = inbox_rows(wf)
+        return {"rows": rows, "summary": inbox_summary(rows)}
 
     @app.get("/healthz")
     def healthz():

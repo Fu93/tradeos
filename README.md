@@ -8,6 +8,13 @@
 
 **Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
 
+**AI agents are starting to buy for people. Someone has to decide what they may do when the order comes back.**
+PayPal's agentic commerce services ([Agent Ready, Store Sync](https://developer.paypal.com/docsai/growth/agentic-commerce/overview))
+let a buyer's assistant find products and check out; that overview does not cover returns. TradeOS is the returns layer
+for PayPal merchants: **one inbox for requests from customers and from buyers' AI agents**, where AI reads the language,
+code decides what the policy allows, a person approves the money and PayPal proves it. An agent can *request* a return
+over MCP. No tool lets it approve one, and the dashboard counts how many refunds an agent approved: 0.
+
 ### Judge quick start — about 3 minutes
 
 1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once.
@@ -17,6 +24,7 @@
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
 6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A progress page shows a scripted MCP client asking for three returns, call by call, through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
 7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
+8. **The merchant's view:** open **Inbox** (top left). Everything you just ran, from customers and from AI agents, sorted by what needs you, with the next step in plain words, PayPal Refund API calls and audit-chain status per request. "Refunds an AI agent approved" is computed from the cases, not a label.
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
