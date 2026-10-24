@@ -264,3 +264,22 @@ def test_the_run_page_shows_what_the_search_found_escaped(tmp_path):
         assert "White &lt;b&gt;Sneakers&lt;/b&gt; · 20.00 USD" in page and "<b>Sneakers</b>" not in page
     finally:
         PRODUCTS.pop("XSS1", None)
+
+
+def test_real_channel3_category_shape_keeps_the_leaf_for_the_safety_gate():
+    """Channel3's documented CategorySummary: path is a list of {slug, title}, root first (the mock used a string)."""
+    from app.safety import product_class
+    raw = {"id": "K9", "title": "Thing", "offers": [offer(40)],
+           "category": {"slug": "electric-kettles", "title": "Electric Kettles", "has_children": False,
+                        "path": [{"slug": "home-garden", "title": "Home & Garden"},
+                                 {"slug": "kitchen-dining", "title": "Kitchen & Dining"},
+                                 {"slug": "kitchen-appliances", "title": "Kitchen Appliances"},
+                                 {"slug": "electric-kettles", "title": "Electric Kettles"}]}}
+    product = normalize(raw, "USD")
+    assert product is not None and product.category.endswith("Electric Kettles") and "slug" not in product.category
+    assert product_class({"name": product.title, "category": product.category}) != "NONE"
+
+
+def test_unusable_prices_are_rejected_not_crashed():
+    for bad in (0.001, 1e30, "1e30"):
+        assert normalize({"id": "A", "title": "A", "offers": [offer(bad)]}, "USD") is None
