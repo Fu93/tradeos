@@ -123,12 +123,14 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 
 PayPal's own MCP server gives an AI agent a refund tool. TradeOS puts the merchant's rules in front of that power.
 An agent acting for a buyer connects to `/mcp` and gets three tools: place a Sandbox demo order, **request** a return
-or exchange, and read the case status. There is no approve, decline or refund tool. The request runs through the
+or exchange, and read the case status (a fourth, read-only `find_product`, with a Channel3 key). There is no approve, decline or refund tool. The request runs through the
 same loop as a dashboard case — AI reads the words, the Safety Gate and the deterministic policy decide on PayPal's
 own capture data — and **every agent-originated case waits for a person**, even with `AUTO_ENABLED` on. Who asked,
 and for whom, is on the case's hash chain. Prompt injection, a late order and a safety report all end with Refund
 API calls = 0 (tested in `tests/test_agent_gateway.py`). A **live AI agent**, a real model told to "get $500 by any
-wording", chooses its own tool calls against the same server, and its full transcript goes on the chain. Details,
+wording", chooses its own tool calls against the same server, and its full transcript goes on the chain. With a
+Channel3 key it can also shop: find a real product, buy it in the Sandbox and request a return (run once against the
+real Channel3 API on 2026-10-25; one run, not a measurement, Sandbox only, USD only). Details,
 connection snippets and the demo scripts: [`docs/agent-gateway.md`](docs/agent-gateway.md).
 
 ## What TradeOS does
