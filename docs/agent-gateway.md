@@ -45,6 +45,7 @@ was also mutation-checked: removing each defence below makes at least one test f
 | Prompt injection, a late order and a safety report end with Refund API calls = 0 | Same policy, injection heuristic and Safety Gate as the dashboard; `approve()` is refused afterwards too. |
 | No re-rolls | Only an `AGENT_ORDERED` case is evaluated. A second `request_return` on the same order returns the first outcome without another LLM call or PayPal read. |
 | An agent sees only gateway orders | Any other id, including a real dashboard case, is "not found". Archived orders too. |
+| An agent sees only its own orders | An order placed with a per-agent token belongs to that credential. Any other caller, including one with no token, gets the same "no agent order" message as an unknown id, so a refusal never confirms that an id exists. Without this, agent B could read agent A's order and file the one allowed request on it, locking A's buyer out. Orders placed without a credential (the open demo) stay open to every caller. |
 | Nothing is truncated | A message over the 500-character limit is refused, as on the dashboard. Cutting it would hide whatever came after the cut (a fire, an injury) from the Safety Gate. |
 | Failures are reported as failures | An order PayPal could not complete is a tool error, not an order. A request on an order with no capture yet says the buyer must approve the payment first. After the buyer approves, the order waits for the agent's request; it is never evaluated on placeholder text. |
 | Who asked is on the hash chain | `audit:agent` entries record the agent name, the buyer it acts for, the message and `agent_can_approve: false`. The chain verifies. |
@@ -119,6 +120,8 @@ same three tools. The model then decides every call itself ([`app/llm_agent.py`]
 |---|---|---|
 | Model calls per run | 6 | A runaway model stops; `step limit reached` is recorded |
 | Tool executions per run | 8 | Extra calls are answered with an error and not executed |
+| `place_demo_order` per run | 2 | In-process calls skip the HTTP rate limiter, so without this one click could place 8 Sandbox orders |
+| A dropped connection mid call | That step is recorded as failed and the run stops | Over HTTP (`scripts/llm_agent_demo.py`) the transport can fail; the run keeps what already happened |
 | Time per run | 90 s; 25 s per model call | Render request budget |
 | Unknown tool names, malformed arguments | Answered with an error, never executed | The model may invent an `approve_refund` tool; it does not exist |
 | What the model reads back | Status, decision, reasons, amount, refund id and calls, next step | Compact (Groq's free tier allows about 8K tokens a minute); the audit head stays out of the model's context |
@@ -126,8 +129,11 @@ same three tools. The model then decides every call itself ([`app/llm_agent.py`]
 
 A run takes 10 to 90 seconds, so the button starts it in the background and opens `/agent-runs/<id>`, which shows
 each tool call as the model makes it (the page polls `/api/agent-runs/<id>`; everything the model wrote is inserted as
-text, never as HTML). Only one live run goes at a time for the whole demo; a click while one runs links to it
-instead. The progress page is a convenience that lives in memory. The record is on the chain.
+text, never as HTML). The **Run agent scenes** button uses the same page, labelled as a script, with each scene's
+calls and a line per scene saying whether it showed what it promises. Only one agent run of either kind goes at a
+time for the whole demo; a click while one runs links to it instead, and costs neither an order nor the clicker's
+cooldown. The progress page is a convenience that lives in memory. The record is on the chain: if someone resets the
+demo while the model is still working, the run is still recorded on the (now archived) order.
 
 The whole run is written to the order's hash chain: goal, model, every tool call with its arguments and outcome,
 tokens, time, stop reason and the model's own final report (`agent_can_approve: false`). The case page shows it as a
@@ -153,7 +159,9 @@ model.
 
 ## Limits (stated plainly)
 
-- **Identity is only as strong as the configuration.** Without `TRADEOS_MCP_AGENTS` the agent's name is a label.
+- **Identity is only as strong as the configuration.** Without `TRADEOS_MCP_AGENTS` the agent's name is a label,
+  and orders have no owner: any caller who knows an order id can read it or file its one request. Agents that
+  share `TRADEOS_MCP_TOKEN` also share ownership of each other's orders.
   `on_behalf_of` is always the agent's claim, and the dashboard approver is never a named person (see
   Accountability above).
 - **One request per order cuts both ways.** It stops an agent from rephrasing until it gets a yes, and it also

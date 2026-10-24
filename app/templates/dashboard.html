@@ -88,7 +88,7 @@
         <h3>Live AI agent run <span class="muted small">· {{ live_run.model }} · {{ live_run.tokens }} tokens · {{ live_run.seconds }} s · stopped: {{ live_run.stop_reason }}</span></h3>
         <ol class="small">
           {% for s in live_run.steps %}
-            <li><code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | tojson }}</span>{% endif %}
+            <li><code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | textjson }}</span>{% endif %}
               → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% else %}{{ s.result.status | default('') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}</li>
           {% endfor %}
         </ol>
@@ -221,7 +221,7 @@
             {% if e.detail and e.detail.draft %}
               <details><summary>Supplier draft</summary><pre>{{ e.detail.draft }}</pre></details>
             {% endif %}
-            {% if e.detail %}<details class="raw"><summary>raw</summary><pre>{{ e.detail | tojson(indent=2) }}</pre></details>{% endif %}
+            {% if e.detail %}<details class="raw"><summary>raw</summary><pre>{{ e.detail | textjson(indent=2) }}</pre></details>{% endif %}
           </li>
         {% endfor %}
       </ol>
@@ -411,10 +411,15 @@
     {% for n in agents.tools %}<code>{{ n }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
     There is no approve, decline or refund tool. Every agent request waits for a person, even with autonomy on,
     and the agent cannot set the amount: it comes from PayPal's capture.</p>
+  {% if agent_run_in_progress %}
+  <p class="small run-in-progress"><span class="chip warn">Running</span> An agent run is in progress:
+    <a href="/agent-runs/{{ agent_run_in_progress }}">watch it</a>. One run at a time for the whole demo.</p>
+  {% endif %}
   {% if agents.demo_orders %}
   <div class="row between agents-run">
     <p class="small muted">The button plays a <strong>scripted MCP client</strong> (not an autonomous model) through the real
-      MCP tools: three Sandbox orders, three requests. Any MCP client can do the same at <code>/mcp</code>.</p>
+      MCP tools: three Sandbox orders, three requests, each shown on a progress page as it returns. Any MCP client can
+      do the same at <code>/mcp</code>.</p>
     <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn small">Run agent scenes</button></form>
   </div>
   {% endif %}

@@ -389,7 +389,7 @@ def test_registry_keeps_a_bounded_number_of_finished_runs():
     reg = AgentRunRegistry()
     ids = []
     for _ in range(MAX_KEPT + 5):
-        run_id = reg.start(GOALS["honest"], "m", lambda progress: AgentRun("honest", "m"), lambda run: None)
+        run_id = reg.start("live", "honest", "Honest", "m", lambda progress: AgentRun("honest", "m"), lambda run: None)
         reg.join(run_id, 5)
         ids.append(run_id)
     assert reg.get(ids[0]) is None and reg.get(ids[-1])["status"] == "done"
@@ -420,9 +420,9 @@ def test_registry_refuses_a_second_run_that_raced_past_the_route_check():
     def slow(progress):
         hold.wait(5)
         return AgentRun("honest", "m")
-    first = reg.start(GOALS["honest"], "m", slow, lambda run: None)
+    first = reg.start("live", "honest", "Honest", "m", slow, lambda run: None)
     assert reg.running() == first
-    assert reg.start(GOALS["adversarial"], "m", slow, lambda run: None) is None
+    assert reg.start("scripted", "scenes", "Scenes", "m", slow, lambda run: None) is None  # either kind waits
     hold.set()
     reg.join(first, 5)
     assert reg.running() is None

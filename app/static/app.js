@@ -160,8 +160,9 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
   b.addEventListener("click", function () { window.print(); });
 });
 
-// Live AI agent run page: poll the run and append each step as the model takes it. Everything the model wrote is
-// set with textContent (never innerHTML), so a model that outputs markup cannot inject it.
+// Agent run page (a live model or the scripted scenes): poll the run and append each step as it happens. The
+// server builds every sentence (status_text, case_link, ...). Everything is set with textContent (never innerHTML),
+// so a model that outputs markup cannot inject it.
 (function () {
   var page = document.querySelector("[data-agent-run]");
   if (!page || !window.fetch || page.getAttribute("data-status") !== "running") return;
@@ -178,6 +179,7 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
   }
   function stepItem(s) {
     var li = el("li"), r = s.result || {};
+    if (s.scene) { li.appendChild(el("span", "muted", s.scene + ":")); li.appendChild(document.createTextNode(" ")); }
     li.appendChild(el("code", "", s.tool || ""));
     if (s.args) { li.appendChild(document.createTextNode(" ")); li.appendChild(el("span", "muted", JSON.stringify(s.args))); }
     li.appendChild(document.createTextNode(" → "));
@@ -197,25 +199,22 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     for (; shown < run.steps.length; shown++) list.appendChild(stepItem(run.steps[shown]));
     if (empty) empty.hidden = run.steps.length > 0;
     if (run.status === "running") {
-      setStatus("warn", "Running", run.phase === "thinking" ? "the model is deciding (call " + run.model_calls + " of at most 6)…"
-                : run.phase === "step" ? "tool call done; the model is reading the result…" : "starting…");
+      setStatus("warn", "Running", run.status_text);
       return false;
     }
-    if (run.status === "failed") {
-      setStatus("bad", "Failed", "the run stopped with an internal error (" + run.error + "). Nothing was approved or refunded.");
-    } else {
-      setStatus("ok", "Finished", run.stop_reason + " · " + run.model_calls + " model calls · " + run.tokens + " tokens · " + run.seconds + " s");
-    }
+    if (run.status === "failed") setStatus("bad", "Failed", run.status_text);
+    else setStatus("ok", "Finished", run.status_text);
+    document.getElementById("run-report-label").textContent = run.report_label + ":";
     document.getElementById("run-report").textContent = run.final_report || "—";
     var outcome = document.getElementById("run-outcome");
     outcome.textContent = "";
-    if (run.case_id) {
-      var a = el("a", "btn small", "Open the order and its audit trail");
+    if (run.case_link && /^\/\?case=[\w-]+#[\w-]+$/.test(run.case_link.href)) {  // only ever a link into this dashboard
+      var a = el("a", "btn small", run.case_link.text);
       a.id = "run-case";
-      a.href = "/?case=" + encodeURIComponent(run.case_id) + "#live-run";
+      a.href = run.case_link.href;
       outcome.appendChild(a);
     } else {
-      outcome.textContent = "The model placed no order, so nothing was recorded on a case and nothing was refunded.";
+      outcome.textContent = run.no_case_text;
     }
     finalBox.hidden = false;
     page.setAttribute("data-status", run.status);

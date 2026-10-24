@@ -15,7 +15,7 @@
 3. Click **Approve & refund**. The Refund API is not called before this human approval.
 4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
-6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A scripted MCP client asks for three returns through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
+6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A progress page shows a scripted MCP client asking for three returns, call by call, through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
 7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.

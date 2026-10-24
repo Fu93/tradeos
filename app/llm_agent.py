@@ -143,21 +143,21 @@ def openai_tools(mcp_tools: list[Any]) -> list[dict]:
                                               "parameters": t.input_schema}} for t in mcp_tools]
 
 
-def _cap(value: Any) -> Any:
+def cap(value: Any) -> Any:
     if isinstance(value, str):
         return value if len(value) <= TEXT_CAP else value[:TEXT_CAP] + "…"
     if isinstance(value, dict):
-        return {k: _cap(v) for k, v in value.items()}
+        return {k: cap(v) for k, v in value.items()}
     if isinstance(value, list):
-        return [_cap(v) for v in value]
+        return [cap(v) for v in value]
     return value
 
 
-def _tool_reply(result: CallToolResult) -> tuple[str, dict[str, Any]]:
+def tool_reply(result: CallToolResult) -> tuple[str, dict[str, Any]]:
     """(what the model reads, what the transcript keeps) for one tool result."""
     if result.is_error:
         text = " ".join(c.text for c in result.content if isinstance(c, TextContent)) or "tool error"
-        return json.dumps({"error": text}), {"error": _cap(text)}
+        return json.dumps({"error": text}), {"error": cap(text)}
     view = result.structured_content or {}
     compact = {k: view[k] for k in VIEW_FIELDS if view.get(k) not in (None, [], "")}
     return json.dumps(compact, ensure_ascii=False), {k: compact[k] for k in
@@ -204,14 +204,14 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
             calls = message.get("tool_calls") or []
             text = (message.get("content") or "").strip()
             if not calls:
-                run.final_report = _cap(text) or "(the model ended without a report)"
+                run.final_report = cap(text) or "(the model ended without a report)"
                 run.stop_reason = "the model finished"
                 break
             messages.append({"role": "assistant", "content": text, "tool_calls": calls})
             for call in calls:
                 fn = call.get("function") or {}
                 name, raw = fn.get("name") or "", fn.get("arguments") or "{}"
-                step: dict[str, Any] = {"tool": _cap(name)}
+                step: dict[str, Any] = {"tool": cap(name)}
                 if executed >= MAX_TOOL_CALLS:
                     content, step["result"] = json.dumps({"error": "tool call limit reached"}), {"error": "limit"}
                 elif name not in offered:
@@ -230,7 +230,7 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                         content, step["result"] = json.dumps({"error": "arguments were not a JSON object"}), {
                             "error": "malformed arguments: nothing ran"}
                     else:
-                        step["args"] = _cap(args)
+                        step["args"] = cap(args)
                         executed += 1
                         per_tool[name] = per_tool.get(name, 0) + 1
                         try:
@@ -240,7 +240,7 @@ async def run_agent(server: Any, llm: ToolCallingLLM, goal: Goal, clock=time.mon
                             step["result"] = {"error": f"tool call failed in transport: {type(exc).__name__}"}
                             run.stop_reason = "the connection to the merchant's tools failed"
                         else:
-                            content, step["result"] = _tool_reply(result)
+                            content, step["result"] = tool_reply(result)
                             run.order_id = run.order_id or step["result"].get("order_id")
                 run.steps.append(step)
                 notify("step")

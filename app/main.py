@@ -19,8 +19,8 @@ from fastapi.templating import Jinja2Templates
 import anyio
 
 from .agent_gateway import mount_mcp
-from .agent_scenes import LIVE_LABELS, agent_panel, agent_provenance, live_run, run_scenes
-from .agent_runs import AgentRunRegistry
+from .agent_scenes import LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, live_run, play_scenes
+from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
@@ -137,6 +137,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
+    # JSON shown as text. Jinja's tojson is for <script> contexts: it returns markup with ' < > & as \u0027 and so
+    # on, which then shows up literally on the page ("I\u0027d"). This returns a plain string, so autoescape applies.
+    templates.env.filters["textjson"] = lambda value, indent=None: json.dumps(value, ensure_ascii=False,
+                                                                              indent=indent, default=str)
     install_security(app, templates, csrf_exempt=("/webhooks/paypal",))
 
     @app.get("/api/docs", include_in_schema=False, response_class=HTMLResponse)
@@ -211,6 +215,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "agents": (agent_panel(db, mcp_tools(), settings.agent_demo_orders,
                                    agent_llm.model if agent_llm else None) if app.state.mcp_server else None),
             "live_run": live_run(db, current),
+            "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -286,17 +291,26 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Judge path for the agent gateway: a scripted MCP client plays three scenes through the real tools."""
         if app.state.mcp_server is None or not settings.agent_demo_orders:
             raise HTTPException(404)
+        if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
+            return busy_flash(request, busy)
         if (reason := agent_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Agent scenes not run: {reason}", status_code=429)
         if (refused := limited(request)) is not None:
             return refused
-        outcomes = run_scenes(app.state.mcp_server, db)
-        failed = [o for o in outcomes if o.get("error")]
-        honest = next((o["order_id"] for o in outcomes if o["scene"] == "honest" and o.get("order_id")), None)
-        if failed or honest is None:
-            return render_dashboard(request, flash="Agent scenes: " + "; ".join(
-                f"{o['scene']}: {o['error']}" for o in failed), status_code=502)
-        return RedirectResponse(f"/?case={honest}#agents", status_code=303)
+        server = app.state.mcp_server
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: play_scenes(server, db, on_progress=on_progress))
+
+        run_id = agent_runs.start(SCRIPTED, "scenes", "Agent scenes: honest, injection, late", SCRIPTED_AGENT,
+                                  execute, lambda run: run.order_id)
+        if run_id is None:
+            return busy_flash(request, agent_runs.running())
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    def busy_flash(request: Request, busy: str | None) -> HTMLResponse:
+        where = f" Watch it at /agent-runs/{busy}" if busy else ""
+        return render_dashboard(request, flash=f"An agent run is already in progress.{where}", status_code=409)
 
     @app.post("/demo/live-agent")
     def run_live_agent(request: Request, goal: str = Form("")):
@@ -307,8 +321,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if chosen is None:
             raise HTTPException(404, "Unknown goal")
         if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
-            return render_dashboard(request, flash="A live AI agent is already running. Watch it at "
-                                    f"/agent-runs/{busy}", status_code=409)
+            return busy_flash(request, busy)
         if (reason := live_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Live agent not run: {reason}", status_code=429)
         if (refused := limited(request)) is not None:
@@ -325,9 +338,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             wf.agents.record_run(run.order_id, run.record())
             return run.order_id
 
-        run_id = agent_runs.start(chosen, llm.model, execute, finish)
+        run_id = agent_runs.start(LIVE, chosen.key, chosen.title, llm.model, execute, finish)
         if run_id is None:
-            return render_dashboard(request, flash="A live AI agent is already running.", status_code=409)
+            return busy_flash(request, agent_runs.running())
         return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
 
     @app.get("/agent-runs/{run_id}", response_class=HTMLResponse)
@@ -335,7 +348,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         """Watch a live agent run. Rendered with what has happened so far; static/app.js polls for the rest."""
         run = agent_runs.get(run_id)
         if run is None:
-            raise HTTPException(404, "This live agent run is not known here (it finished long ago, or the demo "
+            raise HTTPException(404, "This agent run is not known here (it finished long ago, or the demo "
                                      "restarted). If it placed an order, the order still carries its transcript.")
         return templates.TemplateResponse(request, "agent_run.html", {
             "run": run, "settings": settings, "paypal_mode": wf.paypal_mode,

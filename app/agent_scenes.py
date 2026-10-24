@@ -2,7 +2,8 @@
 
 Judges should not need a terminal to see the agent gateway work, so the dashboard's "Run agent scenes" button runs
 three scenes through the real MCP tool layer (an in-memory MCP client calling the same server /mcp serves), not by
-calling the workflow directly. It is a script, not an autonomous model, and the page says so.
+calling the workflow directly. It is a script, not an autonomous model, and the page says so. It runs in the
+background like a live model's run (app/agent_runs.py), so the progress page shows each call as it returns.
 
 Each scene places a Sandbox demo order, then asks for a return on it:
 
@@ -12,15 +13,17 @@ Each scene places a Sandbox demo order, then asks for a return on it:
 """
 from __future__ import annotations
 
+import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-import anyio
 from mcp import Client
 from mcp.server.mcpserver import MCPServer
-from mcp.types import CallToolResult, TextContent
+from mcp.types import CallToolResult
 
 from .db import Database
+from .llm_agent import AgentRun, cap, tool_reply
 from .presets import BY_KEY
 from .workflow import AGENT, DECLINED, DEMO_MESSAGE, PENDING_APPROVAL, REFUND_COMPLETED, REJECTED, Workflow
 
@@ -48,32 +51,61 @@ SCENES = (
 )
 
 
-def _error_text(result: CallToolResult) -> str:
-    """The tool's error message (MCP errors come back as text content)."""
-    texts = [c.text for c in result.content if isinstance(c, TextContent)]
-    return " ".join(texts) or "the tool returned an error without a message"
+Progress = Callable[[AgentRun, str], None]
 
 
-def run_scenes(server: MCPServer, db: Database) -> list[dict[str, Any]]:
-    """Play every scene through an in-memory MCP client. Returns one outcome per scene (order id or error)."""
-    async def play() -> list[dict[str, Any]]:
-        outcomes: list[dict[str, Any]] = []
-        async with Client(server) as client:
-            for scene in SCENES:
-                placed = await client.call_tool("place_demo_order", {
-                    "buyer_name": DEMO_BUYER, "agent_name": SCRIPTED_AGENT, "purchased_days_ago": scene.days_ago})
-                if placed.is_error or not placed.structured_content:
-                    outcomes.append({"scene": scene.key, "error": _error_text(placed)})
-                    continue
-                order_id = placed.structured_content["order_id"]
-                db.update_case(order_id, label=scene.label)  # a display label only (not a chained field)
-                asked = await client.call_tool("request_return", {
-                    "order_id": order_id, "message": scene.message, "agent_name": SCRIPTED_AGENT,
-                    "on_behalf_of": DEMO_BUYER})
-                outcomes.append({"scene": scene.key, "order_id": order_id,
-                                 "error": _error_text(asked) if asked.is_error else None})
-        return outcomes
-    return anyio.run(play)
+async def play_scenes(server: MCPServer, db: Database, on_progress: Progress | None = None,
+                      clock: Callable[[], float] = time.monotonic) -> AgentRun:
+    """Play every scene through an in-memory MCP client, reporting each tool call as it returns.
+
+    The result has the same shape as a live model's run (steps, stop reason, report), so the dashboard shows both on
+    one progress page. run.order_id is the honest scene's order: the one a person approves."""
+    run = AgentRun(goal="scenes", model=SCRIPTED_AGENT)
+    started = clock()
+    lines: list[str] = []
+    failed = 0
+
+    def notify(phase: str) -> None:
+        if on_progress is not None:
+            on_progress(run, phase)
+
+    async def call(client: Client, scene: Scene, name: str, args: dict[str, Any]) -> CallToolResult:
+        result = await client.call_tool(name, args)
+        run.steps.append({"scene": scene.title, "tool": name, "args": cap(args), "result": tool_reply(result)[1]})
+        notify(f"scene {len(lines) + 1} of {len(SCENES)}: {scene.title}")
+        return result
+
+    async with Client(server) as client:
+        for index, scene in enumerate(SCENES, 1):
+            notify(f"scene {index} of {len(SCENES)}: {scene.title}")
+            placed = await call(client, scene, "place_demo_order", {
+                "buyer_name": DEMO_BUYER, "agent_name": SCRIPTED_AGENT, "purchased_days_ago": scene.days_ago})
+            if placed.is_error or not placed.structured_content:
+                failed += 1
+                lines.append(f"{scene.title}: could not run ({run.steps[-1]['result'].get('error')})")
+                continue
+            order_id = placed.structured_content["order_id"]
+            db.update_case(order_id, label=scene.label)  # a display label only (not a chained field)
+            asked = await call(client, scene, "request_return", {
+                "order_id": order_id, "message": scene.message, "agent_name": SCRIPTED_AGENT,
+                "on_behalf_of": DEMO_BUYER})
+            if scene.key == "honest":
+                run.order_id = order_id
+            if asked.is_error:
+                failed += 1
+                lines.append(f"{scene.title}: could not run ({run.steps[-1]['result'].get('error')})")
+                continue
+            case = db.get_case(order_id) or {}
+            calls = len(db.paypal_calls(order_id, "refund_capture"))
+            kept = bool(case) and scene_ok(scene, case, calls)
+            lines.append(f"{scene.title}: {str(case.get('status', '?')).replace('_', ' ')}, refund calls {calls}"
+                         f" ({'as promised' if kept else 'NOT as promised'})")
+            failed += 0 if kept else 1
+    run.seconds = clock() - started
+    run.stop_reason = (f"all {len(SCENES)} scenes played" if not failed
+                       else f"{failed} of {len(SCENES)} scenes did not show what they promise")
+    run.final_report = ". ".join(lines) + "."
+    return run
 
 
 def scene_ok(scene: Scene, case: dict, refund_calls: int) -> bool:
