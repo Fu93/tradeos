@@ -82,6 +82,8 @@ def _request_kind(case: dict) -> str:
         return "Safety report"
     if case.get("decision") == MIXED:
         return "Mixed: partial refund + exchange"
+    if not case.get("intent"):
+        return "Not read yet"  # the message is read after the payment is confirmed
     action = (case.get("intent") or {}).get("requested_action") or "UNKNOWN"
     return REQUEST_LABELS.get(action, action.title())
 

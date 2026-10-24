@@ -151,6 +151,8 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
         calls = _refund_api_calls(db, case["id"])
         if status == "AWAITING_BUYER_APPROVAL":
             st["request"] = ("waiting", "waiting for sandbox buyer payment")
+        elif status == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+            st["request"] = ("waiting", "payment not confirmed by PayPal")
         elif status == "ERROR" and not case.get("capture_id"):
             st["request"] = ("failed", "PayPal order / capture failed")
         else:
@@ -230,6 +232,9 @@ def _mixed_pipeline(db: Database, case: dict, st: dict) -> None:
     items = db.get_items(case["id"])
     batches = db.list_batches(case["id"])
     st["request"] = ("done", f"paid ${case['amount']} · {len(items)} line items (DEMO-DATA)")
+    if case["status"] == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        st["request"] = ("waiting", "payment not confirmed by PayPal")
+        return
     if case["status"] == "ERROR" and not case.get("capture_id"):
         st["request"] = ("failed", "PayPal order / capture failed")
         return
@@ -283,6 +288,8 @@ _TITLE_BY_STATUS = {
 def section_title(case: dict | None) -> str:
     """Heading of block 1. 'Pending action' only while something is actually waiting for a person (or nothing has
     run yet); once the case is completed, rejected, declined or failed it names the outcome instead of going stale."""
+    if case and case["status"] == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        return "Pending action: confirm the payment with PayPal"
     return _TITLE_BY_STATUS.get(case["status"], "Pending action") if case else "Pending action"
 
 

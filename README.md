@@ -651,12 +651,12 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-1029 tests, run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`,
-a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
-(incl. eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate line-product
-scan, and discipline invariants). Count verified locally after merging #69+#70+#71+#72+#73
-(1005 + 3 mixed Safety Gate + 21 discipline invariants = 1029). The repository is public, so
-GitHub's standard hosted runners cost nothing here.
+Over 1,150 tests (1,182 on 24 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
+`ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
+(about 96% today). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate
+line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox, and lost-PayPal-reply
+recovery (`tests/test_payment_unknown.py`). The defect fixes of 24 Oct were each mutation-checked: putting the defect back
+makes a test fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
 
 ### Verify a deployment
 

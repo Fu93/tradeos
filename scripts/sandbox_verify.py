@@ -409,9 +409,13 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
 
 if __name__ == "__main__":
     flags = ("--allow-autonomy", "--mixed", "--mixed-only", "--allow-mock", "--multi-batch", "--multi-batch-only", "--paypal-overrefund-probe")
+    if {"-h", "--help"} & set(sys.argv[1:]):
+        print(__doc__)
+        sys.exit(0)
+    unknown = [a for a in sys.argv[1:] if a.startswith("-") and a not in flags]
     args = [a for a in sys.argv[1:] if a not in flags]
-    if len(args) != 1:
-        raise SystemExit(__doc__)
+    if unknown or len(args) != 1 or not args[0].startswith(("http://", "https://")):
+        raise SystemExit(__doc__ + (f"\nUnknown option(s): {' '.join(unknown)}" if unknown else ""))
     sys.exit(main(args[0], allow_autonomy="--allow-autonomy" in sys.argv[1:], mixed="--mixed" in sys.argv[1:],
                   mixed_only="--mixed-only" in sys.argv[1:], allow_mock="--allow-mock" in sys.argv[1:],
                   multi_batch="--multi-batch" in sys.argv[1:], multi_only="--multi-batch-only" in sys.argv[1:],

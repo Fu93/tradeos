@@ -12,7 +12,11 @@
   {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_FAILED", "REFUND_ERROR",
                                "REFUND_OUTCOME_UNKNOWN", "EXCHANGE_ARRANGED") -%}
   {%- set prefix = {"auto": "AUTO · ", "human": "HUMAN · "}.get(case.approval_source, "") if handled else "" -%}
+  {%- if status == "ERROR" and case.order_status == "OUTCOME_UNKNOWN" -%}{# workflow.PAYMENT_UNKNOWN #}
+  <span class="chip warn">Payment not confirmed</span>
+  {%- else -%}
   <span class="chip {{ cls.get(status, 'neutral') }}">{{ prefix }}{{ 'Needs human safety review' if status == 'NEEDS_HUMAN_SAFETY_REVIEW' else ('Safety reviewed' if status == 'SAFETY_REVIEWED' else (status | replace('_', ' ')) ) }}</span>
+  {%- endif -%}
 {%- endmacro %}
 {% block content %}
 {% if inbox %}

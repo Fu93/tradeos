@@ -284,3 +284,18 @@ def test_a_check_that_also_times_out_does_not_restart_paypals_clock(settings):
     with pytest.raises(RefundNotAllowed, match="6 hours"):
         wf.retry_payment(case_id)
     assert captures(pp) == 1
+
+
+def test_the_whole_page_tells_one_story_for_an_unconfirmed_payment(settings):
+    """The card said 'not confirmed' while the pipeline said 'order / capture failed', the heading 'PayPal error'
+    and the case chip 'ERROR'. Every part now says the same thing, and the inbox does not call an unread message
+    'Unclear'."""
+    from tests.helpers import make_app
+    client, pp, wf = make_app(settings)
+    lose_replies(pp, "create_order_with_card", charged=1, silent=1)
+    case_id = client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1]
+    page = client.get(f"/?case={case_id}").text
+    assert "payment not confirmed by PayPal" in page and "PayPal order / capture failed" not in page
+    assert "Pending action: confirm the payment with PayPal" in page and "Result: PayPal error" not in page
+    assert '<span class="chip warn">Payment not confirmed</span>' in page
+    assert {r["id"]: r for r in inbox.inbox_rows(wf)}[case_id]["request"] == "Not read yet"
