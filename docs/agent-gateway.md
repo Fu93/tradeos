@@ -146,6 +146,32 @@ model chooses to try varies run to run. The tests in [`tests/test_llm_agent.py`]
 loop with a scripted fake model that reacts to real tool results, so they test the system around the model, not the
 model.
 
+## Measured: what PayPal's own agent toolkits give an agent
+
+[`scripts/paypal_toolkit_contrast.py`](../scripts/paypal_toolkit_contrast.py) reads the tool tables of PayPal's
+published toolkits, version 1.11.0 (the PyPI wheel `paypal-agent-toolkit` and the npm package `@paypal/agent-toolkit`, which
+PayPal's MCP server is built from), and records them in [`docs/eval/paypal-agent-toolkit.json`](eval/paypal-agent-toolkit.json)
+with each artifact's SHA-256. Nothing is called and no credentials are used. `--check` re-measures and fails if the result
+changed.
+
+| Tool an agent can be given | Python toolkit | TypeScript / MCP toolkit | What the agent controls | TradeOS gateway |
+|---|---|---|---|---|
+| `create_refund` | not offered | offered (`payments.createRefund`) | `capture_id`, optional `amount` ("If not specified, the full captured amount is refunded"), `note_to_payer` | no such tool; a person approves, the amount is PayPal's capture |
+| `accept_dispute_claim` | offered (`disputes.create`) | offered | `dispute_id`, a free-text `note`; PayPal's description: "PayPal automatically refunds money to the customer from the merchant's account" | disputes are read-only in TradeOS |
+| `pay_order` | offered (`orders.capture`) | offered | `order_id` | not offered (`place_demo_order` is a Sandbox demo with a fixed product and price) |
+| Tools in total | 42 | 47 | | 3, none of which moves money on the agent's word |
+
+These toolkits are the right tools for a merchant's **own** agent, which the merchant trusts with refunds. A **buyer's**
+agent should not get them, and a merchant's agent that reads buyer messages can be talked into using them.
+`tests/test_toolkit_contrast.py` pins the measurement and checks that no TradeOS tool has a money-moving name or
+accepts an amount, a currency or a capture id.
+
+**A safer configuration for a merchant agent that also uses PayPal's toolkit.** The toolkits switch tools on per action
+(`Configuration(actions={...})`); an action that is not listed is off. Give the agent the read actions it needs
+(for example `"orders": {"get": True}`, `"disputes": {"list": True, "get": True}`, `"shipment": {"get": True}`,
+`"transactions": {"list": True}`) and leave `payments.createRefund`, `disputes.create` and `orders.capture` off; send
+refund requests through TradeOS's `request_return`, where the policy decides and a person approves.
+
 ## Security
 
 | Layer | Setting | Behaviour |
@@ -170,5 +196,5 @@ model.
   would look up an order the buyer actually placed instead of offering `place_demo_order`.
 - **One merchant, open demo.** Like the rest of TradeOS, there are no merchant accounts yet, and on Render the
   SQLite database is wiped on every restart or deploy.
-- **The contrast with PayPal's own MCP refund tool is described, not measured here.** No test in this repository
-  calls PayPal's MCP server.
+- **The contrast with PayPal's own toolkits is measured from their tool tables, not by calling them.** No test calls
+  PayPal's MCP server or toolkit; what an agent would be offered is read from the published packages (see below).

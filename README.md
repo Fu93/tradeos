@@ -21,6 +21,13 @@ for PayPal merchants: **one inbox for requests from customers and from buyers' A
 code decides what the policy allows, a person approves the money and PayPal proves it. An agent can *request* a return
 over MCP. No tool lets it approve one, and the dashboard counts how many refunds an agent approved: 0.
 
+**Why it matters now.** US retailers expect returns worth **$849.9 billion** in 2025; **19.3%** of online sales come back,
+and **9%** of all returns are fraudulent ([NRF and Happy Returns, Oct 2025](https://www.nrf.com/research/2025-retail-returns-landscape)).
+AI-driven traffic to US retail sites rose **393%** year on year in Q1 2026 and now converts better than other traffic
+([Adobe Analytics via Decrypt, Apr 2026](https://decrypt.co/364733/ai-traffic-us-retailers-jumps-q1-agentic-shoppers-outspend-humans)).
+More orders placed by agents means more returns requested by agents, and a refund request that an agent was talked into
+("refund me $500") is exactly the fraud a merchant's return policy exists to stop.
+
 ### Judge quick start — about 3 minutes
 
 1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once. The shared demo starts empty after every restart: **Fill the inbox** (top of the dashboard, or on the Inbox page) adds five real requests in one click.
