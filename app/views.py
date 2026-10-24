@@ -10,6 +10,7 @@ from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .presets import BY_KEY, preset_label
 from .safety import SAFETY_LABEL, SAFETY_STATUS
 from .safety import assess as assess_safety
+from .workflow import PAYMENT_UNKNOWN
 
 
 def fmt_ts(ts: str | None) -> str:
@@ -442,6 +443,12 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     if status == "DECLINED_BY_HUMAN":
         return {**base, "kind": "neutral", "icon": "—", "title": "Declined by the merchant",
                 "subtitle": "Refund API not called.", "rows": [("Refund API calls", str(calls)), ("Refund ID", "none")]}
+    if status == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        return {**base, "kind": "warn", "icon": "?", "title": "Payment not confirmed by PayPal",
+                "subtitle": "PayPal did not answer the payment call, so it may have taken the money. No second order "
+                            "was opened. Checking re-sends the same PayPal-Request-Id: PayPal returns the first "
+                            "result and never charges twice (for 6 hours; after that, check PayPal by hand).",
+                "reason": case.get("error"), "rows": [], "retry_payment": True}
     if status == "ERROR":
         retry = bool(case.get("capture_id")) and not case.get("decision")
         return {**base, "kind": "bad", "icon": "!", "title": "PayPal error",

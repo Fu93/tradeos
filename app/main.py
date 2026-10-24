@@ -537,6 +537,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return refused
         return mixed_guarded(request, case_id, lambda: wf.mixed.repropose(case_id))
 
+    @app.post("/cases/{case_id}/retry-payment")
+    def retry_payment(request: Request, case_id: str):
+        """The payment call timed out: ask PayPal again with the same PayPal-Request-Id (never a second charge)."""
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return guarded(request, case_id, wf.retry_payment)
+
     @app.post("/cases/{case_id}/retry-policy")
     def retry_policy(request: Request, case_id: str):
         """Payment captured but PayPal could not be read for the policy check: run the check again."""

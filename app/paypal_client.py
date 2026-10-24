@@ -67,6 +67,23 @@ class PayPalError(Exception):
         return " · ".join(bits)
 
 
+# How long a PayPal-Request-Id can be relied on to replay the first result. The Orders v2 reference documents 6 hours
+# ("The server stores keys for 6 hours"); the refund reference documents no window at all, so TradeOS uses the same
+# bound for refunds. Past it, re-sending a request id is not provably safe, and a person checks PayPal instead.
+IDEMPOTENCY_WINDOW_HOURS = 6
+
+
+def outcome_unknown(exc: "PayPalError") -> bool:
+    """PayPal may have done the work even though the call failed: no reply (timeout, network), a 5xx, 408 (a
+    timeout) or 429 (throttled after possibly accepting it). A plain 4xx, or an error raised before sending
+    (sent=False), is a definite "this request did nothing". PayPal's guidance for the unknown case is to re-send
+    with the same PayPal-Request-Id, which returns the first result instead of doing the work twice
+    (developer.paypal.com/api/rest/reference/idempotency/)."""
+    if not exc.sent:
+        return False
+    return exc.status_code is None or exc.status_code >= 500 or exc.status_code in (408, 429)
+
+
 def is_scope_error(exc: "PayPalError") -> bool:
     """PayPal refused a read because the app is not authorised for it (missing scope / permission)."""
     text = f"{exc.name} {exc.message}".lower()

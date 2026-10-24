@@ -19,6 +19,7 @@ import time
 import uuid
 from datetime import date, datetime, timedelta, timezone
 from decimal import Decimal
+from collections.abc import Iterator
 from typing import TYPE_CHECKING, Any, Callable
 
 from .autonomy import decide_detailed
@@ -28,7 +29,8 @@ from .disputes import DisputeService
 from .mixed import MIXED, MixedOrders
 from .intent import AssistFields, IntentExtractor
 from .notes import Outcome, TemplateNoteWriter
-from .paypal_client import PayPalClient, PayPalError, find_link, first_capture
+from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, PayPalClient, PayPalError, find_link, first_capture,
+                            outcome_unknown)
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
@@ -114,6 +116,14 @@ def _is_mixed(case: dict) -> bool:
 
 class SafetyNoteInvalid(ValueError):
     """The reviewer note is missing or too long (HTTP 422)."""
+
+
+# Not a case status: the order_status of an ERROR case whose payment PayPal did not confirm (the card charge or the
+# capture timed out). PayPal may have taken the money. retry_payment() asks again with the same PayPal-Request-Id,
+# which PayPal answers with the first result for PAYMENT_KEY_TTL (Orders v2 capture reference: 6 hours).
+PAYMENT_UNKNOWN = "OUTCOME_UNKNOWN"
+PAYMENT_KEY_TTL_HOURS = IDEMPOTENCY_WINDOW_HOURS
+PAYMENT_UNKNOWN_TITLE = "Payment outcome UNKNOWN — PayPal may have taken the payment; no second order was opened"
 
 
 class RefundNotAllowed(Exception):
@@ -364,17 +374,30 @@ class Workflow:
 
     def _order_and_capture(self, case_id: str) -> bool:
         """Step 1: PayPal Sandbox order + capture. True when the capture is recorded; False when the case now waits
-        for the sandbox buyer (AWAITING_BUYER) or PayPal failed (ERROR, recorded on the case)."""
+        for the sandbox buyer (AWAITING_BUYER) or PayPal failed (ERROR, recorded on the case).
+
+        A card charge whose reply was lost is asked again once with the same PayPal-Request-Id, never followed by a
+        second (wallet) order: that would ask the buyer to pay twice. Only a definite PayPal "no" falls back."""
         s = self.settings
+        unknown = False  # set once PayPal may have taken the money; nothing after that can make it certain again
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
+            def card() -> dict:
+                return self._pp(case_id, "create_order_with_card", s.order_amount, s.currency, case_id,
+                                f"TradeOS demo {case_id}", f"tradeos-order-{case_id}")
             try:
-                order = self._pp(case_id, "create_order_with_card", s.order_amount, s.currency, case_id,
-                                 f"TradeOS demo {case_id}", f"tradeos-order-{case_id}")
+                order = card()
             except PayPalError as card_err:
-                self.db.audit(case_id, "payment", "Card capture unavailable — falling back to buyer approval",
-                              card_err.to_dict())
-                order = self._pp(case_id, "create_order", s.order_amount, s.currency, case_id,
+                if outcome_unknown(card_err):
+                    unknown = True
+                    self.db.audit(case_id, "payment", "Card payment outcome UNKNOWN — asking PayPal again with the "
+                                  "same PayPal-Request-Id (it returns the first result; it never charges twice)",
+                                  {**card_err.to_dict(), "paypal_request_id": f"tradeos-order-{case_id}"})
+                    order = card()
+                    unknown = False  # PayPal answered: the order (and its capture, if any) is now known
+                else:
+                    self._card_fallback(case_id, card_err)
+                    order = self._pp(case_id, "create_order", s.order_amount, s.currency, case_id,
                                  f"TradeOS demo {case_id}", f"tradeos-wallet-{case_id}",
                                  f"{s.public_base_url}/cases/{case_id}/paypal-return",
                                  f"{s.public_base_url}/?case={case_id}")
@@ -384,7 +407,11 @@ class Workflow:
                            "amount": f"{s.order_amount} {s.currency}"})
 
             if order.get("status") == "APPROVED":
-                order = self._pp(case_id, "capture_order", order["id"], f"tradeos-capture-{case_id}")
+                try:
+                    order = self._pp(case_id, "capture_order", order["id"], f"tradeos-capture-{case_id}")
+                except PayPalError as exc:
+                    unknown = outcome_unknown(exc)
+                    raise
             capture = first_capture(order)
             if not capture:
                 approve = find_link(order, "payer-action", "approve")
@@ -394,9 +421,25 @@ class Workflow:
                 return False
             self._record_capture(case_id, order, capture)
         except PayPalError as exc:
-            self._fail(case_id, "payment", exc)
+            self._payment_failed(case_id, exc, unknown)
             return False
         return True
+
+    def _card_fallback(self, case_id: str, card_err: PayPalError) -> None:
+        self.db.audit(case_id, "payment", "Card capture unavailable — falling back to buyer approval",
+                      card_err.to_dict())
+
+    def _payment_failed(self, case_id: str, exc: PayPalError, unknown: bool) -> None:
+        """A payment step failed. When PayPal may have taken the money, say so (never "nothing was captured") and
+        mark it, so retry_payment() can ask PayPal again with the same request id."""
+        if not unknown:
+            self._fail(case_id, "payment", exc)
+            return
+        self.db.update_case(case_id, status=ERROR, error=str(exc), order_status=PAYMENT_UNKNOWN)
+        self.db.audit(case_id, "payment", PAYMENT_UNKNOWN_TITLE,
+                      {**exc.to_dict(), "at": self._now(),
+                       "next": f"Check the payment with PayPal within {PAYMENT_KEY_TTL_HOURS} hours: the same "
+                               "PayPal-Request-Id is re-sent, and PayPal returns the first result."})
 
     def complete_buyer_approval(self, case_id: str) -> None:
         """Fallback path: buyer approved in the PayPal sandbox, now capture. This moves money, so it
@@ -412,11 +455,11 @@ class Workflow:
         try:
             order = self._pp(case_id, "capture_order", case["order_id"], f"tradeos-capture-{case_id}")
             capture = first_capture(order)
-            if not capture:
-                raise PayPalError(f"Capture returned no capture (order status {order.get('status')})")
+            if not capture:  # PayPal answered, without a capture: certain, nothing was taken
+                raise PayPalError(f"Capture returned no capture (order status {order.get('status')})", sent=False)
             self._record_capture(case_id, order, capture)
         except PayPalError as exc:
-            self._fail(case_id, "payment", exc)
+            self._payment_failed(case_id, exc, outcome_unknown(exc))
             return
         if case["scenario"] == AGENT:
             # An agent order carries no request yet (its message is a placeholder). Evaluating it here would
@@ -959,9 +1002,7 @@ class Workflow:
             # locally before it was sent (sent=False). 408 IS a timeout and 429 is throttling —
             # PayPal may still have accepted the request — so both are UNKNOWN, like network
             # errors and 5xx: the UI must not say "no money moved" without PayPal confirming it.
-            certain = (not exc.sent) or (exc.status_code is not None and exc.status_code < 500
-                                         and exc.status_code not in (408, 429))
-            if not certain:
+            if outcome_unknown(exc):
                 # Outcome UNKNOWN (timeout / throttled / network / 5xx): PayPal may have refunded
                 # anyway, so the UI must not say "no money moved". A bounded GET check runs next
                 # (outside the lock); if PayPal shows the capture refunded, the same
@@ -1070,18 +1111,73 @@ class Workflow:
     def retry_policy_check(self, case_id: str) -> None:
         """ERROR after the payment was captured (PayPal GET failed during the policy step): run the
         intent + policy step again. Nothing here can refund; approval is still required afterwards."""
-        with self._lock(case_id):
-            case = self._case(case_id)
-            if case["status"] != ERROR or not case.get("capture_id") or case.get("decision"):
-                raise RefundNotAllowed("Only a captured case that failed before the policy decision can be re-checked.")
-            self.db.update_case(case_id, status=NEW, error=None)
-            self.db.audit(case_id, "policy", "Retrying the policy check (PayPal could not be read last time)", {})
-        if _is_mixed(case):
-            # A mixed order is judged line by line into batches. The single-item flow would judge the whole order as
-            # one return and could make the full capture refundable, items meant for exchange included.
-            self.mixed.evaluate(case_id)
-        else:
-            self._after_capture(case_id)
+        with self._claim(case_id):
+            with self._lock(case_id):
+                case = self._case(case_id)
+                if case["status"] != ERROR or not case.get("capture_id") or case.get("decision"):
+                    raise RefundNotAllowed("Only a captured case that failed before the policy decision can be "
+                                           "re-checked.")
+                self.db.update_case(case_id, status=NEW, error=None)
+                self.db.audit(case_id, "policy", "Retrying the policy check (PayPal could not be read last time)", {})
+            if _is_mixed(case):
+                # A mixed order is judged line by line into batches. The single-item flow would judge the whole
+                # order as one return and could make the full capture refundable, items meant for exchange included.
+                self.mixed.evaluate(case_id)
+            else:
+                self._after_capture(case_id)
+
+    @contextmanager
+    def _claim(self, case_id: str) -> Iterator[None]:
+        """Mark a case in flight, as process() does, so a demo reset cannot archive it underneath this step and a
+        second click on the same retry is refused instead of running twice."""
+        with self._locks_guard:
+            if self._resetting:
+                raise RefundNotAllowed("A demo reset is in progress — try again in a moment.")
+            if case_id in self._running:
+                raise RefundNotAllowed("This case is already being processed — try again in a moment.")
+            self._running.add(case_id)
+        try:
+            yield
+        finally:
+            with self._locks_guard:
+                self._running.discard(case_id)
+
+    def retry_payment(self, case_id: str) -> None:
+        """'Check the payment with PayPal': the payment step timed out, so PayPal may have taken the money. Re-send
+        the SAME request (same PayPal-Request-Id): PayPal returns the first result, so this records a charge that
+        happened or makes the one that did not, and never charges twice. Only inside PayPal's key window; after it
+        a person checks PayPal by hand, because a re-send could then be treated as a new payment."""
+        with self._claim(case_id), self._money_op():
+            with self._lock(case_id):
+                case = self._case(case_id)
+                if case["status"] != ERROR or case.get("capture_id") or case.get("order_status") != PAYMENT_UNKNOWN:
+                    raise RefundNotAllowed("Only a payment PayPal did not confirm can be checked again.")
+                since = self._payment_key_first_sent(case)
+                if since is not None and datetime.fromisoformat(self._now()) - since > timedelta(
+                        hours=PAYMENT_KEY_TTL_HOURS):
+                    raise RefundNotAllowed(
+                        f"PayPal keeps a PayPal-Request-Id for {PAYMENT_KEY_TTL_HOURS} hours, and that time has "
+                        "passed: re-sending it now could charge the buyer again. Check the order in PayPal by hand.")
+                resume = (AWAITING_BUYER if case.get("order_id")
+                          else AGENT_ORDERED if case["scenario"] == AGENT else NEW)
+                self.db.update_case(case_id, status=resume, error=None, order_status=None)
+                self.db.audit(case_id, "payment", "Checking the payment with PayPal: re-sending the same "
+                              "PayPal-Request-Id", {"order_id": case.get("order_id")})
+            if case.get("order_id"):  # the buyer approved and the capture reply was lost: capture again, same id
+                self._complete_buyer_approval(case_id)
+            elif _is_mixed(case):
+                self.mixed.process(case_id)
+            elif self._order_and_capture(case_id) and case["scenario"] != AGENT:
+                self._after_capture(case_id)
+
+    def _payment_key_first_sent(self, case: dict) -> datetime | None:
+        """When PayPal first saw the request id that a check would re-send: the capture's (buyer-approval path, the
+        order exists) or the card charge's. PayPal keeps the key from that first request, so a later check that
+        also timed out does not restart the clock."""
+        operation, request_id = (("capture_order", f"tradeos-capture-{case['id']}") if case.get("order_id")
+                                 else ("create_order_with_card", f"tradeos-order-{case['id']}"))
+        sent = [c["ts"] for c in self.db.paypal_calls(case["id"], operation) if c.get("request_id") == request_id]
+        return datetime.fromisoformat(min(sent)) if sent else None
 
     def refresh_refund(self, case_id: str) -> None:
         """Manual 'Refresh status' button: a full reconciliation against PayPal."""

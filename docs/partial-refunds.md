@@ -45,6 +45,14 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
 
 ## Money rules (all integer minor units)
 
+* **An unanswered partial refund is re-sent only while PayPal can replay it.** A batch whose refund call got no answer
+  is recovered by re-sending the same `PayPal-Request-Id` (PayPal returns the refund it already made). PayPal documents
+  no retention window for refund request ids (it documents 6 hours for Orders), so TradeOS re-sends only within 6 hours
+  of the first call that carried the id, whether by a retry click, a webhook, a reconcile or startup. After that the
+  batch stays UNKNOWN and the timeline says to check the capture's refunds in PayPal by hand: past the window, the
+  same id could be taken as a new refund. (A single-item refund has no amount, so a late re-send of a refund PayPal
+  already made is refused by PayPal as a second full refund: `CAPTURE_FULLY_REFUNDED`,
+  [PayPal: Refund a payment](https://developer.paypal.com/checkout/refund-payment).)
 * **A mixed order is never refunded as a whole.** The whole-case approve and the single-refund guard refuse any case
   whose scenario is `M`, whatever its decision says, and "Retry the policy check" after a PayPal read failure
   evaluates the order line by line again. Before 2026-10-24 that retry ran the single-item flow: with a refund

@@ -33,7 +33,7 @@ from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .config import Settings
 from .ratelimit import RateLimiter
-from .workflow import CaseNotFound, RefundNotAllowed, Workflow
+from .workflow import PAYMENT_UNKNOWN, CaseNotFound, RefundNotAllowed, Workflow
 
 MCP_PATH = "/mcp"
 # Tool calls that create a Sandbox order or run the LLM + PayPal reads. They share the dashboard's run budget.
@@ -98,8 +98,12 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
             view = wf.agents.view(case_id, caller=caller_of(ctx))
             if view["status"] == "ERROR":
                 # Reported as a failure, not as an order: the agent must not tell the buyer it bought anything.
-                error = (wf.db.get_case(case_id) or {}).get("error") or "no detail"
-                raise ToolError(f"PayPal could not complete the order ({error}). "
+                case = wf.db.get_case(case_id) or {}
+                if case.get("order_status") == PAYMENT_UNKNOWN:
+                    raise ToolError(f"PayPal did not confirm the payment for order {case_id}: it may have been "
+                                    "taken. The merchant checks it with PayPal. Do not place a new order, and do "
+                                    "not tell the buyer the order was placed or that nothing was charged.")
+                raise ToolError(f"PayPal could not complete the order ({case.get('error') or 'no detail'}). "
                                 "TradeOS recorded no capture; do not tell the buyer the order was placed.")
             return view
 

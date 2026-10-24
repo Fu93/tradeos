@@ -15,8 +15,8 @@ from typing import TYPE_CHECKING, Any
 
 from .db import CaseFinalized
 from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
-                       NEEDS_SAFETY, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED, REFUND_PENDING,
-                       REFUND_UNKNOWN, REJECTED, SCENARIOS, CaseNotFound, RefundNotAllowed, clean_message)
+                       NEEDS_SAFETY, PAYMENT_UNKNOWN, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
+                       REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SCENARIOS, CaseNotFound, RefundNotAllowed, clean_message)
 
 if TYPE_CHECKING:  # pragma: no cover
     from .workflow import Workflow
@@ -105,6 +105,9 @@ class AgentDesk:
             if case["status"] == AWAITING_BUYER:
                 raise ValueError("This order has no PayPal capture yet: the buyer has to approve the payment at "
                                  "PayPal first (buyer_approval_url in get_case_status).")
+            if case["status"] == ERROR and case.get("order_status") == PAYMENT_UNKNOWN:
+                raise ValueError("PayPal has not confirmed this order's payment yet: the merchant checks it with "
+                                 "PayPal. Do not place a new order; call get_case_status later.")
             if case["status"] == ERROR and not case.get("capture_id"):
                 raise ValueError("This order failed at PayPal before any payment was captured, so there is "
                                  "nothing to return. Place a new order.")
@@ -211,6 +214,9 @@ def next_step(case: dict) -> str:
         return ("The buyer has to approve the payment at PayPal (buyer_approval_url). After that, call "
                 "request_return.")
     if status == ERROR:
+        if case.get("order_status") == PAYMENT_UNKNOWN:
+            return ("PayPal did not confirm the payment: it may have been taken. A person at the merchant checks it "
+                    "with PayPal. Do not place a new order, and do not tell the buyer nothing was charged.")
         if case.get("capture_id"):
             return ("PayPal could not be read while checking the request. A person at the merchant will re-check "
                     "it. No refund was made.")

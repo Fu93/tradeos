@@ -13,7 +13,7 @@ from typing import Any
 from .agent_desk import AGENT_NO_REQUEST
 from .mixed import MIXED, S_ATTENTION, S_DONE, S_NEEDS, S_PENDING, S_PROGRESS, S_UNKNOWN
 from .supplier import OUT_OF_STOCK
-from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
+from .workflow import (AGENT, AGENT_ORDERED, PAYMENT_UNKNOWN, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
                        NEEDS_SAFETY, NEW, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
                        REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SAFETY_REVIEWED, Workflow)
 
@@ -67,6 +67,9 @@ def _next_step(case: dict) -> tuple[str, str]:
             return NEEDS_YOU, "The replacement is out of stock. Decide whether to offer a refund."
         return NEEDS_YOU, ("The AI could not read this message (the model was unavailable). Read it yourself and "
                            "decide. Nothing was refunded.")
+    if status == ERROR and case.get("order_status") == PAYMENT_UNKNOWN:
+        return NEEDS_YOU, ("PayPal did not confirm the payment; it may have been taken. Check the payment with "
+                           "PayPal from the case (same request id, so it cannot charge twice).")
     if status == ERROR and not case.get("capture_id"):
         return CLOSED, "The payment failed at PayPal, so nothing was captured and there is nothing to refund."
     return NEXT_STEP.get(status, (NEEDS_YOU, "Open the case."))

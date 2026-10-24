@@ -152,6 +152,8 @@
           </div>
         {% elif current.status == "REFUND_FAILED" %}
           <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy actions"><button class="btn">Retry with a new request (re-checks policy)</button></form>
+        {% elif current.status == "ERROR" and result.retry_payment %}
+          <form method="post" action="/cases/{{ current.id }}/retry-payment" class="js-busy actions"><button class="btn">Check the payment with PayPal (same request id)</button></form>
         {% elif current.status == "ERROR" and result.retry_policy %}
           <form method="post" action="/cases/{{ current.id }}/retry-policy" class="js-busy actions"><button class="btn">Retry the policy check</button></form>
         {% elif current.status == "REFUND_PENDING" %}

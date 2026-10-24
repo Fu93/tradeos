@@ -505,13 +505,26 @@ def test_buyer_approval_returns_the_order_to_the_agent_instead_of_judging_a_plac
 def test_an_order_paypal_failed_is_reported_as_a_failure(make):
     from app.paypal_client import PayPalError
     wf, paypal, server = make()
-    paypal.create_order_with_card.side_effect = PayPalError("card down", 500, "INTERNAL_SERVER_ERROR")
-    paypal.create_order.side_effect = PayPalError("wallet down", 500, "INTERNAL_SERVER_ERROR")
+    paypal.create_order_with_card.side_effect = PayPalError("card refused", 422, "UNPROCESSABLE_ENTITY")
+    paypal.create_order.side_effect = PayPalError("bad request", 400, "INVALID_REQUEST")
     text = error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
     assert "PayPal could not complete the order" in text and "recorded no capture" in text
     failed = wf.db.latest_case("G")["id"]
     assert "nothing to return" in error_text(ask(server, failed))
     assert "failed at PayPal" in ok(run(server, "get_case_status", {"order_id": failed}))["next_step"]
+
+
+def test_a_5xx_on_the_card_charge_is_not_reported_as_nothing_charged(make):
+    """PayPal: a 5xx may still have done the work. So the agent hears "not confirmed, do not order again", not
+    "failed, place a new order", and no wallet order is opened as a second attempt to take the money."""
+    from app.paypal_client import PayPalError
+    wf, paypal, server = make()
+    paypal.create_order_with_card.side_effect = PayPalError("card down", 500, "INTERNAL_SERVER_ERROR")
+    text = error_text(run(server, "place_demo_order", {"buyer_name": BUYER, "agent_name": AGENT}))
+    assert "did not confirm the payment" in text and "Do not place a new order" in text
+    assert paypal.create_order.call_count == 0
+    unconfirmed = wf.db.latest_case("G")["id"]
+    assert "Do not place a new order" in error_text(ask(server, unconfirmed))
 
 
 def test_an_over_long_message_is_refused_not_truncated(make):
