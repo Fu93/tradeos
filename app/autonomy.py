@@ -44,10 +44,17 @@ def decide_detailed(
     injection_suspected: bool,
     intent_is_unknown: bool,
     action: str | None,
+    agent_originated: bool = False,
 ) -> AutonomyResult:
     """The decision plus the reason a person can read in the audit timeline."""
     if not policy.eligible:
         return AutonomyResult("BLOCK", f"the policy decision is {policy.decision}; a rejected case is never automated")
+    if agent_originated:
+        # Checked before AUTO_ENABLED so the reason names the real cause. A merchant's autonomy limits were set
+        # for its own customers' messages; an AI agent can retry and rephrase at machine speed, so its requests
+        # always go to a person.
+        return AutonomyResult("HUMAN", "the request came from an AI agent acting for the buyer; "
+                                       "agent-initiated cases always need a person")
     if not auto_enabled:
         return AutonomyResult("HUMAN", "AUTO_ENABLED is off — every refund needs a person")
     if injection_suspected:
@@ -76,6 +83,7 @@ def decide(
     injection_suspected: bool,
     intent_is_unknown: bool,
     action: str | None,
+    agent_originated: bool = False,
 ) -> AutonomyDecision:
     """Return AUTO / HUMAN / BLOCK.
 
@@ -91,4 +99,5 @@ def decide(
         injection_suspected=injection_suspected,
         intent_is_unknown=intent_is_unknown,
         action=action,
+        agent_originated=agent_originated,
     ).decision

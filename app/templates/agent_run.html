@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}{{ run.kind_label }} · {{ run.title }} · TradeOS{% endblock %}
+{% macro step_line(s) -%}
+  {% if s.scene %}<span class="muted">{{ s.scene }}:</span> {% endif %}<code>{{ s.tool }}</code>{% if s.args %} <span class="muted">{{ s.args | textjson }}</span>{% endif %}
+  → {% if s.result.error %}<span class="bad-text">{{ s.result.error }}</span>{% elif s.result.found is defined %}found {{ s.result.found|length }}{% if s.result.found %}: {{ s.result.found|join('; ') }}{% endif %}{% else %}{{ (s.result.status or '') | replace('_', ' ') }}{% if s.result.refund_api_calls is defined %} · refund calls: {{ s.result.refund_api_calls }}{% endif %}{% if s.result.note %} · {{ s.result.note }}{% endif %}{% endif %}
+{%- endmacro %}
+{% block content %}
+<section class="block live-run-page" data-agent-run="{{ run.id }}" data-status="{{ run.status }}">
+  <p class="small"><a href="/#agents">← Back to the dashboard</a></p>
+  <h1>{{ run.title }} <span class="chip agent">{{ run.kind_label }}</span></h1>
+  {% if run.kind == "live" %}
+  <p class="small muted">Model <code>{{ run.model }}</code> chooses every tool call itself. It is offered the same MCP tools as
+    any agent, and none of them can approve or refund. Each step appears here as the model takes it.</p>
+  {% elif run.goal == "fill" %}
+  <p class="small muted">Filling the demo inbox: two customer requests (Case A, inside the return window; Case B, the same
+    request 45 days late), then a script, not a model, plays three agent scenes through the same MCP tools any agent
+    gets. Every step is {{ 'a real PayPal Sandbox order' if paypal_mode == 'sandbox' else 'an order on the PayPal mock (IDs are fake)' }} run
+    through the real loop. Nothing is refunded until a person approves.</p>
+  {% else %}
+  <p class="small muted">A script, not a model: a fixed MCP client plays three scenes through the same MCP tools any agent
+    gets (an honest return, a prompt injection, a 45-day-old order). None of the tools can approve or refund. Each call
+    appears here as it returns.</p>
+  {% endif %}
+
+  <p class="run-status" id="run-status" role="status" aria-live="polite">
+    {% if run.status == "running" %}<span class="chip warn">Running</span>{% elif run.status == "failed" %}<span class="chip bad">Failed</span>{% else %}<span class="chip ok">Finished</span>{% endif %}
+    {{ run.status_text }}
+  </p>
+
+  <ol class="run-steps small" id="run-steps">
+    {% for s in run.steps %}<li>{{ step_line(s) }}</li>{% endfor %}
+  </ol>
+  <p class="small muted" id="run-empty"{% if run.steps %} hidden{% endif %}>No tool calls yet.</p>
+
+  <div id="run-final"{% if run.status == "running" %} hidden{% endif %}>
+    <p class="small"><strong id="run-report-label">{{ run.report_label }}:</strong> <span id="run-report">{{ run.final_report or '—' }}</span></p>
+    <p class="small" id="run-outcome">
+      {% if run.case_link %}<a class="btn small" id="run-case" href="{{ run.case_link.href }}">{{ run.case_link.text }}</a>
+      {% elif run.status != "running" %}{{ run.no_case_text }}{% endif %}
+    </p>
+  </div>
+  <noscript><p class="small muted">JavaScript is off: reload this page to see new steps.</p></noscript>
+</section>
+{% endblock %}

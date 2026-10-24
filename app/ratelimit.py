@@ -54,8 +54,10 @@ class RateLimiter:
 class Cooldown:
     """Per-key minimum interval plus a global minimum interval (e.g. demo reset)."""
 
-    def __init__(self, per_key_s: float, global_s: float, clock=time.monotonic) -> None:
+    def __init__(self, per_key_s: float, global_s: float, clock=time.monotonic,
+                 action: str = "Reset", done_by_other: str = "The demo was just reset by someone else") -> None:
         self.per_key_s, self.global_s, self._clock = per_key_s, global_s, clock
+        self.action, self.done_by_other = action, done_by_other
         self._last: dict[str, float] = {}
         self._last_global: float | None = None
         self._lock = threading.Lock()
@@ -65,10 +67,10 @@ class Cooldown:
         with self._lock:
             last = self._last.get(key)
             if last is not None and now - last < self.per_key_s:
-                return f"Reset was used from your address {int(now - last)} s ago; please wait " \
+                return f"{self.action} was used from your address {int(now - last)} s ago; please wait " \
                        f"{int(self.per_key_s - (now - last)) + 1} s."
             if self._last_global is not None and now - self._last_global < self.global_s:
-                return f"The demo was just reset by someone else; please wait " \
+                return f"{self.done_by_other}; please wait " \
                        f"{int(self.global_s - (now - self._last_global)) + 1} s."
             self._last[key] = self._last_global = now
             if len(self._last) > 5000:

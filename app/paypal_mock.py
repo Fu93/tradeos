@@ -6,6 +6,7 @@ It is never used automatically: without credentials the app shows a visible erro
 
 from __future__ import annotations
 
+import copy
 import itertools
 import time
 from datetime import datetime, timezone
@@ -33,6 +34,10 @@ class MockPayPalClient:
         self.orders: dict[str, dict] = {}
         self.captures: dict[str, dict] = {}
         self.refunds_by_request: dict[str, dict] = {}
+        # PayPal-Request-Id idempotency for the order calls, as PayPal documents it: the same id returns the result
+        # of the first request instead of doing the work again (so a retried card charge or capture never charges
+        # twice). developer.paypal.com/api/rest/reference/idempotency/
+        self.orders_by_request: dict[str, dict] = {}
         self.pending_demo_seconds = 20.0
         self.disputes = {}
 
@@ -51,6 +56,8 @@ class MockPayPalClient:
         return cap
 
     def create_order_with_card(self, amount, currency, reference_id, description, request_id, order_lines=None):
+        if request_id in self.orders_by_request:
+            return copy.deepcopy(self.orders_by_request[request_id])
         if not self.card_capture:
             raise PayPalError("Card payments not enabled for this account (mock)", 422, "UNPROCESSABLE_ENTITY")
         if order_lines:  # PayPal validates the breakdown arithmetic: item_total + tax_total + shipping == value
@@ -73,19 +80,26 @@ class MockPayPalClient:
                  "purchase_units": [{"reference_id": reference_id,
                                      "payments": {"captures": [self._capture(amount, currency)]}}]}
         self.orders[order["id"]] = order
+        self.orders_by_request[request_id] = copy.deepcopy(order)  # PayPal replays the response it sent then
         return order
 
     def create_order(self, amount, currency, reference_id, description, request_id, return_url, cancel_url):
+        if request_id in self.orders_by_request:
+            return copy.deepcopy(self.orders_by_request[request_id])
         order = {"id": self._id("ORDER"), "status": "PAYER_ACTION_REQUIRED", "_amount": (amount, currency),
                  "links": [{"rel": "payer-action", "href": "https://www.sandbox.paypal.com/checkoutnow?token=mock"}]}
         self.orders[order["id"]] = order
+        self.orders_by_request[request_id] = copy.deepcopy(order)  # PayPal replays the response it sent then
         return order
 
     def capture_order(self, order_id, request_id):
+        if request_id in self.orders_by_request:
+            return copy.deepcopy(self.orders_by_request[request_id])
         order = self.orders[order_id]
         amount, currency = order.get("_amount", ("49.99", "USD"))
         order.update({"status": "COMPLETED",
                       "purchase_units": [{"payments": {"captures": [self._capture(amount, currency)]}}]})
+        self.orders_by_request[request_id] = copy.deepcopy(order)  # PayPal replays the response it sent then
         return order
 
     def get_capture(self, capture_id, timeout=None):

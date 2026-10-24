@@ -5,15 +5,27 @@ from __future__ import annotations
 import logging
 import json
 import os
+import threading
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.middleware.gzip import GZipMiddleware
 from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
+import anyio
+
+from .agent_gateway import mount_mcp
+from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, fill_inbox, live_run,
+                           play_scenes)
+from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
+from .inbox import BUCKET_LABELS, inbox_rows, inbox_summary
+from .catalog import Channel3Catalog
+from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
@@ -54,7 +66,8 @@ WEBHOOK_MAX_BODY = 64 * 1024
 
 
 def create_app(settings: Settings | None = None, paypal=None, extractor: IntentExtractor | None = None,
-               today=None, note_writer=None) -> FastAPI:
+               today=None, note_writer=None, agent_llm: ToolCallingLLM | None = None,
+               catalog: Channel3Catalog | None = None) -> FastAPI:
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
@@ -88,11 +101,59 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def ip(request: Request) -> str:
         return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
 
-    app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None)
+    @asynccontextmanager
+    async def lifespan(the_app: FastAPI):
+        # The MCP endpoint (agent gateway) needs its session manager running for the life of the server.
+        server = the_app.state.mcp_server
+        if server is None:
+            yield
+            return
+        async with server.session_manager.run():
+            yield
+
+    app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.workflow = wf
+    # Real products for agents (Channel3), only with a key. Set before the MCP server is built: it offers find_product.
+    if catalog is None and settings.channel3_api_key:
+        catalog = Channel3Catalog(settings.channel3_api_key, currency=settings.currency)
+    wf.catalog = catalog
+    # Agent gateway at /mcp: an AI agent can request a return, never approve one (app/agent_gateway.py). Order-
+    # creating tools share the dashboard's run budget (same limiter, keyed per address).
+    app.state.mcp_server = mount_mcp(app, wf, settings, limiter, ip) if settings.mcp_enabled else None
+    # What agents are offered, read from the server itself (shown on the dashboard, never hand-maintained). Read on
+    # the first dashboard render, in a worker thread, not here: create_app() also runs at import time, and an ASGI
+    # server may import the app inside its running event loop, where anyio.run() would raise.
+    tool_names: list[str] = []
+    tool_names_lock = threading.Lock()  # concurrent first renders must not each append the list
+
+    def mcp_tools() -> list[str]:
+        with tool_names_lock:
+            if app.state.mcp_server is not None and not tool_names:
+                tool_names.extend(t.name for t in anyio.run(app.state.mcp_server.list_tools))
+            return list(tool_names)
+    # One-click agent scenes create three Sandbox orders and three LLM runs, so on top of the run limiter a
+    # click is allowed once a minute per address and once every 20 s for the whole demo.
+    agent_cooldown = Cooldown(60, 20, action="Run agent scenes",
+                              done_by_other="Someone else just ran the agent scenes")
+    # Filling the inbox places five Sandbox orders: once per address per 2 minutes, once per 30 s for the demo.
+    fill_cooldown = Cooldown(120, 30, action="Fill the inbox", done_by_other="Someone else just filled the inbox")
+    # A live LLM agent: the same provider as the extractor, unless a test injects one. Groq's free tier allows about
+    # 8K tokens a minute and a run uses several thousand, so one run a minute for the whole demo, two per address.
+    if agent_llm is None and settings.llm_configured:
+        agent_llm = ToolCallingLLM(settings.llm_api_key, settings.llm_base_url, settings.llm_model)
+    live_cooldown = Cooldown(120, 60, action="Run live AI agent",
+                             done_by_other="A live AI agent ran less than a minute ago (model rate limit)")
+    agent_runs = AgentRunRegistry()
+    app.state.agent_runs = agent_runs
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
+    # The inbox's grid script is 1.4 MB; gzip makes it about 390 KB (and the HTML and JSON smaller too).
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts
+    # JSON shown as text. Jinja's tojson is for <script> contexts: it returns markup with ' < > & as \u0027 and so
+    # on, which then shows up literally on the page ("I\u0027d"). This returns a plain string, so autoescape applies.
+    templates.env.filters["textjson"] = lambda value, indent=None: json.dumps(value, ensure_ascii=False,
+                                                                              indent=indent, default=str)
     install_security(app, templates, csrf_exempt=("/webhooks/paypal",))
 
     @app.get("/api/docs", include_in_schema=False, response_class=HTMLResponse)
@@ -163,6 +224,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "latest_a": latest_a,
             "latest_b": latest_b,
             "exchange_copy": EXCHANGE_COPY,
+            "agent": agent_provenance(wf, current),
+            "agents": (agent_panel(db, mcp_tools(), settings.agent_demo_orders,
+                                   agent_llm.model if agent_llm else None,
+                                   wf.catalog.name if wf.catalog else None) if app.state.mcp_server else None),
+            "live_run": live_run(db, current),
+            "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
+            "inbox": inbox_summary(inbox_rows(wf, None, evidence=False)),
+            "can_fill": can_fill(),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -203,6 +272,25 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
             "webhook_configured": bool(settings.paypal_webhook_id), "q": queue_view(wf.today())})
 
+    @app.head("/inbox", include_in_schema=False, response_class=HTMLResponse)
+    @app.get("/inbox", response_class=HTMLResponse)
+    def inbox_page(request: Request):
+        """The returns inbox: every request from customers and AI agents, and what each needs from the merchant.
+        Server-rendered as a table (works without JavaScript); static/app.js upgrades it to a sortable grid."""
+        rows = inbox_rows(wf)
+        return templates.TemplateResponse(request, "inbox.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows,
+            # Counts cover every request; the table shows the newest MAX_ROWS and says so when it is cut.
+            "summary": inbox_summary(inbox_rows(wf, None, evidence=False)), "buckets": BUCKET_LABELS,
+            "can_fill": can_fill()})
+
+    @app.get("/api/inbox")
+    def inbox_api():
+        """The inbox rows as JSON (what the grid loads). Read-only."""
+        return {"rows": inbox_rows(wf), "summary": inbox_summary(inbox_rows(wf, None, evidence=False))}
+
     @app.get("/healthz")
     def healthz():
         return {"ok": True,
@@ -232,6 +320,108 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         except MoneyError as exc:  # e.g. the seeded mixed order in a zero-decimal currency
             return render_dashboard(request, flash=f"Cannot create this demo case: {exc}", status_code=422)
         return back(case_id)
+
+    @app.post("/demo/agent-scenes")
+    def run_agent_scenes(request: Request):
+        """Judge path for the agent gateway: a scripted MCP client plays three scenes through the real tools."""
+        if app.state.mcp_server is None or not settings.agent_demo_orders:
+            raise HTTPException(404)
+        if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
+            return busy_flash(request, busy)
+        if (reason := agent_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Agent scenes not run: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        server = app.state.mcp_server
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: play_scenes(server, db, on_progress=on_progress))
+
+        run_id = agent_runs.start(SCRIPTED, "scenes", "Agent scenes: honest, injection, late", SCRIPTED_AGENT,
+                                  execute, lambda run: run.order_id)
+        if run_id is None:
+            return busy_flash(request, agent_runs.running())
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    def can_fill() -> bool:
+        return app.state.mcp_server is not None and settings.agent_demo_orders
+
+    @app.post("/demo/fill-inbox")
+    def fill_inbox_route(request: Request):
+        """An empty demo (Render wipes it on every restart) gets real requests in one click: Cases A and B and the
+        three agent scenes, run in the background on the progress page, which ends with a link to the inbox."""
+        if not can_fill():
+            raise HTTPException(404)
+        if (busy := agent_runs.running()) is not None:
+            return busy_flash(request, busy)
+        if (reason := fill_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Inbox not filled: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        server = app.state.mcp_server
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: fill_inbox(server, wf, on_progress=on_progress))
+
+        run_id = agent_runs.start(SCRIPTED, "fill", "Fill the inbox: 2 customer requests, 3 agent requests",
+                                  SCRIPTED_AGENT, execute, lambda run: None, link=("/inbox", "Open the inbox"))
+        if run_id is None:
+            return busy_flash(request, agent_runs.running())
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    def busy_flash(request: Request, busy: str | None) -> HTMLResponse:
+        where = f" Watch it at /agent-runs/{busy}" if busy else ""
+        return render_dashboard(request, flash=f"An agent run is already in progress.{where}", status_code=409)
+
+    @app.post("/demo/live-agent")
+    def run_live_agent(request: Request, goal: str = Form("")):
+        """A real model pursues a goal with the MCP tools. Its whole run is recorded on the order's hash chain."""
+        if app.state.mcp_server is None or not settings.agent_demo_orders or agent_llm is None:
+            raise HTTPException(404)
+        chosen = GOALS.get(goal)
+        if chosen is None or (chosen.needs_catalog and wf.catalog is None):
+            raise HTTPException(404, "Unknown goal")
+        if (busy := agent_runs.running()) is not None:  # checked first, so a click while one runs costs nothing
+            return busy_flash(request, busy)
+        if (reason := live_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Live agent not run: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        server, llm = app.state.mcp_server, agent_llm
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: run_agent(server, llm, chosen, on_progress=on_progress))
+
+        def finish(run: AgentRun) -> str | None:
+            if run.order_id is None:
+                return None  # nothing to record on: the page shows the stop reason
+            db.update_case(run.order_id, label=LIVE_LABELS[chosen.key])  # a display label (not a chained field)
+            wf.agents.record_run(run.order_id, run.record())
+            return run.order_id
+
+        run_id = agent_runs.start(LIVE, chosen.key, chosen.title, llm.model, execute, finish)
+        if run_id is None:
+            return busy_flash(request, agent_runs.running())
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    @app.get("/agent-runs/{run_id}", response_class=HTMLResponse)
+    def agent_run_page(request: Request, run_id: str):
+        """Watch a live agent run. Rendered with what has happened so far; static/app.js polls for the rest."""
+        run = agent_runs.get(run_id)
+        if run is None:
+            raise HTTPException(404, "This agent run is not known here (it finished long ago, or the demo "
+                                     "restarted). If it placed an order, the order still carries its transcript.")
+        return templates.TemplateResponse(request, "agent_run.html", {
+            "run": run, "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id)})
+
+    @app.get("/api/agent-runs/{run_id}")
+    def agent_run_api(run_id: str):
+        run = agent_runs.get(run_id)
+        if run is None:
+            raise HTTPException(404, "unknown run")
+        return run
 
     @app.post("/cases/free")
     def run_free_text(request: Request, message: str = Form(""), late: str = Form(""), preset: str = Form("")):
@@ -384,6 +574,13 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if (refused := money_limited(request, case_id)) is not None:
             return refused
         return mixed_guarded(request, case_id, lambda: wf.mixed.repropose(case_id))
+
+    @app.post("/cases/{case_id}/retry-payment")
+    def retry_payment(request: Request, case_id: str):
+        """The payment call timed out: ask PayPal again with the same PayPal-Request-Id (never a second charge)."""
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return guarded(request, case_id, wf.retry_payment)
 
     @app.post("/cases/{case_id}/retry-policy")
     def retry_policy(request: Request, case_id: str):

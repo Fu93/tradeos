@@ -5,14 +5,14 @@ from pathlib import Path
 from tests.helpers import make_app
 
 
-def test_nav_has_cases_queue_disputes_on_every_page(settings):
+def test_nav_has_inbox_cases_queue_disputes_on_every_page(settings):
     client, _, _ = make_app(settings)
-    for path in ("/", "/queue", "/disputes"):
+    for path in ("/inbox", "/", "/queue", "/disputes"):
         html = client.get(path).text
         nav = re.search(r'<nav class="mainnav".*?</nav>', html, re.S)
         assert nav, path
         assert re.findall(r'href="([^"]+)">([^<]+)</a>', nav.group(0)) == \
-            [("/", "Cases"), ("/queue", "Queue"), ("/disputes", "Disputes")]
+            [("/inbox", "Inbox"), ("/", "Cases"), ("/queue", "Queue"), ("/disputes", "Disputes")]
 
 
 def test_single_mainnav_base_rule():

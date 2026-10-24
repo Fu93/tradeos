@@ -149,7 +149,8 @@ def test_free_text_of_only_non_printables_is_422_not_500(settings):
 def test_buyer_capture_is_refused_during_a_demo_reset(workflow):
     """complete_buyer_approval moves money, so it runs inside _money_op like every other money path."""
     wf = workflow
-    wf._paypal.create_order_with_card.side_effect = PayPalError("card capture unavailable")
+    # A definite refusal (4xx). With no status the error would mean "no reply", and the card would be asked again.
+    wf._paypal.create_order_with_card.side_effect = PayPalError("card capture unavailable", 422)
     case_id = wf.run_scenario("A")
     assert wf.db.get_case(case_id)["status"] == AWAITING_BUYER
     wf._resetting = True

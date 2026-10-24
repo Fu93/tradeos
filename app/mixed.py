@@ -18,13 +18,13 @@ from __future__ import annotations
 
 import json
 import threading
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 
 from . import lineitems as li
 from .intent import looks_like_injection
 from .safety import assess_any as safety_assess_any
-from .paypal_client import PayPalError, first_capture
+from .paypal_client import IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, outcome_unknown
 
 if TYPE_CHECKING:  # pragma: no cover
     from .workflow import Workflow
@@ -183,20 +183,37 @@ class MixedOrders:
         case = wf._case(case_id)
         model = self.order(case_id)
         c = model.currency
+        unknown = False
+
+        def card() -> dict:
+            return wf._pp(case_id, "create_order_with_card", li.to_str(model.total, c), c, case_id,
+                          f"TradeOS mixed demo {case_id}", f"tradeos-order-{case_id}", order_lines=model.to_paypal())
         try:
-            order = wf._pp(case_id, "create_order_with_card", li.to_str(model.total, c), c, case_id,
-                           f"TradeOS mixed demo {case_id}", f"tradeos-order-{case_id}", order_lines=model.to_paypal())
+            try:
+                order = card()
+            except PayPalError as first:
+                if not outcome_unknown(first):
+                    raise
+                # PayPal may have charged the card and only the reply was lost: ask again with the same
+                # PayPal-Request-Id (PayPal returns the first result and never charges twice).
+                unknown = True
+                self.db.audit(case_id, "payment", "Card payment outcome UNKNOWN — asking PayPal again with the "
+                              "same PayPal-Request-Id (it returns the first result; it never charges twice)",
+                              {**first.to_dict(), "paypal_request_id": f"tradeos-order-{case_id}"})
+                order = card()
+                unknown = False
             self.db.update_case(case_id, order_id=order["id"], order_status=order.get("status"))
             self.db.audit(case_id, "payment", "PayPal order created (items[] + amount breakdown)",
                           {"order_id": order["id"], "status": order.get("status"),
                            "amount": f"{li.to_str(model.total, c)} {c}", "shipping_minor": model.shipping_minor,
                            "item_total_minor": model.item_total, "tax_total_minor": model.tax_total})
             capture = first_capture(order)
-            if not capture:
-                raise PayPalError("Card capture unavailable: a mixed order needs an immediate sandbox capture")
+            if not capture:  # PayPal answered, without a capture: certain, nothing was taken
+                raise PayPalError("Card capture unavailable: a mixed order needs an immediate sandbox capture",
+                                  sent=False)
             wf._record_capture(case_id, order, capture)
         except PayPalError as exc:
-            wf._fail(case_id, "payment", exc)
+            wf._payment_failed(case_id, exc, unknown)
             return
         self.db.audit(case_id, "request", "Customer request received",
                       {"customer": case["customer_name"], "message": case["customer_message"]})
@@ -365,6 +382,8 @@ class MixedOrders:
                 if batch["status"] not in (ERROR, UNKNOWN, APPROVED) or batch["refund_id"]:
                     raise wf_refused(f"Batch {batch['batch_no']} is {batch['status']}; nothing to retry.")
                 prior = batch["status"]
+                if prior == UNKNOWN and not self._request_id_fresh(case_id, batch["request_id"]):
+                    raise wf_refused(self._too_old(batch))
                 if prior != APPROVED:  # the money gate wants APPROVED; the chained human approval is still re-verified
                     self.db.update_batch(batch_id, status=APPROVED)
                 try:
@@ -484,9 +503,7 @@ class MixedOrders:
             refund = wf._pp(case_id, "refund_capture", case["capture_id"], batch["request_id"],
                             note_to_payer=self._note(batch), amount=body_amount, custom_id=f"{case_id}-B{batch['batch_no']}")
         except PayPalError as exc:
-            certain = (not exc.sent) or (exc.status_code is not None and exc.status_code < 500
-                                         and exc.status_code not in (408, 429))
-            if certain:
+            if not outcome_unknown(exc):
                 self.db.update_batch(batch_id, status=ERROR, error=str(exc))
                 self.db.audit(case_id, "paypal", "Partial refund failed — PayPal refused it, no money moved",
                               {**exc.to_dict(), "batch_id": batch_id, "paypal_request_id": batch["request_id"]})
@@ -573,12 +590,32 @@ class MixedOrders:
             self.db.audit(case_id, "paypal", "Could not check with PayPal after the unanswered refund call — a retry "
                           "still uses the same PayPal-Request-Id", {})
 
+    def _request_id_fresh(self, case_id: str, request_id: str | None) -> bool:
+        """True while PayPal can be relied on to replay this request id: never sent yet, or first sent inside the
+        window. The clock starts at the first call that carried it (PayPal keys from the first request), not at a
+        later status change."""
+        sent = [c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture") if c.get("request_id") == request_id]
+        if not sent:
+            return True
+        first = datetime.fromisoformat(min(sent))
+        return datetime.fromisoformat(self.wf._now()) - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
+
+    @staticmethod
+    def _too_old(batch: dict) -> str:
+        return (f"Batch {batch['batch_no']}'s refund call got no answer more than {IDEMPOTENCY_WINDOW_HOURS} hours "
+                "ago. PayPal may already have made it, and after 6 hours re-sending the same request id could be "
+                "taken as a new refund. Check this capture's refunds in PayPal by hand.")
+
     def recover_unknown(self, case_id: str, trigger: str) -> bool:
         wf = self.wf
         recovered = False
         with wf._money_op(), wf._lock(case_id):
             for batch in self.db.list_batches(case_id):
                 if batch["status"] != UNKNOWN or batch["refund_id"]:
+                    continue
+                if not self._request_id_fresh(case_id, batch["request_id"]):
+                    self.db.audit(case_id, "paypal", "Partial refund outcome still UNKNOWN — not re-sent; check PayPal "
+                                  "by hand", {"batch_id": batch["id"], "trigger": trigger, "why": self._too_old(batch)})
                     continue
                 self.db.update_batch(batch["id"], status=APPROVED)  # the guard needs APPROVED; chain proves the approval
                 try:

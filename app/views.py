@@ -10,6 +10,7 @@ from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .presets import BY_KEY, preset_label
 from .safety import SAFETY_LABEL, SAFETY_STATUS
 from .safety import assess as assess_safety
+from .workflow import PAYMENT_UNKNOWN
 
 
 def fmt_ts(ts: str | None) -> str:
@@ -150,6 +151,8 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
         calls = _refund_api_calls(db, case["id"])
         if status == "AWAITING_BUYER_APPROVAL":
             st["request"] = ("waiting", "waiting for sandbox buyer payment")
+        elif status == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+            st["request"] = ("waiting", "payment not confirmed by PayPal")
         elif status == "ERROR" and not case.get("capture_id"):
             st["request"] = ("failed", "PayPal order / capture failed")
         else:
@@ -229,6 +232,9 @@ def _mixed_pipeline(db: Database, case: dict, st: dict) -> None:
     items = db.get_items(case["id"])
     batches = db.list_batches(case["id"])
     st["request"] = ("done", f"paid ${case['amount']} · {len(items)} line items (DEMO-DATA)")
+    if case["status"] == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        st["request"] = ("waiting", "payment not confirmed by PayPal")
+        return
     if case["status"] == "ERROR" and not case.get("capture_id"):
         st["request"] = ("failed", "PayPal order / capture failed")
         return
@@ -282,6 +288,8 @@ _TITLE_BY_STATUS = {
 def section_title(case: dict | None) -> str:
     """Heading of block 1. 'Pending action' only while something is actually waiting for a person (or nothing has
     run yet); once the case is completed, rejected, declined or failed it names the outcome instead of going stale."""
+    if case and case["status"] == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        return "Pending action: confirm the payment with PayPal"
     return _TITLE_BY_STATUS.get(case["status"], "Pending action") if case else "Pending action"
 
 
@@ -442,6 +450,12 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     if status == "DECLINED_BY_HUMAN":
         return {**base, "kind": "neutral", "icon": "—", "title": "Declined by the merchant",
                 "subtitle": "Refund API not called.", "rows": [("Refund API calls", str(calls)), ("Refund ID", "none")]}
+    if status == "ERROR" and case.get("order_status") == PAYMENT_UNKNOWN:
+        return {**base, "kind": "warn", "icon": "?", "title": "Payment not confirmed by PayPal",
+                "subtitle": "PayPal did not answer the payment call, so it may have taken the money. No second order "
+                            "was opened. Checking re-sends the same PayPal-Request-Id: PayPal returns the first "
+                            "result and never charges twice (for 6 hours; after that, check PayPal by hand).",
+                "reason": case.get("error"), "rows": [], "retry_payment": True}
     if status == "ERROR":
         retry = bool(case.get("capture_id")) and not case.get("decision")
         return {**base, "kind": "bad", "icon": "!", "title": "PayPal error",
@@ -539,6 +553,18 @@ def narrate(e: dict) -> str:
         return f"PayPal captured the payment — capture {d.get('capture_id')} is {d.get('status')}."
     if t == "Customer request received":
         return f"{d.get('customer')} wrote: “{d.get('message')}”"
+    if t == "Order placed by an AI agent for the buyer (Sandbox demo)":
+        return (f"An AI agent ({d.get('agent') or 'unnamed'}) placed this Sandbox order for {d.get('buyer')}. "
+                "No request on it yet.")
+    if t.startswith("Live AI agent run ("):
+        return (f"A live AI model ({d.get('model')}) worked toward the goal “{d.get('goal')}” with the MCP tools: "
+                f"{len(d.get('steps') or [])} tool calls, {d.get('tokens', 0)} tokens, stopped because "
+                f"{d.get('stop_reason')}. Its report: “{d.get('final_report') or '—'}”")
+    if t == "Return requested by an AI agent for the buyer":
+        who = (f"verified credential “{d.get('credential')}”" if d.get("identity_verified")
+               else "name self-declared, not verified")
+        return (f"AI agent {d.get('agent')} ({who}) asked for this on behalf of {d.get('on_behalf_of') or 'the buyer'}: "
+                f"“{d.get('message')}”. The agent cannot approve it; the merchant's policy and a person decide.")
     if t == "Intent extracted":
         lang = (d.get("assist") or {}).get("language")
         who = "The AI" if str(d.get("extractor", "")).startswith("llm") else "The keyword fallback"
