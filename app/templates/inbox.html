@@ -65,7 +65,16 @@
 {% else %}
 <div class="inbox-empty">
   <h2>No return requests yet</h2>
-  <p>Requests appear here as they arrive. To see the loop:</p>
+  <p>Requests appear here as they arrive. The shared demo starts empty after every restart.</p>
+  {% if can_fill %}
+  <form method="post" action="/demo/fill-inbox" class="js-busy fill-form">
+    <button class="btn primary">Fill the inbox with demo requests</button>
+    <span class="small muted">Two customer requests and three from a scripted AI agent: five
+      {{ 'real PayPal Sandbox orders' if paypal_mode == 'sandbox' else 'orders on the PayPal mock (IDs are fake)' }} run
+      through the real loop, shown step by step. Nothing is refunded until a person approves.</span>
+  </form>
+  <p class="small muted">Or one at a time:</p>
+  {% endif %}
   <ul>
     <li><a href="/">Cases</a>: run Case A, a customer's eligible return (a real PayPal Sandbox order and capture).</li>
     <li><a href="/#agents">AI agents</a>: let a scripted client or a live model ask for returns through <code>/mcp</code>.</li>

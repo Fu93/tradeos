@@ -46,6 +46,7 @@ class RunState:
     seconds: float = 0.0
     case_id: str | None = None
     error: str = ""
+    link: tuple[str, str] | None = None  # (href, text) shown when the run is done, instead of the order's link
 
     def snapshot(self) -> dict[str, Any]:
         live = self.kind == LIVE
@@ -57,9 +58,11 @@ class RunState:
                 # Every sentence the page shows is built here, once, so the server render and app.js agree.
                 "status_text": self._status_text(),
                 "report_label": "The model's report" if live else "What each scene showed",
-                "case_link": {"href": f"/?case={self.case_id}#{'live-run' if live else 'agents'}",
-                              "text": "Open the order and its audit trail" if live
-                              else "Open the honest order (a person approves it there)"} if self.case_id else None,
+                "case_link": (({"href": self.link[0], "text": self.link[1]} if self.status == "done" else None)
+                              if self.link else
+                              {"href": f"/?case={self.case_id}#{'live-run' if live else 'agents'}",
+                               "text": "Open the order and its audit trail" if live
+                               else "Open the honest order (a person approves it there)"} if self.case_id else None),
                 "no_case_text": ("The model placed no order, so nothing was recorded on a case and nothing was "
                                  "refunded." if live else "No scene placed an order. Nothing was refunded.")}
 
@@ -72,7 +75,7 @@ class RunState:
                         f"{round(self.seconds, 1)} s")
             return f"{self.stop_reason} · {len(self.steps)} tool calls · {round(self.seconds, 1)} s"
         if self.kind == SCRIPTED:
-            return f"playing {self.phase}…" if self.phase.startswith("scene") else "starting…"
+            return "starting…" if self.phase == "starting" else f"playing {self.phase}…"
         if self.phase == "thinking":
             return f"the model is deciding (call {self.model_calls} of at most {MAX_STEPS})…"
         return "tool call done; the model is reading the result…" if self.phase == "step" else "starting…"
@@ -97,7 +100,7 @@ class AgentRunRegistry:
 
     def start(self, kind: str, key: str, title: str, model: str,
               execute: Callable[[Callable[[AgentRun, str], None]], AgentRun],
-              finish: Callable[[AgentRun], str | None]) -> str | None:
+              finish: Callable[[AgentRun], str | None], link: tuple[str, str] | None = None) -> str | None:
         """Start a run in a worker thread; None if one (of either kind) is already running.
 
         execute(on_progress) runs the agent and returns its AgentRun. finish(run) records it and returns the order id
@@ -108,7 +111,7 @@ class AgentRunRegistry:
             if any(r.status == "running" for r in self._runs.values()):
                 return None
             run_id = secrets.token_urlsafe(9)
-            self._runs[run_id] = RunState(run_id, kind, key, title, model, self._clock())
+            self._runs[run_id] = RunState(run_id, kind, key, title, model, self._clock(), link=link)
             self._evict()
             thread = threading.Thread(target=self._work, args=(run_id, execute, finish), daemon=True,
                                       name=f"agent-run-{run_id}")

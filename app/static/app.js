@@ -208,7 +208,7 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     document.getElementById("run-report").textContent = run.final_report || "—";
     var outcome = document.getElementById("run-outcome");
     outcome.textContent = "";
-    if (run.case_link && /^\/\?case=[\w-]+#[\w-]+$/.test(run.case_link.href)) {  // only ever a link into this dashboard
+    if (run.case_link && /^\/(\?case=[\w-]+#[\w-]+|inbox)$/.test(run.case_link.href)) {  // only links into this app
       var a = el("a", "btn small", run.case_link.text);
       a.id = "run-case";
       a.href = run.case_link.href;

@@ -18,6 +18,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
+import anyio
 from mcp import Client
 from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
@@ -118,6 +119,58 @@ def scene_ok(scene: Scene, case: dict, refund_calls: int) -> bool:
     if scene.key == "injection":
         return status != PENDING_APPROVAL and refund_calls == 0
     return status == REJECTED and refund_calls == 0
+
+
+# "Fill the inbox": what an empty demo needs so the merchant's inbox shows something real. Two customer requests from
+# the dashboard's own cases (A: eligible, waits for you; B: the same request 45 days late, rejected) and the three agent
+# scenes. Everything is a real (Sandbox) order and capture run through the real loop, exactly as the buttons do.
+FILL_CUSTOMERS = (("A", "Customer: wrong colour, inside the window"),
+                  ("B", "Customer: the same request, 45 days late"))
+
+
+async def fill_inbox(server: MCPServer, wf: Workflow, on_progress: Progress | None = None,
+                     clock: Callable[[], float] = time.monotonic) -> AgentRun:
+    """Run the two customer cases, then the three agent scenes, reporting each step to one progress page."""
+    started = clock()
+    customer_steps: list[dict[str, Any]] = []
+    lines: list[str] = []
+
+    def combined(scenes: AgentRun | None = None) -> AgentRun:
+        view = AgentRun(goal="fill", model=SCRIPTED_AGENT)
+        view.steps = customer_steps + (scenes.steps if scenes else [])
+        return view
+
+    for index, (scenario, title) in enumerate(FILL_CUSTOMERS, 1):
+        if on_progress is not None:
+            on_progress(combined(), f"customer request {index} of {len(FILL_CUSTOMERS)}: {title}")
+        try:
+            case_id = await anyio.to_thread.run_sync(wf.run_scenario, scenario)
+        except Exception as exc:  # reported on the page, the other requests still run
+            customer_steps.append({"scene": title, "tool": f"Case {scenario} (customer message)",
+                                   "result": {"error": f"could not run: {type(exc).__name__}"}})
+            lines.append(f"{title}: could not run")
+            continue
+        case = wf.db.get_case(case_id) or {}
+        calls = len(wf.db.paypal_calls(case_id, "refund_capture"))
+        customer_steps.append({"scene": title, "tool": f"Case {scenario} (customer message)",
+                               "result": {"order_id": case_id, "status": case.get("status"),
+                                          "refund_api_calls": calls}})
+        lines.append(f"{title}: {str(case.get('status', '?')).replace('_', ' ')}, refund calls {calls}")
+    if on_progress is not None:
+        on_progress(combined(), "the agent scenes")
+
+    def scene_progress(scenes: AgentRun, phase: str) -> None:
+        if on_progress is not None:
+            on_progress(combined(scenes), phase)
+    scenes = await play_scenes(server, wf.db, on_progress=scene_progress, clock=clock)
+    run = combined(scenes)
+    run.seconds = clock() - started
+    run.stop_reason = (f"inbox filled: {len(FILL_CUSTOMERS)} customer requests and {len(SCENES)} agent requests"
+                       if scenes.stop_reason.startswith("all") and len(lines) == len(FILL_CUSTOMERS)
+                       and not any(line.endswith("could not run") for line in lines)
+                       else f"inbox partly filled ({scenes.stop_reason})")
+    run.final_report = ". ".join(lines) + ". " + scenes.final_report
+    return run
 
 
 LIVE_LABELS = {"honest": "Live AI agent: honest buyer", "adversarial": "Live AI agent: get $500"}

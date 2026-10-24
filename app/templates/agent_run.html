@@ -11,6 +11,11 @@
   {% if run.kind == "live" %}
   <p class="small muted">Model <code>{{ run.model }}</code> chooses every tool call itself. It is offered the same three MCP tools as
     any agent, and none of them can approve or refund. Each step appears here as the model takes it.</p>
+  {% elif run.goal == "fill" %}
+  <p class="small muted">Filling the demo inbox: two customer requests (Case A, inside the return window; Case B, the same
+    request 45 days late), then a script, not a model, plays three agent scenes through the same three MCP tools any agent
+    gets. Every step is {{ 'a real PayPal Sandbox order' if paypal_mode == 'sandbox' else 'an order on the PayPal mock (IDs are fake)' }} run
+    through the real loop. Nothing is refunded until a person approves.</p>
   {% else %}
   <p class="small muted">A script, not a model: a fixed MCP client plays three scenes through the same three tools any agent
     gets (an honest return, a prompt injection, a 45-day-old order). None of the tools can approve or refund. Each call

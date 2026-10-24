@@ -20,7 +20,8 @@ from fastapi.templating import Jinja2Templates
 import anyio
 
 from .agent_gateway import mount_mcp
-from .agent_scenes import LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, live_run, play_scenes
+from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, fill_inbox, live_run,
+                           play_scenes)
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
 from .inbox import BUCKET_LABELS, inbox_rows, inbox_summary
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
@@ -128,6 +129,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # click is allowed once a minute per address and once every 20 s for the whole demo.
     agent_cooldown = Cooldown(60, 20, action="Run agent scenes",
                               done_by_other="Someone else just ran the agent scenes")
+    # Filling the inbox places five Sandbox orders: once per address per 2 minutes, once per 30 s for the demo.
+    fill_cooldown = Cooldown(120, 30, action="Fill the inbox", done_by_other="Someone else just filled the inbox")
     # A live LLM agent: the same provider as the extractor, unless a test injects one. Groq's free tier allows about
     # 8K tokens a minute and a run uses several thousand, so one run a minute for the whole demo, two per address.
     if agent_llm is None and settings.llm_configured:
@@ -221,6 +224,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "live_run": live_run(db, current),
             "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
             "inbox": inbox_summary(inbox_rows(wf, None, evidence=False)),
+            "can_fill": can_fill(),
             "flash": flash,
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
@@ -272,7 +276,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
             "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows,
             # Counts cover every request; the table shows the newest MAX_ROWS and says so when it is cut.
-            "summary": inbox_summary(inbox_rows(wf, None, evidence=False)), "buckets": BUCKET_LABELS})
+            "summary": inbox_summary(inbox_rows(wf, None, evidence=False)), "buckets": BUCKET_LABELS,
+            "can_fill": can_fill()})
 
     @app.get("/api/inbox")
     def inbox_api():
@@ -327,6 +332,32 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
         run_id = agent_runs.start(SCRIPTED, "scenes", "Agent scenes: honest, injection, late", SCRIPTED_AGENT,
                                   execute, lambda run: run.order_id)
+        if run_id is None:
+            return busy_flash(request, agent_runs.running())
+        return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
+
+    def can_fill() -> bool:
+        return app.state.mcp_server is not None and settings.agent_demo_orders
+
+    @app.post("/demo/fill-inbox")
+    def fill_inbox_route(request: Request):
+        """An empty demo (Render wipes it on every restart) gets real requests in one click: Cases A and B and the
+        three agent scenes, run in the background on the progress page, which ends with a link to the inbox."""
+        if not can_fill():
+            raise HTTPException(404)
+        if (busy := agent_runs.running()) is not None:
+            return busy_flash(request, busy)
+        if (reason := fill_cooldown.check(ip(request))) is not None:
+            return render_dashboard(request, flash=f"Inbox not filled: {reason}", status_code=429)
+        if (refused := limited(request)) is not None:
+            return refused
+        server = app.state.mcp_server
+
+        def execute(on_progress) -> AgentRun:
+            return anyio.run(lambda: fill_inbox(server, wf, on_progress=on_progress))
+
+        run_id = agent_runs.start(SCRIPTED, "fill", "Fill the inbox: 2 customer requests, 3 agent requests",
+                                  SCRIPTED_AGENT, execute, lambda run: None, link=("/inbox", "Open the inbox"))
         if run_id is None:
             return busy_flash(request, agent_runs.running())
         return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)

@@ -23,8 +23,12 @@
 <div class="inbox-strip" role="note">
   <p>{% if inbox.total %}<strong>Returns inbox:</strong> {{ inbox.needs_you }} need{{ 's' if inbox.needs_you == 1 }} you{% if inbox.needs_you_agents %} ({{ inbox.needs_you_agents }} from AI agents){% endif %} ·
     {{ inbox.agents }} from AI agents · refunds an AI agent approved: <strong>{{ inbox.agent_approved }}</strong>
-    {% else %}<strong>Returns inbox:</strong> no requests yet. Run Case A below, or the AI-agent scenes; each request lands in the inbox.{% endif %}</p>
+    {% else %}<strong>Returns inbox:</strong> no requests yet. Fill it with five demo requests in one click, or run Case A below.{% endif %}</p>
+  {% if not inbox.total and can_fill %}
+  <form method="post" action="/demo/fill-inbox" class="js-busy"><button class="btn small primary">Fill the inbox</button></form>
+  {% else %}
   <a class="btn small" href="/inbox">Open the inbox</a>
+  {% endif %}
 </div>
 {% endif %}
 

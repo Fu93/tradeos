@@ -8,6 +8,12 @@
 
 **Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
 
+![TradeOS in 20 seconds: fill the inbox, an AI agent's honest request waits for a person, the merchant approves, and the inbox still shows 0 refunds approved by an AI agent](docs/img/demo.gif)
+
+<sub>Recorded with <code>scripts/record_demo_gif.py</code> against a local server with PayPal in <b>mock</b> mode (the
+red badge in every frame; IDs are fake). The hosted demo runs the same steps on the live PayPal Sandbox. The agent here is
+the scripted MCP client, not a model.</sub>
+
 **AI agents are starting to buy for people. Someone has to decide what they may do when the order comes back.**
 PayPal's agentic commerce services ([Agent Ready, Store Sync](https://developer.paypal.com/docsai/growth/agentic-commerce/overview))
 let a buyer's assistant find products and check out; that overview does not cover returns. TradeOS is the returns layer
@@ -17,7 +23,7 @@ over MCP. No tool lets it approve one, and the dashboard counts how many refunds
 
 ### Judge quick start — about 3 minutes
 
-1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once.
+1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once. The shared demo starts empty after every restart: **Fill the inbox** (top of the dashboard, or on the Inbox page) adds five real requests in one click.
 2. Click **Run Case A — eligible return (refund)**. This creates a real PayPal Sandbox order and capture.
 3. Click **Approve & refund**. The Refund API is not called before this human approval.
 4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
