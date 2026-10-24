@@ -70,7 +70,11 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     "P": {"customer_name": "Lee (MOCK pending demo)", "seeded_days_ago": None, "label": "Pending refund (MOCK)"},
     # Mixed order (DEMO-DATA line items, real Sandbox order + capture): per-line resolution, partial refund.
     "M": {"customer_name": "Priya (demo customer)", "seeded_days_ago": None, "label": "Case M — mixed order (DEMO-DATA)"},
+    # Agent gateway (MCP): an order an AI agent placed for a buyer, and later the agent's return request on it.
+    # Never runnable from the page (not in RUNNABLE); it is driven only through the agent_* methods below.
+    "G": {"customer_name": "Agent buyer", "seeded_days_ago": None, "label": "Agent order"},
 }
+AGENT = "G"
 MAX_TRACKED_CASES = 500  # cap for per-case reconcile/throttle maps (locks are never evicted, see _lock)
 RUNNABLE = ("A", "B", "R", "D", "P", "M", "M2")  # M2 = Case M with a two-step (multi-batch) message; not on the page
 MOCK_ONLY = ("P",)
@@ -90,6 +94,11 @@ ERROR = "ERROR"
 EXCHANGE_ARRANGED = "EXCHANGE_ARRANGED"  # human approved the exchange; supplier ships a replacement; no refund
 NEEDS_HUMAN = "NEEDS_HUMAN"              # e.g. exchange but the supplier is out of stock: offer a refund?
 NEEDS_SAFETY = SAFETY_STATUS             # v3.2 Safety Gate: a person reviews a possible hazard/injury; no refund/supplier path
+# Agent gateway: an order an agent placed, with no request yet. Not NEW, so process() never runs on it; only
+# submit_agent_request() moves it on, through the same _after_capture() loop a dashboard case takes.
+AGENT_ORDERED = "AGENT_ORDERED"
+AGENT_NO_REQUEST = "(no request yet: order placed by an AI agent for the buyer)"
+AGENT_TEXT_MAX = 80  # agent / buyer names are labels, not free text
 
 
 SAFETY_REVIEWED = "SAFETY_REVIEWED"      # terminal: a person read a safety-gated case and recorded a note (no money moved)
@@ -193,7 +202,7 @@ class Workflow:
             self.new_case(scenario)
 
     def new_case(self, scenario: str, message: str | None = None, label: str | None = None,
-                 days_ago: int | None = None) -> str:
+                 days_ago: int | None = None, customer_name: str | None = None, status: str = NEW) -> str:
         if scenario not in SCENARIOS:
             raise ValueError("unknown scenario")
         if scenario == "M":
@@ -209,8 +218,8 @@ class Workflow:
         # chars so the PayPal-Request-Ids derived from it stay within PayPal's 38-char guidance.
         case_id = f"{scenario}-{uuid.uuid4().hex[:16].upper()}"
         self.db.insert_case(
-            id=case_id, scenario=scenario, label=label or spec["label"], status=NEW,
-            customer_name=spec["customer_name"], customer_message=message or DEMO_MESSAGE,
+            id=case_id, scenario=scenario, label=label or spec["label"], status=status,
+            customer_name=customer_name or spec["customer_name"], customer_message=message or DEMO_MESSAGE,
             product_sku=DEMO_PRODUCT["sku"], amount=self.settings.order_amount, currency=self.settings.currency,
             purchase_date_seeded=seeded,
             refund_fault=self.settings.refund_failure_mock_code if scenario == "R" else None,
@@ -335,6 +344,12 @@ class Workflow:
         if self._case(case_id)["scenario"] == "M":  # raises CaseNotFound for an unknown id
             self.mixed.process(case_id)
             return
+        if self._order_and_capture(case_id):
+            self._after_capture(case_id)
+
+    def _order_and_capture(self, case_id: str) -> bool:
+        """Step 1: PayPal Sandbox order + capture. True when the capture is recorded; False when the case now waits
+        for the sandbox buyer (AWAITING_BUYER) or PayPal failed (ERROR, recorded on the case)."""
         s = self.settings
         try:
             # Step 1: PayPal Sandbox order + capture (card payment source => no buyer login needed).
@@ -361,12 +376,12 @@ class Workflow:
                 self.db.update_case(case_id, status=AWAITING_BUYER, approve_url=approve)
                 self.db.audit(case_id, "payment", "Waiting for sandbox buyer approval",
                               {"approve_url": approve, "order_status": order.get("status")})
-                return
+                return False
             self._record_capture(case_id, order, capture)
         except PayPalError as exc:
             self._fail(case_id, "payment", exc)
-            return
-        self._after_capture(case_id)
+            return False
+        return True
 
     def complete_buyer_approval(self, case_id: str) -> None:
         """Fallback path: buyer approved in the PayPal sandbox, now capture. This moves money, so it
@@ -547,6 +562,7 @@ class Workflow:
             injection_suspected=looks_like_injection(case.get("customer_message") or ""),
             intent_is_unknown=extraction.result.intent == "UNKNOWN",
             action=policy.action,
+            agent_originated=case.get("scenario") == AGENT,
         )
         limits = {"auto_enabled": s.auto_enabled, "auto_refund_max_amount": str(s.auto_refund_max_amount),
                   "auto_exchange_enabled": s.auto_exchange_enabled}
@@ -697,6 +713,96 @@ class Workflow:
             return case["payer_note"]["text"]
         note = self._write_note(case_id, "REFUND_NOTE", None, case.get("assist"))
         return note["text"] if note else None
+
+    # ------------------------------------------------------------------ agent gateway (MCP)
+    # An AI agent acting for a buyer can place a (Sandbox demo) order, ask for a return on it and read the outcome.
+    # It cannot approve, decline or refund: there is no method for that here, and the MCP tools in
+    # app/agent_gateway.py only call these three. Amount, currency, capture and purchase date come from PayPal and
+    # the merchant's own record, never from the agent.
+    def _agent_case(self, case_id: str) -> dict:
+        """An agent may only see orders that were placed through the agent gateway. Any other id, including a real
+        dashboard case, is reported as not found, so an agent cannot probe or act on other customers' cases."""
+        case = self.db.get_case(case_id) if isinstance(case_id, str) else None
+        if not case or case.get("scenario") != AGENT or case.get("archived_at"):
+            raise CaseNotFound(case_id)
+        return case
+
+    def place_agent_order(self, buyer: str, agent: str = "", days_ago: int | None = None) -> str:
+        """Sandbox demo: the agent buys the demo product with a Sandbox test card, so it has an order to return.
+
+        The case starts AGENT_ORDERED with no request on it. days_ago > 0 seeds an older purchase date (labelled
+        demo data, like Case B) so the return window can be shown rejecting a late request."""
+        buyer = clean_message(buyer, AGENT_TEXT_MAX) or SCENARIOS[AGENT]["customer_name"]
+        agent = clean_message(agent, AGENT_TEXT_MAX)
+        with self._money_op():
+            case_id = self.new_case(AGENT, message=AGENT_NO_REQUEST, days_ago=days_ago or None,
+                                    customer_name=buyer, status=AGENT_ORDERED)
+            self.db.audit(case_id, "agent", "Order placed by an AI agent for the buyer (Sandbox demo)",
+                          {"agent": agent or None, "buyer": buyer, "channel": "mcp",
+                           "purchase_date_seeded": self._case(case_id)["purchase_date_seeded"]})
+            self._order_and_capture(case_id)
+        return case_id
+
+    def submit_agent_request(self, case_id: str, message: str, agent: str, on_behalf_of: str) -> bool:
+        """An agent asks for a return / exchange on an order it placed. Runs the same _after_capture() loop as a
+        dashboard case (AI intent, Safety Gate, PayPal GET capture, deterministic policy), then stops at the
+        approval step: autonomy treats every agent-originated case as HUMAN.
+
+        Idempotent: only an AGENT_ORDERED case is evaluated. A second request on the same order changes nothing
+        and returns False, so an agent cannot re-roll the decision by rephrasing."""
+        text = clean_message(message, self.settings.free_text_max_chars)
+        if not text:
+            raise ValueError("Message is empty.")
+        agent = clean_message(agent, AGENT_TEXT_MAX)
+        on_behalf_of = clean_message(on_behalf_of, AGENT_TEXT_MAX)
+        if not agent:
+            raise ValueError("agent_name is required: the audit trail records which agent asked.")
+        self._agent_case(case_id)
+        with self._locks_guard:
+            if self._resetting:
+                raise RefundNotAllowed("A demo reset is in progress — try again in a moment.")
+            if case_id in self._running:
+                return False
+            self._running.add(case_id)
+        try:
+            if self._case(case_id)["status"] != AGENT_ORDERED:
+                return False
+            self.db.update_case(case_id, customer_message=text)
+            self.db.audit(case_id, "agent", "Return requested by an AI agent for the buyer",
+                          {"agent": agent, "on_behalf_of": on_behalf_of or None, "channel": "mcp",
+                           "message": text, "agent_can_approve": False})
+            self._after_capture(case_id)
+            return True
+        except CaseFinalized as exc:
+            self.db.audit(case_id, "workflow", "Agent request stopped — the case was already finalized",
+                          {"reason": str(exc)})
+            return False
+        finally:
+            with self._locks_guard:
+                self._running.discard(case_id)
+
+    def agent_case_view(self, case_id: str) -> dict:
+        """What the agent may read back: the outcome and the evidence, never the dashboard's controls."""
+        case = self._agent_case(case_id)
+        policy = case.get("policy") or {}
+        chain_result = self.db.verify_chain(case_id)
+        refund_calls = self.db.paypal_calls(case_id, "refund_capture")
+        return {
+            "order_id": case_id,
+            "status": case["status"],
+            "policy_decision": case.get("decision"),
+            "policy_reasons": policy.get("reasons") or [],
+            "amount": f"{case['amount']} {case['currency']}",
+            "capture_id": case.get("capture_id"),
+            "purchase_date_seeded": case.get("purchase_date_seeded"),
+            "approval": {"decision": case.get("human_decision"), "by": case.get("approval_source")},
+            "refund": {"id": case.get("refund_id"), "status": case.get("refund_status")},
+            "refund_api_calls": len(refund_calls),
+            "audit_trail": {"intact": chain_result["ok"], "entries": chain_result["entries"],
+                            "head": chain_result["head"]},
+            "next_step": _agent_next_step(case),
+            "evidence_url": f"{self.settings.public_base_url.rstrip('/')}/cases/{case_id}/evidence",
+        }
 
     # ------------------------------------------------------------------ approval + money
     @staticmethod
@@ -1442,6 +1548,29 @@ def _same_money(pp_amount: dict, local_value: str, local_currency: str) -> bool:
     except ArithmeticError:
         return False
     return same_value and (pp_amount.get("currency_code") or local_currency) == local_currency
+
+
+def _agent_next_step(case: dict) -> str:
+    """Plain words for the agent: what happens next and who does it. The agent never does the approving."""
+    status = case["status"]
+    if status == AGENT_ORDERED:
+        return "No request yet. Call request_return with the buyer's own words."
+    if status == PENDING_APPROVAL:
+        return ("The merchant's policy allows it; a person at the merchant must approve it. "
+                "Nothing has been refunded. Check back with get_case_status.")
+    if status == REJECTED:
+        return "The merchant's policy rejected the request. No refund was made. Tell the buyer the reasons."
+    if status == NEEDS_SAFETY:
+        return "Possible safety issue: a person at the merchant reviews it first. No refund was made."
+    if status == NEEDS_HUMAN:
+        return "A person at the merchant has to decide. No refund was made."
+    if status == REFUND_COMPLETED:
+        return "PayPal reports the refund COMPLETED."
+    if status == EXCHANGE_ARRANGED:
+        return "The merchant approved an exchange. No money moves."
+    if status == DECLINED:
+        return "A person at the merchant declined the request. No refund was made."
+    return f"Status {status}. A person at the merchant handles it from here."
 
 
 def clean_message(message: str | None, max_chars: int) -> str:

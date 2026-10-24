@@ -87,6 +87,7 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 
 | Doc | What it is |
 |---|---|
+| [`docs/agent-gateway.md`](docs/agent-gateway.md) | AI agents can request a return over MCP, never approve one |
 | [`docs/safety-gate.md`](docs/safety-gate.md) | Deterministic human safety review ahead of refunds and supplier tasks |
 | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Mixed orders, per-line decisions, shipping/tax policy, evidence tiers |
 | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | PayPal Disputes, read-only |
@@ -94,6 +95,17 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 | [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
 | [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
 | [`docs/demo-video-script.md`](docs/demo-video-script.md) | Recording plan |
+
+## For AI agents: request, never approve (MCP)
+
+PayPal's own MCP server gives an AI agent a refund tool. TradeOS puts the merchant's rules in front of that power.
+An agent acting for a buyer connects to `/mcp` and gets three tools: place a Sandbox demo order, **request** a return
+or exchange, and read the case status. There is no approve, decline or refund tool. The request runs through the
+same loop as a dashboard case — AI reads the words, the Safety Gate and the deterministic policy decide on PayPal's
+own capture data — and **every agent-originated case waits for a person**, even with `AUTO_ENABLED` on. Who asked,
+and for whom, is on the case's hash chain. Prompt injection, a late order and a safety report all end with Refund
+API calls = 0 (tested in `tests/test_agent_gateway.py`). Details, connection snippets and the demo script:
+[`docs/agent-gateway.md`](docs/agent-gateway.md).
 
 ## What TradeOS does
 
@@ -589,6 +601,10 @@ reconciled against PayPal in the background at startup.
 | `TRADEOS_TRUST_CF_CONNECTING_IP` | no | `0` | `1` where a Cloudflare edge is really in front (render.yaml sets it for Render); off by default so the rate-limit identity cannot be forged |
 | `TRADEOS_SAFETY_AI` | no | `0` | `1` = opt-in second-layer AI safety classifier (escalate-only, fail-safe; needs `LLM_API_KEY`). **Off by default and off on the hosted demo.** See [`docs/safety-gate.md`](docs/safety-gate.md) |
 | `TRADEOS_SAFETY_AI_TIMEOUT_S` | no | `8` | timeout of that classifier; on timeout or error the keyword gate's result stands |
+| `TRADEOS_MCP` | no | `1` | agent gateway at `/mcp` (see [`docs/agent-gateway.md`](docs/agent-gateway.md)); `0` turns it off |
+| `TRADEOS_MCP_TOKEN` | no | — | when set, every `/mcp` request needs `Authorization: Bearer <token>`; never rendered |
+| `TRADEOS_MCP_ALLOWED_HOSTS` | no | — | extra `Host` values `/mcp` accepts (comma-separated); the `PUBLIC_BASE_URL` host and localhost are always allowed |
+| `TRADEOS_AGENT_DEMO_ORDERS` | no | `1` | Sandbox demo: lets an agent place a Sandbox card order to return later (`place_demo_order` tool) |
 | `TRADEOS_SHIPPING_POLICY` | no | `WITHDRAWAL_FULL` | shipping refund policy for mixed orders: `WITHDRAWAL_FULL`, `MERCHANT_ERROR` or `NEVER` (unknown value fails closed to `NEVER`); see [`docs/partial-refunds.md`](docs/partial-refunds.md) |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | no | `1` | background check of PENDING refunds only |
 | `TRADEOS_RESET_COOLDOWN_PER_IP_S`, `TRADEOS_RESET_COOLDOWN_GLOBAL_S` | no | `60`, `15` | cooldown between two "Reset demo" clicks (per IP / whole app) |

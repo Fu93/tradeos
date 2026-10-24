@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import json
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -14,6 +15,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.concurrency import run_in_threadpool
 from fastapi.templating import Jinja2Templates
 
+from .agent_gateway import mount_mcp
 from .config import Settings
 from .disputes import DISPUTE_EVENTS
 from .db import CaseFinalized, Database, utcnow
@@ -88,8 +90,21 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     def ip(request: Request) -> str:
         return client_key(request, settings.trusted_proxy_hops, settings.trust_cf_connecting_ip)
 
-    app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None)
+    @asynccontextmanager
+    async def lifespan(the_app: FastAPI):
+        # The MCP endpoint (agent gateway) needs its session manager running for the life of the server.
+        server = the_app.state.mcp_server
+        if server is None:
+            yield
+            return
+        async with server.session_manager.run():
+            yield
+
+    app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None, lifespan=lifespan)
     app.state.workflow = wf
+    # Agent gateway at /mcp: an AI agent can request a return, never approve one (app/agent_gateway.py). Order-
+    # creating tools share the dashboard's run budget (same limiter, keyed per address).
+    app.state.mcp_server = mount_mcp(app, wf, settings, limiter, ip) if settings.mcp_enabled else None
     app.mount("/static", StaticFiles(directory=BASE / "static"), name="static")
     templates = Jinja2Templates(directory=BASE / "templates")
     templates.env.filters["ts"] = fmt_ts

@@ -539,6 +539,12 @@ def narrate(e: dict) -> str:
         return f"PayPal captured the payment — capture {d.get('capture_id')} is {d.get('status')}."
     if t == "Customer request received":
         return f"{d.get('customer')} wrote: “{d.get('message')}”"
+    if t == "Order placed by an AI agent for the buyer (Sandbox demo)":
+        return (f"An AI agent ({d.get('agent') or 'unnamed'}) placed this Sandbox order for {d.get('buyer')}. "
+                "No request on it yet.")
+    if t == "Return requested by an AI agent for the buyer":
+        return (f"AI agent {d.get('agent')} asked for this on behalf of {d.get('on_behalf_of') or 'the buyer'}: "
+                f"“{d.get('message')}”. The agent cannot approve it; the merchant's policy and a person decide.")
     if t == "Intent extracted":
         lang = (d.get("assist") or {}).get("language")
         who = "The AI" if str(d.get("extractor", "")).startswith("llm") else "The keyword fallback"

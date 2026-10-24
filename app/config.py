@@ -125,6 +125,17 @@ class Settings:
     safety_ai_enabled: bool = False
     safety_ai_timeout_s: float = 8.0
 
+    # Agent gateway (MCP at /mcp, see docs/agent-gateway.md). An AI agent acting for a buyer may ask for a
+    # return; it can never approve one. Agent-initiated refunds always need a person, whatever AUTO_ENABLED says.
+    mcp_enabled: bool = True
+    # Optional shared secret: when set, every /mcp request needs "Authorization: Bearer <token>". Never rendered.
+    mcp_token: str = ""
+    # Extra Host values the MCP endpoint accepts (DNS-rebinding protection). The PUBLIC_BASE_URL host and
+    # localhost are always allowed.
+    mcp_allowed_hosts: tuple[str, ...] = ()
+    # Sandbox demo only: lets an agent place a Sandbox card order so it has something to return.
+    agent_demo_orders: bool = True
+
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
     @property
@@ -181,5 +192,9 @@ class Settings:
             shipping_policy=(_env("TRADEOS_SHIPPING_POLICY") or "WITHDRAWAL_FULL").upper()
             if (_env("TRADEOS_SHIPPING_POLICY") or "WITHDRAWAL_FULL").upper() in ("NEVER", "MERCHANT_ERROR", "WITHDRAWAL_FULL")
             else "NEVER",  # an unknown value fails closed: no shipping refund
+            mcp_enabled=_env_bool("TRADEOS_MCP", True),
+            mcp_token=_env("TRADEOS_MCP_TOKEN"),
+            mcp_allowed_hosts=tuple(h.strip() for h in _env("TRADEOS_MCP_ALLOWED_HOSTS").split(",") if h.strip()),
+            agent_demo_orders=_env_bool("TRADEOS_AGENT_DEMO_ORDERS", True),
             costs=CostAssumptions.from_env(),
         )
