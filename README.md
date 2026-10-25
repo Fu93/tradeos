@@ -258,7 +258,7 @@ cases carry no prefix because no approval happened.
   (deterministic code) stops a case earlier when the message uses burn / injury / fire / shock / melting / smoke language
   (EN, ZH, ES, DE, JA, FR), or when the product is mains / heating / gas / battery and the return is anything other than a
   wrong size, a wrong item or a change of mind. Such a case is shown as
-  **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. A person can then **mark the case reviewed** with a required note (recorded on the hash chain; terminal
+  **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. With the model unavailable, the keyword reader reads most messages as unknown, so almost every return of such a product is held for a person (it fails closed: 40 of 48 harmless judgements were held in the offline measurement, see [docs/safety-gate.md](docs/safety-gate.md)). A person can then **mark the case reviewed** with a required note (recorded on the hash chain; terminal
   state `SAFETY_REVIEWED`; no money moves and the case never re-enters the refund flow). See
   [docs/safety-gate.md](docs/safety-gate.md) for the rules, false-positive handling and what is and is not proven.
   The other labels are display only: the decision stays REJECTED, there is no approve button and the Refund API is not called.
