@@ -41,6 +41,7 @@ from .presets import BY_KEY, PRESETS, preset_label
 from .policy import DISPUTE_RECOMMENDATION_LABEL
 from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
+from .safety import SAFETY_RULE_VERSION
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, section_title, timeline_view, evidence_log, evidence_summary, paypal_proves)
 from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed, SafetyNoteInvalid,
@@ -307,7 +308,14 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 "auto_refund_max_amount": str(settings.auto_refund_max_amount),
                 # Render (no disk) stores SQLite under /tmp; a restart or redeploy wipes it.
                 # Surfaced so a judge (or deploy-verify) can see the demo is ephemeral without scraping.
-                "persistence": "ephemeral" if settings.db_path.startswith("/tmp") else "durable"}
+                "persistence": "ephemeral" if settings.db_path.startswith("/tmp") else "durable",
+                # Which safety layers this deployment runs, so "the AI safety classifier is off on the hosted demo"
+                # and the gate's rule version can be checked from outside: True only when the classifier was built
+                # (TRADEOS_SAFETY_AI=1 and an LLM key), not merely requested.
+                "safety_rule_version": SAFETY_RULE_VERSION,
+                "safety_ai_layer": wf.safety_ai is not None,
+                # Whether agents get the read-only find_product tool (a product catalogue key is set). No key shown.
+                "product_catalog": wf.catalog is not None}
 
     @app.post("/demo/run/{scenario}")
     def run_demo(request: Request, scenario: str):
