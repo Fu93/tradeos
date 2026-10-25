@@ -61,6 +61,10 @@ gated-product fault flag, so the keyword miss rate here may be slightly higher t
 | AI alone (diagnostic) | 4 / 100 | 1.6–9.8 % | 3 / 90 |
 | Keyword + AI (escalate-only OR; opt-in, off on the demo) | 3 / 100 | 1.0–8.5 % | 2 / 90 |
 
+*Note (2026-10-25):* the keyword rows above, and `cpsc_real_text_results.json`, are the frozen run. After the plural-category
+fix to the product class (`docs/safety-gate.md`), the offline keyword layer flags one more row (id 33, a gasoline can: category
+"Fuel, Lighters and Fireworks" -> `GAS`), i.e. 33 / 100 missed. The frozen file is not rescored; `tests/test_cpsc_eval_data.py` pins that difference.
+
 Keyword misses by stratum: injury 12/35, incident without injury 10/35, no incident 12/30. By label basis:
 `harm_reported` 8/29, `hazard_no_harm` 19/63, `energised_product_fault_rule` 7/8. 29 of the 34 keyword misses are on
 products the gate's class rule does not treat as risky (`NONE` class: furniture, baby gear, bicycles, glassware, ...).

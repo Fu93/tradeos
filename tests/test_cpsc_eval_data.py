@@ -38,9 +38,20 @@ def test_results_match_the_sample_and_the_doc():
     assert f"{miss['ai']} / {len(pos)}" in doc and f"{miss['combined']} / {len(pos)}" in doc
 
 
+# The frozen results file records the keyword layer as it was when the AI run was made. The plural-category fix
+# (docs/safety-gate.md, "Product class: plural categories") turned ONE row from not-flagged to flagged: id 33, a gasoline
+# can in category "Fuel, Lighters and Fireworks" - the plural "Lighters" now reaches the GAS class, so "leaked" counts as
+# a fault on a gated product. The frozen file is NOT rescored; this test pins the difference.
+KEYWORD_FLIPPED_BY_PLURAL_FIX = {33}
+
+
 def test_keyword_layer_result_is_reproducible_offline():
     from app.safety import assess
     res = {r["id"]: r for r in json.loads(RESULTS.read_text(encoding="utf-8"))["rows"]}
     for r in rows():
         prod = {"sku": r["report_no"], "name": r["product"], "category": r["product_category"]}
-        assert assess(r["message"], prod, None).flagged == res[r["id"]]["keyword"], r["id"]
+        now = assess(r["message"], prod, None).flagged
+        if r["id"] in KEYWORD_FLIPPED_BY_PLURAL_FIX:
+            assert res[r["id"]]["keyword"] is False and now is True, r["id"]  # frozen miss, now caught (escalate-only)
+        else:
+            assert now == res[r["id"]]["keyword"], r["id"]
