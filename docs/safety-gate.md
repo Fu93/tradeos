@@ -66,8 +66,8 @@ Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `op
   judgements.
 * This is one run. The model's output can differ from run to run.
 * The set has no message giving two reasons and no non-English message. 120 / 120 and 32 / 32 are therefore not a recall
-  rate for real customers. The known gap below (two reasons in one message) is not measured: its Chinese form ("I
-  changed my mind, but it keeps tripping") passed once in a hand check, and the English form was held in the same check.
+  rate for real customers. The known gap below (two reasons in one message) is not measured; single examples of it are
+  listed there.
 
 3.3 only adds reviews: `tests/test_safety_reasons.py` compares it with the released 3.2, frozen in
 `tests/reference/safety_3_2.py` (not the new code with an argument dropped), over thousands of message × product ×
@@ -303,7 +303,14 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 * **One reason per message.** The extractor gives one reason. "I changed my mind, and it keeps tripping" can be read as
   `CHANGED_MIND`; "too small, and the cord is frayed" is `SIZE_MISMATCH` to the keyword reader. Neither is held when the
   fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
-  shows up as a test change.
+  shows up as a test change. Seen with the live model, one sample each, so no rate: on the hosted demo at `c7326f5`
+  (2026-10-25) "I changed my mind but it keeps tripping the breaker" on a kettle was **not** held and waited for a
+  person's approval, while "It's too small and the cord is frayed" was held; in an earlier hand check the Chinese form of
+  the first message passed and the English form was held. The outcome depends on the wording. Such a case still waits for
+  a person's approval before any refund (agent requests always do; dashboard cases unless the merchant turned autonomy
+  on, which is off on the hosted demo), so it is a gap in what reaches the *safety* review, not a path to an unapproved
+  refund. A likely fix (not built): ask the model for a separate "reports a malfunction" flag rather than one reason, and
+  measure it on a set extended with two-reason and non-English messages.
 * The money backstop treats a missing stored reading as `UNKNOWN` (single case and each mixed line): a hazard-class
   product without a reading is refused, never assumed clear. Reaching that needs a database write.
 * Products that no category marks as hazard-class (for example candles, lawnmowers, treadmills) get rules 1 and 2 only,
