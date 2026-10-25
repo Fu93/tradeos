@@ -1,4 +1,4 @@
-# Safety Gate (v3.2 principle, ported to `main`)
+# Safety Gate (v3.2 principle, ported to `main`; rule 3 added in 3.3)
 
 **Principle.** *Product category × fault signal.* Any reported fault or harm on a mains-powered, electric-heating, gas or
 battery / thermal-risk product, plus any injury / burn / fire / shock / melting / smoke language in any covered language,
@@ -33,20 +33,41 @@ mind. So for hazard-class products the question is now the second one, and the w
 
 Measured with [`scripts/eval_gate_phrasings.py`](../scripts/eval_gate_phrasings.py) on
 [`docs/eval/gated-phrasings.json`](eval/gated-phrasings.json) (50 messages written for this check, on a kettle, a gas
-stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-results-*.json`):
+stove, a power bank and a power strip). Every reading and outcome is in
+[`gated-phrasings-results-keyword.json`](eval/gated-phrasings-results-keyword.json) (keyword reader) and
+[`gated-phrasings-results-llm.json`](eval/gated-phrasings-results-llm.json) (live model):
 
-| Messages (judgements) | 3.2 word rules | 3.3 gate, keyword fallback (LLM down) | 3.3 gate, live LLM |
-|---|---|---|---|
-| Faults the word lists miss (120) | 0 | **120** | run the script with `LLM_API_KEY` |
-| Faults the word lists know (32) | 32 | 32 | |
-| Harmless returns: false positives (48) | 0 | 40 | |
+| Messages (judgements) | 3.2, no model reading | 3.3, keyword fallback (LLM down) | 3.2 + live model reading | **3.3 + live model reading** |
+|---|---|---|---|---|
+| Faults the word lists miss (120) | 0 | 120 | 80 | **120** |
+| Faults the word lists know (32) | 32 | 32 | 32 | **32** |
+| Harmless returns: false positives (48) | 0 | 40 | 0 | **4** |
 
-With the LLM down the fallback reads almost every message as `UNKNOWN`, so harmless returns of hazard-class products go
-to a person too: fail closed, by design. With the LLM, "I changed my mind" is read as `CHANGED_MIND` and passes; how
-often the model reads a real fault as one of the three clear reasons is exactly what the live run measures, and is the
-remaining risk of this rule. A hand check of 25 messages against the live model (2026-10-25, not the script) held only
-"the colour is not what the listing showed" among the harmless ones: `NOT_AS_DESCRIBED` is deliberately **not** a clear
-reason, because a hidden fault is often described that way, so a kettle in the wrong colour waits for a person.
+Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `openai/gpt-oss-20b` on Groq, rule
+`safety-gate/3.3.0-main` at `99dc962`, `--pace 10`. Every message got a model reading; none fell back to the keyword reader.
+
+* **In this set, all 30 fault phrasings that the word lists miss were held.** With the same model readings, 3.2 held 80
+  of the 120 judgements (the model read 20 of the 30 messages as `DAMAGED`). The 40 that only rule 3 holds are 10
+  messages the model read as `UNKNOWN` or `NOT_AS_DESCRIBED`, among them "It doesn't turn on", "The handle gets hot to
+  touch", "It smells odd" and "It gave me a tingle". So rule 3 matters with the model on, not only when it is down.
+* What 3.2 did with those 10, replayed through the app on the kettle only, with the same readings: 9 were refused by the
+  policy (reason `UNKNOWN`), and 1 ("The base is wet after every use.") reached the approval step. Either way no person's
+  safety review saw a fault report. Under 3.3 all 10 go to that review.
+* **One harmless message is held**, on all four products: "The colour is not what the listing showed."
+  (`NOT_AS_DESCRIBED`), so 1 message of 12. That is deliberate: `NOT_AS_DESCRIBED` is **not** a clear reason, because a hidden
+  fault is often described that way, so a kettle in the wrong colour waits for a person. Change of mind, no longer needed,
+  a gift, found it cheaper, ordered twice, wrong size, wrong item and an order-status question all pass.
+* With the LLM down the keyword reader reads almost every message as `UNKNOWN`, so 40 of 48 harmless judgements go to a
+  person: fail closed, by design.
+
+**What these numbers are not.**
+* There are 50 messages, written by us for this check; this is not customer traffic.
+* Each message is read once and judged on four products, so the effective sample is 50 readings, not 200 independent
+  judgements.
+* This is one run. The model's output can differ from run to run.
+* The set has no message giving two reasons and no non-English message. 120 / 120 and 32 / 32 are therefore not a recall
+  rate for real customers. The known gap below (two reasons in one message) is not measured: its Chinese form ("I
+  changed my mind, but it keeps tripping") passed once in a hand check, and the English form was held in the same check.
 
 3.3 only adds reviews: `tests/test_safety_reasons.py` compares it with the released 3.2, frozen in
 `tests/reference/safety_3_2.py` (not the new code with an argument dropped), over thousands of message × product ×
@@ -190,9 +211,17 @@ reports to a regulator, in English, not merchant support traffic.
 
 | Tier | What it is | Status for the Safety Gate on `main` |
 |---|---|---|
-| **1. Unit / integration tests** (mock PayPal, mock LLM, offline) | `tests/test_safety_gate.py` (144 tests; whole suite 1203 passed, 95.84% line coverage, run on 2026-10-25 at 65384a9): multilingual harm table (EN / ZH-Hant / ZH-Hans / ES / DE / JA / FR), normal-message negatives, product-class × fault, every model reading of the burn message, injection + safety combo, keyword-fallback path, direct POST to approve / refund / decline / approve-twice, tampered-row backstop, mixed Case M, seeded generative property test (90 random messages × random model reading × random request path: never approvable, Refund API never called), mutation sanity (19 source mutants incl. 7 for mark-reviewed, all killed by `tests/mutation_sanity.py`; plus in-test mutants); mark-reviewed has its own 17 tests in `tests/test_safety_review.py`. | **Proven for these messages and these code paths.** |
-| **2. Live demo** (Render + PayPal Sandbox + hands-on browser check) | The Spanish burn message and the ordinary flows (Case A / B / exchange / M) run against the deployed app; results are recorded in the PR / release notes and the judge guide. | **Shown on the deployed demo only**, with sandbox money. |
+| **1. Unit / integration tests** (mock PayPal, mock LLM, offline) | `tests/test_safety_gate.py` (144 tests) and `tests/test_safety_reasons.py` (42 tests, rule 3; whole suite 1609 passed, 95.94% line coverage, CI on 2026-10-25 at 99dc962): multilingual harm table (EN / ZH-Hant / ZH-Hans / ES / DE / JA / FR), normal-message negatives, product-class × fault, every model reading of the burn message, injection + safety combo, keyword-fallback path, direct POST to approve / refund / decline / approve-twice, tampered-row backstop, mixed Case M, seeded generative property test (90 random messages × random model reading × random request path: never approvable, Refund API never called), mutation sanity (19 source mutants incl. 7 for mark-reviewed, all killed by `tests/mutation_sanity.py`; plus in-test mutants); mark-reviewed has its own 17 tests in `tests/test_safety_review.py`. | **Proven for these messages and these code paths.** |
+| **2. Live demo** (Render + PayPal Sandbox + hands-on browser check) | The Spanish burn message and the ordinary flows (Case A / B / exchange / M) run against the deployed app; results are recorded in the PR / release notes and the judge guide; the 3.3 re-check of 2026-10-25 is listed below the table. | **Shown on the deployed demo only**, with sandbox money. |
 | **3. Real traffic** | Recall and precision on real customer messages, languages beyond the six, adversarial customers. | **NOT proven. Not measured.** There is no real-customer data. |
+
+**Live re-check of 3.3 (tier 2 detail).** After #86 and #87 were deployed (Render deploy `dep-dbeurbqvcj2c73e8ee10`, commit `99dc962`, rule `safety-gate/3.3.0-main`, live at 2026-10-25 11:54 London), the deployed demo was checked the same day against PayPal Sandbox and the real Channel3 catalogue. **Each item is one run, one sample, sandbox money only; none is a rate.**
+
+* **Camping stove (the earlier miss):** a Jetboil Flash with "It stopped working after two days, please refund me." was held as **Needs human safety review**, class `GAS`, Refund API calls 0, audit chain intact. The T-shirt control with the same message was not held (waited for a person's approval).
+* **Electric kettle:** "It keeps tripping the breaker" and "The colour is wrong, I'd like a refund" were **held** (rule 3: the model read `OTHER` and `NOT_AS_DESCRIBED`). "Wrong size, can I exchange it?" and "I changed my mind" were **not held** (waited for a person's approval, 0 refund calls).
+* **Demo flows unaffected:** Case A and Case M waited for approval with no safety hold; the Spanish burn message was held (the `/queue` example, and once through the agent gateway); a "too small" return of the default sneakers through the agent gateway waited for approval. That last run called the gateway tools directly with a fixed message; the model-driven "Shop, buy, return" button was not re-run live.
+* **Sandbox verification script on the deployed `99dc962`:** default run 31/31 PASS, `--mixed-only` 16/16 PASS (`--multi-batch-only` not re-run).
+* Every new case carried the rule version on its hash chain except the seeded `/queue` example and an un-held Case M (its intake writes the version only when a line is held), and every checked chain verified.
 
 **The "85/85 safety cases" figure is from the experimental `exp/supplier-routing-mvp1` branch** (an LLM-extraction pipeline
 evaluated on a synthetic held-out set; see `docs/impact-proof.md`). It is **not** a result for the code on `main`, which
@@ -268,8 +297,9 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 ## Known limits / remaining risks
 
 * For hazard-class products (rule 3) a missed fault now needs the model to read it as wrong size, wrong item or a change
-  of mind; not measured live by the script yet (see "Why rule 3"). With the LLM down, harmless returns of those products go
-  to a person (40 / 48 in the offline measurement).
+  of mind. In one live run on 50 messages we wrote ourselves, the model did that for none of the 30 faults (see "Why rule
+  3"); that is not a rate for real customers. With the LLM down, harmless returns of those products go to a person
+  (40 / 48 in the offline measurement).
 * **One reason per message.** The extractor gives one reason. "I changed my mind, and it keeps tripping" can be read as
   `CHANGED_MIND`; "too small, and the cord is frayed" is `SIZE_MISMATCH` to the keyword reader. Neither is held when the
   fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
@@ -291,5 +321,5 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 
 ### Added with the AI layer
 * It is a model: it can still miss (1 of 83 on our set) and it adds latency (one more LLM call on unflagged messages only, up to the timeout, when enabled) and token use on the live quota.
-* If the LLM is down, the gate is exactly the keyword gate; messages in uncovered languages then follow the ordinary flow as before.
+* If the LLM is down, the AI layer adds nothing and the gate is the keyword rules plus rule 3 failing closed. The intent reader falls back to the keyword reader, which reads most messages as `UNKNOWN`, so a hazard-class return is held for a person unless its patterns read it as a wrong size, a wrong item or a change of mind (40 of 48 harmless judgements held in the offline measurement above). A hazard-class return with no stored reading is treated as `UNKNOWN` by the money backstop and held too. Messages in uncovered languages about products that are not hazard-class follow the ordinary flow as before.
 * An AI escalation is explained by a short model-written note in the audit chain; treat it as a hint for the reviewer, not as evidence.

@@ -65,7 +65,9 @@ return. What the agent can and cannot set:
 | Refund amount | PayPal's capture, as for every order | unchanged |
 
 The product's real category reaches the Safety Gate, which classes products by name and category: "it stopped working
-after two days" on an electric kettle goes to a person's safety review, the same words on sneakers do not (tested).
+after two days" on an electric kettle goes to a person's safety review, the same words on sneakers do not (tested). Since
+Safety Gate 3.3 any return of a kettle goes to that review unless it is read as a wrong size, a wrong item or a change of
+mind.
 The order-placed entry on the hash chain records the product and that the server looked it up. In the tests Channel3
 is faked (`tests/test_catalog.py`, shaped like its documented API). On 2026-10-25 it was also run once against the real
 Channel3 API on the hosted demo: a search, a Sandbox purchase and a safety-gated return (one run each), plus one run of

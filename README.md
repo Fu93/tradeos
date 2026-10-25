@@ -52,7 +52,7 @@ Today one person reads it, checks the order, decides, and clicks refund in PayPa
 **What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
 only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
 a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
-is routed by deterministic code to a human safety review ahead of any refund or supplier task (tested for the messages and languages in `tests/test_safety_gate.py`; a keyword gate, not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
+is routed by deterministic code to a human safety review ahead of any refund or supplier task, and so is any return of a mains / heating / gas / battery product unless it was read as a wrong size, a wrong item or a change of mind (keyword patterns plus the model's reading, tested in `tests/test_safety_gate.py` and `tests/test_safety_reasons.py`; not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
 
 | Principle | How it is enforced (in code, not in the prompt) |
 |---|---|
@@ -254,10 +254,11 @@ cases carry no prefix because no approval happened.
   (plus a second, independent confirmation from the signed PayPal webhook when configured).
 * **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`. A message with
   instruction-like text is shown as **Rejected: instruction-like text in the message** (never reaches approval); a request
-  outside the two automated paths is shown as **Needs human review**. A message that reports a fault or harm on a
-  mains / heating / gas / battery product, or any burn / injury / fire / shock / melting / smoke language (EN, ZH, ES, DE,
-  JA, FR), is stopped earlier by the **Safety Gate** (deterministic code, independent of the LLM) and shown as
-  **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. A person can then **mark the case reviewed** with a required note (recorded on the hash chain; terminal
+  outside the two automated paths is shown as **Needs human review**. The **Safety Gate**
+  (deterministic code) stops a case earlier when the message uses burn / injury / fire / shock / melting / smoke language
+  (EN, ZH, ES, DE, JA, FR), or when the product is mains / heating / gas / battery and the return is anything other than a
+  wrong size, a wrong item or a change of mind. Such a case is shown as
+  **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. With the model unavailable, the keyword reader reads most messages as unknown, so almost every return of such a product is held for a person (it fails closed: 40 of 48 harmless judgements were held in the offline measurement, see [docs/safety-gate.md](docs/safety-gate.md)). A person can then **mark the case reviewed** with a required note (recorded on the hash chain; terminal
   state `SAFETY_REVIEWED`; no money moves and the case never re-enters the refund flow). See
   [docs/safety-gate.md](docs/safety-gate.md) for the rules, false-positive handling and what is and is not proven.
   The other labels are display only: the decision stays REJECTED, there is no approve button and the Refund API is not called.
@@ -668,7 +669,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-Over 1,150 tests (1,203 on 24 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
+Over 1,600 tests (1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
 `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
 (about 96% today). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate
 line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox, and lost-PayPal-reply
