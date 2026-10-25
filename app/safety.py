@@ -172,15 +172,39 @@ FAULT_PATTERNS = [(lang, re.compile(pat)) for lang, pat in _FAULT]
 FAULT_REASONS = frozenset({"DAMAGED"})  # LLM reasons that count as a reported fault (escalate-only)
 
 # --------------------------------------------------------------------------------------------- product class
+def _singular(word: str) -> str:
+    """Conservative English plural -> singular for MATCHING only (never shown or stored): heaters -> heater,
+    stoves -> stove, batteries -> battery, torches -> torch. Short words and -ss / -us / -is words (gas, glass, bus,
+    iris) are left alone."""
+    if len(word) < 4 or not word.endswith("s") or word.endswith(("ss", "us", "is")):
+        return word
+    if word.endswith("ies") and len(word) > 4:
+        return word[:-3] + "y"
+    if word.endswith(("ches", "shes", "sses", "xes")):
+        return word[:-2]
+    return word[:-1]
+
+
+def class_text(*parts: object) -> str:
+    """Text the product-class rules read: normalised, every non-letter/digit run (hyphen, '>', '&', comma, slash)
+    turned into one space, and every word reduced to its singular form. Channel3 sends category PATHS made of plural
+    leaves ("Sporting Goods > ... > Camping Stoves", "... > Hair Dryers"); the rules below are written in the
+    singular, so both sides must be brought to the same form before they are compared."""
+    text = re.sub(r"[\W_]+", " ", normalize(" ".join(str(p or "") for p in parts)))
+    return " ".join(_singular(w) for w in text.split())
+
+
+# Rules are written for class_text(): lowercase singular words, no punctuation (so "e-bike" arrives as "e bike").
 _CLASS_RULES: list[tuple[str, re.Pattern[str]]] = [
-    ("GAS", re.compile(r"\b(gas|propane|butane|lpg|burner|camp(?:ing)? stove|gas stove|lighter|regulator)\b")),
+    ("GAS", re.compile(r"\b(gas|propane|butane|lpg|burner|stove|lighter|regulator)\b")),
     ("MAINS_HEATING", re.compile(r"\b(kettle|heater|heating|toaster|iron|hair ?dryer|oven|fryer|air ?fryer|cooker|grill|hob|"
-                                 r"electric blanket|heated|hot plate|radiator|boiler|water heater|space heater)\b")),
-    ("BATTERY_THERMAL", re.compile(r"\b(battery|power ?bank|e-?bike|e-?scooter|scooter|vape|lithium|li-?ion|rechargeable|"
+                                 r"electric blanket|heated|hot plate|radiator|boiler|water heater|space heater|"
+                                 r"straightener|steamer|hot air)\b")),
+    ("BATTERY_THERMAL", re.compile(r"\b(battery|power ?bank|e ?bike|e ?scooter|scooter|vape|lithium|li ?ion|rechargeable|"
                                    r"hand warmer|heated (?:jacket|gloves|insoles|vest)|hoverboard)\b")),
     ("MAINS_ELECTRIC", re.compile(r"\b(lamp|light|charger|adapter|adaptor|extension|power strip|socket|plug|appliance|"
                                   r"blender|vacuum|fan|mixer|electric|electronic\w*|mains|cable|speaker|monitor|"
-                                  r"tv|television|router|dryer|washer|microwave|fridge|freezer)\b")),
+                                  r"tv|television|router|dryer|washer|microwave|fridge|freezer|surge)\b")),
 ]
 _CATEGORY_TO_CLASS = {"appliance": "MAINS_ELECTRIC", "appliances": "MAINS_ELECTRIC", "lighting": "MAINS_ELECTRIC",
                       "electronics": "MAINS_ELECTRIC", "electrical": "MAINS_ELECTRIC", "heating": "MAINS_HEATING",
@@ -196,7 +220,7 @@ def product_class(product: dict | None) -> str:
     explicit = str(product.get("safety_class") or "")
     if explicit in GATED_CLASSES:
         return explicit
-    text = normalize(f"{product.get('name') or ''} {cat}")
+    text = class_text(product.get("name"), cat)
     for cls, rx in _CLASS_RULES[:3]:  # the specific hazards first: gas, heating, battery / thermal
         if rx.search(text):
             return cls

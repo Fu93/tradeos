@@ -156,13 +156,56 @@ reports to a regulator, in English, not merchant support traffic.
 evaluated on a synthetic held-out set; see `docs/impact-proof.md`). It is **not** a result for the code on `main`, which
 uses a different, deterministic pattern layer and was **not** run on that set. No such number is claimed for `main`.
 
+## Product class: plural categories (fix, 2026-10-25)
+
+**Defect found live.** Channel3 sends a category *path* whose leaf is plural ("Sporting Goods > … > Camping Stoves",
+"… > Hair Dryers", "… > Space Heaters", "… > Toasters"). The class rules were written in the singular with a word
+boundary (`camp(ing)? stove`, `heater`, `hair ?dryer` …), so a plural-only leaf matched nothing: a Jetboil Flash
+(`find_product "Jetboil Flash"` -> `S2QsLVh`, title without a hazard word) with the plain message "It stopped working after
+two days, please refund me." had class `NONE` and was not held. Even the root "Household Appliances" did not match
+`appliance`.
+
+**Fix (`app/safety.py`, matching only).** `class_text()` normalises the name + category before the class rules read them:
+NFKC / case-fold / accents as before, then every run of non-letters (hyphen, `>`, `&`, comma, slash) becomes one space
+and every word is reduced to a conservative singular (`stoves` -> `stove`, `batteries` -> `battery`, `torches` ->
+`torch`; `gas`, `glass`, `bus`, words under 4 letters and -ss / -us / -is words are left alone). The rules are
+written for that form (`e-?bike` -> `e ?bike`). Added words, each needed by a real leaf that has no other hazard word:
+`stove` (was only "camp(ing) stove" / "gas stove"; so "Portable Cooking Stoves", "Wood Stoves", "Backpacking Stoves"),
+`straightener`, `steamer`, `hot air`, `surge`. The rules are only ever *wider*: nothing that was gated before is
+ungated (tested against the old rules; 0 of 5,595 taxonomy categories lost a class). Class labels can change inside the
+gated set (e.g. kettle `MAINS_ELECTRIC` -> `MAINS_HEATING`, "Batteries" `MAINS_ELECTRIC` -> `BATTERY_THERMAL`); all four
+classes are gated identically, so no decision changes because of a label.
+
+**Measured (offline, keyword layer only, `llm_reason=None`).**
+
+| Set | Before | After |
+|---|---|---|
+| 165-row self-authored eval (product fixtures are singular) | 46 / 83 missed, 10 / 82 false positives | identical |
+| CPSC 100 real narratives (keyword only) | 34 / 100 missed | 33 / 100 missed (id 33, a gasoline can in category "Fuel, Lighters and Fireworks": "Lighters" now reaches `GAS`) |
+| 308-item held-out v4 set, harm-language rule (the set has no catalogue product) | 17 / 85 safety cases flagged, 3 / 223 others flagged | identical (same 20 ids) |
+| Google Product Taxonomy, 5,595 category paths (Channel3 categories look like it), name without a hazard word | 674 gated (12.0 %) | 899 gated (16.1 %): +225, 0 lost |
+
+The frozen CPSC results file is **not** rescored; `tests/test_cpsc_eval_data.py` pins the one row that flips. The v4 set and
+its frozen results are untouched (and, having no product, cannot move).
+
+**Honest limits.** (1) The taxonomy row is a category list, not traffic: it shows how many *categories* are now gated, not
+how many returns. (2) Of the +225, about 30 are not hazard devices by my reading and are gated only because a word the rules
+already had is now also found in its plural ("Hair Extensions", "Drill Bit Extensions", "Pipe Caps & Plugs", "Tool Sockets",
+"Washers", "Dutch Ovens", "Double Boilers", "Riding Scooters", "Fireplace & Wood Stove Accessories", …). Over-triggering is
+the accepted direction; the cost is a human read of a fault message on those products. (3) `stove` also covers electric and
+wood stoves and is labelled `GAS`. (4) Candles are **not** a gated class (decision): a fault word alone on a candle is an
+ordinary return, and fire / smoke / burn words are caught by rule 1 for every product. (5) English plural rules only; other
+languages in a category name are not stemmed. (6) A product whose category *and* title carry no known word (a "Camp Kitchen
+Set" in "Outdoor Cooking") is still `NONE`: the class rule is keywords, not understanding.
+
 ## Known limits / remaining risks
 
 * Keyword patterns are not understanding: paraphrases, other languages, slang, misspellings and deliberate obfuscation beyond
   zero-width / full-width / letter-spacing (leetspeak, homoglyphs from other scripts, images) can miss. A missed message
   falls back to the old behaviour (LLM + policy + human approval for money), it does not become auto-approved.
-* The product class on `main` is derived from category + name keywords; the demo catalogue is footwear / apparel, so the
-  class × fault rule is exercised by tests with kettle / lamp / gas stove / power bank fixtures, not by live demo products.
+* The product class on `main` is derived from category + name keywords (plural-aware since the fix above). The seeded demo
+  catalogue is footwear / apparel, so the class × fault rule is exercised by tests (kettle / lamp / gas stove / power bank
+  fixtures and real Channel3 category paths), and, for Channel3 products, by live runs of the deployed app.
 * Only the free-text customer message is scanned (not attachments, photos, order notes or webhooks).
 * No in-app "release" to the refund flow for a reviewed false positive (by design: reviewing records a note only); no SLA / escalation / notification to a human; nothing is sent to the customer.
 
