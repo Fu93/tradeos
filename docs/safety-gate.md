@@ -35,18 +35,34 @@ Measured with [`scripts/eval_gate_phrasings.py`](../scripts/eval_gate_phrasings.
 [`docs/eval/gated-phrasings.json`](eval/gated-phrasings.json) (50 messages written for this check, on a kettle, a gas
 stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-results-*.json`):
 
-| Messages (judgements) | 3.2 word rules | 3.3 gate, keyword fallback (LLM down) | 3.3 gate, live LLM |
-|---|---|---|---|
-| Faults the word lists miss (120) | 0 | **120** | run the script with `LLM_API_KEY` |
-| Faults the word lists know (32) | 32 | 32 | |
-| Harmless returns: false positives (48) | 0 | 40 | |
+| Messages (judgements) | 3.2, no model reading | 3.3, keyword fallback (LLM down) | 3.2 + live model reading | **3.3 + live model reading** |
+|---|---|---|---|---|
+| Faults the word lists miss (120) | 0 | 120 | 80 | **120** |
+| Faults the word lists know (32) | 32 | 32 | 32 | **32** |
+| Harmless returns: false positives (48) | 0 | 40 | 0 | **4** |
 
-With the LLM down the fallback reads almost every message as `UNKNOWN`, so harmless returns of hazard-class products go
-to a person too: fail closed, by design. With the LLM, "I changed my mind" is read as `CHANGED_MIND` and passes; how
-often the model reads a real fault as one of the three clear reasons is exactly what the live run measures, and is the
-remaining risk of this rule. A hand check of 25 messages against the live model (2026-10-25, not the script) held only
-"the colour is not what the listing showed" among the harmless ones: `NOT_AS_DESCRIBED` is deliberately **not** a clear
-reason, because a hidden fault is often described that way, so a kettle in the wrong colour waits for a person.
+Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `openai/gpt-oss-20b` on Groq, rule
+`safety-gate/3.3.0-main` at `99dc962`, `--pace 10`. Every message got a model reading; none fell back to the keyword reader.
+
+* **No fault phrasing got through.** With the same model readings, 3.2 caught 80 of the 120 (the model read 20 of the
+  30 messages as `DAMAGED`). The 40 that only rule 3 holds are 10 messages the model read as `UNKNOWN` or
+  `NOT_AS_DESCRIBED`, among them "It doesn't turn on", "The handle gets hot to touch", "It smells odd" and "It gave me a
+  tingle". So rule 3 matters with the model on, not only when it is down.
+* **One harmless message is held**, on all four products: "The colour is not what the listing showed."
+  (`NOT_AS_DESCRIBED`), so 1 message of 12. That is deliberate: `NOT_AS_DESCRIBED` is **not** a clear reason, because a hidden
+  fault is often described that way, so a kettle in the wrong colour waits for a person. Change of mind, no longer needed,
+  a gift, found it cheaper, ordered twice, wrong size, wrong item and an order-status question all pass.
+* With the LLM down the keyword reader reads almost every message as `UNKNOWN`, so 40 of 48 harmless judgements go to a
+  person: fail closed, by design.
+
+**What these numbers are not.**
+* There are 50 messages, written by us for this check; this is not customer traffic.
+* Each message is read once and judged on four products, so the effective sample is 50 readings, not 200 independent
+  judgements.
+* This is one run. The model's output can differ from run to run.
+* The set has no message giving two reasons and no non-English message. 120 / 120 and 32 / 32 are therefore not a recall
+  rate for real customers. "I changed my mind, but it keeps tripping" (in English or Chinese) remains the known gap
+  below.
 
 3.3 only adds reviews: `tests/test_safety_reasons.py` compares it with the released 3.2, frozen in
 `tests/reference/safety_3_2.py` (not the new code with an argument dropped), over thousands of message × product ×
@@ -268,8 +284,9 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 ## Known limits / remaining risks
 
 * For hazard-class products (rule 3) a missed fault now needs the model to read it as wrong size, wrong item or a change
-  of mind; not measured live by the script yet (see "Why rule 3"). With the LLM down, harmless returns of those products go
-  to a person (40 / 48 in the offline measurement).
+  of mind. In one live run on 50 messages we wrote ourselves, the model did that for none of the 30 faults (see "Why rule
+  3"); that is not a rate for real customers. With the LLM down, harmless returns of those products go to a person
+  (40 / 48 in the offline measurement).
 * **One reason per message.** The extractor gives one reason. "I changed my mind, and it keeps tripping" can be read as
   `CHANGED_MIND`; "too small, and the cord is frayed" is `SIZE_MISMATCH` to the keyword reader. Neither is held when the
   fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
