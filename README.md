@@ -37,7 +37,7 @@ More orders placed by agents means more returns requested by agents, and a refun
 5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
 6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A progress page shows a scripted MCP client asking for three returns, call by call, through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
 7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
-8. **The merchant's view:** open **Inbox** (top left). Everything you just ran, from customers and from AI agents, sorted by what needs you, with the next step in plain words, PayPal Refund API calls and audit-chain status per request. "Refunds an AI agent approved" is computed from the cases, not a label.
+8. **The merchant's view:** open **Inbox** (top left). Everything you just ran, from customers and from AI agents, sorted by what needs you, with the next step in plain words, PayPal Refund API calls and audit-chain status per request. "Refunds an AI agent approved" is computed from the cases, not a label. The inbox updates itself while it is open (a new request flashes as it lands), and **Export CSV** downloads the rows you see.
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
@@ -94,7 +94,7 @@ flowchart LR
 
 ### Built during the hackathon
 
-First commit **8 Oct 2026**; every commit on `main` up to this tip is dated 8-19 Oct 2026. As of #71, 67 pull requests were merged, up to #71 (not merged: the experimental #9, the closed #33 and two dependabot PRs). Highlights:
+First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #88: 80 pull requests merged). Highlights:
 
 | Date | What landed |
 |---|---|
@@ -103,8 +103,19 @@ First commit **8 Oct 2026**; every commit on `main` up to this tip is dated 8-19
 | 11-12 Oct | Hardening: error classification, run serialisation, CI coverage gate + mypy + pip-audit, deploy-verify workflow, audit-head retention, ephemeral-persistence notice |
 | 17 Oct | Judge guidance + Sandbox notice, "PayPal proves" panel, honest LLM-unavailable notice, 375px mobile fixes, rate-limit client key |
 | 18 Oct | PayPal Disputes (read-only), seeded multilingual queue view, mixed orders with code-computed partial refunds, Postman collection, impact-proof doc, **Safety Gate**, downloadable evidence report, keyboard/accessibility pass |
+| 19-22 Oct | Safety Gate over every mixed-order line, discipline invariants locked in tests, verify-script fixes, replay threat table |
+| 24 Oct | **AI agent gateway (MCP)**: agents request, never approve; **returns inbox** on AG Grid; live-model agent runs; PayPal Agent Toolkit contrast; lost-PayPal-reply recovery; **Channel3** products for agents |
+| 25 Oct | Safety Gate 3.3: hazard-class products need a clear reason (measured with the live model); plural catalogue categories |
 
 Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Apr+is%3Amerged).
+
+### Partner tools
+
+| Tool | Where | What it does in TradeOS |
+|---|---|---|
+| **AG Grid** (Community 36.2, vendored: the strict CSP allows no CDN) | Returns inbox, `/inbox` | The merchant's queue. The page is a server-rendered table that AG Grid upgrades, so it works without JavaScript. **Live:** while the tab is visible it re-reads the rows every 15 s; `getRowId` keeps the reader's sort, filter, search and page, changed cells flash and a new request flashes as it lands (an agent run in another tab shows up here), and the counts above follow. **Triage:** "Needs you", "Safety reviews" and "From AI agents" (external filter), search across the visible and hidden text (quick filter), safety cases marked on the row (`rowClassRules`), the next step per row in plain words. **Export CSV** of exactly the rows on screen, with every cell that starts with `= + - @` prefixed so a spreadsheet opens it as text (buyer and agent names come from outside). Cells are built with `textContent` only; Enter on a row opens the case; secondary columns hide at phone width. |
+| **Channel3** | MCP tool `find_product`, live agent goal "Shop, buy, return" | Real products for agents to buy in the Sandbox. The server looks the product up again by id: title, category and price come from Channel3, never from the agent, and the category reaches the Safety Gate ([details](docs/agent-gateway.md)). |
+| **Render** | The hosted demo | Starter web service from the `render.yaml` Blueprint; `/healthz` reports the commit it serves, so every deploy is checked against GitHub ([Deploy](#deploy)). |
 
 ### Documentation index
 

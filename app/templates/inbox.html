@@ -16,12 +16,12 @@
 </section>
 
 <div class="inbox-stats" aria-label="Inbox summary">
-  <div class="stat needs"><strong>{{ summary.needs_you }}</strong><span>need you{% if summary.needs_you_agents %} · {{ summary.needs_you_agents }} from AI agents{% endif %}</span></div>
-  <div class="stat"><strong>{{ summary.waiting }}</strong><span>waiting on the buyer or PayPal</span></div>
-  <div class="stat"><strong>{{ summary.closed }}</strong><span>closed</span></div>
-  <div class="stat agent"><strong>{{ summary.agents }}</strong><span>requests from AI agents</span></div>
+  <div class="stat needs"><strong data-stat="needs_you">{{ summary.needs_you }}</strong><span>need you<span data-stat-agents>{% if summary.needs_you_agents %} · {{ summary.needs_you_agents }} from AI agents{% endif %}</span></span></div>
+  <div class="stat"><strong data-stat="waiting">{{ summary.waiting }}</strong><span>waiting on the buyer or PayPal</span></div>
+  <div class="stat"><strong data-stat="closed">{{ summary.closed }}</strong><span>closed</span></div>
+  <div class="stat agent"><strong data-stat="agents">{{ summary.agents }}</strong><span>requests from AI agents</span></div>
   <div class="stat proof" title="Agent requests approved by anything other than a person. The gateway offers agents no approve or refund tool, and the autonomy policy always escalates agent requests to a person.">
-    <strong>{{ summary.agent_approved }}</strong><span>refunds an AI agent approved</span></div>
+    <strong data-stat="agent_approved">{{ summary.agent_approved }}</strong><span>refunds an AI agent approved</span></div>
 </div>
 
 {% if rows %}
@@ -29,10 +29,15 @@
 <div class="inbox-tools" id="inbox-tools" hidden>
   <div class="seg" role="group" aria-label="Show">
     <button type="button" class="chip-btn" data-inbox-filter="needs_you" aria-pressed="false">Needs you</button>
+    <button type="button" class="chip-btn" data-inbox-filter="safety" aria-pressed="false">Safety reviews</button>
     <button type="button" class="chip-btn" data-inbox-filter="agents" aria-pressed="false">From AI agents</button>
     <button type="button" class="chip-btn" data-inbox-filter="all" aria-pressed="true">All</button>
   </div>
-  <label class="small inbox-search">Search <input type="search" id="inbox-search" placeholder="buyer, agent, status…" autocomplete="off"></label>
+  <div class="inbox-actions">
+    <span class="small muted" id="inbox-live" role="status" aria-live="polite"></span>
+    <label class="small inbox-search">Search <input type="search" id="inbox-search" placeholder="buyer, agent, status…" autocomplete="off"></label>
+    <button type="button" class="btn small" id="inbox-export" title="Download the rows you see (filter, search and sort applied) as a CSV file">Export CSV</button>
+  </div>
 </div>
 <div id="inbox-grid" class="ag-theme-quartz inbox-grid" hidden aria-label="Return requests"></div>
 
@@ -63,7 +68,7 @@
   </table>
 </div>
 {% else %}
-<div class="inbox-empty">
+<div class="inbox-empty" id="inbox-empty">
   <h2>No return requests yet</h2>
   <p>Requests appear here as they arrive. The shared demo starts empty after every restart.</p>
   {% if can_fill %}
