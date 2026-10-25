@@ -276,3 +276,40 @@ def test_the_counts_cover_every_request_even_when_the_table_is_cut(site, monkeyp
     page = client.get("/inbox").text
     assert "Showing the newest 2 of 3 requests" in page and ">3<" in page.replace("<strong>3</strong>", ">3<")
     assert set(ids) >= {r["id"] for r in data["rows"]}
+
+
+def test_the_live_grid_finds_every_count_it_updates(site):
+    """The grid re-reads /api/inbox and rewrites the counts by data-stat name: every summary key it may rewrite has an
+    element on the page, so renaming a key cannot silently freeze a count. Triage chip, export and live status exist."""
+    client, wf = site()
+    client.post("/demo/run/A")
+    page = client.get("/inbox").text
+    summary = client.get("/api/inbox").json()["summary"]
+    for key in ("needs_you", "waiting", "closed", "agents", "agent_approved"):
+        assert key in summary and f'data-stat="{key}"' in page
+    assert "data-stat-agents" in page and "needs_you_agents" in summary
+    assert 'data-inbox-filter="safety"' in page and 'id="inbox-export"' in page
+    assert 'id="inbox-live" role="status" aria-live="polite"' in page
+    js = Path("app/static/app.js").read_text()
+    assert '"NEEDS_HUMAN_SAFETY_REVIEW"' in js and safety.SAFETY_STATUS == "NEEDS_HUMAN_SAFETY_REVIEW"
+    empty = site()[0].get("/inbox").text
+    assert 'id="inbox-empty"' in empty  # an empty inbox reloads itself when the first request arrives
+
+
+def test_the_csv_export_opens_outsider_text_as_text():
+    """Buyer and agent names come from outside. A cell starting with = + - @ (or tab / CR) is a formula to a
+    spreadsheet, so the export prefixes it with '. Runs the page's own function under node when node is present."""
+    import json
+    import re
+    import shutil
+    import subprocess
+    js = Path("app/static/app.js").read_text()
+    m = re.search(r"function csvSafe\(v\) \{.*?\n  \}", js, re.S)
+    assert m and "processCellCallback: exportCell" in js and "processHeaderCallback" in js
+    if not shutil.which("node"):
+        pytest.skip("node not installed: checked the wiring only")
+    cases = ['=HYPERLINK("http://x")', "+1", "-2", "@SUM(A1)", "\tx", "\rx", "Maria", "", "a=b", "9.99 USD"]
+    script = m.group(0) + "\nconsole.log(JSON.stringify(" + json.dumps(cases) + ".map(csvSafe)));"
+    got = json.loads(subprocess.run(["node", "-e", script], capture_output=True, text=True, check=True).stdout)
+    assert got[:6] == ["'" + c for c in cases[:6]]
+    assert got[6:] == cases[6:]

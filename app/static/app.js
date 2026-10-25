@@ -243,6 +243,19 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
 // Returns inbox: upgrade the server-rendered table to a sortable, filterable AG Grid. If the grid script did not
 // load (or fetch fails), the table stays, so the page always works. Cells are built from DOM nodes with
 // textContent, never HTML strings: buyer names and agent names come from outside.
+var INBOX_POLL_MS = 15000;  // live refresh while the tab is visible; read-only GET, no PayPal call
+var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
+(function () {  // empty inbox: reload once the first request arrives (e.g. an agent run in another tab)
+  var empty = document.getElementById("inbox-empty");
+  if (!empty || !window.fetch) return;
+  function check() {
+    if (document.hidden) return setTimeout(check, INBOX_POLL_MS);
+    fetch("/api/inbox", { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { if (d && d.rows && d.rows.length) window.location.reload(); else setTimeout(check, INBOX_POLL_MS); })
+      .catch(function () { setTimeout(check, INBOX_POLL_MS * 2); });
+  }
+  setTimeout(check, INBOX_POLL_MS);
+})();
 (function () {
   var host = document.getElementById("inbox-grid");
   if (!host || !window.agGrid || !window.fetch) return;
@@ -297,9 +310,34 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     { headerName: "Refunds", headerTooltip: "PayPal Refund API calls made for this request", field: "refund_api_calls",
       width: 102, type: "numericColumn", hide: narrow },
     { headerName: "Audit", headerTooltip: "The case's hash-chained audit trail verifies", field: "chain_ok", width: 84, hide: narrow,
-      cellRenderer: function (p) { return p.value ? node("span", "", "intact") : node("span", "cell-bad", "BROKEN"); } }
+      cellRenderer: function (p) { return p.value ? node("span", "", "intact") : node("span", "cell-bad", "BROKEN"); } },
+    // Not shown; exported to CSV so the file stands on its own (case id, raw status, item, the policy's reason).
+    { headerName: "Case", field: "id", hide: true },
+    { headerName: "Status", field: "status", hide: true },
+    { headerName: "Item", field: "item", hide: true },
+    { headerName: "Why", field: "why", hide: true }
   ];
+  // CSV cells that start with = + - @ (or a tab / CR) are formulas to a spreadsheet. Buyer and agent names come from
+  // outside, so such a cell is prefixed with ' and opens as text (OWASP: CSV injection).
+  function csvSafe(v) {
+    var s = v === null || v === undefined ? "" : String(v);
+    return /^[=+\-@\t\r]/.test(s) ? "'" + s : s;
+  }
+  function exportCell(p) {
+    var f = p.column.getColId();
+    if (f === "chain_ok") return p.value ? "intact" : "BROKEN";
+    if (f === "requested_by" && p.node.data) {
+      return csvSafe(p.node.data.from_agent ? "AI agent: " + p.value + (p.node.data.verified ? " (verified)" : " (self-declared)")
+                                            : "Customer message");
+    }
+    return csvSafe(p.value);
+  }
+  var stamp = function () { var d = new Date(); return d.toISOString().slice(0, 16).replace(":", ""); };
 
+  function passes(d) {
+    return mode === "needs_you" ? d.bucket === "needs_you" : mode === "agents" ? d.from_agent
+      : mode === "safety" ? d.status === SAFETY_STATUS : true;
+  }
   function setMode(next) {
     mode = next;
     Array.prototype.forEach.call(document.querySelectorAll("[data-inbox-filter]"), function (b) {
@@ -315,16 +353,16 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
       theme: "legacy",
       rowData: data.rows,
       columnDefs: columns,
-      defaultColDef: { sortable: true, resizable: true, suppressHeaderMenuButton: true },  // search + buttons filter
+      defaultColDef: { sortable: true, resizable: true, suppressHeaderMenuButton: true,  // search + buttons filter
+                       enableCellChangeFlash: true },  // a live refresh flashes the cells whose value changed
       getRowId: function (p) { return p.data.id; },
       domLayout: "autoHeight",
       rowHeight: 58,
       pagination: true, paginationPageSize: 20, paginationPageSizeSelector: false,
       tooltipShowDelay: 300,
       isExternalFilterPresent: function () { return mode !== "all"; },
-      doesExternalFilterPass: function (n) {
-        return mode === "needs_you" ? n.data.bucket === "needs_you" : mode === "agents" ? n.data.from_agent : true;
-      },
+      doesExternalFilterPass: function (n) { return passes(n.data); },
+      rowClassRules: { "row-safety": function (p) { return !!p.data && p.data.status === SAFETY_STATUS; } },
       onRowClicked: function (e) {
         if (e.event && e.event.target && e.event.target.closest("a")) return;  // the link handles itself
         window.location.href = caseHref(e.data.id);
@@ -338,6 +376,52 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     });
     if (search) search.addEventListener("input", function () { api.setGridOption("quickFilterText", search.value); });
     if (data.summary && data.summary.needs_you > 0) { setMode("needs_you"); api.onFilterChanged(); }
+    var exportBtn = document.getElementById("inbox-export");
+    if (exportBtn) exportBtn.addEventListener("click", function () {
+      api.exportDataAsCsv({ fileName: "tradeos-returns-" + stamp() + ".csv", allColumns: true,
+                            processCellCallback: exportCell, processHeaderCallback: function (p) {
+                              return csvSafe(p.column.getColDef().headerName); } });
+    });
+
+    // Live: re-read the rows every few seconds while the tab is visible. getRowId lets the grid keep each row (and
+    // the reader's sort, filter, search and page) and update only what changed; changed cells flash, new rows flash
+    // whole, and the counts above follow. A failed read keeps the last rows and retries more slowly.
+    var live = document.getElementById("inbox-live"), known = {};
+    data.rows.forEach(function (r) { known[r.id] = true; });
+    function hhmm() { var d = new Date(); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2) + ":" + ("0" + d.getSeconds()).slice(-2); }
+    function setStats(s) {
+      if (!s) return;
+      Object.keys(s).forEach(function (k) {
+        var el = document.querySelector('[data-stat="' + k + '"]');
+        if (el && el.textContent !== String(s[k])) el.textContent = String(s[k]);
+      });
+      var a = document.querySelector("[data-stat-agents]");
+      if (a) a.textContent = s.needs_you_agents ? " · " + s.needs_you_agents + " from AI agents" : "";
+    }
+    if (live) live.textContent = "Live · updated " + hhmm();
+    function poll(delay) {
+      setTimeout(function () {
+        if (document.hidden) return poll(INBOX_POLL_MS);
+        fetch("/api/inbox", { cache: "no-store" }).then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        }).then(function (d) {
+          var fresh = d.rows.filter(function (r) { return !known[r.id]; });
+          api.setGridOption("rowData", d.rows);
+          fresh.forEach(function (r) { known[r.id] = true; });
+          var nodes = fresh.map(function (r) { return api.getRowNode(r.id); }).filter(Boolean);
+          if (nodes.length) api.flashCells({ rowNodes: nodes, flashDuration: 1500 });
+          setStats(d.summary);
+          if (live) live.textContent = (fresh.length ? fresh.length + (fresh.length === 1 ? " new request" : " new requests") + " · " : "")
+            + "Live · updated " + hhmm();
+          poll(INBOX_POLL_MS);
+        }).catch(function () {
+          if (live) live.textContent = "Live refresh paused (could not reach the server); retrying";
+          poll(INBOX_POLL_MS * 2);
+        });
+      }, delay);
+    }
+    poll(INBOX_POLL_MS);
     host.hidden = false;
     if (tools) tools.hidden = false;
     if (table) table.hidden = true;
