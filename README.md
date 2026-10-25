@@ -8,11 +8,15 @@
 
 **Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
 
-![TradeOS in 20 seconds: fill the inbox, an AI agent's honest request waits for a person, the merchant approves, and the inbox still shows 0 refunds approved by an AI agent](docs/img/demo.gif)
+![TradeOS on the live PayPal Sandbox, about 23 seconds: the inbox fills, a customer message about a burned foot is held for safety review with 0 refunds, an AI agent's honest request waits for a person, the merchant approves, PayPal confirms a Sandbox refund, and the inbox still shows 0 refunds approved by an AI agent](docs/img/demo.gif)
 
-<sub>Recorded with <code>scripts/record_demo_gif.py</code> against a local server with PayPal in <b>mock</b> mode (the
-red badge in every frame; IDs are fake). The hosted demo runs the same steps on the live PayPal Sandbox. The agent here is
-the scripted MCP client, not a model.</sub>
+<sub>Recorded on 25 Oct 2026 against the hosted demo at commit <code>f00b44c</code>: the <b>live PayPal Sandbox</b>, no
+real money (the badge in every frame reads "PayPal: Sandbox (live API)"; the order, capture and refund IDs are Sandbox
+IDs). A headless browser drove the real pages, one frame per step, none retouched (a scrolled frame keeps the page's own
+header on top); <code>scripts/record_demo_gif.py</code> does the same steps without the safety-held message and the
+Safety reviews filter. The agent is the scripted MCP client, not a model, and the script clicks "Approve &amp; refund" in the
+merchant's place. The safety hold is the deterministic Safety Gate on a Spanish test message (the optional AI safety
+classifier and autonomy are off on the hosted demo). Not covered: this is one run, not a test or a measurement.</sub>
 
 **AI agents are starting to buy for people. Someone has to decide what they may do when the order comes back.**
 PayPal's agentic commerce services ([Agent Ready, Store Sync](https://developer.paypal.com/docsai/growth/agentic-commerce/overview))
