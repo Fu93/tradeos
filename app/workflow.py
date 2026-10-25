@@ -500,7 +500,7 @@ class Workflow:
         extraction = self.extractor.extract(case["customer_message"])
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
         # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
-        gate = safety_assess(case["customer_message"], product, extraction.result.reason)
+        gate = safety_assess(case["customer_message"], product, extraction.result.reason, extraction.result.intent)
         gate, ai_info = self.safety_screen(gate, case["customer_message"], product)
         assist = extraction.assist.model_dump() if extraction.assist else None  # info only
         self.db.update_case(case_id, intent_json=json.dumps(intent),
@@ -669,11 +669,12 @@ class Workflow:
         if case.get("status") in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get("decision") == NEEDS_SAFETY:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: Safety Gate case {case['id']} cannot be approved or refunded here.")
         reason = (case.get("intent") or {}).get("reason")
+        intent = (case.get("intent") or {}).get("intent")
         if case.get("decision") == MIXED:
             products = [self.db.get_product(r["sku"]) for r in self.db.get_items(case["id"])]
             # Per-line proposal reason can only ADD a fault signal (DAMAGED on a gated SKU).
             line_reasons = [(r.get("proposal") or {}).get("reason") for r in self.db.get_items(case["id"])]
-            flagged = safety_assess_any(case.get("customer_message"), products, reason).flagged
+            flagged = safety_assess_any(case.get("customer_message"), products, reason, intent).flagged
             if not flagged:
                 for product, lr in zip(products, line_reasons):
                     if safety_assess(case.get("customer_message"), product, lr).flagged:
@@ -684,7 +685,7 @@ class Workflow:
                                        "approval and refund are refused.")
             return
         product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
-        if safety_assess(case.get("customer_message"), product, reason).flagged:
+        if safety_assess(case.get("customer_message"), product, reason, intent).flagged:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
                                    "approval and refund are refused.")
 

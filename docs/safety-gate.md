@@ -16,15 +16,42 @@ the gate is here.
 | Where it runs | In `_after_capture`, right after the intent is extracted and **before** the PayPal capture lookup, the policy engine, the supplier draft, the autonomy verdict and any approval. (Case M: before any line is decided.) |
 | Rule 1: harm language | Any hit of a pattern for fire, smoke, sparks, burn, blister, melt, electric shock, gas, explosion, burnt smell, injury / bleeding, cut, allergic reaction / rash, choking / swallowing / small parts, chemical smell / dizziness, "dangerous / toxic" — for **any** product. |
 | Rule 2: product class × fault | A reported fault (broken, not heating, stopped working, leaking, flickering, …) on a product whose class is `MAINS_HEATING`, `MAINS_ELECTRIC`, `GAS` or `BATTERY_THERMAL`. The class comes from the catalogue category + product name (code). The LLM reading `reason = DAMAGED` also counts as a fault on those classes. |
+| Rule 3 (3.3): hazard-class products need a clear reason | On those four classes, a return skips the review **only** when the model read it as `SIZE_MISMATCH`, `WRONG_ITEM` or `CHANGED_MIND`. Any other reading (`DAMAGED`, `NOT_AS_DESCRIBED`, `OTHER`, `UNKNOWN`) goes to a person, whatever words were used. Order-status questions (`ORDER_STATUS`) are not returns. Rules 1 and 2 still apply on top. |
 | Result | Case status and decision become `NEEDS_HUMAN_SAFETY_REVIEW`. Label: **Needs human safety review**. |
 | Nothing else happens | No PayPal capture lookup, no policy result, no supplier draft or task, no approve / decline button, Refund API **NOT CALLED**. Audit-chain entry `Safety Gate: Needs human safety review — ahead of refund and supplier tasks` with the matched signals, the (ignored) LLM reading, `refund_api_called: false`, `supplier_contacted: false`. |
 | Where it shows | Result card, pipeline strip, case-list chip, "other cases waiting" list, the `/queue` judge guide (the Spanish seed `q-es`), and a one-click Spanish preset. |
 
+## Why rule 3: stop growing the word list (3.3, 2026-10-25)
+
+Rule 2 asked "did the customer use one of our fault words?". A live check on a gated kettle found that half of 78
+plausible fault descriptions got past it: "doesn't turn on", "keeps tripping", "hot to touch", "smells odd", "frayed
+cord", "battery bulging". Adding those words would fix those 39 and miss the next 39; a list of every way to describe a
+fault does not exist. A list of reasons that say nothing about how a product works does: wrong size, wrong item, changed
+mind. So for hazard-class products the question is now the second one, and the word lists stay only as an extra layer
+(and as the whole gate for products that are not hazard-class).
+
+Measured with [`scripts/eval_gate_phrasings.py`](../scripts/eval_gate_phrasings.py) on
+[`docs/eval/gated-phrasings.json`](eval/gated-phrasings.json) (50 messages written for this check, on a kettle, a gas
+stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-results-*.json`):
+
+| Messages (judgements) | 3.2 word rules | 3.3 gate, keyword fallback (LLM down) | 3.3 gate, live LLM |
+|---|---|---|---|
+| Faults the word lists miss (120) | 0 | **120** | run the script with `LLM_API_KEY` |
+| Faults the word lists know (32) | 32 | 32 | |
+| Harmless returns: false positives (48) | 0 | 40 | |
+
+With the LLM down the fallback reads almost every message as `UNKNOWN`, so harmless returns of hazard-class products go
+to a person too: fail closed, by design. With the LLM, "I changed my mind" is read as `CHANGED_MIND` and passes; how
+often the model reads a real fault as one of the three clear reasons is exactly what the live run measures, and is the
+remaining risk of this rule. 3.3 only adds reviews: `tests/test_safety_reasons.py` checks, over thousands of message ×
+product × reading × intent combinations, that nothing 3.2 flagged is unflagged. The frozen evaluations above were not
+re-run; their safety recall is a lower bound for 3.3, and their human-share figures would rise.
+
 ## LLM independence
 
-The gate is a pure function `assess(message, product, llm_reason)` of the raw message, the product and (optionally) the
-model's `reason`. The model's reading can only **add** a signal (reason `DAMAGED` on a gated class); it can never remove
-one. So the Spanish message *"La suela se derritió con el calor y me quemé el pie…"* routes to
+The gate is a pure function `assess(message, product, llm_reason, intent)` of the raw message, the product and
+(optionally) the model's `reason` and `intent`. The model's reading can only **add** a signal (on a gated class: reason
+`DAMAGED`, or since 3.3 any reason other than the three clear ones); it can never remove one. So the Spanish message *"La suela se derritió con el calor y me quemé el pie…"* routes to
 `NEEDS_HUMAN_SAFETY_REVIEW` even when the model reads it as `REFUND_REQUEST / DAMAGED / REFUND` (an approvable request).
 That case is a test (`test_llm_misread_as_refund_damaged_still_routes_to_safety_review`) and every
 (intent × reason × action) combination of the model schema is tested for the same message.
@@ -225,6 +252,12 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 
 ## Known limits / remaining risks
 
+* For hazard-class products (rule 3) a missed fault now needs the model to read it as wrong size, wrong item or a change
+  of mind; not measured live yet (see "Why rule 3"). With the LLM down, harmless returns of those products go to a person.
+* Products that no category marks as hazard-class (for example candles, lawnmowers, treadmills) get rules 1 and 2 only,
+  so a fault on them needs a word from the lists. Which products count as hazard-class is a product decision.
+* An apparel return with burn words ("a burnt hole through the sleeve") goes to a person: rule 1 is product-independent
+  on purpose. A known false positive.
 * Keyword patterns are not understanding: paraphrases, other languages, slang, misspellings and deliberate obfuscation beyond
   zero-width / full-width / letter-spacing (leetspeak, homoglyphs from other scripts, images) can miss. A missed message
   falls back to the old behaviour (LLM + policy + human approval for money), it does not become auto-approved.
