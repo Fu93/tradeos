@@ -52,7 +52,7 @@ Today one person reads it, checks the order, decides, and clicks refund in PayPa
 **What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
 only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
 a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
-is routed by deterministic code to a human safety review ahead of any refund or supplier task, and so is any return of a mains / heating / gas / battery product unless it was read as a wrong size, a wrong item or a change of mind (tested in `tests/test_safety_gate.py` and `tests/test_safety_reasons.py`; not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
+is routed by deterministic code to a human safety review ahead of any refund or supplier task, and so is any return of a mains / heating / gas / battery product unless it was read as a wrong size, a wrong item or a change of mind (keyword patterns plus the model's reading, tested in `tests/test_safety_gate.py` and `tests/test_safety_reasons.py`; not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
 
 | Principle | How it is enforced (in code, not in the prompt) |
 |---|---|
@@ -254,9 +254,10 @@ cases carry no prefix because no approval happened.
   (plus a second, independent confirmation from the signed PayPal webhook when configured).
 * **Rejected** shows `Refund not executed`, the policy reason, `Refund API calls: 0` and `Refund ID: none`. A message with
   instruction-like text is shown as **Rejected: instruction-like text in the message** (never reaches approval); a request
-  outside the two automated paths is shown as **Needs human review**. A return of a mains / heating / gas / battery
-  product not read as a wrong size, a wrong item or a change of mind, a fault reported on one, or any burn / injury / fire
-  / shock / melting / smoke language (EN, ZH, ES, DE, JA, FR), is stopped earlier by the **Safety Gate** (deterministic code, independent of the LLM) and shown as
+  outside the two automated paths is shown as **Needs human review**. The **Safety Gate**
+  (deterministic code) stops a case earlier when the message uses burn / injury / fire / shock / melting / smoke language
+  (EN, ZH, ES, DE, JA, FR), or when the product is mains / heating / gas / battery and the return is anything other than a
+  wrong size, a wrong item or a change of mind. Such a case is shown as
   **Needs human safety review**: no approve button, Refund API NOT CALLED, no supplier task, enforced server-side. A person can then **mark the case reviewed** with a required note (recorded on the hash chain; terminal
   state `SAFETY_REVIEWED`; no money moves and the case never re-enters the refund flow). See
   [docs/safety-gate.md](docs/safety-gate.md) for the rules, false-positive handling and what is and is not proven.

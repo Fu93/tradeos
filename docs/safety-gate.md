@@ -33,7 +33,9 @@ mind. So for hazard-class products the question is now the second one, and the w
 
 Measured with [`scripts/eval_gate_phrasings.py`](../scripts/eval_gate_phrasings.py) on
 [`docs/eval/gated-phrasings.json`](eval/gated-phrasings.json) (50 messages written for this check, on a kettle, a gas
-stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-results-*.json`):
+stove, a power bank and a power strip). Every reading and outcome is in
+[`gated-phrasings-results-keyword.json`](eval/gated-phrasings-results-keyword.json) (keyword reader) and
+[`gated-phrasings-results-llm.json`](eval/gated-phrasings-results-llm.json) (live model):
 
 | Messages (judgements) | 3.2, no model reading | 3.3, keyword fallback (LLM down) | 3.2 + live model reading | **3.3 + live model reading** |
 |---|---|---|---|---|
@@ -44,10 +46,13 @@ stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-res
 Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `openai/gpt-oss-20b` on Groq, rule
 `safety-gate/3.3.0-main` at `99dc962`, `--pace 10`. Every message got a model reading; none fell back to the keyword reader.
 
-* **No fault phrasing got through.** With the same model readings, 3.2 caught 80 of the 120 (the model read 20 of the
-  30 messages as `DAMAGED`). The 40 that only rule 3 holds are 10 messages the model read as `UNKNOWN` or
-  `NOT_AS_DESCRIBED`, among them "It doesn't turn on", "The handle gets hot to touch", "It smells odd" and "It gave me a
-  tingle". So rule 3 matters with the model on, not only when it is down.
+* **In this set, all 30 fault phrasings that the word lists miss were held.** With the same model readings, 3.2 held 80
+  of the 120 judgements (the model read 20 of the 30 messages as `DAMAGED`). The 40 that only rule 3 holds are 10
+  messages the model read as `UNKNOWN` or `NOT_AS_DESCRIBED`, among them "It doesn't turn on", "The handle gets hot to
+  touch", "It smells odd" and "It gave me a tingle". So rule 3 matters with the model on, not only when it is down.
+* What 3.2 did with those 10, replayed through the app on the kettle only, with the same readings: 9 were refused by the
+  policy (reason `UNKNOWN`), and 1 ("The base is wet after every use.") reached the approval step. Either way no person's
+  safety review saw a fault report. Under 3.3 all 10 go to that review.
 * **One harmless message is held**, on all four products: "The colour is not what the listing showed."
   (`NOT_AS_DESCRIBED`), so 1 message of 12. That is deliberate: `NOT_AS_DESCRIBED` is **not** a clear reason, because a hidden
   fault is often described that way, so a kettle in the wrong colour waits for a person. Change of mind, no longer needed,
@@ -61,8 +66,8 @@ Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `op
   judgements.
 * This is one run. The model's output can differ from run to run.
 * The set has no message giving two reasons and no non-English message. 120 / 120 and 32 / 32 are therefore not a recall
-  rate for real customers. "I changed my mind, but it keeps tripping" (in English or Chinese) remains the known gap
-  below.
+  rate for real customers. The known gap below (two reasons in one message) is not measured: its Chinese form ("I
+  changed my mind, but it keeps tripping") passed once in a hand check, and the English form was held in the same check.
 
 3.3 only adds reviews: `tests/test_safety_reasons.py` compares it with the released 3.2, frozen in
 `tests/reference/safety_3_2.py` (not the new code with an argument dropped), over thousands of message × product ×
