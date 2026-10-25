@@ -15,6 +15,10 @@ power strip). Reported per group:
 * benign: returns that say nothing about how the product works. A flag here is a false positive: a person reads a
   harmless return. Lower is better, but a false positive costs a minute of someone's time, a miss does not.
 
+A live run refuses to mix extractors: without LLM_API_KEY it stops (use --keyword-only for the offline figures), and if
+the model fails on any message (quota, timeout: TradeOS then falls back to the keyword reader) it stops and writes
+nothing, because a "live" result half made of keyword readings would understate the false positives and the misses.
+
 Each run writes docs/eval/gated-phrasings-results-<extractor>.json with every message's reading and outcome, so a
 change of model or rule can be compared line by line. Nothing here decides anything or touches PayPal.
 """
@@ -29,7 +33,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from app.config import Settings  # noqa: E402
-from app.intent import KeywordIntentExtractor, build_extractor  # noqa: E402
+from app.intent import KeywordIntentExtractor, LLMIntentExtractor, build_extractor  # noqa: E402
 from app.safety import FAULT_REASONS, SAFETY_RULE_VERSION, assess  # noqa: E402
 
 PRODUCTS = {
@@ -42,7 +46,11 @@ PRODUCTS = {
 }
 
 
-def run(extractor, pace: float) -> dict:
+class FallbackDetected(RuntimeError):
+    """The model did not answer for a message, so the keyword fallback did: the live run is not a live run."""
+
+
+def run(extractor, pace: float, live: bool = False) -> dict:
     phrases = json.loads((ROOT / "docs/eval/gated-phrasings.json").read_text())
     groups: dict[str, dict] = {}
     rows = []
@@ -50,6 +58,9 @@ def run(extractor, pace: float) -> dict:
         words = gate = total = 0
         for message in phrases[group]:
             extraction = extractor.extract(message)
+            if live and extraction.llm_unavailable:
+                raise FallbackDetected(f"the model did not answer for {message!r} ({extraction.note}); "
+                                       "nothing written. Wait for the quota to reset or raise --pace, then run again.")
             reason, intent = extraction.result.reason, extraction.result.intent
             for cls, product in PRODUCTS.items():
                 by_words = assess(message, product, reason if reason in FAULT_REASONS else None).flagged
@@ -74,7 +85,14 @@ def main() -> int:
         extractor, pace = KeywordIntentExtractor(), 0.0
     else:
         extractor = build_extractor(Settings.from_env())
-    result = run(extractor, pace)
+        if not isinstance(extractor, LLMIntentExtractor):
+            print("LLM_API_KEY is not set: no live run. Use --keyword-only for the offline figures.", file=sys.stderr)
+            return 2
+    try:
+        result = run(extractor, pace, live=isinstance(extractor, LLMIntentExtractor))
+    except FallbackDetected as exc:
+        print(f"stopped: {exc}", file=sys.stderr)
+        return 1
     name = "keyword" if isinstance(extractor, KeywordIntentExtractor) else "llm"
     out = ROOT / f"docs/eval/gated-phrasings-results-{name}.json"
     out.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n")

@@ -13,7 +13,7 @@ Rule (either is enough):
 Design choices (see docs/safety-gate.md):
   * Over-triggering is accepted: a flag only routes the case to a person. It never rejects, refunds or contacts a
     supplier. Negation ("no smoke") is NOT used to suppress a hit, because a missed hazard costs more than a read.
-  * Pure function of (message, product, LLM reason). No I/O, no state.
+  * Pure function of (message, product, LLM reason, LLM intent). No I/O, no state.
 """
 
 from __future__ import annotations

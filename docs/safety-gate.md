@@ -13,11 +13,12 @@ the gate is here.
 
 | Step | Behaviour |
 |---|---|
-| Where it runs | In `_after_capture`, right after the intent is extracted and **before** the PayPal capture lookup, the policy engine, the supplier draft, the autonomy verdict and any approval. (Case M: before any line is decided.) |
+| Where it runs | In `_after_capture`, right after the intent is extracted and **before** the PayPal capture lookup, the policy engine, the supplier draft, the autonomy verdict and any approval. (Case M: on the message at intake, then line by line with each line's own reading, before any line is decided.) |
 | Rule 1: harm language | Any hit of a pattern for fire, smoke, sparks, burn, blister, melt, electric shock, gas, explosion, burnt smell, injury / bleeding, cut, allergic reaction / rash, choking / swallowing / small parts, chemical smell / dizziness, "dangerous / toxic" — for **any** product. |
 | Rule 2: product class × fault | A reported fault (broken, not heating, stopped working, leaking, flickering, …) on a product whose class is `MAINS_HEATING`, `MAINS_ELECTRIC`, `GAS` or `BATTERY_THERMAL`. The class comes from the catalogue category + product name (code). The LLM reading `reason = DAMAGED` also counts as a fault on those classes. |
 | Rule 3 (3.3): hazard-class products need a clear reason | On those four classes, a return skips the review **only** when the model read it as `SIZE_MISMATCH`, `WRONG_ITEM` or `CHANGED_MIND`. Any other reading (`DAMAGED`, `NOT_AS_DESCRIBED`, `OTHER`, `UNKNOWN`) goes to a person, whatever words were used. Order-status questions (`ORDER_STATUS`) are not returns. Rules 1 and 2 still apply on top. |
 | Result | Case status and decision become `NEEDS_HUMAN_SAFETY_REVIEW`. Label: **Needs human safety review**. |
+| Which rule judged it | The rule version (`SAFETY_RULE_VERSION`, now `safety-gate/3.3.0-main`) is written to the case's hash chain: in the safety entry when the gate holds a case, in the `Intent extracted` entry (`safety_gate: {flagged, rule_version}`) when it does not. Case M's per-line hold writes it in its safety entry. |
 | Nothing else happens | No PayPal capture lookup, no policy result, no supplier draft or task, no approve / decline button, Refund API **NOT CALLED**. Audit-chain entry `Safety Gate: Needs human safety review — ahead of refund and supplier tasks` with the matched signals, the (ignored) LLM reading, `refund_api_called: false`, `supplier_contacted: false`. |
 | Where it shows | Result card, pipeline strip, case-list chip, "other cases waiting" list, the `/queue` judge guide (the Spanish seed `q-es`), and a one-click Spanish preset. |
 
@@ -43,9 +44,23 @@ stove, a power bank and a power strip; results in `docs/eval/gated-phrasings-res
 With the LLM down the fallback reads almost every message as `UNKNOWN`, so harmless returns of hazard-class products go
 to a person too: fail closed, by design. With the LLM, "I changed my mind" is read as `CHANGED_MIND` and passes; how
 often the model reads a real fault as one of the three clear reasons is exactly what the live run measures, and is the
-remaining risk of this rule. 3.3 only adds reviews: `tests/test_safety_reasons.py` checks, over thousands of message ×
-product × reading × intent combinations, that nothing 3.2 flagged is unflagged. The frozen evaluations above were not
-re-run; their safety recall is a lower bound for 3.3, and their human-share figures would rise.
+remaining risk of this rule. A hand check of 25 messages against the live model (2026-10-25, not the script) held only
+"the colour is not what the listing showed" among the harmless ones: `NOT_AS_DESCRIBED` is deliberately **not** a clear
+reason, because a hidden fault is often described that way, so a kettle in the wrong colour waits for a person.
+
+3.3 only adds reviews: `tests/test_safety_reasons.py` compares it with the released 3.2, frozen in
+`tests/reference/safety_3_2.py` (not the new code with an argument dropped), over thousands of message × product ×
+reading × intent combinations, and checks that nothing 3.2 flagged is unflagged. What that does and does not mean for the
+published figures:
+
+* The figures measured for `main` (17 / 85 on the v4 held-out set, 33 / 100 on CPSC, below) were measured with
+  `llm_reason=None`, where rule 3 never fires; they are unchanged, not improved. They were not re-run.
+* **85 / 85 is not a `main` figure**, before or after 3.3: it comes from the experimental branch (see Evidence tiers).
+  This change says nothing about it.
+* What does change is the share of hazard-class returns a person reads: it rises.
+
+`scripts/eval_gate_phrasings.py` stops, writing nothing, if `LLM_API_KEY` is missing or the model fails on any message
+(TradeOS then answers with the keyword reader): a live result half made of keyword readings would not be a live result.
 
 ## LLM independence
 
@@ -253,7 +268,14 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
 ## Known limits / remaining risks
 
 * For hazard-class products (rule 3) a missed fault now needs the model to read it as wrong size, wrong item or a change
-  of mind; not measured live yet (see "Why rule 3"). With the LLM down, harmless returns of those products go to a person.
+  of mind; not measured live by the script yet (see "Why rule 3"). With the LLM down, harmless returns of those products go
+  to a person (40 / 48 in the offline measurement).
+* **One reason per message.** The extractor gives one reason. "I changed my mind, and it keeps tripping" can be read as
+  `CHANGED_MIND`; "too small, and the cord is frayed" is `SIZE_MISMATCH` to the keyword reader. Neither is held when the
+  fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
+  shows up as a test change.
+* The money backstop treats a missing stored reading as `UNKNOWN` (single case and each mixed line): a hazard-class
+  product without a reading is refused, never assumed clear. Reaching that needs a database write.
 * Products that no category marks as hazard-class (for example candles, lawnmowers, treadmills) get rules 1 and 2 only,
   so a fault on them needs a word from the lists. Which products count as hazard-class is a product decision.
 * An apparel return with burn words ("a burnt hole through the sleeve") goes to a person: rule 1 is product-independent

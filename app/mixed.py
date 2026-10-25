@@ -23,7 +23,7 @@ from typing import TYPE_CHECKING, Any
 
 from . import lineitems as li
 from .intent import looks_like_injection
-from .safety import assess_any as safety_assess_any
+from .safety import assess as safety_assess, assess_any as safety_assess_any
 from .paypal_client import IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, outcome_unknown
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -252,6 +252,16 @@ class MixedOrders:
         self.db.audit(case_id, "intent", "Per-line proposals recorded (DEMO-DATA stand-in for the AI reading; "
                       "proposals carry no amount)",
                       {"proposals": [p.__dict__ for p in proposals], "ignored_fields": ignored})
+        # Safety Gate again, line by line with each line's own reading (intake had none): a hazard-class product whose
+        # line is not read as a wrong size, a wrong item or a change of mind goes to a person before any line is
+        # decided, exactly like a single-item return. _refuse_if_safety applies the same rule to the stored proposals.
+        reading = {p.line_no: p.reason for p in proposals}
+        for row in self.db.get_items(case_id):
+            gate = safety_assess(case.get("customer_message"), wf.db.get_product(row["sku"]),
+                                 reading.get(row["line_no"]) or "UNKNOWN")
+            if gate.flagged:
+                wf._route_to_safety_review(case_id, gate)
+                return
         decisions = li.decide_lines(model, proposals, purchase_date=self._purchase_date(case), today=wf.today(),
                                     return_window_days=wf.settings.return_window_days,
                                     injection_suspected=looks_like_injection(case.get("customer_message") or ""))
