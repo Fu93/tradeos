@@ -709,3 +709,20 @@ def test_kept_database_gains_approval_source_and_still_refunds(settings):
     assert case["status"] == "REFUND_COMPLETED"
     assert case["approval_source"] == "human"
     assert kept.verify_chain(case_id)["ok"] is True
+
+
+def test_healthz_says_which_safety_layers_run(app_ctx, settings):
+    """The hosted demo's claims "the AI safety classifier is off" and "Safety Gate 3.3" can be checked from outside."""
+    from app.safety import SAFETY_RULE_VERSION
+    client, _, _ = app_ctx
+    data = client.get("/healthz").json()
+    assert data["safety_rule_version"] == SAFETY_RULE_VERSION and data["safety_ai_layer"] is False
+    assert data["product_catalog"] is False
+    # on: requested AND buildable (an LLM key); the flag reports the layer that really runs
+    from dataclasses import replace
+    on = create_app(replace(settings, safety_ai_enabled=True, llm_api_key="k"), paypal=MockPayPalClient(),
+                    extractor=KeywordIntentExtractor())
+    assert TestClient(on).get("/healthz").json()["safety_ai_layer"] is True
+    no_key = create_app(replace(settings, safety_ai_enabled=True, llm_api_key=""), paypal=MockPayPalClient(),
+                        extractor=KeywordIntentExtractor())
+    assert TestClient(no_key).get("/healthz").json()["safety_ai_layer"] is False
