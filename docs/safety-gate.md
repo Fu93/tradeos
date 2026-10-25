@@ -305,8 +305,7 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
   fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
   shows up as a test change. Seen with the live model, one sample each, so no rate: on the hosted demo at `c7326f5`
   (2026-10-25) "I changed my mind but it keeps tripping the breaker" on a kettle was **not** held and waited for a
-  person's approval, while "It's too small and the cord is frayed" was held; in an earlier hand check the Chinese form of
-  the first message passed and the English form was held. The outcome depends on the wording. Such a case still waits for
+  person's approval, while "It's too small and the cord is frayed" was held. The outcome depends on the wording. Such a case still waits for
   a person's approval before any refund (agent requests always do; dashboard cases unless the merchant turned autonomy
   on, which is off on the hosted demo), so it is a gap in what reaches the *safety* review, not a path to an unapproved
   refund. A likely fix (not built): ask the model for a separate "reports a malfunction" flag rather than one reason, and
