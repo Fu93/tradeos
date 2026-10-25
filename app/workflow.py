@@ -34,7 +34,7 @@ from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, PayPalClient, PayPalError,
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
-from .safety import SAFETY_LABEL, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
+from .safety import SAFETY_LABEL, SAFETY_RULE_VERSION, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
 from .policy import PolicyInput, PolicyResult, evaluate
 from .supplier import OUT_OF_STOCK, draft_supplier_message, mock_supplier_reply
 
@@ -500,7 +500,7 @@ class Workflow:
         extraction = self.extractor.extract(case["customer_message"])
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
         # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
-        gate = safety_assess(case["customer_message"], product, extraction.result.reason)
+        gate = safety_assess(case["customer_message"], product, extraction.result.reason, extraction.result.intent)
         gate, ai_info = self.safety_screen(gate, case["customer_message"], product)
         assist = extraction.assist.model_dump() if extraction.assist else None  # info only
         self.db.update_case(case_id, intent_json=json.dumps(intent),
@@ -512,7 +512,8 @@ class Workflow:
                                                         "safety": gate.to_dict(), "safety_ai": ai_info}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
-                       "assist": assist, "assist_note": extraction.assist_note})
+                       "assist": assist, "assist_note": extraction.assist_note,
+                       "safety_gate": {"flagged": gate.flagged, "rule_version": SAFETY_RULE_VERSION}})
         if gate.flagged:
             self._route_to_safety_review(case_id, gate, intent, ai_info)
             return
@@ -658,6 +659,7 @@ class Workflow:
         self.db.update_case(case_id, decision=NEEDS_SAFETY, status=NEEDS_SAFETY)
         self.db.audit(case_id, "safety", f"Safety Gate: {SAFETY_LABEL} — ahead of refund and supplier tasks",
                       {"trigger": gate.trigger, "product_class": gate.product_class, "summary": gate.summary,
+                       "rule_version": SAFETY_RULE_VERSION,
                        "signals": [x.to_dict() for x in gate.signals], "llm_reading_ignored": llm_intent,
                        **({"safety_ai": ai_info} if ai_info and ai_info.get("ai_layer") != "off" else {}),
                        "refund_api_called": False, "supplier_contacted": False, "refund_id": None,
@@ -668,12 +670,15 @@ class Workflow:
         the stored decision/status (so a stale or tampered row, or a direct POST, cannot reach a refund)."""
         if case.get("status") in (NEEDS_SAFETY, SAFETY_REVIEWED) or case.get("decision") == NEEDS_SAFETY:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: Safety Gate case {case['id']} cannot be approved or refunded here.")
-        reason = (case.get("intent") or {}).get("reason")
+        reading = case.get("intent") or {}
+        intent = reading.get("intent")
         if case.get("decision") == MIXED:
-            products = [self.db.get_product(r["sku"]) for r in self.db.get_items(case["id"])]
-            # Per-line proposal reason can only ADD a fault signal (DAMAGED on a gated SKU).
-            line_reasons = [(r.get("proposal") or {}).get("reason") for r in self.db.get_items(case["id"])]
-            flagged = safety_assess_any(case.get("customer_message"), products, reason).flagged
+            items = self.db.get_items(case["id"])
+            products = [self.db.get_product(r["sku"]) for r in items]
+            # Each line is judged with its own reading, as at intake (MixedOrders.evaluate). A line without a stored
+            # reading counts as UNKNOWN: on a hazard-class product that is a person's call, never a refund.
+            line_reasons = [(r.get("proposal") or {}).get("reason") or "UNKNOWN" for r in items]
+            flagged = safety_assess_any(case.get("customer_message"), products, reading.get("reason"), intent).flagged
             if not flagged:
                 for product, lr in zip(products, line_reasons):
                     if safety_assess(case.get("customer_message"), product, lr).flagged:
@@ -684,7 +689,9 @@ class Workflow:
                                        "approval and refund are refused.")
             return
         product = self.db.get_product(case["product_sku"]) if case.get("product_sku") else None
-        if safety_assess(case.get("customer_message"), product, reason).flagged:
+        # No stored reading (a row edited by hand, an older case): UNKNOWN, so a hazard-class product fails closed.
+        reason = reading.get("reason") or "UNKNOWN"
+        if safety_assess(case.get("customer_message"), product, reason, intent).flagged:
             raise RefundNotAllowed(f"{SAFETY_LABEL}: the message carries a safety signal (Safety Gate); "
                                    "approval and refund are refused.")
 

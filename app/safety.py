@@ -13,7 +13,7 @@ Rule (either is enough):
 Design choices (see docs/safety-gate.md):
   * Over-triggering is accepted: a flag only routes the case to a person. It never rejects, refunds or contacts a
     supplier. Negation ("no smoke") is NOT used to suppress a hit, because a missed hazard costs more than a read.
-  * Pure function of (message, product, LLM reason). No I/O, no state.
+  * Pure function of (message, product, LLM reason, LLM intent). No I/O, no state.
 """
 
 from __future__ import annotations
@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 
 SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW"
 SAFETY_LABEL = "Needs human safety review"
-SAFETY_RULE_VERSION = "safety-gate/3.2.0-main"
+SAFETY_RULE_VERSION = "safety-gate/3.3.0-main"
 
 GATED_CLASSES = ("MAINS_HEATING", "MAINS_ELECTRIC", "GAS", "BATTERY_THERMAL")
 
@@ -170,6 +170,14 @@ _FAULT: list[tuple[str, str]] = [
 ]
 FAULT_PATTERNS = [(lang, re.compile(pat)) for lang, pat in _FAULT]
 FAULT_REASONS = frozenset({"DAMAGED"})  # LLM reasons that count as a reported fault (escalate-only)
+# The only reasons that let a hazard-class product (GATED_CLASSES) skip the safety review: they say nothing about how
+# the product works. Any other reading (DAMAGED, NOT_AS_DESCRIBED, OTHER, UNKNOWN) goes to a person, whatever words
+# the customer used. This replaces "block if the customer used a word from our fault list" for these products: a
+# fault list can never be complete ("keeps tripping", "hot to touch", "battery bulging" were all missing from it),
+# a short list of clearly harmless reasons can. Harm language still flags every product, and the fault words still
+# flag even with a clear reason ("wrong size, and it sparked"). Escalate-only: nothing that was flagged before is
+# flagged less (tests/test_safety_reasons.py checks that against the previous rule).
+CLEAR_REASONS = frozenset({"SIZE_MISMATCH", "CHANGED_MIND", "WRONG_ITEM"})
 
 # --------------------------------------------------------------------------------------------- product class
 def _singular(word: str) -> str:
@@ -323,7 +331,7 @@ class Signal:
 @dataclass(frozen=True)
 class SafetyAssessment:
     flagged: bool
-    trigger: str                       # "harm_language" | "gated_product_fault" | "ai_classifier" | "none"
+    trigger: str  # "harm_language" | "gated_product_fault" | "gated_product_unclear" | "ai_classifier" | "none"
     product_class: str
     signals: tuple[Signal, ...] = field(default_factory=tuple)
 
@@ -337,6 +345,10 @@ class SafetyAssessment:
             return f"AI safety screen (second layer) asked for a human to read this message: {seen}."
         if self.trigger == "harm_language":
             return f"Harm / injury / hazard language in the customer's message: {seen}."
+        if self.trigger == "gated_product_unclear":
+            return (f"A {self.product_class} product returned for a reason that may concern how it works ({seen}): "
+                    "a person reads it before any refund. Only a wrong size, a wrong item or a change of mind skips "
+                    "this review for this kind of product.")
         return f"Reported fault on a {self.product_class} product: {seen}."
 
     def to_dict(self) -> dict:
@@ -381,8 +393,11 @@ def scan_fault(message: str | None) -> list[Signal]:
     return out
 
 
-def assess(message: str | None, product: dict | None = None, llm_reason: str | None = None) -> SafetyAssessment:
-    """The Safety Gate. `llm_reason` is optional extra evidence; it can only turn the gate ON."""
+def assess(message: str | None, product: dict | None = None, llm_reason: str | None = None,
+           intent: str | None = None) -> SafetyAssessment:
+    """The Safety Gate. `llm_reason` is the extractor's reading of the message. For a hazard-class product it must be
+    one of CLEAR_REASONS to skip the review; for every product it can only turn the gate ON, never off. An order-status
+    question (intent ORDER_STATUS) is not a return. With no reading at all (llm_reason None) only the word rules run."""
     cls = product_class(product)
     harm = scan_harm(message)
     if harm:
@@ -393,11 +408,14 @@ def assess(message: str | None, product: dict | None = None, llm_reason: str | N
             fault.append(Signal("llm-reason", "fault", "-", f"LLM reason {llm_reason}"))
         if fault:
             return SafetyAssessment(True, "gated_product_fault", cls, tuple(fault))
+        if llm_reason is not None and llm_reason not in CLEAR_REASONS and intent != "ORDER_STATUS":
+            return SafetyAssessment(True, "gated_product_unclear", cls,
+                                    (Signal("llm-reason", "unclear reason", "-", f"reason {llm_reason}"),))
     return SafetyAssessment(False, "none", cls)
 
 
 def assess_any(message: str | None, products: list[dict | None] | None = None,
-               llm_reason: str | None = None) -> SafetyAssessment:
+               llm_reason: str | None = None, intent: str | None = None) -> SafetyAssessment:
     """Safety Gate over one or more catalogue products (mixed orders). Escalate-only OR:
 
     * harm language is product-independent (checked once);
@@ -414,7 +432,7 @@ def assess_any(message: str | None, products: list[dict | None] | None = None,
         if p in seen:
             continue
         seen.append(p)
-        a = assess(message, p, llm_reason)
+        a = assess(message, p, llm_reason, intent)
         if a.flagged:
             return a
-    return harm_first if not seen else assess(message, seen[-1], llm_reason)
+    return harm_first if not seen else assess(message, seen[-1], llm_reason, intent)
