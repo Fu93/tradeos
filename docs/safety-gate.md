@@ -1,4 +1,4 @@
-# Safety Gate (v3.2 principle, ported to `main`)
+# Safety Gate (v3.2 principle, ported to `main`; rule 3 added in 3.3)
 
 **Principle.** *Product category × fault signal.* Any reported fault or harm on a mains-powered, electric-heating, gas or
 battery / thermal-risk product, plus any injury / burn / fire / shock / melting / smoke language in any covered language,
@@ -190,7 +190,7 @@ reports to a regulator, in English, not merchant support traffic.
 
 | Tier | What it is | Status for the Safety Gate on `main` |
 |---|---|---|
-| **1. Unit / integration tests** (mock PayPal, mock LLM, offline) | `tests/test_safety_gate.py` (144 tests; whole suite 1203 passed, 95.84% line coverage, run on 2026-10-25 at 65384a9): multilingual harm table (EN / ZH-Hant / ZH-Hans / ES / DE / JA / FR), normal-message negatives, product-class × fault, every model reading of the burn message, injection + safety combo, keyword-fallback path, direct POST to approve / refund / decline / approve-twice, tampered-row backstop, mixed Case M, seeded generative property test (90 random messages × random model reading × random request path: never approvable, Refund API never called), mutation sanity (19 source mutants incl. 7 for mark-reviewed, all killed by `tests/mutation_sanity.py`; plus in-test mutants); mark-reviewed has its own 17 tests in `tests/test_safety_review.py`. | **Proven for these messages and these code paths.** |
+| **1. Unit / integration tests** (mock PayPal, mock LLM, offline) | `tests/test_safety_gate.py` (144 tests) and `tests/test_safety_reasons.py` (42 tests, rule 3; whole suite 1609 passed, 95.94% line coverage, CI on 2026-10-25 at 99dc962): multilingual harm table (EN / ZH-Hant / ZH-Hans / ES / DE / JA / FR), normal-message negatives, product-class × fault, every model reading of the burn message, injection + safety combo, keyword-fallback path, direct POST to approve / refund / decline / approve-twice, tampered-row backstop, mixed Case M, seeded generative property test (90 random messages × random model reading × random request path: never approvable, Refund API never called), mutation sanity (19 source mutants incl. 7 for mark-reviewed, all killed by `tests/mutation_sanity.py`; plus in-test mutants); mark-reviewed has its own 17 tests in `tests/test_safety_review.py`. | **Proven for these messages and these code paths.** |
 | **2. Live demo** (Render + PayPal Sandbox + hands-on browser check) | The Spanish burn message and the ordinary flows (Case A / B / exchange / M) run against the deployed app; results are recorded in the PR / release notes and the judge guide. | **Shown on the deployed demo only**, with sandbox money. |
 | **3. Real traffic** | Recall and precision on real customer messages, languages beyond the six, adversarial customers. | **NOT proven. Not measured.** There is no real-customer data. |
 
