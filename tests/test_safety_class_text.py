@@ -12,7 +12,9 @@ import re
 import pytest
 
 from app import catalog as catalog_mod
-from app.safety import GATED_CLASSES, _CLASS_RULES, _singular, assess, class_text, normalize, product_class
+from app import safety as safety_mod
+from app.safety import (GATED_CLASSES, NON_HAZARD_LEAVES, _CLASS_RULES, _singular, assess, class_text, exempt_leaf, normalize,
+                        product_class)
 
 NAME = "Acme Z100"  # a title with no hazard word, so only the category can decide
 PLAIN_FAULT = "It stopped working after two days, please refund me."
@@ -228,3 +230,218 @@ def test_channel3_object_to_gate_end_to_end():
     assert a.flagged and a.trigger == "gated_product_fault" and a.product_class == "GAS"
     # a truncated category (the catalogue keeps the LAST 120 chars) still has its leaf
     assert product_class({"name": NAME, "category": ("x > " * 40 + "Hair Dryers")[-120:]}) == "MAINS_HEATING"
+
+
+# ------------------------------------------------------------------------------------------ non-hazard leaf allowlist
+# Entries whose hazard word lives higher up the path need their real ancestors for the "entry is needed" check.
+FULL_PATH = {
+    "Coffee Makers & Espresso Machines > French Presses":
+        "Home & Garden > Kitchen & Dining > Kitchen Appliances > Coffee Makers & Espresso Machines > French Presses",
+    "Conduit & Housings > Heat-Shrink Tubing":
+        "Hardware > Power & Electrical Supplies > Conduit & Housings > Heat-Shrink Tubing",
+}
+
+
+def _path(entry: str) -> str:
+    return FULL_PATH.get(entry, "Root > Branch > " + entry)
+
+
+@pytest.mark.parametrize("entry", NON_HAZARD_LEAVES)
+def test_every_allowlisted_leaf_is_ungated_and_the_entry_is_needed(entry, monkeypatch):
+    path = _path(entry)
+    assert product_class({"name": NAME, "category": path}) == "NONE", entry
+    assert not assess(PLAIN_FAULT, {"name": NAME, "category": path}).flagged
+    # not a dead entry: without the allowlist the same path IS gated (so each exception removes a real over-trigger)
+    monkeypatch.setattr(safety_mod, "_EXEMPT", {})
+    assert product_class({"name": NAME, "category": path}) in GATED_CLASSES, entry
+
+
+def test_allowlist_is_well_formed():
+    assert len(set(NON_HAZARD_LEAVES)) == len(NON_HAZARD_LEAVES)
+    assert all(e.count(">") == 1 for e in NON_HAZARD_LEAVES)  # exactly "parent > leaf"
+
+
+# Sibling / neighbouring categories that ARE hazards and must keep their gate next to an allowlisted leaf.
+@pytest.mark.parametrize("path,expected", [
+    ("Home & Garden > Fireplace & Wood Stove Accessories > Firewood & Fuel", "GAS"),
+    ("Home & Garden > Fireplace & Wood Stove Accessories > Wood Stove Fans & Blowers", "GAS"),
+    ("Home & Garden > Fireplace & Wood Stove Accessories", "GAS"),
+    ("Home & Garden > Fireplaces", "GAS"),
+    ("Home & Garden > Wood Stoves", "GAS"),
+    ("Home & Garden > Kitchen & Dining > Cookware & Bakeware > Cookware > Pressure Cookers & Canners", "MAINS_HEATING"),
+    ("Home & Garden > Kitchen & Dining > Cookware & Bakeware > Cookware > Stovetop Kettles", "MAINS_HEATING"),
+    ("Home & Garden > Kitchen & Dining > Kitchen Appliances > Coffee Makers & Espresso Machines > Espresso Machines", "MAINS_ELECTRIC"),
+    ("Home & Garden > Kitchen & Dining > Kitchen Appliances > Coffee Makers & Espresso Machines > Percolators", "MAINS_ELECTRIC"),
+    ("Home & Garden > Kitchen & Dining > Kitchen Appliances > Food Cookers & Steamers > Food Steamers", "MAINS_HEATING"),
+    ("Home & Garden > Pool & Spa > Sauna Accessories > Sauna Heaters", "MAINS_HEATING"),
+    ("Home & Garden > Pool & Spa > Sauna Accessories > Sauna Kits", "MAINS_HEATING"),
+    ("Hardware > Power & Electrical Supplies > Power Outlets & Sockets", "MAINS_ELECTRIC"),
+    ("Hardware > Power & Electrical Supplies > Generators", "MAINS_ELECTRIC"),
+    ("Hardware > Power & Electrical Supplies > Electrical Switches", "MAINS_ELECTRIC"),
+    ("Hardware > Power & Electrical Supplies > Wall Plates & Covers", "MAINS_ELECTRIC"),
+    ("Hardware > Tool Accessories > Power Tool Chargers", "MAINS_ELECTRIC"),
+    ("Hardware > Tool Accessories > Power Tool Batteries", "BATTERY_THERMAL"),
+    ("Hardware > Plumbing > Plumbing Fittings & Supports > Plumbing Regulators", "GAS"),
+    ("Sporting Goods > Outdoor Recreation > Boating & Water Sports > Diving & Snorkeling > Diving Regulators", "GAS"),
+    ("Sporting Goods > Outdoor Recreation > Riding Scooters", "BATTERY_THERMAL"),
+    ("Cameras & Optics > Photography > Lighting & Studio > Studio Lights & Flashes", "MAINS_ELECTRIC"),
+    ("Cameras & Optics > Photography > Lighting & Studio > Studio Lighting Controls", "MAINS_ELECTRIC"),
+    ("Health & Beauty > Personal Care > Hair Care > Hair Styling Tools > Curling Irons", "MAINS_HEATING"),
+    ("Health & Beauty > Personal Care > Hair Care > Hair Permanents & Straighteners", "MAINS_HEATING"),
+    ("Health & Beauty > Health Care > Biometric Monitors > Fertility Monitors and Ovulation Tests > Fertility Tests & Monitors", "MAINS_ELECTRIC"),
+    ("Hardware > Tools > Masonry Tools > Cement Mixers", "MAINS_ELECTRIC"),
+    ("Pet Supplies > Pet Grooming Supplies > Pet Hair Dryers", "MAINS_HEATING"),
+])
+def test_neighbours_of_allowlisted_leaves_keep_their_gate(path, expected):
+    assert product_class({"name": NAME, "category": path}) == expected
+
+
+def test_the_allowlist_is_exact_on_the_last_two_segments():
+    leaf = "Hair Accessories > Hair Extensions"
+    assert product_class({"name": NAME, "category": "Apparel > Clothing Accessories > " + leaf}) == "NONE"
+    # leaf alone, a different parent, or a path cut after the parent: NOT exempt (fail-safe: stays gated)
+    assert product_class({"name": NAME, "category": "Hair Extensions"}) in GATED_CLASSES
+    assert product_class({"name": NAME, "category": "Salon > Hair Extensions"}) in GATED_CLASSES
+    assert product_class({"name": NAME, "category": "Hair Accessories > Hair Extensions > Clip-in Hair Extensions"}) in GATED_CLASSES
+    assert exempt_leaf("Hair Accessories > Hair Extensions") == "hair extension"
+    assert exempt_leaf("Hair Extensions") is None and exempt_leaf(None) is None and exempt_leaf("") is None
+
+
+def test_an_allowlisted_category_still_reads_the_product_name_except_the_leaf_phrase():
+    cat = "Apparel & Accessories > Clothing Accessories > Hair Accessories > Hair Extensions"
+    assert product_class({"name": "Clip-in Hair Extensions 20 inch", "category": cat}) == "NONE"
+    assert product_class({"name": "Heated Hair Extensions Clip", "category": cat}) == "MAINS_HEATING"
+    assert product_class({"name": "Rechargeable Hair Extensions Fan", "category": cat}) == "BATTERY_THERMAL"
+    wash = "Hardware > Hardware Accessories > Hardware Fasteners > Washers"
+    assert product_class({"name": "Stainless Flat Washers 100 pack", "category": wash}) == "NONE"
+    assert product_class({"name": "Electric Washers 3 kW", "category": wash}) == "MAINS_ELECTRIC"
+    dutch = "Home & Garden > Kitchen & Dining > Cookware & Bakeware > Cookware > Dutch Ovens"
+    assert product_class({"name": "Cast Iron Dutch Oven 6 qt", "category": dutch}) == "MAINS_HEATING"  # "iron" in the NAME
+
+
+# ------------------------------------------------------------------------------------------ taxonomy hazard list
+# Hazard leaves (Google Product Taxonomy paths, which Channel3's categories follow): every one must stay gated.
+TAXONOMY_HAZARDS = [
+    "Home & Garden > Household Appliances > Climate Control Appliances > Space Heaters",
+    "Home & Garden > Household Appliances > Climate Control Appliances > Patio Heaters",
+    "Home & Garden > Household Appliances > Climate Control Appliances > Duct Heaters",
+    "Home & Garden > Household Appliances > Climate Control Appliances > Furnaces & Boilers",
+    "Home & Garden > Household Appliances > Climate Control Appliances > Air Conditioners",
+    "Home & Garden > Household Appliances > Climate Control Appliances > Dehumidifiers",
+    "Home & Garden > Household Appliances > Water Heaters",
+    "Home & Garden > Household Appliances > Laundry Appliances > Dryers",
+    "Home & Garden > Household Appliances > Laundry Appliances > Washing Machines",
+    "Home & Garden > Household Appliances > Laundry Appliances > Garment Steamers",
+    "Home & Garden > Household Appliances > Laundry Appliances > Irons & Ironing Systems",
+    "Home & Garden > Household Appliances > Vacuums",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Deep Fryers",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Hot Plates",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Ovens",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Ranges",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Cooktops",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Outdoor Grills",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Microwave Ovens",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Electric Griddles & Grills",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Food Cookers & Steamers > Slow Cookers",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Food Cookers & Steamers > Rice Cookers",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Toasters & Grills > Toasters",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Toasters & Grills > Waffle Irons",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Food Warmers > Food Heat Lamps",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Beverage Warmers",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Food Smokers",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Blenders",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Refrigerators",
+    "Home & Garden > Kitchen & Dining > Kitchen Appliances > Freezers",
+    "Home & Garden > Linens & Bedding > Bedding > Blankets > Electric Blankets",
+    "Home & Garden > Lighting > Lamps",
+    "Home & Garden > Lighting > Lighting Fixtures",
+    "Home & Garden > Lighting > Emergency Lighting",
+    "Home & Garden > Lighting > Tiki Torches & Oil Lamps",
+    "Home & Garden > Pool & Spa > Pool & Spa Accessories > Pool Heaters",
+    "Home & Garden > Pool & Spa > Saunas",
+    "Home & Garden > Lawn & Garden > Outdoor Power Equipment Accessories > Outdoor Power Equipment Batteries",
+    "Sporting Goods > Outdoor Recreation > Camping & Hiking > Camping Stoves",
+    "Sporting Goods > Outdoor Recreation > Camping & Hiking > Camping Lights & Lanterns",
+    "Sporting Goods > Outdoor Recreation > Camping & Hiking > Chemical Hand Warmers",
+    "Hardware > Fuel",
+    "Hardware > Fuel Containers & Tanks",
+    "Hardware > Tools > Lighters & Matches",
+    "Hardware > Tools > Heat Guns",
+    "Hardware > Tools > Hardware Torches",
+    "Hardware > Tools > Soldering Irons",
+    "Hardware > Tools > Flashlights & Headlamps > Flashlights",
+    "Hardware > Tools > Drills > Handheld Power Drills",
+    "Hardware > Tools > Multifunction Power Tools",
+    "Hardware > Tools > Compressors",
+    "Hardware > Power & Electrical Supplies > Generators",
+    "Hardware > Power & Electrical Supplies > Power Inverters",
+    "Hardware > Power & Electrical Supplies > Power Converters",
+    "Hardware > Power & Electrical Supplies > Solar Panels",
+    "Hardware > Power & Electrical Supplies > Electrical Motors",
+    "Hardware > Power & Electrical Supplies > Circuit Breaker Panels",
+    "Hardware > Tools > Welding Guns & Plasma Cutters",
+    "Health & Beauty > Personal Care > Hair Care > Hair Styling Tools > Hair Dryers",
+    "Health & Beauty > Personal Care > Hair Care > Hair Styling Tools > Hair Straighteners",
+    "Health & Beauty > Personal Care > Hair Care > Hair Styling Tools > Curling Irons",
+    "Health & Beauty > Personal Care > Hair Care > Hair Steamers & Heat Caps",
+    "Health & Beauty > Personal Care > Skin Care Tools > Facial Saunas",
+    "Health & Beauty > Personal Care > Hair Removal > Hair Removal Wax Warmers",
+    "Health & Beauty > Personal Care > Massage & Relaxation > Massage Stone Warmers",
+    "Health & Beauty > Health Care > Respiratory Care > Steam Inhalers",
+    "Health & Beauty > Health Care > Respiratory Care > Oxygen Tanks",
+    "Baby & Toddler > Nursing & Feeding > Bottle Warmers & Sterilizers",
+    "Baby & Toddler > Baby Safety > Baby Monitors",
+    "Toys & Games > Toys > Remote Control Toys > Remote Control Helicopters",
+    "Toys & Games > Toys > Remote Control Toys > Remote Control Cars & Trucks",
+    "Toys & Games > Toys > Robotic Toys",
+    "Vehicles & Parts > Vehicle Parts & Accessories > Vehicle Maintenance, Care & Decor > Vehicle Repair & Specialty Tools > Vehicle Jump Starters",
+    "Vehicles & Parts > Vehicle Parts & Accessories > Vehicle Maintenance, Care & Decor > Portable Fuel Cans",
+    "Vehicles & Parts > Vehicle Parts & Accessories > Motor Vehicle Parts > Motor Vehicle Fuel Systems",
+    "Vehicles & Parts > Vehicle Parts & Accessories > Motor Vehicle Parts > Motor Vehicle Lighting",
+    "Business & Industrial > Food Service > Hot Dog Rollers",
+    "Business & Industrial > Food Service > Plate & Dish Warmers",
+    "Arts & Entertainment > Hobbies & Creative Arts > Arts & Crafts > Art & Crafting Tools > Glue Guns",
+    "Electronics > Electronics Accessories > Power > Power Adapters & Chargers",
+    "Electronics > Video > Televisions",
+    "Electronics > Electronics Accessories > Computer Components > Laptop Batteries",
+]
+
+
+@pytest.mark.parametrize("path", TAXONOMY_HAZARDS)
+def test_every_taxonomy_hazard_leaf_is_gated_and_holds_a_plain_fault(path):
+    assert product_class({"name": NAME, "category": path}) in GATED_CLASSES, path
+    assert assess(PLAIN_FAULT, {"name": NAME, "category": path}).flagged, path
+
+
+def test_no_hazard_path_is_exempt_and_every_exempt_path_is_in_the_allowlist():
+    """The allowlist never touches a hazard path: no TAXONOMY_HAZARDS / REAL_PATHS hazard entry ends in an exempt pair."""
+    for path in TAXONOMY_HAZARDS + [p for p, k in REAL_PATHS if k != "NONE"]:
+        assert exempt_leaf(path) is None, path
+
+
+# The gap words added in round 2 (each needed by a real taxonomy leaf with no other hazard word).
+@pytest.mark.parametrize("category,expected", [
+    ("Lighting", "MAINS_ELECTRIC"), ("Track Lighting", "MAINS_ELECTRIC"), ("Electrical Supplies", "MAINS_ELECTRIC"),
+    ("Generators", "MAINS_ELECTRIC"), ("Power Inverters", "MAINS_ELECTRIC"), ("Air Compressors", "MAINS_ELECTRIC"),
+    ("Power Drills", "MAINS_ELECTRIC"), ("Power Tools", "MAINS_ELECTRIC"), ("Powered Hammers", "MAINS_ELECTRIC"),
+    ("Welders", "MAINS_ELECTRIC"), ("Plasma Cutters", "MAINS_ELECTRIC"),
+    ("Fuel Containers", "GAS"), ("Fuel Tanks", "GAS"), ("Gasoline", "GAS"), ("Kerosene", "GAS"), ("Torches", "GAS"),
+    ("Oxygen Tanks", "GAS"), ("Fireplaces", "GAS"),
+    ("Saunas", "MAINS_HEATING"), ("Heat Guns", "MAINS_HEATING"), ("Glue Guns", "MAINS_HEATING"),
+    ("Wax Warmers", "MAINS_HEATING"), ("Bottle Warmers", "MAINS_HEATING"), ("Steam Cleaners", "MAINS_HEATING"),
+    ("Steam Mops", "MAINS_HEATING"), ("Hot Dog Rollers", "MAINS_HEATING"), ("Foot Warmers", "MAINS_HEATING"),
+    ("Flashlights", "BATTERY_THERMAL"), ("Headlamps", "BATTERY_THERMAL"), ("Jump Starters", "BATTERY_THERMAL"),
+    ("Remote Control Cars", "BATTERY_THERMAL"), ("Remote Control Helicopters", "BATTERY_THERMAL"),
+    ("Robotic Toys", "BATTERY_THERMAL"), ("Hand Warmers", "BATTERY_THERMAL"),
+])
+def test_round_two_gap_words(category, expected):
+    assert product_class({"name": NAME, "category": category}) == expected
+
+
+@pytest.mark.parametrize("name,category", [
+    (NAME, "Hot Dog Buns"), (NAME, "Jump Ropes"), (NAME, "Remote Controls Storage Sleeves"), ("Fuelled Up Poster", "Posters"),
+    ("Torchwood DVD", "Movies"), ("Warmers Club Tee", "T-Shirts"), ("Generation Z Book", "Books"), ("Saunafinland Mug", "Mugs"),
+    ("Poweredge Server Rack Shelf", "Shelves"), ("Electrician Pliers", "Hand Tools"), ("Flashlightning Poster", "Posters"),
+])
+def test_round_two_words_do_not_match_inside_other_words(name, category):
+    assert product_class({"name": name, "category": category}) == "NONE"

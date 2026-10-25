@@ -196,19 +196,94 @@ def class_text(*parts: object) -> str:
 
 # Rules are written for class_text(): lowercase singular words, no punctuation (so "e-bike" arrives as "e bike").
 _CLASS_RULES: list[tuple[str, re.Pattern[str]]] = [
-    ("GAS", re.compile(r"\b(gas|propane|butane|lpg|burner|stove|lighter|regulator)\b")),
+    ("GAS", re.compile(r"\b(gas|propane|butane|lpg|burner|stove|lighter|regulator|"
+                       r"torch|fuel|gasoline|kerosene|oxygen tank|fireplace)\b")),
     ("MAINS_HEATING", re.compile(r"\b(kettle|heater|heating|toaster|iron|hair ?dryer|oven|fryer|air ?fryer|cooker|grill|hob|"
                                  r"electric blanket|heated|hot plate|radiator|boiler|water heater|space heater|"
-                                 r"straightener|steamer|hot air)\b")),
+                                 r"straightener|steamer|hot air|"
+                                 r"heat gun|heat tool|glue gun|wood burning|sauna|steam (?:cleaner|inhaler|mop|press|generator)|"
+                                 r"(?:bottle|wax|plate|dish|oil|stone|food|beverage|bed|foot) warmer|hot dog roller)\b")),
     ("BATTERY_THERMAL", re.compile(r"\b(battery|power ?bank|e ?bike|e ?scooter|scooter|vape|lithium|li ?ion|rechargeable|"
-                                   r"hand warmer|heated (?:jacket|gloves|insoles|vest)|hoverboard)\b")),
-    ("MAINS_ELECTRIC", re.compile(r"\b(lamp|light|charger|adapter|adaptor|extension|power strip|socket|plug|appliance|"
-                                  r"blender|vacuum|fan|mixer|electric|electronic\w*|mains|cable|speaker|monitor|"
-                                  r"tv|television|router|dryer|washer|microwave|fridge|freezer|surge)\b")),
+                                   r"hand warmer|heated (?:jacket|gloves|insoles|vest)|hoverboard|"
+                                   r"flashlight|headlamp|jump starter|robotic toy|"
+                                   r"remote control (?:toy|car|truck|boat|watercraft|helicopter|plane|robot|tank|airship|blimp|motorcycle))\b")),
+    ("MAINS_ELECTRIC", re.compile(r"\b(lamp|light|lighting|charger|adapter|adaptor|extension|power strip|socket|plug|appliance|"
+                                  r"blender|vacuum|fan|mixer|electric|electrical|electronic\w*|mains|cable|speaker|monitor|"
+                                  r"tv|television|router|dryer|washer|microwave|fridge|freezer|surge|"
+                                  r"generator|inverter|power (?:tool|drill)|powered|compressor|welder|plasma cutter|"
+                                  r"welding gun)\b")),
 ]
 _CATEGORY_TO_CLASS = {"appliance": "MAINS_ELECTRIC", "appliances": "MAINS_ELECTRIC", "lighting": "MAINS_ELECTRIC",
                       "electronics": "MAINS_ELECTRIC", "electrical": "MAINS_ELECTRIC", "heating": "MAINS_HEATING",
                       "outdoor-gas": "GAS", "gas": "GAS", "batteries": "BATTERY_THERMAL"}
+
+# Documented allowlist of NON-hazard category leaves. A taxonomy leaf can contain a hazard word without being a hazard
+# device ("Hair Extensions", "Pipe Caps & Plugs", "Washers" the hardware kind, fireplace grates ...). Each entry is the
+# LAST TWO segments of a category path ("parent > leaf"); only an exact two-segment match exempts, so a path cut short by
+# the 120-character limit (parent missing) is NOT exempt and stays gated. An exempt category contributes no words, and
+# the leaf's own phrase is also removed from the product name; every other word of the name is still read, so a hazard
+# title ("Heated Hair Extensions Clip") in an exempt category is still gated. This is the ONLY place a category can lose
+# a hazard word; nothing a plain keyword matched on a product NAME alone is affected. Every entry has a test, and the
+# sibling leaves that ARE hazards (Firewood & Fuel, Wood Stove Fans & Blowers, Pressure Cookers ...) are tested to stay gated.
+NON_HAZARD_LEAVES: tuple[str, ...] = (
+    "Pet Supplies > Pet Leash Extensions",
+    "Hair Accessories > Hair Extensions",
+    "Drill & Screwdriver Accessories > Drill Bit Extensions",
+    "Bicycle Parts > Bicycle Handlebar Extensions",
+    "Hardware Fasteners > Washers",
+    "Plumbing Fittings & Supports > Pipe Adapters & Bushings",
+    "Plumbing Fittings & Supports > Pipe Caps & Plugs",
+    "Lawn Mower Accessories > Lawn Mower Mulch Plugs & Plates",
+    "Tool Accessories > Tool Sockets",
+    "Bicycle Parts > Bicycle Tire Valve Adapters",
+    "Microscope Accessories > Microscope Eyepieces & Adapters",
+    "Towed Water Sports > Water Sport Tow Cables",
+    "Bicycle Parts > Bicycle Cables",
+    "Watercraft Steering Parts > Watercraft Steering Cables",
+    "Kitchen Tools & Utensils > Pastry Blenders",
+    "Kitchen Tools & Utensils > Salad Dressing Mixers & Shakers",
+    "Gardening Accessories > Gardening Scooters, Seats & Kneelers",
+    "Cookware > Dutch Ovens",
+    "Cookware > Double Boilers",
+    "Cookware Accessories > Steamer Baskets",
+    "Clothing Accessories > Decorative Fans",
+    "Fertility Monitors and Ovulation Tests > Ovulation Tests",
+    "Coffee Makers & Espresso Machines > French Presses",
+    "Sauna Accessories > Sauna Buckets & Ladles",
+    "Fireplace & Wood Stove Accessories > Bellows",
+    "Fireplace & Wood Stove Accessories > Fireplace & Wood Stove Grates",
+    "Fireplace & Wood Stove Accessories > Fireplace Andirons",
+    "Fireplace & Wood Stove Accessories > Fireplace Reflectors",
+    "Fireplace & Wood Stove Accessories > Fireplace Screens",
+    "Fireplace & Wood Stove Accessories > Fireplace Tools",
+    "Fireplace & Wood Stove Accessories > Hearth Pads",
+    "Fireplace & Wood Stove Accessories > Log Rack & Carrier Accessories",
+    "Fireplace & Wood Stove Accessories > Log Racks & Carriers",
+    "Power & Electrical Supplies > Wire Caps & Nuts",
+    "Power & Electrical Supplies > Electrical Mount Boxes & Brackets",
+    "Conduit & Housings > Electrical Conduit",
+    "Conduit & Housings > Heat-Shrink Tubing",
+    "Lighting & Studio > Studio Backgrounds",
+    "Lighting & Studio > Studio Stand & Mount Accessories",
+    "Lighting & Studio > Studio Stands & Mounts",
+    "Studio Lighting Controls > Flash Diffusers",
+    "Studio Lighting Controls > Flash Reflectors",
+    "Studio Lighting Controls > Lighting Filters & Gobos",
+    "Studio Lighting Controls > Softboxes",
+)
+
+
+def _segments(category: str) -> tuple[str, ...]:
+    return tuple(class_text(seg) for seg in category.split(">") if seg.strip())
+
+
+_EXEMPT: dict[tuple[str, ...], str] = {_segments(e): _segments(e)[-1] for e in NON_HAZARD_LEAVES}
+
+
+def exempt_leaf(category: str | None) -> str | None:
+    """The leaf phrase when the category path ends in an allowlisted non-hazard (parent, leaf) pair, else None."""
+    seg = _segments(str(category or ""))
+    return _EXEMPT.get(seg[-2:]) if len(seg) >= 2 else None
 
 
 def product_class(product: dict | None) -> str:
@@ -220,7 +295,11 @@ def product_class(product: dict | None) -> str:
     explicit = str(product.get("safety_class") or "")
     if explicit in GATED_CLASSES:
         return explicit
-    text = class_text(product.get("name"), cat)
+    leaf = exempt_leaf(str(product.get("category") or ""))
+    if leaf:  # allowlisted non-hazard leaf: the category adds no words, the leaf phrase is dropped from the name too
+        text = re.sub(rf"\b{re.escape(leaf)}\b", " ", class_text(product.get("name")))
+    else:
+        text = class_text(product.get("name"), cat)
     for cls, rx in _CLASS_RULES[:3]:  # the specific hazards first: gas, heating, battery / thermal
         if rx.search(text):
             return cls
