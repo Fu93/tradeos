@@ -273,6 +273,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "flash_kind": flash_kind or ("warn" if status_code in (409, 429) else "bad"),
             "flash_link": ({"href": flash_link[0], "text": flash_link[1]} if flash_link else None),
             "allow_public_reset": bool(settings.operator_token or settings.allow_public_reset),
+            # Hosted public demo: no operator gate and no mounted disk. Private persistent profiles must not
+            # see the "shared / ephemeral" notice (healthz reports persistent-disk-configured there).
+            "public_shared_ephemeral": not bool(settings.operator_token or settings.persistent_data_dir),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 

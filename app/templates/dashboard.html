@@ -60,7 +60,7 @@
       <li><strong>Check PayPal</strong><span>refund ID · signed notice · reconciliation</span></li>
       {% endif %}
     </ol>
-    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong> The MCP scenes use a script, not a model. <strong>This public demo is shared</strong> with other visitors and uses an ephemeral database — a restart or deploy may reseed or clear cases. Prefer your own case links; the judge path does not need Reset.</p>
+    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong>{% if agents and agents.demo_orders %} The MCP scenes use a script, not a model.{% endif %}{% if public_shared_ephemeral %} <strong>This public demo is shared</strong> with other visitors and uses an ephemeral database — a restart or deploy may reseed or clear cases. Prefer your own case links; the judge path does not need Reset.{% endif %}</p>
   </div>
   <div class="guide-links">
     {% if agents and agents.demo_orders %}

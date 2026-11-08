@@ -62,9 +62,11 @@ exact **41/52** vs keyword **17/52**; policy request-check **52/52** on this sma
 5. Check the final submission page: video URL opens, demo URL opens, source commit matches `/healthz`, MIT license is
    visible, evidence links open, and Sandbox/mock/estimated claims are labelled accurately.
 
-The shared hosted demo has an ephemeral database and can be reset by another visitor. Prefer a private Sandbox copy
-for recording. Do not claim “no bugs”, “100% correct”, “fraud-proof”, or “production-ready”. The audit hash chain is
-**tamper-evident**, not immutable.
+The shared hosted demo uses an **ephemeral** database (restart/deploy may reseed or clear cases). Public
+`POST /demo/reset` is **disabled by default** (`TRADEOS_ALLOW_PUBLIC_RESET=0` → 403) so another visitor cannot wipe
+the demo; only an explicit private/operator opt-in can reset. Prefer a private Sandbox copy for recording. Do not
+claim “no bugs”, “100% correct”, “fraud-proof”, or “production-ready”. The audit hash chain is **tamper-evident**,
+not immutable.
 
 ## Review residuals — status on tip `f2c7430`
 

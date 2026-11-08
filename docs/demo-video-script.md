@@ -18,15 +18,16 @@ live extractor label). If it shows keyword fallback, refilm.
 | **0:35–1:00** | Open **Honest return**. Show **What the AI understood**: extractor `openai/gpt-oss-20b`, intent, merchant summary. Show policy eligible, pending approval, **Refund API calls = 0**. | An honest request. A real model, openai/gpt-oss-20b on Groq, turns the words into structured intent. Python policy checks PayPal’s capture. Eligible — and still waiting. Refund calls stay at zero until a person acts. | Real LLM · structured intent · Python policy · Refund calls = 0 |
 | **1:00–1:30** | Click **Approve & refund**. Wait cut labelled if needed. Show Sandbox **Refund ID** and status **COMPLETED**. | The merchant approves. Only then does TradeOS call PayPal. PayPal returns a Sandbox refund ID marked COMPLETED. | Merchant approves → Sandbox refund COMPLETED |
 | **1:30–1:55** | On-screen: **Wait cut — webhook ~Ns**. Chip **Signed PayPal notice: verified**. Click **Check against PayPal** → **all match**. Audit badge intact. | We cut the wait for PayPal’s signed notice. TradeOS verifies the signature, then checks the refund again with PayPal. All match — on a tamper-evident audit chain. | Verified signed webhook · Check against PayPal · all match |
-| **1:55–2:20** | Open blocked / injection case: **Refund API calls = 0**. Then a dangerous-product or safety-held case: **Needs human safety review** (or Adversarial $500 live-agent tile if safer in this take — still show zero money moved). | A hostile five-hundred-dollar ask moves no money. A dangerous-product report goes to a human safety review before any automatic action. | Hostile ask → $0 · Safety review → human |
-| **2:20–2:45** | Inbox with honest + blocked rows. End card: Sandbox only · tip `f2c7430` · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
+| **1:55–2:20** | Open blocked / injection case: **Refund API calls = 0**. **Prep (before this beat, or cut in ~8s):** Try it yourself → paste Spanish safety message *«La suela se derritió con el calor y me quemó el pie.»* → Run → open the new case showing **Needs human safety review** and Refund API calls = 0. (Scripted MCP scenes do **not** create a safety case; do not substitute only the Adversarial $500 tile for this narration.) | A hostile ask moves no money. Separately, a dangerous-product report is held for a human safety review before any automatic action — zero refund calls. | Hostile ask → $0 · Safety review → human |
+| **2:20–2:45** | Inbox with honest + blocked + safety rows. End card: Sandbox only · tip `f2c7430` · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
 
 ### Recording checklist
 
 1. `GET /healthz` → `version` = `f2c74302622d91f988ba7fad097052ed4c322a56`, `paypal_mode=sandbox`, autonomy flags false.
-2. Film actual UI chrome (judge guide title, Sandbox badge, Refund API calls, webhook chip, audit badge).
-3. Keep total runtime **≤ 2:45**. Export captions matching the Subtitles column.
-4. Do not narrate production-ready / fraud-proof / 100% accuracy.
+2. **Before filming 1:55–2:20:** create the Spanish dangerous-product case via free-text intake (message above) so the safety-review narration matches the screen.
+3. Film actual UI chrome (judge guide title, Sandbox badge, Refund API calls, webhook chip, audit badge, safety status).
+4. Keep total runtime **≤ 2:45** (trim wait cuts; safety prep may be a pre-roll cutaway). Export captions matching the Subtitles column.
+5. Do not narrate production-ready / fraud-proof / 100% accuracy.
 
 ---
 

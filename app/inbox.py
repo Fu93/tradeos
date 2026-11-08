@@ -23,6 +23,7 @@ NEEDS_YOU, WAITING, CLOSED = "needs_you", "waiting", "closed"
 BUCKET_LABELS = {NEEDS_YOU: "Needs you", WAITING: "Waiting on someone else", CLOSED: "Closed"}
 
 # status -> (bucket, what the merchant should know or do, in plain words)
+# PENDING_APPROVAL / NEEDS_HUMAN / ERROR are refined further in _next_step() by decision / cause.
 NEXT_STEP: dict[str, tuple[str, str]] = {
     PENDING_APPROVAL: (NEEDS_YOU, "Policy says eligible. Approve to refund, or decline."),
     NEEDS_HUMAN: (NEEDS_YOU, "A person has to decide. Nothing was refunded."),  # refined by _next_step()
@@ -62,8 +63,13 @@ def _is_request(case: dict) -> bool:
 
 
 def _next_step(case: dict) -> tuple[str, str]:
-    """(bucket, plain words). Two statuses have more than one cause, and the words must match the cause."""
+    """(bucket, plain words). Some statuses have more than one cause; the words must match the cause."""
     status = case["status"]
+    if status == PENDING_APPROVAL:
+        if case.get("decision") == "EXCHANGE_ELIGIBLE":
+            return NEEDS_YOU, ("Policy says eligible. Approve the exchange (supplier replacement; no refund), "
+                               "or decline.")
+        return NEEDS_YOU, "Policy says eligible. Approve to refund, or decline."
     if status == NEEDS_HUMAN:
         if (case.get("policy") or {}).get("preflight_blocked"):
             return NEEDS_YOU, ("PayPal capture or refund policy changed before the refund. Review the payment "

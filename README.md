@@ -41,7 +41,7 @@ More orders placed by agents means more returns requested by agents, and a refun
 2. Open **Honest return** from the run or the judge guide. Use **See intent reading** to inspect the extracted intent, merchant summary and actual extractor shown on the case; then click **Approve & refund**. Check the PayPal refund ID, signed notice, reconciliation and audit-chain cards. Until this click, Refund API calls = 0.
 3. Open **Blocked request** from the judge guide. It shows the refusal and Refund API calls = 0. The **Inbox** then shows both requests and the next merchant action. For an unscripted contrast, the **Adversarial: “get $500”** button runs a real model; its tool choices vary and the provider allows about one run per minute.
 
-This is a shared demo; the main path never requires **Reset demo**, which archives other visitors' active cases. The service may have been reseeded after a restart. If an agent run is already in progress, open its progress link; if the agent gateway is unavailable, use **Case A → Approve & refund → PayPal evidence**. The top ribbon identifies the environment as **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so a restart or deploy may reseed the shared demo cases.
+This is a shared demo; the main path never requires **Reset demo**. On the hosted build public reset is **off** by default (403); a restart or deploy may still reseed ephemeral cases. If an agent run is already in progress, open its progress link; if the agent gateway is unavailable, use **Case A → Approve & refund → PayPal evidence**. The top ribbon identifies the environment as **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`).
 
 For a second agent path, expand **Try a merchant-created Sandbox order** on the dashboard. It creates a new captured
 demo order first and displays a short-lived return pass once. A buyer agent can then submit a request using the order
@@ -71,7 +71,7 @@ is routed by deterministic code to a human safety review ahead of any refund or 
 
 | Principle | How it is enforced (in code, not in the prompt) |
 |---|---|
-| **AI understands** | LLM output is validated against a strict schema; anything off-schema becomes `UNKNOWN` and goes to a person. It can only add a "no", never remove one. |
+| **AI understands** | LLM output is validated against a strict schema; anything off-schema becomes `UNKNOWN` and the **policy rejects** (Closed / approve returns 409 — fail-closed, not a “Needs you” triage). A separate path escalates to a person only when the **model is unavailable** (`llm_unavailable` → keyword fallback / `NEEDS_HUMAN`). The model can only add a "no", never remove one. |
 | **Rules decide** | `app/policy.py` and `app/safety.py` are pure Python; a blocked case never calls the Refund API (asserted in tests). |
 | **Humans approve** | The refund hard guard refuses unless the case's hash chain holds a policy `ELIGIBLE` and a chained `APPROVED`. Autonomy is off by default and off on the hosted demo. |
 | **PayPal proves** | "Success" is shown only when PayPal itself reports `COMPLETED`. A signed webhook and a reconcile GET are recorded as separate confirmations (shown as "waiting" until they arrive); PayPal debug ids are stored. |
@@ -624,17 +624,19 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   Every response carries CSP (`script-src 'self'`, no inline code), HSTS, `frame-ancestors 'none'` / X-Frame-Options,
   nosniff and Referrer-Policy; state-changing POSTs from another origin (Origin/Referer check) get 403, the webhook is
   exempt. Requests with neither header (scripts, curl) are allowed because they aren't a browser CSRF vector.
-- **Open demo by default:** money actions (approve / decline / refund / buyer capture / demo reset) are public on the
-  shared hackathon Sandbox. For a private Sandbox, set `TRADEOS_OPERATOR_TOKEN` to a random value of at least 24
-  characters on an HTTPS deployment. The browser then prompts for HTTP Basic credentials: username `operator`,
-  password the token. The gate covers the dashboard, case evidence, APIs and action endpoints; `/healthz`, PayPal
-  webhooks and static assets remain public. `/mcp` keeps its own Bearer credentials: configure `TRADEOS_MCP_TOKEN` or
-  `TRADEOS_MCP_AGENTS` with distinct tokens of at least 24 characters, or set `TRADEOS_MCP=0`. Startup refuses an
-  unprotected agent gateway. This shared credential is a private-demo gate, not user accounts, roles or multi-tenancy.
-  Rate limits, the deterministic policy hard guard, per-case locks and the hash-chained audit trail also remain.
-  SQLite workflow locks and audit writes currently require one service process per database; startup refuses a
-  second process using the same database. The inbox filters, counts and pages in SQLite before reading row evidence.
-  The dashboard loads 14 recent tabs and at most 50 other cases needing attention; older cases remain in the inbox.
+- **Open demo by default:** money actions (approve / decline / refund / buyer capture) are public on the shared
+  hackathon Sandbox. **`POST /demo/reset` is refused by default** (`TRADEOS_ALLOW_PUBLIC_RESET=0`) so one visitor
+  cannot wipe others' cases; enable it only for a private local demo, or use an operator-gated profile. For a private
+  Sandbox, set `TRADEOS_OPERATOR_TOKEN` to a random value of at least 24 characters on an HTTPS deployment. The browser
+  then prompts for HTTP Basic credentials: username `operator`, password the token. The gate covers the dashboard,
+  case evidence, APIs and action endpoints; `/healthz`, PayPal webhooks and static assets remain public. `/mcp` keeps
+  its own Bearer credentials: configure `TRADEOS_MCP_TOKEN` or `TRADEOS_MCP_AGENTS` with distinct tokens of at least
+  24 characters, or set `TRADEOS_MCP=0`. Startup refuses an unprotected agent gateway. This shared credential is a
+  private-demo gate, not user accounts, roles or multi-tenancy. Rate limits, the deterministic policy hard guard,
+  per-case locks and the hash-chained audit trail also remain. SQLite workflow locks and audit writes currently require
+  one service process per database; startup refuses a second process using the same database. The inbox filters, counts
+  and pages in SQLite before reading row evidence. The dashboard loads 14 recent tabs and at most 50 other cases
+  needing attention; older cases remain in the inbox.
 - The PayPal client accepts only official PayPal HTTPS API hosts. Live hosts additionally require
   `TRADEOS_ALLOW_LIVE=1`; sandbox test-card orders are always blocked on live hosts. A refund response
   without a valid refund ID and status is treated as an unknown outcome until PayPal can be reconciled.
