@@ -380,7 +380,7 @@ def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
         lat = (f"p50 **{m['latency_p50_s']} s**, p95 **{m['latency_p95_s']} s**, max {m['latency_max_s']} s"
                if m.get("latency_p50_s") is not None else "n/a (every call fell back)")
         err = m.get("per_case_errors") or []
-        err_line = (f"* Per-case provider errors (continued with keyword fallback): "
+        err_line = ("* Per-case provider errors (continued with keyword fallback): "
                     + ", ".join(f"`{e['id']}`" for e in err) + "." if err else
                     "* Per-case provider errors: none.")
         lines += ["", "## Latency, cost, robustness (LLM)", "",
