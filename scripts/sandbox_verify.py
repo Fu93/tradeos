@@ -39,6 +39,12 @@ Case M2: two partial refunds (two batches) on ONE capture, each approved by a pe
 attempts refused, one verified webhook per refund id. ``--paypal-overrefund-probe`` additionally sends one direct
 over-refund to the Sandbox API with PAYPAL_CLIENT_ID/SECRET from the environment (PayPal's own refusal; outside the app).
 
+AI end-to-end (opt-in, NOT part of the default 31): ``--ai-e2e-only`` posts one fixed English free-text return through
+the live LLM extractor on the target (``POST /cases/free``), then human-approves a Sandbox refund. The target must
+already have ``LLM_API_KEY`` / ``LLM_BASE_URL`` / ``LLM_MODEL`` configured (see ``/healthz`` ``llm_configured``); this
+script itself needs no LLM key. English keeps the grounded note on the template path, so the path uses **exactly one**
+LLM chat completion (intent extract). Prints that call count.
+
 Autonomy is experimental and must be OFF on the hosted demo, so the run FAILS if /healthz reports
 auto_enabled or auto_exchange_enabled true, unless --allow-autonomy (or ALLOW_AUTONOMY=1) is given, which is
 meant for local runs of the opt-in path only. deploy-verify never passes it.
@@ -51,6 +57,14 @@ import time
 from urllib.parse import urlparse
 
 import httpx
+
+# Fixed English return: exercises the live LLM extractor once; English notes stay on the template writer
+# (no second chat completion). Keep this message short and unambiguous for schema-constrained extraction.
+AI_E2E_MESSAGE = (
+    "Hi, the running shoes I ordered arrived in the wrong colour. "
+    "I want to return them for a full refund please."
+)
+AI_E2E_LLM_CALLS = 1  # intent extract only (English → template note)
 
 
 def verify_client(base: str, transport: httpx.BaseTransport | None = None) -> httpx.Client:
@@ -147,6 +161,47 @@ def mixed_checks(c: httpx.Client, check, allow_mock: bool = False, *,
     chain = c.get(f"/cases/{cid}/audit/verify").json()
     check(chain.get("ok") is True, f"Mixed: audit trail intact: {chain.get('entries')} entries")
     print(f"Manual step: look up debug id {dbg} in the PayPal Developer Dashboard (Sandbox) logs.")
+
+
+def ai_e2e_checks(c: httpx.Client, check, allow_mock: bool = False) -> None:
+    """One free-text return through the target's live LLM extractor → policy → human approve → refund."""
+    tag = " [MOCK - not live proof]" if allow_mock else ""
+    r = c.post("/cases/free", data={"message": AI_E2E_MESSAGE})
+    if r.status_code != 303:
+        check(False, f"AI e2e: POST /cases/free -> {r.status_code} (expected 303): {r.text[:200]}")
+        return
+    cid = r.headers["location"].split("case=")[1]
+    data = c.get(f"/api/cases/{cid}").json()
+    case = data["case"]
+    extraction = case.get("extraction") or {}
+    extractor = str(extraction.get("extractor") or "")
+    check(extractor.startswith("llm:"),
+          f"AI e2e: live LLM extractor used (got {extractor!r}; keyword fallback is not AI e2e)")
+    check(not extraction.get("llm_unavailable"), "AI e2e: extractor did not fall back as LLM-unavailable")
+    if not extractor.startswith("llm:") or extraction.get("llm_unavailable"):
+        return  # stop before approving — this is not an AI end-to-end proof
+    check((case.get("intent") or {}).get("requested_action") == "REFUND",
+          f"AI e2e: intent is a return for a refund: {case.get('intent')}")
+    check(case["status"] == "PENDING_APPROVAL",
+          f"AI e2e {cid}: waits for a person (status {case['status']})")
+    check(c.post(f"/cases/{cid}/approve").status_code == 303, f"AI e2e {cid}: approved by a person")
+    data = c.get(f"/api/cases/{cid}").json()
+    case, calls = data["case"], data["paypal_calls"]
+    refund_calls = [x for x in calls if x["operation"] == "refund_capture"]
+    check(case["refund_status"] in ("COMPLETED", "PENDING") and len(refund_calls) == 1,
+          f"AI e2e {cid}: refund {case.get('refund_id')} status {case.get('refund_status')} "
+          f"({len(refund_calls)} refund call(s)){tag}")
+    dbg = refund_calls[0].get("debug_id") if refund_calls else None
+    check(bool(dbg) and (allow_mock or not str(dbg).startswith("mock")),
+          f"AI e2e: PayPal-Debug-Id on the refund call: {dbg}{tag}")
+    note = case.get("note") or {}
+    # English assist → template note writer (no second LLM call). Count is fixed for this mode.
+    print(f"AI e2e LLM chat completions: {AI_E2E_LLM_CALLS} "
+          f"(intent extract via {extractor}; note generator={note.get('generator')!r})")
+    check(AI_E2E_LLM_CALLS == 1, f"AI e2e: fixed LLM call budget is {AI_E2E_LLM_CALLS}")
+    chain = c.get(f"/cases/{cid}/audit/verify").json()
+    check(chain.get("ok") is True, f"AI e2e: audit trail intact: {chain.get('entries')} entries")
+    print(f"Manual step: open /?case={cid} and confirm 'What the AI understood' shows {extractor}.")
 
 
 def multi_batch_checks(c: httpx.Client, check, allow_mock: bool = False, probe: bool = False, *,
@@ -264,7 +319,7 @@ def multi_batch_checks(c: httpx.Client, check, allow_mock: bool = False, probe: 
 
 def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_only: bool = False,
          allow_mock: bool = False, multi_batch: bool = False, multi_only: bool = False,
-         probe: bool = False, expected_version: str | None = None) -> int:
+         probe: bool = False, ai_e2e_only: bool = False, expected_version: str | None = None) -> int:
     allow_autonomy = allow_autonomy or os.environ.get("ALLOW_AUTONOMY") == "1"
     c = verify_client(base)
     fails: list[str] = []
@@ -296,6 +351,27 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
         return 1
 
     webhook_configured = bool(health.get("webhook_configured"))
+
+    if ai_e2e_only:
+        try:
+            check(bool(health.get("llm_configured")),
+                  "AI e2e: target /healthz reports llm_configured "
+                  "(set LLM_API_KEY / LLM_BASE_URL / LLM_MODEL on the target)")
+            if not health.get("llm_configured"):
+                print("RESULT:", f"{len(fails)} FAILED: {fails}")
+                return 1
+            check(health.get("paypal_mode") == expected_mode,
+                  f"PayPal mode is {expected_mode} (got {health.get('paypal_mode')})")
+            auto = bool(health.get("auto_enabled")) or bool(health.get("auto_exchange_enabled"))
+            if auto and not allow_autonomy:
+                check(False, "autonomy is OFF at the target (pass --allow-autonomy only for deliberate local runs)")
+                print("RESULT:", f"{len(fails)} FAILED: {fails}")
+                return 1
+            ai_e2e_checks(c, check, allow_mock)
+        except httpx.TimeoutException as exc:
+            check(False, f"AI e2e: HTTP timeout talking to app/PayPal/LLM path ({exc.__class__.__name__})")
+        print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
+        return 0 if not fails else 1
 
     if multi_only:
         try:
@@ -484,7 +560,8 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
 
 
 if __name__ == "__main__":
-    flags = ("--allow-autonomy", "--mixed", "--mixed-only", "--allow-mock", "--multi-batch", "--multi-batch-only", "--paypal-overrefund-probe")
+    flags = ("--allow-autonomy", "--mixed", "--mixed-only", "--allow-mock", "--multi-batch", "--multi-batch-only",
+             "--paypal-overrefund-probe", "--ai-e2e-only")
     if {"-h", "--help"} & set(sys.argv[1:]):
         print(__doc__)
         sys.exit(0)
@@ -495,4 +572,5 @@ if __name__ == "__main__":
     sys.exit(main(args[0], allow_autonomy="--allow-autonomy" in sys.argv[1:], mixed="--mixed" in sys.argv[1:],
                   mixed_only="--mixed-only" in sys.argv[1:], allow_mock="--allow-mock" in sys.argv[1:],
                   multi_batch="--multi-batch" in sys.argv[1:], multi_only="--multi-batch-only" in sys.argv[1:],
-                  probe="--paypal-overrefund-probe" in sys.argv[1:]))
+                  probe="--paypal-overrefund-probe" in sys.argv[1:],
+                  ai_e2e_only="--ai-e2e-only" in sys.argv[1:]))

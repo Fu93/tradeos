@@ -3,8 +3,9 @@
 Target: `https://tradeos-s33z.onrender.com`. Before and after the checks,
 `/healthz` reported version `dc2c6b5cd40e19c2f859d54a71f06b593c350864`,
 `paypal_mode=sandbox`, webhook configured, and autonomy off. This is the
-**published commit**. The local working tree has unpublished modifications;
-these live results do not verify those modifications.
+**published commit** at the time of the check. Later tips (including PR #100) need their own
+hosted re-run after redeploy; a local Sandbox run of a later tip is separate evidence and is
+not claimed here.
 
 The existing `scripts/sandbox_verify.py` default run returned **ALL PASS**.
 Case A `A-60D33E00C5A94193` required human approval, then PayPal reported
@@ -32,6 +33,5 @@ and the 44-entry audit chain verified. No direct over-refund probe was run.
 These two checks created five test cases and four refunds in **PayPal Sandbox**
 on the already published demo. They did not publish code or move real money.
 The PayPal Developer Dashboard lookup of the recorded Debug-Ids remains a
-manual cross-check. Validating the unpublished code against live Sandbox still
-requires Sandbox credentials bound to this development environment, or a
-deployment of that exact code version; neither was available or performed.
+manual cross-check. Validating a newer tip against live Sandbox requires either
+local Sandbox credentials or an authorized deployment of that exact code version.

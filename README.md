@@ -95,8 +95,8 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the published demo (`dc2c6b5`, 5 Nov 2026 23:19 GMT: 31/31 PASS; [complete log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); earlier checks and limits in [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers; uncommitted changes in this working tree |
-| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last run on tip `1acae45`, 19 Oct 2026: 16/16; earlier same-day on `5325db7`: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox run of tip `a196741` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP (no public receiver) — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal; Case M re-proof on the final hosted tip (pending redeploy) |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
 | **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
@@ -106,7 +106,7 @@ flowchart LR
 
 ### Built during the hackathon
 
-First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #88: 80 pull requests merged). Highlights:
+First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #93: **85** pull requests merged). Highlights:
 
 | Date | What landed |
 |---|---|
@@ -733,22 +733,29 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-Over 1,600 tests (1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
-`ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
-(about 96% today). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate
-line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox, and lost-PayPal-reply
-recovery (`tests/test_payment_unknown.py`). The defect fixes of 24 Oct were each mutation-checked: putting the defect back
-makes a test fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
+**1,813** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
+push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a
+`pytest-cov` gate at 90% line coverage (**about 95%** today). They include eval dataset checks, VAT-inclusive mock tests,
+CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop,
+the returns inbox, lost-PayPal-reply recovery, confirm-by-GET status handling, and Request-Id expiry rotation. The
+defect fixes of 24 Oct (and later money-path hardening) were each mutation-checked: putting the defect back makes a test
+fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
 
 ### Verify a deployment
 
 `scripts/sandbox_verify.py <base-url>` drives a running instance through the whole loop over HTTP and asserts the
-result. It needs no credentials, so it works against the Render demo or against `http://localhost:8000`:
+result. The default path needs no credentials (public demo endpoints). Optional `--ai-e2e-only` exercises the live LLM
+intent path (one fixed English free-text return → approve → Sandbox refund; **1** LLM chat completion); the **target**
+must have `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` set (`/healthz` `llm_configured=true`) — the script itself needs
+no LLM key:
 
 ```bash
-python scripts/sandbox_verify.py https://<your-host>      # a deployed instance
-AUTO_ENABLED=1 uvicorn app.main:app --port 8000 &          # or a local one with real Sandbox credentials
-python scripts/sandbox_verify.py http://localhost:8000
+python scripts/sandbox_verify.py https://<your-host>      # default 31 checks
+python scripts/sandbox_verify.py https://<your-host> --ai-e2e-only
+# local Sandbox + LLM (example):
+#   export PAYPAL_CLIENT_ID=… PAYPAL_CLIENT_SECRET=… LLM_API_KEY=… LLM_BASE_URL=… LLM_MODEL=…
+#   uvicorn app.main:app --host 0.0.0.0 --port 8000
+#   python scripts/sandbox_verify.py http://127.0.0.1:8000 --ai-e2e-only
 ```
 
 The `Deploy verify` workflow can automate this after every push to `main`: it waits until `/healthz` reports the pushed
@@ -808,10 +815,11 @@ errors with independent participants; no study results are claimed yet.
 ## Deploy
 
 `render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, hash-pinned
-`requirements.lock`, health check `/healthz`). **The hosted demo does not follow the Blueprint in two respects:** that
-service's settings differ from the Blueprint: it installs `requirements.txt` (exact `==` pins, no hashes) and has
-**no health check path** configured (checked through the Render API on 19 Oct 2026). Without a health check path, Render
-only checks that the new instance accepts TCP connections on its port before switching traffic to it
+`requirements.lock`, `uvicorn --workers 1`, health check `/healthz`). **The currently hosted public service still
+diverges from this Blueprint in two respects** (checked through the Render API on 19 Oct 2026; aligning it is an
+operator action at redeploy time, not claimed done here): it installs `requirements.txt` (exact `==` pins, no hashes)
+and has **no health check path** configured. Without a health check path, Render only checks that the new instance
+accepts TCP connections on its port before switching traffic to it
 ([Render docs](https://render.com/docs/health-checks)); it does not check that `/healthz` answers. So after each deploy we
 check `/healthz` and run `sandbox_verify.py` by hand.
 Secrets are entered in the Render dashboard. For the webhook, run `scripts/register_webhook.py` once against the public

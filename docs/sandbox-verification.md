@@ -1,13 +1,21 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
+## Candidate tip — local Sandbox (8 Nov 2026)
+
+Tip `a196741` (PR #100) was exercised in a **local Sandbox run** on the owner's machine: **62 pass / 0 fail /
+6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry **4/4** and
+UNKNOWN recovery **2/2**. That is local evidence for this tip, not a hosted-demo claim. Re-run
+`scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz` `version` equals
+this tip. Optional `--ai-e2e-only` covers the live LLM intent path (1 chat completion; target must have
+`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`).
+
 ## Published demo technical recheck — 7 Nov 2026
 
 The published `dc2c6b5` build passed the default live Sandbox verification
 and the separate two-batch partial-refund verification. Exact case, refund,
 Debug-ID, amount and audit-chain results are in
 [`docs/evidence/sandbox-verify-dc2c6b5-2026-11-07.md`](evidence/sandbox-verify-dc2c6b5-2026-11-07.md).
-The development tree still contains unpublished changes, so this is evidence
-for the published commit only.
+This is evidence for the **published** commit only; the public demo may still serve `dc2c6b5` until redeployed.
 
 ## Published demo recheck — 5 Nov 2026
 
@@ -93,5 +101,8 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   (a first multi-batch attempt hit a PayPal Sandbox `ReadTimeout` on order creation — no capture, no money moved — then
   passed on retry).
 * Previous day: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS.
+* `--ai-e2e-only`: one fixed English free-text return through the target's live LLM extractor → human approve → Sandbox
+  refund. Prints `AI e2e LLM chat completions: 1`. Requires `/healthz` `llm_configured=true` (LLM env on the **target**,
+  not in the script). Not part of the default 31.
 * The `Deploy verify` GitHub workflow does **not** run these checks for this repository: the `TRADEOS_DEPLOY_URL` secret
   is not set, so its verify job is skipped. The runs above were started by hand.
