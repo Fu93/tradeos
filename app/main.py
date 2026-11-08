@@ -26,7 +26,7 @@ from . import inbox as inbox_module
 from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, fill_inbox, live_run,
                            play_scenes)
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
-from .inbox import BUCKET_LABELS, inbox_rows, inbox_db_summary
+from .inbox import BUCKET_LABELS, inbox_rows, inbox_db_summary, _next_step as inbox_next_step
 from .catalog import Channel3Catalog
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
@@ -229,6 +229,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "pipeline": pipeline(db, current),
             "result": result_card(db, current, bool(settings.paypal_webhook_id), wf.paypal_mode),
             "section_title": section_title(current),
+            "case_next_step": (inbox_next_step(current)[1] if current else None),
             "ai": ai_panel(current),
             "controls": backend_controls(db, current),
             "failure_modes": failure_modes(db, mock=wf.paypal_mode == "mock"),

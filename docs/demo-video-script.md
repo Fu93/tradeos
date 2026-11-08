@@ -1,10 +1,44 @@
+# TradeOS demo video v9 — 2:45 (strictly under 3:00)
+
+**Status:** recording plan only. **YouTube URL: TBD (placeholder)** — do not claim a video exists until uploaded.  
+**Record against tip `f2c7430`** on https://tradeos-s33z.onrender.com (confirm `/healthz` `version` first). PayPal
+**Sandbox**, autonomy **OFF**, English narration + captions. Do not reset the public shared demo; use fresh cases or a
+private copy. Label every wait cut. Claims must match what the UI shows.
+
+**Agent honesty:** the main path uses the dashboard **scripted MCP client** (not a model). Say so on screen and in VO.
+The honest case's **What the AI understood** panel must show a real LLM extraction (`llm:openai/gpt-oss-20b` or the
+live extractor label). If it shows keyword fallback, refilm.
+
+**Positioning line:** Buyer agents request. Merchants approve. PayPal confirms.
+
+| Time | On-screen actions | Narration (exact) | Subtitles |
+| --- | --- | --- | --- |
+| **0:00–0:15** | Dashboard ribbon: Hackathon Demo · PayPal Sandbox · No real money. Judge guide headline visible. | AI can buy for us. When it asks for a return, who controls the refund? | AI can buy for us. When it asks for a return, who controls the refund? |
+| **0:15–0:35** | Click **1 · Run agent scenes**. Progress page lists MCP tool calls. On-screen label: “Scripted MCP client — same tools agents get; not a model.” | This is a scripted MCP client using TradeOS’s own restricted gateway — not the official PayPal MCP. It can place a Sandbox order and request a return. It has no approve tool and no refund tool. | Scripted MCP client · TradeOS /mcp · no approve · no refund |
+| **0:35–1:00** | Open **Honest return**. Show **What the AI understood**: extractor `openai/gpt-oss-20b`, intent, merchant summary. Show policy eligible, pending approval, **Refund API calls = 0**. | An honest request. A real model, openai/gpt-oss-20b on Groq, turns the words into structured intent. Python policy checks PayPal’s capture. Eligible — and still waiting. Refund calls stay at zero until a person acts. | Real LLM · structured intent · Python policy · Refund calls = 0 |
+| **1:00–1:30** | Click **Approve & refund**. Wait cut labelled if needed. Show Sandbox **Refund ID** and status **COMPLETED**. | The merchant approves. Only then does TradeOS call PayPal. PayPal returns a Sandbox refund ID marked COMPLETED. | Merchant approves → Sandbox refund COMPLETED |
+| **1:30–1:55** | On-screen: **Wait cut — webhook ~Ns**. Chip **Signed PayPal notice: verified**. Click **Check against PayPal** → **all match**. Audit badge intact. | We cut the wait for PayPal’s signed notice. TradeOS verifies the signature, then checks the refund again with PayPal. All match — on a tamper-evident audit chain. | Verified signed webhook · Check against PayPal · all match |
+| **1:55–2:20** | Open blocked / injection case: **Refund API calls = 0**. Then a dangerous-product or safety-held case: **Needs human safety review** (or Adversarial $500 live-agent tile if safer in this take — still show zero money moved). | A hostile five-hundred-dollar ask moves no money. A dangerous-product report goes to a human safety review before any automatic action. | Hostile ask → $0 · Safety review → human |
+| **2:20–2:45** | Inbox with honest + blocked rows. End card: Sandbox only · tip `f2c7430` · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
+
+### Recording checklist
+
+1. `GET /healthz` → `version` = `f2c74302622d91f988ba7fad097052ed4c322a56`, `paypal_mode=sandbox`, autonomy flags false.
+2. Film actual UI chrome (judge guide title, Sandbox badge, Refund API calls, webhook chip, audit badge).
+3. Keep total runtime **≤ 2:45**. Export captions matching the Subtitles column.
+4. Do not narrate production-ready / fraud-proof / 100% accuracy.
+
+---
+
+## Earlier version (v8; retained for history)
+
 # TradeOS demo video v8: one agent return, one human decision, one blocked request
 
 Target: **2:35–2:45**, below the planned three-minute limit. This is a recording plan, not a claim that a new video
 exists (**YouTube URL still TBD**). Record against one named deployed commit on the live **PayPal Sandbox**, with
-autonomy off — record only **after** `/healthz` shows the submission tip (hosted redeploy pending). Use
-English narration and captions. Do not reset the public shared demo; use a private Sandbox copy or fresh cases. Cut
-waits honestly and label each cut, especially the measured webhook delay. Preserve the real result on screen.
+autonomy off. Use English narration and captions. Do not reset the public shared demo; use a private Sandbox copy or
+fresh cases. Cut waits honestly and label each cut, especially the measured webhook delay. Preserve the real result on
+screen.
 
 The main path uses a **scripted MCP client**, labelled as such in the video and UI. It is reproducible and exercises the
 same tools an agent receives. The case's **What the AI understood** panel must show a real LLM extraction in the filmed
@@ -21,7 +55,7 @@ evidence record.
 | 0:50–1:15 | Honest case: **What the AI understood** (extractor, intent, English merchant summary), then policy eligible, pending approval and Refund API calls 0. | The model reads the buyer's words into a constrained intent and a merchant summary. Code checks PayPal's capture and the return policy. Even an eligible agent request waits for a person. |
 | 1:15–1:55 | **Approve & refund** → PayPal Refund ID; labelled wait → signed notice; **Check against PayPal** and audit badge. | A person approves. Only then does TradeOS call PayPal. PayPal reports the result, sends a signed notice, and can be checked again. |
 | 1:55–2:20 | Open the scripted prompt-injection case: rejected, Refund API calls 0, reason, audit trail. | The same agent tools cannot turn a hostile request into approval. The blocked case made zero refund calls. |
-| 2:20–2:40 | Inbox with honest and blocked rows; end card with Sandbox label, deployed version, demo and source links. | One inbox shows what needs a merchant next and why. Agents ask. People approve. PayPal proves. |
+| 2:20–2:40 | Inbox with honest and blocked rows; end card with Sandbox label, deployed version, demo and source links. | One inbox shows what needs a merchant next and why. Buyer agents request. Merchants approve. PayPal confirms. |
 
 Before recording, run the [submission evidence checklist](submission-evidence.md). After recording, check the final
 render for readable IDs, captions, elapsed time, correct scripted-versus-model labels, and no claim beyond the actual
@@ -80,7 +114,7 @@ The first shot must show the **HACKATHON DEMO · PayPal Sandbox · No real money
 | 0:58–1:10 | Exchange approval card; highlight evidence card `PayPal refund: No refund requested` and pipeline `Refund API NOT CALLED`. | An exchange never moves money. The supplier reply is a mock, clearly labelled MOCK. A human approves the exchange, and the Refund API is not called. Zero refund calls. |
 | 1:10–1:24 | Run Case B; show policy rejection, `Refund API calls: 0`, and `Refund ID: none`. | Only a return leads to a refund. Case B is purchased 45 days ago. The Python policy says the 30-day window is exceeded. The model cannot override that. |
 | 1:24–1:42 | Run Case A; click the approval button; pause on the large `Refund COMPLETED` result card and the Refund ID evidence card. | Case A is inside the window, so every check passes. A human approves, and only then does TradeOS call the PayPal Refund API. COMPLETED appears only after PayPal returns COMPLETED, with a real Sandbox Refund ID. |
-| 1:42–1:55 | Honest cut labelled with the webhook wait; show `Signed PayPal notice: verified` and the PayPal trace ID card. | Then PayPal sends a signed webhook. We cut the wait. TradeOS checks the signature against PayPal's certificate: verified. |
+| 1:42–1:55 | Honest cut labelled with the webhook wait; show `Signed PayPal webhook: verified` and the PayPal trace ID card. | Then PayPal sends a signed webhook. We cut the wait. TradeOS checks the signature against PayPal's certificate: verified. |
 | 1:55–2:10 | Click **Check against PayPal**; show `Checked against PayPal: all match` and the audit-chain badge. | PayPal's capture and refund are read again. All match. Every step is recorded in a SHA-256 hash-chained audit trail. |
 | 2:10–2:30 | Failure & safety modes: Case R 422 → retry with same request ID; Case D double-click → one refund. | Failures stay honest. A forced refund failure never appears as success, and the retry reuses the same PayPal-Request-Id. A double click is refused. One refund. |
 | 2:30–2:42 | Bottom evidence and top ribbon; end on tagline and links. | Basic web hardening is in. PayPal Sandbox, not live money; a Hackathon demo, not an audited production system. PayPal moves the money. TradeOS moves the work. |

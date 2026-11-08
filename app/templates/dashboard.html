@@ -48,7 +48,7 @@
 <section class="demo-guide" aria-labelledby="demo-guide-title">
   <div class="guide-copy">
     <div class="eyebrow">Judge path · about 3 minutes</div>
-    <h2 id="demo-guide-title">Agents ask. People approve. PayPal proves.</h2>
+    <h2 id="demo-guide-title">Buyer agents request. Merchants approve. PayPal confirms.</h2>
     <ol class="guide-steps">
       {% if agents and agents.demo_orders %}
       <li><strong>Agent asks</strong><span>run the scripted MCP scenes; an honest return waits for a person</span></li>
@@ -60,7 +60,7 @@
       <li><strong>Check PayPal</strong><span>refund ID · signed notice · reconciliation</span></li>
       {% endif %}
     </ol>
-    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong> The MCP scenes use a script, not a model. The demo is shared with other visitors; your case links remain available without resetting it.</p>
+    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong> The MCP scenes use a script, not a model. <strong>This public demo is shared</strong> with other visitors and uses an ephemeral database — a restart or deploy may reseed or clear cases. Prefer your own case links; the judge path does not need Reset.</p>
   </div>
   <div class="guide-links">
     {% if agents and agents.demo_orders %}
@@ -113,6 +113,9 @@
   <section class="block" id="pending">
     <h2 id="pending-title"><span class="num">1</span> {{ section_title }}
       {% if current %}<span class="muted small">· {{ current.label }} · case {{ current.id }}</span>{% endif %}</h2>
+    {% if current and case_next_step %}
+      <p class="case-next-step" role="status"><strong>Next step:</strong> {{ case_next_step }}</p>
+    {% endif %}
     {% if agent %}
       <p class="agent-card" role="note"><span class="chip agent">AI agent</span>
         {% if agent.requested %}Requested by <strong>{{ agent.agent }}</strong>{% if agent.on_behalf_of %} for {{ agent.on_behalf_of }}{% endif %} through the MCP gateway.
@@ -235,6 +238,7 @@
   <!-- Try it yourself: multilingual free text -->
   <section class="block" id="try">
     <h2>Try it yourself <span class="muted small">— any language</span></h2>
+    <p class="muted small intake-hint" role="note">Each free-text run creates a <strong>new PayPal Sandbox demo order</strong> for this demo product. Order IDs typed inside the message are <strong>not looked up</strong> — they are treated as words for intent only.</p>
     <form method="post" action="/cases/free" class="js-busy free" id="free-form">
       <div class="chips" role="group" aria-label="Presets">
         {% for p in presets %}

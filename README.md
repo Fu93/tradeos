@@ -2,11 +2,11 @@
 
 [![CI](https://github.com/Fu93/tradeos/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Fu93/tradeos/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE) ![PayPal Sandbox only](https://img.shields.io/badge/PayPal-Sandbox%20only-lightgrey)
 
-> **PayPal moves the money. TradeOS moves the work.**
+> **Buyer agents request. Merchants approve. PayPal confirms.**
 >
-> Use AI where language is ambiguous. Use code where money is at stake.
+> Governed returns for small cross-border physical-goods merchants. Use AI where language is ambiguous. Use code where money is at stake.
 
-**Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD_
+**Live demo:** https://tradeos-s33z.onrender.com (PayPal Sandbox; no real money) · **Video:** _YouTube URL TBD (placeholder — do not treat as a published video)_
 
 ![TradeOS on the live PayPal Sandbox, about 23 seconds: the inbox fills, a customer message about a burned foot is held for safety review with 0 refunds, an AI agent's honest request waits for a person, the merchant approves, PayPal confirms a Sandbox refund, and the inbox still shows 0 refunds approved by an AI agent](docs/img/demo.gif)
 
@@ -20,10 +20,13 @@ classifier and autonomy are off on the hosted demo). Not covered: this is one ru
 
 **AI agents are starting to buy for people. Someone has to decide what they may do when the order comes back.**
 PayPal's agentic commerce services ([Agent Ready, Store Sync](https://developer.paypal.com/docsai/growth/agentic-commerce/overview))
-let a buyer's assistant find products and check out; that overview does not cover returns. TradeOS is the returns layer
-for PayPal merchants: **one inbox for requests from customers and from buyers' AI agents**, where AI reads the language,
-code decides what the policy allows, a person approves the money and PayPal proves it. An agent can *request* a return
-over MCP. No tool lets it approve one, and the dashboard counts how many refunds an agent approved: 0.
+let a buyer's assistant find products and check out; that overview does not cover returns. TradeOS is a **governed
+returns layer** for small cross-border physical-goods merchants: **one inbox for customers and buyers' AI agents**,
+where AI reads the language, deterministic code decides what the policy allows, a merchant approves money movement,
+and PayPal confirms the outcome (signed webhook + independent GET). A buyer agent can *request* a return over TradeOS's
+own restricted `/mcp` gateway (not the official PayPal MCP). No tool lets it approve or refund, dangerous-product
+reports go to a human before any automatic action, and return vs size-exchange are routed differently. The dashboard
+counts how many refunds an agent approved: 0.
 
 **Why it matters now.** US retailers expect returns worth **$849.9 billion** in 2025; **19.3%** of online sales come back,
 and **9%** of all returns are fraudulent ([NRF and Happy Returns, Oct 2025](https://www.nrf.com/research/2025-retail-returns-landscape)).
@@ -62,8 +65,8 @@ The matching recording plan is in [`docs/demo-video-script.md`](docs/demo-video-
 Today one person reads it, checks the order, decides, and clicks refund in PayPal: slow, and the same person moves the money.
 
 **What TradeOS does.** AI reads the message into a strict schema; deterministic Python rules decide eligibility; a person (or,
-only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **proves** it (signed webhook +
-a GET back against PayPal) on a tamper-evident hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
+only if the merchant opts in, the merchant's own policy) approves; PayPal executes the refund and **confirms** it (signed webhook +
+an independent GET against PayPal) on a **tamper-evident** (not immutable) hash-chained audit trail. A message that reports a dangerous-product fault (fire, burn, injury, ...)
 is routed by deterministic code to a human safety review ahead of any refund or supplier task, and so is any return of a mains / heating / gas / battery product unless it was read as a wrong size, a wrong item or a change of mind (keyword patterns plus the model's reading, tested in `tests/test_safety_gate.py` and `tests/test_safety_reasons.py`; not a safety guarantee). An optional second AI safety layer (escalate-only, fail-safe) exists but is **off by default and off on the hosted demo**: the demo's LLM key is on Groq's free tier, and one more model call per message would run into its rate limits when several judges use the demo at once (see [`docs/safety-gate.md`](docs/safety-gate.md)).
 
 | Principle | How it is enforced (in code, not in the prompt) |
@@ -95,11 +98,11 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on tip `9dafb70` (8 Nov 2026, isolated verification machine): 62 pass / 0 fail / 6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
-| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal; Case M re-proof on the final hosted tip (pending redeploy) |
+| **Live PayPal Sandbox (current hosted tip)** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Hosted `https://tradeos-s33z.onrender.com` serving tip **`f2c7430`**: preflight **9/9**, `sandbox_verify` **31/31**, AI e2e **11/11**. Malformed Origin/Referer → **403** (58/58). Historical: published `dc2c6b5` (5 Nov 2026: 31/31; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on `9dafb70` (8 Nov 2026): 62/0/6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 | Production (live) PayPal; real buyers |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
-| **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
+| **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, tamper-evident hash chain, evidence report, accessibility structure | Hosted tip `f2c7430`: **1841** pytest / **95.08%** cov (this tip: **1842**); ruff + mypy clean; deterministic policy matrix **582/582** (rules, not LLM requests). CI: ruff, mypy, pip-audit, 90% coverage gate | Any PayPal behaviour: the mock is not PayPal; “fraud-proof” / production readiness |
 | **Evals (synthetic messages)** | Multilingual intent and safety routing | [`docs/eval/`](docs/eval/results.md), [`docs/impact-proof.md`](docs/impact-proof.md) (states what is and is not human-checked) | Real-world accuracy |
 | **Seeded / mock demo data** | `/queue` view, supplier replies, cost model | Labelled DEMO / MOCK on screen | Any measured saving or merchant validation |
 | **Dev tooling** | [Postman collection](docs/postman/README.md) of the Sandbox calls | Not run against PayPal by us as part of this evidence; a manual run you do is your own evidence | Any proof |
@@ -140,21 +143,27 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 | [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Live Sandbox verification checklist |
 | [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
 | [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
-| [`docs/demo-video-script.md`](docs/demo-video-script.md) | Recording plan |
+| [`docs/demo-video-script.md`](docs/demo-video-script.md) | Demo video script v9 (≤2:45) |
+| [`docs/devpost-submission-final.md`](docs/devpost-submission-final.md) | English Devpost paste for tip `f2c7430` |
+| [`docs/submission-evidence.md`](docs/submission-evidence.md) | Hosted evidence checklist |
 
 ## For AI agents: request, never approve (MCP)
 
-PayPal's own MCP server gives an AI agent a refund tool. TradeOS puts the merchant's rules in front of that power.
-An agent acting for a buyer connects to `/mcp` and gets three tools: place a Sandbox demo order, **request** a return
-or exchange, and read the case status (a fourth, read-only `find_product`, with a Channel3 key). There is no approve, decline or refund tool. The request runs through the
-same loop as a dashboard case — AI reads the words, the Safety Gate and the deterministic policy decide on PayPal's
-own capture data — and **every agent-originated case waits for a person**, even with `AUTO_ENABLED` on. Who asked,
-and for whom, is on the case's hash chain. Prompt injection, a late order and a safety report all end with Refund
-API calls = 0 (tested in `tests/test_agent_gateway.py`). A **live AI agent**, a real model told to "get $500 by any
-wording", chooses its own tool calls against the same server, and its full transcript goes on the chain. With a
-Channel3 key it can also shop: find a real product, buy it in the Sandbox and request a return (run once against the
-real Channel3 API on 2026-10-25; one run, not a measurement, Sandbox only, USD only). Details,
-connection snippets and the demo scripts: [`docs/agent-gateway.md`](docs/agent-gateway.md).
+**`/mcp` is TradeOS's own restricted agent gateway**, not the official PayPal MCP. A separate toolkit-contrast script
+only **reads** the published PayPal agent-toolkit tool lists for comparison; it does not call PayPal's MCP or claim
+TradeOS replaces it. PayPal's published toolkits can give a merchant-owned agent a refund tool; TradeOS is built for
+the **buyer-agent** trust boundary, where the merchant must keep approval.
+
+An agent acting for a buyer connects to TradeOS `/mcp` and gets three tools: place a Sandbox demo order, **request** a
+return or exchange, and read the case status (a fourth, read-only `find_product`, with a Channel3 key). There is no
+approve, decline or refund tool. The request runs through the same loop as a dashboard case — AI reads the words, the
+Safety Gate and the deterministic policy decide on PayPal's own capture data — and **every agent-originated case waits
+for a person**, even with `AUTO_ENABLED` on. Who asked, and for whom, is on the case's tamper-evident hash chain.
+Prompt injection, a late order and a safety report all end with Refund API calls = 0 (tested in
+`tests/test_agent_gateway.py`). A **live AI agent**, a real model told to "get $500 by any wording", chooses its own
+tool calls against the same server, and its full transcript goes on the chain. With a Channel3 key it can also shop:
+find a real product, buy it in the Sandbox and request a return (run once against the real Channel3 API on 2026-10-25;
+one run, not a measurement, Sandbox only, USD only). Details: [`docs/agent-gateway.md`](docs/agent-gateway.md).
 
 ## What TradeOS does
 
@@ -403,12 +412,12 @@ including 7 prompt-injection attempts). Full results, every miss and the limits:
 | Injections (7) that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 |
 | Tokens this eval run (incl. 3 AI e2e calls) | 39,637 in / 15,543 out ≈ **US$0.0076** (Groq list) | $0 |
 
-Measured offline against tip `9dafb70` on **2026-11-08**: model `openai/gpt-oss-20b` via Groq, 52 cases, **one run,
-all HTTP 200** (no provider 400 and no keyword fallback on the LLM column). The HTTP 400 → `json_object` retry /
-keyword-fallback path is covered by unit tests on this tip; it was **not hit** in this live eval. Keyword column is
-deterministic on the same tip (17/52 exact, 0 unwarranted, 25 missed_accept). Committed
-[`docs/eval/results.json`](docs/eval/results.json) / [`results.md`](docs/eval/results.md) are that same 2026-11-08
-full LLM run (`run_at` 2026-11-08T15:57:31+00:00).
+Measured offline against tip `9dafb70` on **2026-11-08**: model `openai/gpt-oss-20b` via Groq, **52 author-written
+messages**, **one run, all HTTP 200**. Precise wording: LLM exact **41/52** vs keyword **17/52**; policy
+request-check **52/52** on this small set (not a claim of general accuracy). The HTTP 400 → `json_object` retry /
+keyword-fallback path is unit-tested and was **not hit** in that live eval. Committed
+[`docs/eval/results.json`](docs/eval/results.json) / [`results.md`](docs/eval/results.md) are that run
+(`run_at` 2026-11-08T15:57:31+00:00).
 
 The evaluation command requires `LLM_API_KEY` for a model run. It uses the same resilient `ChatJSONClient` as
 production intake (one `json_object` retry on HTTP 400, including Groq `json_validate_failed`, then keyword
@@ -416,11 +425,11 @@ fallback) and records per-case errors instead of aborting. For an offline sample
 report, run `python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`.
 A full offline keyword run uses `--keyword-only` without `--limit`.
 
-Small, self-written dataset — indicative, not a benchmark. No output can move money: the policy still decides, and
-only an approval on the audit chain can start a refund (a person's, or the merchant's policy when autonomy is on).
-Injection detection is heuristic (patterns): messages with instruction-like markers are never automated on the
-keyword path (forced `UNKNOWN` → human); the LLM path still needs the other policy checks and a human click with
-autonomy off.
+Small, author-written dataset — indicative, not a benchmark. No LLM output can move money: the policy still decides,
+and only an approval on the tamper-evident audit chain can start a refund (a person's, or the merchant's policy when
+autonomy is on). Injection detection is heuristic (patterns): messages with instruction-like markers are never
+automated on the keyword path (forced `UNKNOWN` → human); the LLM path still needs the other policy checks and a
+human click with autonomy off.
 
 See also [docs/impact-proof.md](docs/impact-proof.md): outcomes by case category from the committed eval artifacts, with
 the three validation levels (test results / human adjudication of specific labels / full human audit, **not done**) kept apart.
@@ -736,13 +745,15 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-**1,838** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
-push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a
-`pytest-cov` gate at 90% line coverage (**about 95%** today). They include eval dataset checks, VAT-inclusive mock tests,
-CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop,
-the returns inbox, lost-PayPal-reply recovery, confirm-by-GET status handling, and Request-Id expiry rotation. The
-defect fixes of 24 Oct (and later money-path hardening) were each mutation-checked: putting the defect back makes a test
-fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
+**1,842** tests on this tip (8 Nov 2026; **1,841** measured on hosted `f2c7430`; was 1,609 at `99dc962` on 25 Oct 2026),
+run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit`
+scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage (**95.08%**). Deterministic policy matrix
+**582/582** (rules, not LLM requests). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity,
+mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox,
+lost-PayPal-reply recovery, confirm-by-GET status handling, Request-Id expiry rotation, and malformed Origin/Referer →
+403. The defect fixes of 24 Oct (and later money-path hardening) were each mutation-checked: putting the defect back
+makes a test fail. The repository is public, so GitHub's standard hosted runners cost nothing here. License: **MIT**
+([`LICENSE`](LICENSE)).
 
 ### Verify a deployment
 

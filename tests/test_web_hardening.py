@@ -249,7 +249,7 @@ def test_judge_guidance_and_environment_status_are_visible(settings):
     assert "PayPal Sandbox" in html
     assert "No real money" in html
     assert "Judge path" in html
-    assert "Agents ask. People approve. PayPal proves." in html
+    assert "Buyer agents request. Merchants approve. PayPal confirms." in html
     assert 'action="/demo/agent-scenes"' in html
     assert "LLM: Fallback" in html
     assert "Webhook: configured" in html
@@ -291,6 +291,16 @@ def test_home_three_step_hint_and_sandbox_notice_without_stale_or_overclaiming_t
         assert step in html
     assert html.index("Agent asks") < html.index("Inspect, then approve") < html.index("Compare the refusal")
     assert "PayPal Sandbox: no real money moves" in html
+    assert "This public demo is shared" in html and "ephemeral database" in html
+    assert "new PayPal Sandbox demo order" in html and "not looked up" in html
     # the old "wakes up" cold-start note and "free tier" wording are stale on the Starter plan
     assert "Free-tier note" not in html and "wakes up" not in html and "free tier" not in html.lower()
     assert "guaranteed" not in html.lower()
+
+
+def test_selected_case_shows_a_clear_next_step(settings):
+    client, pp, wf = make(settings)
+    case_id = wf.run_scenario("A")
+    html = client.get(f"/?case={case_id}").text
+    assert 'class="case-next-step"' in html and "Next step:" in html
+    assert "Approve" in html or "eligible" in html.lower()
