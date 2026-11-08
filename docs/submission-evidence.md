@@ -12,9 +12,9 @@ design, potential impact, innovation and presentation — are equally weighted. 
 15 Dec 2026, 08:00 Pacific Time (16:00 in London). The [English submission draft](devpost-submission-draft.md) contains
 only claims that the current evidence can support; fill its remaining placeholders from the final deployed version.
 
-**Current tip (PR #100):** `0a9e84a`. Local Sandbox run on the owner's machine for predecessor tip `a196741`
-(8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2 (money-path unchanged since;
-docs/AI-e2e/preflight only after that). **Hosted redeploy of this tip is still pending** — do not cite 31/31 on the
+**Current tip (PR #100):** use `git rev-parse HEAD` on this branch (docs/AI-e2e/preflight landed after money-path tip
+`a196741`). Local Sandbox run on the owner's machine for `a196741` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP;
+ERROR-retry 4/4; UNKNOWN recovery 2/2. **Hosted redeploy of this tip is still pending** — do not cite 31/31 on the
 public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video URL still TBD.
 
 1. Freeze the candidate source and record its full Git SHA. The working tree must be clean, including the video/script
@@ -44,7 +44,7 @@ The shared hosted demo has an ephemeral database and can be reset by another vis
 for recording and avoid the public reset during judging. If the public demo is temporarily busy, show the recorded
 flow and link the exact verification log for the named commit. This is a fallback, not a claim of current uptime.
 
-## Review residuals (medium / low) — status at tip `0a9e84a`
+## Review residuals (medium / low) — status on this tip
 
 | ID | Sev | Finding | Status |
 |---|---|---|---|

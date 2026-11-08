@@ -1,8 +1,9 @@
 # Devpost submission draft — TradeOS
 
 **Status:** local draft only. Do not submit this text until the video URL, deployed commit and every claim have been
-checked against the final build. Candidate tip for PR #100: `0a9e84a`. The public demo may still serve an older
-commit (`dc2c6b5`) until an authorized redeploy — treat hosted verify as **pending**.
+checked against the final build. Candidate tip: PR #100 head (see `git rev-parse HEAD` on
+`cursor/pre-submission-hardening-fixes-e206`). The public demo may still serve an older commit (`dc2c6b5`) until an
+authorized redeploy — treat hosted verify as **pending**.
 
 ## Project title and one-line pitch
 
@@ -62,7 +63,7 @@ results only after they exist. Optional `scripts/sandbox_verify.py --ai-e2e-only
 ## Links to complete before submitting
 
 - Public YouTube video under three minutes: **MISSING — do not submit with this placeholder**.
-- Final live demo URL: `https://tradeos-s33z.onrender.com` (verify it serves the final commit — **pending redeploy** of `0a9e84a`).
+- Final live demo URL: `https://tradeos-s33z.onrender.com` (verify it serves the final commit — **pending redeploy**).
 - Public source and setup instructions: `https://github.com/Fu93/tradeos` (verify its main branch matches the demo).
 - Final commit SHA and dated Sandbox verification output: **replace after the final authorized deployment**.
 - Exact deployed AI provider/model and any sponsor tools actually enabled: the current demo case displays `llm:openai/gpt-oss-20b` and `/healthz` reports a product catalogue; **reverify the final deployment**.
