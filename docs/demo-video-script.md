@@ -2,7 +2,7 @@
 
 Target: **2:35–2:45**, below the planned three-minute limit. This is a recording plan, not a claim that a new video
 exists (**YouTube URL still TBD**). Record against one named deployed commit on the live **PayPal Sandbox**, with
-autonomy off — for tip `a196741`, that means **after** `/healthz` shows that version (hosted redeploy pending). Use
+autonomy off — for tip `0a9e84a`, that means **after** `/healthz` shows that version (hosted redeploy pending). Use
 English narration and captions. Do not reset the public shared demo; use a private Sandbox copy or fresh cases. Cut
 waits honestly and label each cut, especially the measured webhook delay. Preserve the real result on screen.
 

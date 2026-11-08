@@ -2,12 +2,12 @@
 
 ## Candidate tip — local Sandbox (8 Nov 2026)
 
-Tip `a196741` (PR #100) was exercised in a **local Sandbox run** on the owner's machine: **62 pass / 0 fail /
-6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry **4/4** and
-UNKNOWN recovery **2/2**. That is local evidence for this tip, not a hosted-demo claim. Re-run
-`scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz` `version` equals
-this tip. Optional `--ai-e2e-only` covers the live LLM intent path (1 chat completion; target must have
-`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`).
+Predecessor tip `a196741` (PR #100) was exercised in a **local Sandbox run** on the owner's machine: **62 pass /
+0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry
+**4/4** and UNKNOWN recovery **2/2**. Current tip `0a9e84a` adds docs/preflight/AI-e2e only (money path unchanged).
+That local run is not a hosted-demo claim. Re-run `scripts/sandbox_verify.py` against the public URL **after** an
+authorized redeploy when `/healthz` `version` equals this tip. Optional `--ai-e2e-only` covers the live LLM intent
+path (1 chat completion; target must have `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`).
 
 ## Published demo technical recheck — 7 Nov 2026
 
