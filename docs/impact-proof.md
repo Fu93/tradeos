@@ -104,7 +104,7 @@ models), not real customer traffic; the labels are partly model-produced; only a
 
 Source: [`docs/eval/results.md`](eval/results.md), [`docs/eval/results.json`](eval/results.json) (these are on `main`).
 This is a different, older eval (intent extraction, pre-exchange policy; the file carries its own staleness caveat).
-LLM exact match 73% (38/52) vs keyword fallback 15% (8/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts.
+LLM exact match 73% (38/52) vs keyword fallback 33% (17/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts (keyword `missed_accept` 25).
 Labels by one author, no inter-annotator check (its own "Limits").
 
 ## What this does NOT show

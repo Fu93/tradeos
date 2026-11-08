@@ -393,25 +393,27 @@ post-purchase messages (EN, Traditional Chinese, Spanish, German, Japanese, plus
 including 7 prompt-injection attempts). Full results, every miss and the limits: **[docs/eval/results.md](docs/eval/results.md)**
 (raw: [results.json](docs/eval/results.json), data: [dataset.json](docs/eval/dataset.json)).
 
-| (one run, `openai/gpt-oss-20b` on Groq) | LLM | Keyword fallback |
+| (LLM: one run `openai/gpt-oss-20b` on Groq, 8 Oct 2026; keyword: tip offline re-run) | LLM | Keyword fallback |
 | --- | --- | --- |
-| Exact match, all 3 core fields | 73% (38/52) | 15% (8/52) |
-| Exact match if reason `OTHER` ≈ `UNKNOWN` | 88% (46/52) | 15% (8/52) |
-| Intent accuracy | 94% (49/52) | 21% (11/52) |
+| Exact match, all 3 core fields | 73% (38/52) | 33% (17/52) |
+| Exact match if reason `OTHER` ≈ `UNKNOWN` | 88% (46/52) | 33% (17/52) |
+| Intent accuracy | 94% (49/52) | 33% (17/52) |
 | Injections that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 (was 2 / 7 before the fallback guard) |
+| Keyword `unwarranted_accept` / `missed_accept` | — | 0 / 25 |
 | Latency p50 / p95 | 0.63 s / 1.25 s | — |
 | Estimated cost per message (Groq list price) | $0.00013 | $0 |
 
 The model outputs were measured on 8 Oct 2026, before the return-vs-exchange change. On 24 Oct the policy-level rows
 were rescored against the current rules (a return with a stated reason and a size exchange are both acceptable
 requests), with no new model calls: still 0 policy-acceptable requests that should not be, and 0 / 7 injections. The
-keyword column was re-run in full (it is deterministic). A full LLM re-run with today's extractor prompt needs an API
-key: `python scripts/eval_intent.py`.
+keyword column was re-run in full on this tip (deterministic; 17/52 exact, 0 unwarranted). A full LLM re-run with
+today's extractor prompt needs an API key: `python scripts/eval_intent.py`.
 
-The evaluation command requires `LLM_API_KEY` for a model run and stops if the provider fails, so a keyword fallback
-cannot be recorded as a new model result. For an offline sample without changing the committed report, run
-`python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`. A full offline keyword
-run uses `--keyword-only` without `--limit`.
+The evaluation command requires `LLM_API_KEY` for a model run. It uses the same resilient `ChatJSONClient` as
+production intake (one `json_object` retry on HTTP 400, including Groq `json_validate_failed`, then keyword
+fallback) and records per-case errors instead of aborting the run. For an offline sample without changing the
+committed report, run `python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`.
+A full offline keyword run uses `--keyword-only` without `--limit`.
 
 Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
 convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
@@ -688,7 +690,7 @@ persistent disk.
 | `TRADEOS_DB_PATH` | no | `tradeos.db` | |
 | `TRADEOS_PERSISTENT_DATA_DIR` | no | — | opt-in private single-instance profile: absolute mounted directory containing `TRADEOS_DB_PATH`; requires reset off and operator token |
 | `TRADEOS_RESET_ON_START` | no | `1` | archive old cases and reseed demo data at boot |
-| `TRADEOS_ALLOW_PUBLIC_RESET` | no | `1` locally; Blueprint `0` | when `0` and no operator token, `POST /demo/reset` is refused so one visitor cannot wipe other judges' cases on the open shared demo |
+| `TRADEOS_ALLOW_PUBLIC_RESET` | no | `0` | safe default off: without an operator token, `POST /demo/reset` is refused so one visitor cannot wipe other judges' cases. Set `1` only for a private local demo that needs the Reset button |
 | `TRADEOS_ALLOW_LIVE` | no | `0` | the PayPal client refuses any base URL that is not the sandbox unless this is explicitly `1` |
 | `PUBLIC_BASE_URL` | no | `RENDER_EXTERNAL_URL` or `http://localhost:8000` | PayPal return URL for the approval fallback |
 | `TRADEOS_OPERATOR_TOKEN` | no | — | optional private Sandbox gate: HTTP Basic username `operator`, token as password (24+ characters); requires HTTPS and MCP credentials or `TRADEOS_MCP=0` |
@@ -737,7 +739,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-**1,827** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
+**1,838** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
 push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a
 `pytest-cov` gate at 90% line coverage (**about 95%** today). They include eval dataset checks, VAT-inclusive mock tests,
 CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop,

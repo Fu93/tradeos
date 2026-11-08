@@ -3,7 +3,8 @@ import json
 import httpx
 import pytest
 
-from app.paypal_client import SANDBOX_TEST_CARD, PayPalClient, PayPalError, find_link, first_capture, outcome_unknown
+from app.paypal_client import (SANDBOX_TEST_CARD, PayPalClient, PayPalError, find_link, first_capture,
+                               outcome_unknown, paypal_browser_url)
 
 
 class Recorder:
@@ -150,3 +151,16 @@ def test_find_link():
     order = {"links": [{"rel": "self", "href": "s"}, {"rel": "payer-action", "href": "p"}]}
     assert find_link(order, "payer-action", "approve") == "p"
     assert find_link(order, "approve") is None
+
+
+@pytest.mark.parametrize("url", [
+    None, "", "javascript:alert(1)", "http://www.sandbox.paypal.com/x",
+    "https://evil.example/approve", "https://[", "https://www.sandbox.paypal.com\n.evil",
+])
+def test_paypal_browser_url_rejects_malformed_and_non_paypal(url):
+    assert paypal_browser_url(url) is None
+
+
+def test_paypal_browser_url_allows_official_https_hosts():
+    assert paypal_browser_url("https://www.sandbox.paypal.com/checkoutnow?token=x")
+    assert paypal_browser_url("https://www.paypal.com/checkoutnow?token=x")

@@ -106,6 +106,43 @@ def test_llm_retries_in_json_mode_when_structured_output_unsupported():
     assert llm_http_call_count() == 2  # structured attempt + json_object retry
 
 
+def test_llm_retries_json_object_on_groq_json_validate_failed():
+    """Groq returns HTTP 400 json_validate_failed when model output fails the schema — not only
+    when json_schema is unsupported. Production must retry once in json_object mode."""
+    from app.intent import begin_llm_http_scope, llm_http_call_count
+
+    formats = []
+
+    def handler(request):
+        fmt = json.loads(request.content)["response_format"]["type"]
+        formats.append(fmt)
+        if fmt == "json_schema":
+            return httpx.Response(400, json={
+                "error": {"message": "Failed to validate JSON", "code": "json_validate_failed", "type": "invalid_request_error"}
+            })
+        return chat('{"intent":"EXCHANGE_REQUEST","reason":"SIZE_MISMATCH","requested_action":"EXCHANGE",'
+                    '"language":"English","language_code":"en","current_size":"42","requested_size":"43",'
+                    '"merchant_summary_en":"Size exchange 42 to 43."}')
+
+    begin_llm_http_scope()
+    ex = llm_with(handler).extract(DEMO)
+    assert formats == ["json_schema", "json_object"]
+    assert ex.result.intent == "EXCHANGE_REQUEST" and not ex.llm_unavailable
+    assert llm_http_call_count() == 2
+
+
+def test_llm_falls_back_when_json_validate_failed_on_both_modes():
+    """If json_object also returns 400, intake must keyword-fallback + escalate — never crash or approve."""
+    def handler(request):
+        return httpx.Response(400, json={
+            "error": {"message": "Failed to validate JSON", "code": "json_validate_failed"}
+        })
+
+    ex = llm_with(handler).extract(DEMO)
+    assert ex.llm_unavailable and "LLM unavailable" in ex.extractor
+    assert ex.result.intent == "EXCHANGE_REQUEST"  # keyword path for DEMO
+
+
 def test_llm_network_error_falls_back_to_keywords():
     def handler(request):
         raise httpx.ConnectError("down")

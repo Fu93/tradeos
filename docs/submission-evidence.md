@@ -14,7 +14,7 @@ only claims that the current evidence can support; fill its remaining placeholde
 
 **Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox run on an isolated verification
 machine for `e1c510b` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2;
-1813 unit tests then, no regressions; tip now **1,827** tests / ~95% cov after keyword-fallback + judge-path
+1813 unit tests then, no regressions; tip now **1,838** tests / ~95% cov after keyword-fallback + judge-path
 hardening. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this tip is still pending** —
 do not cite 31/31 on the public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video
 URL still TBD.
@@ -61,11 +61,11 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | B1 | Soft | Hosted service ≠ Blueprint (lockfile + health check) | **Documented** — operator action at redeploy; not claimed fixed on the live service |
 | B6 | Low | README Scope said intake “not implemented” | **Fixed** earlier |
 | B7 | Low | Preflight missed `auto_exchange_enabled` | **Fixed** |
-| B8 | Low | README test count drift | **Fixed** (1,827 on this tip) |
+| B8 | Low | README test count drift | **Fixed** (1,838 on this tip) |
 | B9 | Low | README PR count | **Fixed** (85 merged) |
 | B13 | Low | Preflight ignored safety AI / persistence | **Fixed** (requires `safety_ai_layer=false`, `persistence=ephemeral`) |
 | — | — | SQLite ResourceWarnings; webhook SKIP; docs 27→31 | **Fixed** |
-| D1 | Med | Keyword fallback missed common EN phrasings (eval m02–m09) under LLM outage | **Fixed** (deterministic patterns + tests; EN exact 4→9/11; overall 8→13/52; inj unwarranted still 0) |
+| D1 | Med | Keyword fallback missed common EN phrasings (eval m02–m09) under LLM outage | **Fixed** (deterministic patterns + tests; overall keyword exact now **17/52**, unwarranted 0, missed_accept 25) |
 | D2 | Med | Judge guide hid steps 2–3 with no explanation during cold start | **Fixed** (muted “steps 2–3 appear…” until cases exist) |
 | D3 | Low | README quick-start led with Sandbox secrets before zero-config mock | **Fixed** (`PAYPAL_MOCK=1` first) |
 | D4 | Low | Docs still pinned tip `a196741` / “owner's machine” after `e1c510b` Sandbox | **Fixed** (isolated verification machine + `e1c510b`) |
@@ -84,3 +84,7 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | E9 | Low | Eval Limits prose said refunds never automated | **Fixed** (`render_md`) |
 | E10 | Soft | YouTube URL TBD | **Defer** — owner content |
 | E11 | Med | Open MCP / shared approve (C4/D5/D6) | **Defer** — intentional shared demo; private = operator + MCP tokens |
+| F1 | Low | `paypal_browser_url("https://[")` raised ValueError | **Fixed** (catch; return None) |
+| F2 | Low | README/docs still cited keyword eval 8/52 | **Fixed** (17/52, unwarranted 0, missed_accept 25) |
+| F3 | Med | `eval_intent` aborted on Groq `json_validate_failed` | **Fixed** (same ChatJSONClient retry + record per-case errors; intake already retried any 400) |
+| F4 | Med | Local `TRADEOS_ALLOW_PUBLIC_RESET` default was 1 | **Fixed** (safe default `0`; Blueprint stays explicit `0`) |

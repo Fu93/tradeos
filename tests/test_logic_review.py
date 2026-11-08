@@ -304,7 +304,7 @@ def test_F7_archived_pending_refund_resolves_on_restart(tmp_path):
 
 def test_F7_reset_endpoint_409_while_in_flight(tmp_path):
     s = Settings(db_path=str(tmp_path / "a.db"), rate_limit_per_minute=100, reset_cooldown_per_ip_s=0,
-                 reset_cooldown_global_s=0)
+                 reset_cooldown_global_s=0, allow_public_reset=True)
     app = create_app(settings=s, paypal=MockPayPalClient(), extractor=KeywordIntentExtractor(),
                      note_writer=TemplateNoteWriter())
     client, wf = TestClient(app), app.state.workflow

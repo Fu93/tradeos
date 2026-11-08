@@ -136,11 +136,17 @@ _PAYPAL_BROWSER_HOSTS = frozenset({"www.sandbox.paypal.com", "www.paypal.com"})
 
 
 def paypal_browser_url(url: str | None) -> str | None:
-    """Allow only official PayPal buyer-approval HTTPS hosts (reject javascript:/open redirects)."""
+    """Allow only official PayPal buyer-approval HTTPS hosts (reject javascript:/open redirects).
+
+    Malformed URLs must reject as None — never raise (urlsplit can ValueError on bad brackets).
+    """
     if not url or not isinstance(url, str):
         return None
     from urllib.parse import urlsplit
-    parsed = urlsplit(url.strip())
+    try:
+        parsed = urlsplit(url.strip())
+    except ValueError:
+        return None
     if parsed.scheme != "https" or parsed.netloc.lower() not in _PAYPAL_BROWSER_HOSTS:
         return None
     return url.strip()

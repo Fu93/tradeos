@@ -48,7 +48,8 @@ def test_cf_connecting_ip_preferred_when_valid():
 def make(settings, mock=True, **kw):
     pp = MagicMock(wraps=MockPayPalClient(), is_mock=mock)
     s = Settings(db_path=settings.db_path, rate_limit_per_minute=5, rate_limit_per_hour=30,
-                 rate_limit_global_per_hour=200, paypal_webhook_id="WH-X", trust_cf_connecting_ip=False, **kw)
+                 rate_limit_global_per_hour=200, paypal_webhook_id="WH-X", trust_cf_connecting_ip=False,
+                 allow_public_reset=True, **kw)
     app = create_app(settings=s, paypal=pp, extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
     return TestClient(app), pp, app.state.workflow
 
@@ -82,14 +83,15 @@ def test_reset_cooldown_per_ip_and_global(settings):
     assert "data-confirm" in client.get("/").text
 
 
-def test_public_reset_disabled_without_operator_token(tmp_path):
-    """Open shared demo: reset off so one visitor cannot wipe other judges' cases."""
+def test_public_reset_disabled_by_default_without_operator_token(tmp_path):
+    """Safe default: allow_public_reset=False so any public host cannot wipe other judges' cases."""
     from app.config import Settings
     from app.intent import KeywordIntentExtractor
     from app.main import create_app
     from app.paypal_mock import MockPayPalClient
     from fastapi.testclient import TestClient
-    s = Settings(db_path=str(tmp_path / "no-reset.db"), allow_public_reset=False, operator_token="")
+    s = Settings(db_path=str(tmp_path / "no-reset.db"), operator_token="")  # default allow_public_reset=False
+    assert s.allow_public_reset is False
     client = TestClient(create_app(settings=s, paypal=MockPayPalClient(), extractor=KeywordIntentExtractor()))
     assert "/demo/reset" not in client.get("/").text
     r = client.post("/demo/reset", follow_redirects=False)

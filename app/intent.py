@@ -345,8 +345,11 @@ def parse_llm_json(content: str) -> IntentResult | None:
 class ChatJSONClient:
     """Minimal OpenAI-compatible /chat/completions client returning the message content.
 
-    Asks for strict structured output (json_schema); if the provider rejects that with
-    HTTP 400 it retries once in plain JSON mode (json_object).
+    Asks for strict structured output (json_schema). Any HTTP 400 on that attempt —
+    including Groq ``json_validate_failed`` when the model output fails the schema, and
+    providers that do not support ``json_schema`` — retries once in plain ``json_object``
+    mode. Callers (LLMIntentExtractor) treat a second failure as keyword fallback + escalate;
+    nothing here can approve a refund.
     """
 
     def __init__(self, api_key: str, base_url: str, model: str, timeout: float = 20.0,
@@ -376,7 +379,8 @@ class ChatJSONClient:
             headers = {"Authorization": f"Bearer {self._api_key}"}
             record_llm_http_call()
             resp = client.post(url, headers=headers, json=payload(structured))
-            if resp.status_code == 400:  # provider/model without json_schema support
+            # Any 400 (unsupported schema OR json_validate_failed on the model output): one json_object retry.
+            if resp.status_code == 400:
                 record_llm_http_call()
                 resp = client.post(url, headers=headers, json=payload(JSON_MODE))
         resp.raise_for_status()
