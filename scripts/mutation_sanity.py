@@ -66,6 +66,7 @@ EQUIVALENT = {
     "whole-order shipping released although a unit is exchanged": "a whole-order return needs every unit of every line refunded, which already excludes any exchanged unit",
     "released share added twice": "a line with a released share is fully refunded, so it can never appear in a later batch",
     "tampered amount not detected": "items_hash and the chained amount already differ for any tampered amount",
+    "ledger balance ignored": "quote_batch / _recompute already refuse when local refunded + batch exceed the capture",
 }
 
 

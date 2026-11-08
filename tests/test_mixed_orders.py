@@ -950,6 +950,24 @@ def test_failed_batch_releases_its_units_so_the_same_items_can_be_proposed_again
     assert b2 and b2["id"] != b1["id"] and b2["amount_minor"] == b1["amount_minor"]
 
 
+def test_execute_refuses_non_approved_row_even_when_chain_still_shows_approval(settings):
+    """Row status APPROVED is its own gate: chained approval alone must not send money."""
+    mock = MockPayPalClient()
+    wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
+    b = only_batch(wf, cid)
+    mock.fail_refund = True
+    with pytest.raises(PayPalError):
+        approve(wf, cid, b)
+    saved = only_batch(wf, cid)
+    assert saved["status"] == "ERROR" and saved["approved_by"] == "merchant"
+    # Row rewritten to look unsent while the hash chain still holds the human approval.
+    wf.db.update_batch(b["id"], status="PROPOSED")
+    with pytest.raises(RefundNotAllowed, match="is PROPOSED"):
+        wf.mixed._execute(cid, b["id"])
+    assert pp.refund_capture.call_count == 1
+    assert wf.db.verify_chain(cid)["ok"]
+
+
 def test_ledger_check_at_send_time_blocks_when_paypal_reports_a_smaller_capture(settings):
     mock = MockPayPalClient()
     wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
