@@ -29,13 +29,13 @@ from .config import Settings
 from .db import CaseFinalized, Database, next_seq
 from .disputes import DisputeService
 from .mixed import MIXED, MixedOrders
-from .intent import AssistFields, IntentExtractor
+from .intent import (AssistFields, IntentExtractor, LLM_DOWN_NOTICE, LLM_DOWN_TITLE,
+                     begin_llm_http_scope, llm_http_call_count, looks_like_injection)
 from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link,
                             first_capture, mint_retry_request_id, outcome_unknown, refund_lookup_issue,
                             refund_response_issue)
 from .paypal_mock import MockPayPalClient
-from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
 from .safety import SAFETY_LABEL, SAFETY_RULE_VERSION, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
 from .policy import PolicyInput, PolicyResult, evaluate
@@ -500,6 +500,13 @@ class Workflow:
         self.db.update_case(case_id, status=status, error=str(exc))
         self.db.audit(case_id, stage, "PayPal error", exc.to_dict())
 
+    def _stamp_llm_chat_completions(self, case_id: str) -> None:
+        """Persist the intake-scoped /chat/completions HTTP count on the case (for AI e2e evidence)."""
+        case = self._case(case_id)
+        extraction = dict(case.get("extraction") or {})
+        extraction["llm_chat_completions"] = llm_http_call_count()
+        self.db.update_case(case_id, extraction_json=json.dumps(extraction, ensure_ascii=False))
+
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
         product = self.db.get_product(case["product_sku"])
@@ -511,6 +518,8 @@ class Workflow:
                       {"customer": case["customer_name"], "message": case["customer_message"]})
 
         # Step 3: AI extracts intent (language only — it does not decide money).
+        # Scope counts every ChatJSONClient POST (intent, optional safety AI, note translation).
+        begin_llm_http_scope()
         extraction = self.extractor.extract(case["customer_message"])
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
         # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
@@ -523,6 +532,7 @@ class Workflow:
                                                         "assist_note": extraction.assist_note,
                                                         "injection_guard": extraction.injection_guard,
                                                         "llm_unavailable": extraction.llm_unavailable,
+                                                        "llm_chat_completions": llm_http_call_count(),
                                                         "safety": gate.to_dict(), "safety_ai": ai_info}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
@@ -558,6 +568,7 @@ class Workflow:
         self.db.audit(case_id, "policy", f"Policy pre-check: {pre.decision}", pre.to_dict())
         if not pre.eligible:
             self._reject(case_id, pre, extraction)
+            self._stamp_llm_chat_completions(case_id)
             return
 
         if pre.action == "REFUND":
@@ -569,6 +580,7 @@ class Workflow:
                                 status=PENDING_APPROVAL)
             if self._autonomy_verdict(case_id, case, pre, extraction).decision != "AUTO":
                 self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
+                self._stamp_llm_chat_completions(case_id)
                 self.db.audit(case_id, "human", "Waiting for human approval of the refund",
                               {"amount": f"{case['amount']} {case['currency']}"})
                 return
@@ -598,6 +610,7 @@ class Workflow:
         self.db.audit(case_id, "policy", f"Policy final: {final.decision}", final.to_dict())
         if not final.eligible:
             self._reject(case_id, final, extraction)
+            self._stamp_llm_chat_completions(case_id)
             return
         # EXCHANGE_ELIGIBLE (not ELIGIBLE): the refund gate refuses anything but ELIGIBLE, so an exchange
         # can never reach the Refund API — whether a person approved it or the merchant's policy did.
@@ -605,6 +618,7 @@ class Workflow:
                             status=PENDING_APPROVAL)
         if self._autonomy_verdict(case_id, case, final, extraction).decision != "AUTO":
             self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
+            self._stamp_llm_chat_completions(case_id)
             self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
                           {"refund": "none — exchange"})
             return

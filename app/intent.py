@@ -20,10 +20,31 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 from typing import Literal, Protocol, get_args
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+# Per-request scope: counts HTTP POSTs to /chat/completions (including a 400 json_schema →
+# json_object retry as a second call). Workflow begins a scope at case intake so the count
+# can be stored on the case as extraction.llm_chat_completions for sandbox_verify --ai-e2e-only.
+_llm_http = threading.local()
+
+
+def begin_llm_http_scope() -> None:
+    """Reset the current-thread chat-completions counter (call at case intake)."""
+    _llm_http.count = 0
+
+
+def record_llm_http_call() -> None:
+    """Increment by one HTTP POST attempt (success or 400 retry)."""
+    _llm_http.count = int(getattr(_llm_http, "count", 0)) + 1
+
+
+def llm_http_call_count() -> int:
+    """Chat-completions HTTP POSTs recorded in the current scope (0 if none begun)."""
+    return int(getattr(_llm_http, "count", 0))
 
 Intent = Literal["EXCHANGE_REQUEST", "REFUND_REQUEST", "ORDER_STATUS", "UNKNOWN"]
 Reason = Literal[
@@ -328,8 +349,10 @@ class ChatJSONClient:
         with httpx.Client(timeout=self._timeout, transport=self._transport) as client:
             url = f"{self._base_url}/chat/completions"
             headers = {"Authorization": f"Bearer {self._api_key}"}
+            record_llm_http_call()
             resp = client.post(url, headers=headers, json=payload(structured))
             if resp.status_code == 400:  # provider/model without json_schema support
+                record_llm_http_call()
                 resp = client.post(url, headers=headers, json=payload(JSON_MODE))
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]

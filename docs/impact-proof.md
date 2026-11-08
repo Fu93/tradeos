@@ -9,7 +9,7 @@
 
 | Level | What it is | Where it stands |
 |---|---|---|
-| **1. Test / automated eval results** | A frozen pipeline run once on a labelled message set and scored against the labels. Labels came from the design plus two LLM judges (nemotron-3-super "N", gemma-4-31b-it "G"). | **Done**, numbers below. |
+| **1. Test / automated eval results** | A frozen pipeline run once on a labelled message set and scored against the labels. Labels came from the design plus two offline LLM judges (nemotron-3-super "N", gemma-4-31b-it "G") — **not** the hosted demo extractor (`llm:openai/gpt-oss-20b`). | **Done**, numbers below. |
 | **2. Human adjudication of specific disputed labels** | The author and the user ruled on individual labels where judges and design disagreed or a guide rule changed. | **Done only for the specific items listed in section 4**: 8 author adjudications in v4 (4 of them reviewed by the user), plus a 40-row user spot-check on the earlier held-out v2 set. |
 | **3. Full human audit of every label and every outcome** | A person independently labelling or re-checking all 308 messages. | **NOT done.** In `heldout-v4-review.csv` (44 rows pre-selected for review: 22 safety, 18 errors, 4 low-risk) only 4 rows carry a human label. |
 

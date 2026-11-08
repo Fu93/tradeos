@@ -42,8 +42,9 @@ over-refund to the Sandbox API with PAYPAL_CLIENT_ID/SECRET from the environment
 AI end-to-end (opt-in, NOT part of the default 31): ``--ai-e2e-only`` posts one fixed English free-text return through
 the live LLM extractor on the target (``POST /cases/free``), then human-approves a Sandbox refund. The target must
 already have ``LLM_API_KEY`` / ``LLM_BASE_URL`` / ``LLM_MODEL`` configured (see ``/healthz`` ``llm_configured``); this
-script itself needs no LLM key. English keeps the grounded note on the template path, so the path uses **exactly one**
-LLM chat completion (intent extract). Prints that call count.
+script itself needs no LLM key. Prints the **measured** intake ``llm_chat_completions`` count from case extraction
+metadata (intent extract, plus any HTTP 400 json_schema→json_object retry, plus optional safety-AI / note-translation
+calls). English usually stays on the template note path (no translation call); do not assume the count is always 1.
 
 Autonomy is experimental and must be OFF on the hosted demo, so the run FAILS if /healthz reports
 auto_enabled or auto_exchange_enabled true, unless --allow-autonomy (or ALLOW_AUTONOMY=1) is given, which is
@@ -58,13 +59,13 @@ from urllib.parse import urlparse
 
 import httpx
 
-# Fixed English return: exercises the live LLM extractor once; English notes stay on the template writer
-# (no second chat completion). Keep this message short and unambiguous for schema-constrained extraction.
+# Fixed English return: exercises the live LLM extractor; English notes usually stay on the template writer.
+# Keep this message short and unambiguous for schema-constrained extraction. Call count is measured on the
+# target (case.extraction.llm_chat_completions), not hard-coded here.
 AI_E2E_MESSAGE = (
     "Hi, the running shoes I ordered arrived in the wrong colour. "
     "I want to return them for a full refund please."
 )
-AI_E2E_LLM_CALLS = 1  # intent extract only (English → template note)
 
 
 def verify_client(base: str, transport: httpx.BaseTransport | None = None) -> httpx.Client:
@@ -195,10 +196,13 @@ def ai_e2e_checks(c: httpx.Client, check, allow_mock: bool = False) -> None:
     check(bool(dbg) and (allow_mock or not str(dbg).startswith("mock")),
           f"AI e2e: PayPal-Debug-Id on the refund call: {dbg}{tag}")
     note = case.get("note") or {}
-    # English assist → template note writer (no second LLM call). Count is fixed for this mode.
-    print(f"AI e2e LLM chat completions: {AI_E2E_LLM_CALLS} "
+    # Measured on the target during intake (ChatJSONClient POSTs). May be >1 when json_schema gets HTTP 400
+    # and retries as json_object, or when TRADEOS_SAFETY_AI / non-English note translation adds calls.
+    measured = extraction.get("llm_chat_completions")
+    print(f"AI e2e LLM chat completions: {measured} "
           f"(intent extract via {extractor}; note generator={note.get('generator')!r})")
-    check(AI_E2E_LLM_CALLS == 1, f"AI e2e: fixed LLM call budget is {AI_E2E_LLM_CALLS}")
+    check(isinstance(measured, int) and measured >= 1,
+          f"AI e2e: measured llm_chat_completions on case is {measured!r} (expected int >= 1)")
     chain = c.get(f"/cases/{cid}/audit/verify").json()
     check(chain.get("ok") is True, f"AI e2e: audit trail intact: {chain.get('entries')} entries")
     print(f"Manual step: open /?case={cid} and confirm 'What the AI understood' shows {extractor}.")

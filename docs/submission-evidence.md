@@ -12,10 +12,11 @@ design, potential impact, innovation and presentation — are equally weighted. 
 15 Dec 2026, 08:00 Pacific Time (16:00 in London). The [English submission draft](devpost-submission-draft.md) contains
 only claims that the current evidence can support; fill its remaining placeholders from the final deployed version.
 
-**Current tip (PR #100):** use `git rev-parse HEAD` on this branch (docs/AI-e2e/preflight landed after money-path tip
-`a196741`). Local Sandbox run on the owner's machine for `a196741` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP;
-ERROR-retry 4/4; UNKNOWN recovery 2/2. **Hosted redeploy of this tip is still pending** — do not cite 31/31 on the
-public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video URL still TBD.
+**Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox run on an isolated verification
+machine for `e1c510b` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2;
+1813 unit tests, no regressions. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this
+tip is still pending** — do not cite 31/31 on the public URL until `/healthz` `version` matches and
+`sandbox_verify.py` is re-run there. Video URL still TBD.
 
 1. Freeze the candidate source and record its full Git SHA. The working tree must be clean, including the video/script
    changes that are part of the submission. Keep the public demo, README, video and verification on that same commit.
@@ -31,8 +32,9 @@ public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run 
 3. Run `python scripts/sandbox_verify.py https://<demo-host>` and save the full output, exit status, UTC timestamp and
    reported PayPal mode. The script creates new Sandbox orders/refunds. If a run fails, preserve that log too; explain
    any retry rather than replacing the failure. Do not cite 31/31 until the complete check passes on this commit.
-   Optional: `python scripts/sandbox_verify.py https://<demo-host> --ai-e2e-only` (live LLM intent path; **1** chat
-   completion; target must already have `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`).
+   Optional: `python scripts/sandbox_verify.py https://<demo-host> --ai-e2e-only` (live LLM intent path; prints the
+   measured `llm_chat_completions` count from case extraction metadata; target must already have `LLM_API_KEY` /
+   `LLM_BASE_URL` / `LLM_MODEL`).
 4. Record the video on the same deployment using [the short script](demo-video-script.md). Match each spoken claim to
    a visible result; show the actual AI extractor and intent; label the scripted MCP client and every edit that skips
    a wait. Keep a backup clip of the same run.

@@ -33,6 +33,8 @@ def chat(content):
 
 
 def test_llm_extractor_valid_json_and_request_shape():
+    from app.intent import begin_llm_http_scope, llm_http_call_count
+
     seen = {}
 
     def handler(request):
@@ -41,6 +43,7 @@ def test_llm_extractor_valid_json_and_request_shape():
         seen["body"] = json.loads(request.content)
         return chat('{"intent":"EXCHANGE_REQUEST","reason":"SIZE_MISMATCH","requested_action":"EXCHANGE"}')
 
+    begin_llm_http_scope()
     ex = llm_with(handler).extract(DEMO)
     assert ex.result.intent == "EXCHANGE_REQUEST"
     assert ex.extractor == "llm:some-model"
@@ -51,6 +54,7 @@ def test_llm_extractor_valid_json_and_request_shape():
     assert rf["json_schema"]["schema"]["properties"]["intent"]["enum"] == [
         "EXCHANGE_REQUEST", "REFUND_REQUEST", "ORDER_STATUS", "UNKNOWN"]
     assert seen["body"]["messages"][-1]["content"] == DEMO
+    assert llm_http_call_count() == 1
 
 
 @pytest.mark.parametrize("content", [
@@ -84,6 +88,8 @@ def test_build_extractor_uses_keywords_without_key():
 
 
 def test_llm_retries_in_json_mode_when_structured_output_unsupported():
+    from app.intent import begin_llm_http_scope, llm_http_call_count
+
     formats = []
 
     def handler(request):
@@ -93,9 +99,11 @@ def test_llm_retries_in_json_mode_when_structured_output_unsupported():
             return httpx.Response(400, json={"error": {"message": "json_schema not supported"}})
         return chat('{"intent":"EXCHANGE_REQUEST","reason":"SIZE_MISMATCH","requested_action":"EXCHANGE"}')
 
+    begin_llm_http_scope()
     ex = llm_with(handler).extract(DEMO)
     assert formats == ["json_schema", "json_object"]
     assert ex.result.intent == "EXCHANGE_REQUEST" and ex.extractor == "llm:some-model"
+    assert llm_http_call_count() == 2  # structured attempt + json_object retry
 
 
 def test_llm_network_error_falls_back_to_keywords():

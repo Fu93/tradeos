@@ -58,7 +58,8 @@ not verify a store order, product or buyer and is not evidence that arbitrary me
 Supplier replies are mock data, disputes are read-only, and the
 illustrative labour saving is an assumption rather than a measured merchant outcome. Link any independent user-study
 results only after they exist. Optional `scripts/sandbox_verify.py --ai-e2e-only` exercises the live LLM intent path
-(one English free-text return; **1** chat completion) when the target has `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`.
+(one English free-text return; prints the measured `llm_chat_completions` count) when the target has `LLM_API_KEY` /
+`LLM_BASE_URL` / `LLM_MODEL`.
 
 ## Links to complete before submitting
 

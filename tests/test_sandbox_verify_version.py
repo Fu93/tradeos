@@ -111,3 +111,59 @@ def test_ai_e2e_checks_require_live_llm_extractor(capsys):
 
     sandbox_verify.ai_e2e_checks(FakeClient(), check)  # type: ignore[arg-type]
     assert any("live LLM extractor" in f for f in fails)
+
+
+def test_ai_e2e_checks_print_measured_llm_chat_completions(capsys):
+    """AI e2e must report case.extraction.llm_chat_completions, not a hard-coded 1."""
+    fails: list[str] = []
+    state = {"approved": False}
+
+    def check(ok: bool, label: str) -> None:
+        print(("PASS " if ok else "FAIL ") + label)
+        if not ok:
+            fails.append(label)
+
+    class FakeClient:
+        def post(self, path, data=None):
+            if path == "/cases/free":
+                return httpx.Response(303, headers={"location": "/?case=A-AI00000000000002"},
+                                      request=httpx.Request("POST", "https://example.invalid/cases/free"))
+            if path.endswith("/approve"):
+                state["approved"] = True
+                return httpx.Response(303, headers={"location": "/?case=A-AI00000000000002"},
+                                      request=httpx.Request("POST", "https://example.invalid/approve"))
+            raise AssertionError(path)
+
+        def get(self, path):
+            if path.startswith("/api/cases/"):
+                if not state["approved"]:
+                    return httpx.Response(200, json={
+                        "case": {
+                            "status": "PENDING_APPROVAL",
+                            "extraction": {"extractor": "llm:openai/gpt-oss-20b",
+                                           "llm_unavailable": False, "llm_chat_completions": 2},
+                            "intent": {"requested_action": "REFUND"},
+                            "note": {"generator": "template"},
+                        },
+                        "paypal_calls": [],
+                    }, request=httpx.Request("GET", f"https://example.invalid{path}"))
+                return httpx.Response(200, json={
+                    "case": {
+                        "status": "REFUND_COMPLETED", "refund_status": "COMPLETED",
+                        "refund_id": "REF-1",
+                        "extraction": {"extractor": "llm:openai/gpt-oss-20b",
+                                       "llm_unavailable": False, "llm_chat_completions": 2},
+                        "intent": {"requested_action": "REFUND"},
+                        "note": {"generator": "template"},
+                    },
+                    "paypal_calls": [{"operation": "refund_capture", "debug_id": "dbg-live-1"}],
+                }, request=httpx.Request("GET", f"https://example.invalid{path}"))
+            if path.endswith("/audit/verify"):
+                return httpx.Response(200, json={"ok": True, "entries": 8},
+                                      request=httpx.Request("GET", f"https://example.invalid{path}"))
+            raise AssertionError(path)
+
+    sandbox_verify.ai_e2e_checks(FakeClient(), check)  # type: ignore[arg-type]
+    out = capsys.readouterr().out
+    assert "AI e2e LLM chat completions: 2" in out
+    assert fails == []

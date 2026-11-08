@@ -462,7 +462,39 @@ def test_F4_injection_phrased_as_exchange_reaches_human_with_fixed_amount(tmp_pa
 def test_F4b_genuine_refund_request_follows_refund_path(tmp_path):
     db, wf = mk(tmp_path)
     # Changed by the return-vs-exchange decision: a return with a stated reason now follows the refund path.
-    assert db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))["status"] == "PENDING_APPROVAL"
+    case = db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))
+    assert case["status"] == "PENDING_APPROVAL"
+    # Keyword path makes no /chat/completions POSTs; intake still records the measured count.
+    assert case["extraction"]["llm_chat_completions"] == 0
+
+
+def test_intake_stamps_measured_llm_chat_completions(tmp_path):
+    """Workflow persists ChatJSONClient POST count (incl. 400 json_object retry) on the case."""
+    import httpx
+    from app.intent import LLMIntentExtractor
+
+    calls = {"n": 0}
+
+    def handler(request):
+        calls["n"] += 1
+        body = json.loads(request.content)
+        if body["response_format"]["type"] == "json_schema":
+            return httpx.Response(400, json={"error": {"message": "json_schema not supported"}})
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({
+            "intent": "REFUND_REQUEST", "reason": "DAMAGED", "requested_action": "REFUND",
+            "language": "English", "language_code": "en",
+            "current_size": None, "requested_size": None,
+            "merchant_summary_en": "Damaged shoes, wants a refund.",
+        })}}]})
+
+    ex = LLMIntentExtractor("k", "https://llm.example/v1", "openai/gpt-oss-20b",
+                            transport=httpx.MockTransport(handler))
+    db, wf = mk(tmp_path, extractor=ex)
+    case = db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))
+    assert case["status"] == "PENDING_APPROVAL"
+    assert case["extraction"]["extractor"] == "llm:openai/gpt-oss-20b"
+    assert case["extraction"]["llm_chat_completions"] == 2
+    assert calls["n"] == 2
 
 
 def _intent():

@@ -2,13 +2,13 @@
 
 ## Candidate tip — local Sandbox (8 Nov 2026)
 
-Predecessor tip `a196741` (PR #100) was exercised in a **local Sandbox run** on the owner's machine: **62 pass /
+Tip `e1c510b` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
 0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry
-**4/4** and UNKNOWN recovery **2/2**. Later commits on the same PR add docs/preflight/AI-e2e only (money path
-unchanged). That local run is not a hosted-demo claim. Re-run `scripts/sandbox_verify.py` against the public URL
-**after** an authorized redeploy when `/healthz` `version` equals `git rev-parse HEAD` on this branch. Optional
-`--ai-e2e-only` covers the live LLM intent path (1 chat completion; target must have `LLM_API_KEY` /
-`LLM_BASE_URL` / `LLM_MODEL`).
+**4/4** and UNKNOWN recovery **2/2** (1813 unit tests, no regressions). That local run is not a hosted-demo claim.
+Re-run `scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz`
+`version` equals `git rev-parse HEAD` on this branch. Optional `--ai-e2e-only` covers the live LLM intent path
+and prints the **measured** `llm_chat_completions` count from case extraction metadata (target must have
+`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`; hosted demo extractor records `llm:openai/gpt-oss-20b`).
 
 ## Published demo technical recheck — 7 Nov 2026
 
@@ -51,7 +51,7 @@ lookup remains a manual step and is not included in the 31 checks.
 | `PAYPAL_MOCK` | must be unset or `0` on Render | `1` switches to the mock (UI then says "MOCK PayPal") |
 | `TRADEOS_DB_PATH`, `TRADEOS_RESET_ON_START` | SQLite, reset + reseed on start | unchanged |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | optional, default on | background check of PENDING refunds only |
-| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | intent extraction | unchanged; the check below runs Case A/B (2 LLM calls) |
+| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | intent extraction (and optional note translation / safety AI) | unchanged. The default sandbox_verify path creates Case A, Case B, one free-text exchange, and Case R — each intake that uses the LLM extractor makes at least one `/chat/completions` call (more if HTTP 400 falls back to `json_object`, or if safety AI / non-English notes are enabled). Hosted demo model: `openai/gpt-oss-20b` (cases show `llm:openai/gpt-oss-20b`). For a single measured free-text path, use `--ai-e2e-only`. |
 
 No new required variables. No database migration is needed (Render reseeds on start; kept databases get the new columns automatically).
 
@@ -103,7 +103,9 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   passed on retry).
 * Previous day: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS.
 * `--ai-e2e-only`: one fixed English free-text return through the target's live LLM extractor → human approve → Sandbox
-  refund. Prints `AI e2e LLM chat completions: 1`. Requires `/healthz` `llm_configured=true` (LLM env on the **target**,
-  not in the script). Not part of the default 31.
+  refund. Prints `AI e2e LLM chat completions: N` where **N** is the measured intake count from
+  `case.extraction.llm_chat_completions` (intent extract, plus any 400 json_schema→json_object retry, plus optional
+  safety-AI / note-translation calls — English template notes usually add none). Requires `/healthz`
+  `llm_configured=true` (LLM env on the **target**, not in the script). Not part of the default 31.
 * The `Deploy verify` GitHub workflow does **not** run these checks for this repository: the `TRADEOS_DEPLOY_URL` secret
   is not set, so its verify job is skipped. The runs above were started by hand.

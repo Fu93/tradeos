@@ -745,9 +745,9 @@ fail. The repository is public, so GitHub's standard hosted runners cost nothing
 
 `scripts/sandbox_verify.py <base-url>` drives a running instance through the whole loop over HTTP and asserts the
 result. The default path needs no credentials (public demo endpoints). Optional `--ai-e2e-only` exercises the live LLM
-intent path (one fixed English free-text return → approve → Sandbox refund; **1** LLM chat completion); the **target**
-must have `LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL` set (`/healthz` `llm_configured=true`) — the script itself needs
-no LLM key:
+intent path (one fixed English free-text return → approve → Sandbox refund) and prints the **measured**
+`llm_chat_completions` count from case extraction metadata; the **target** must have `LLM_API_KEY` / `LLM_BASE_URL` /
+`LLM_MODEL` set (`/healthz` `llm_configured=true`) — the script itself needs no LLM key:
 
 ```bash
 python scripts/sandbox_verify.py https://<your-host>      # default 31 checks
