@@ -1850,7 +1850,7 @@ def _verified_refund_amount(pp_amount: dict | None, local_value: str, local_curr
 
 def _capture_evidence_matches(capture: dict, case: dict) -> bool:
     """A GET for our capture must not justify recovery if PayPal returns different evidence."""
-    if capture.get("id") not in (None, case["capture_id"]):
+    if capture.get("id") != case["capture_id"]:
         return False
     amount = capture.get("amount")
     return not amount or _verified_refund_amount(amount, case["amount"], case["currency"])
