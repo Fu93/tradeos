@@ -220,6 +220,7 @@ SAFETY_MSG = "La suela se derritió con el calor y me quemé el pie. Es peligros
 
 def test_safety_complaint_gets_human_safety_review_state_from_the_gate(settings):
     """v3.2: the Safety Gate (code) decides before policy; the model's UNKNOWN reading is irrelevant."""
+    from app.views import pipeline
     client, wf, cid, html = reject_case(settings, SAFETY_MSG, UNKNOWN_RESULT.model_dump())
     case = wf.db.get_case(cid)
     assert case["status"] == case["decision"] == "NEEDS_HUMAN_SAFETY_REVIEW"
@@ -228,6 +229,10 @@ def test_safety_complaint_gets_human_safety_review_state_from_the_gate(settings)
     assert "/approve" not in pend and "Approve" not in pend
     assert not wf.db.paypal_calls(cid, "refund_capture")
     assert "Refund API NOT CALLED" in html
+    intent = next(s for s in pipeline(wf.db, case) if s["key"] == "intent")
+    assert intent["state"] == "blocked"
+    assert intent["detail"] == "extracted — Safety Gate holds before refund policy"
+    assert "ignored — Safety Gate ran first" not in html
 
 
 def test_legacy_rejected_safety_label_still_displays_for_a_rejected_case():

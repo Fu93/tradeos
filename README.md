@@ -25,7 +25,7 @@ returns layer** for small cross-border physical-goods merchants: **one inbox for
 where AI reads the language, deterministic code decides what the policy allows, a merchant approves money movement,
 and PayPal confirms the outcome (signed webhook + independent GET). A buyer agent can *request* a return over TradeOS's
 own restricted `/mcp` gateway (not the official PayPal MCP). No tool lets it approve or refund, dangerous-product
-reports go to a human before any automatic action, and return vs size-exchange are routed differently. The dashboard
+reports go to a human before any refund or supplier task, and return vs size-exchange are routed differently. The dashboard
 counts how many refunds an agent approved: 0.
 
 **Why it matters now.** US retailers expect returns worth **$849.9 billion** in 2025; **19.3%** of online sales come back,
@@ -98,7 +98,7 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox (current hosted tip)** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Hosted `https://tradeos-s33z.onrender.com` serving tip **`f2c7430`**: preflight **9/9**, `sandbox_verify` **31/31**, AI e2e **11/11**. Malformed Origin/Referer → **403** (58/58). Historical: published `dc2c6b5` (5 Nov 2026: 31/31; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on `9dafb70` (8 Nov 2026): 62/0/6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 | Production (live) PayPal; real buyers |
+| **Live PayPal Sandbox (current hosted tip)** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Hosted `https://tradeos-s33z.onrender.com` **verified on `1d5ab96`** (these results apply to this named SHA; later deployed commits need a fresh verification record): preflight **9/9**, `sandbox_verify` **31/31**, AI e2e **11/11**, **3** signed webhooks **VERIFIED**, GET reconciliation **all match**, malformed Origin/Referer → **403** (58/58), public reset → **403**. Historical: hosted `f2c7430` (same Sandbox suite before this tip); published `dc2c6b5` (5 Nov 2026: 31/31; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on `9dafb70` (8 Nov 2026): 62/0/6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 | Production (live) PayPal; real buyers |
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
@@ -109,7 +109,7 @@ flowchart LR
 
 ### Built during the hackathon
 
-First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #93: **85** pull requests merged). Highlights:
+Development began **8 Oct 2026**. The timeline below covers the initial **8–25 Oct** build; hardening and submission polish continued on **8 Nov 2026** (see the named-commit evidence above). Highlights:
 
 | Date | What landed |
 |---|---|
@@ -144,7 +144,7 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 | [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
 | [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
 | [`docs/demo-video-script.md`](docs/demo-video-script.md) | Demo video script v9 (≤2:45) |
-| [`docs/devpost-submission-final.md`](docs/devpost-submission-final.md) | English Devpost paste for tip `f2c7430` |
+| [`docs/devpost-submission-final.md`](docs/devpost-submission-final.md) | English Devpost paste; hosted evidence pinned to `1d5ab96` |
 | [`docs/submission-evidence.md`](docs/submission-evidence.md) | Hosted evidence checklist |
 
 ## For AI agents: request, never approve (MCP)
@@ -670,7 +670,7 @@ PAYPAL_MOCK=1 uvicorn app.main:app --reload
 `PAYPAL_MOCK=1` is the clean-checkout path that needs no secrets. Nothing in that mode is a real PayPal result.
 
 An offline run **without `LLM_API_KEY`** uses the keyword extractor, which reads **English only**. The non-English
-presets (Chinese / Spanish / German / Japanese) then come back as `UNKNOWN` and are rejected to a human — the intended
+presets (Chinese / Spanish / German / Japanese) then come back as `UNKNOWN` and are policy-rejected (`Closed`, not queued for human triage) — the intended
 outcome for a request the extractor cannot read, but it means 4 of the 7 presets look blocked until you add a key.
 The case page says so (`keyword-fallback`, "no LLM key set"), and the policy reason reads "not supported by the
 automated workflow; route to a human".

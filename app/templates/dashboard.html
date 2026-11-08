@@ -466,8 +466,8 @@
   <h2>AI agents (MCP) <span class="muted small">— an agent can request a return, never approve one</span></h2>
   <p class="small">Agents connect to <code>/mcp</code> and are offered
     {% for n in agents.tools %}<code>{{ n }}</code>{% if not loop.last %}, {% endif %}{% endfor %}.
-    There is no approve, decline or refund tool. Every agent request waits for a person, even with autonomy on,
-    and the agent cannot set the amount: it comes from PayPal's capture.</p>
+    There is no approve, decline or refund tool. Eligible agent requests require a person's approval, even with autonomy on.
+    Rejected requests cannot be approved, and the agent cannot set the refund amount: it comes from PayPal's capture.</p>
   {% if agent_run_in_progress %}
   <p class="small run-in-progress"><span class="chip warn">Running</span> An agent run is in progress:
     <a href="/agent-runs/{{ agent_run_in_progress }}">watch it</a>. One run at a time for the whole demo.</p>
@@ -525,7 +525,9 @@
       <div class="fm {{ 'ok' if s.ok else '' }}">
         <strong>{{ s.title }}</strong>
         <p class="small muted">{{ s.expect }}</p>
-        {% if s.case %}<p class="small"><a href="/?case={{ s.case.id }}#pending">{{ s.case.id }}</a>: <strong>{{ s.result }}</strong> {{ '✓' if s.ok }}</p>{% endif %}
+        {% if s.case %}<p class="small"><a href="/?case={{ s.case.id }}#pending">{{ s.case.id }}</a>: <strong>{{ s.result }}</strong> {{ '✓' if s.ok }}</p>
+          {% if s.next_step %}<p class="small case-next-step"><strong>Next step:</strong> {{ s.next_step }}</p>{% endif %}
+        {% endif %}
       </div>
     {% endfor %}
   </div>

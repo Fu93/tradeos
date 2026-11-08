@@ -1,6 +1,6 @@
 # TradeOS — Devpost submission (English, final paste)
 
-**Verified tip:** `f2c74302622d91f988ba7fad097052ed4c322a56` · **Demo:** https://tradeos-s33z.onrender.com  
+**Verified hosted build (8 Nov 2026):** `1d5ab96b19501f7827daf37538543141f9909e91` · **Demo:** https://tradeos-s33z.onrender.com  
 **License:** MIT · **YouTube:** _TBD — placeholder; do not submit until a public video under 3:00 exists_
 
 ---
@@ -28,7 +28,7 @@ TradeOS is a returns inbox for small cross-border physical-goods merchants.
 - A customer message or a **buyer agent** request enters one queue.
 - A language model extracts structured intent only (it never sets amounts or approvals).
 - Deterministic Python policy checks PayPal's capture facts (amount, currency, window, product).
-- Dangerous-product reports are held for a **human safety review** before any automatic action.
+- Dangerous-product reports are held for a **human safety review** before any refund or supplier task.
 - **Returns** and **size exchanges** take different paths (money vs supplier / no refund).
 - Eligible agent-originated refunds wait for a **merchant approval** (autonomy is OFF on the hosted demo).
 - After approval, TradeOS calls PayPal Sandbox refunds; success is shown only when PayPal reports `COMPLETED`, then a
@@ -49,7 +49,7 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 - **AG Grid** Community for the returns inbox; **Channel3** for optional agent product discovery; **Render** for hosting.
 - A toolkit-contrast script only **reads** PayPal agent-toolkit tool lists; it does not call PayPal MCP.
 
-## Measured evidence (tip `f2c7430`, hosted)
+## Measured evidence (hosted `1d5ab96`; local checks labelled separately)
 
 | Evidence | Result |
 | --- | --- |
@@ -57,7 +57,7 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 | Hosted `sandbox_verify` | 31/31 |
 | AI end-to-end | 11/11 |
 | Deterministic policy matrix | 582/582 (rules, not LLM requests) |
-| pytest / coverage / lint | See [`submission-evidence.md`](submission-evidence.md) for the tip count (1845 on this head; 1841 on hosted `f2c7430`); ~95% cov; ruff + mypy clean |
+| pytest / coverage / lint | Local source (this tip): **1845** tests, **95.09%** coverage; ruff + mypy clean (mock PayPal). See [`submission-evidence.md`](submission-evidence.md) for named-build evidence |
 | Malformed Origin / Referer | 403 (58/58) |
 | LLM intent eval (52 author-written messages) | exact 41/52 vs keyword 17/52; request-check 52/52 on this small set (not general accuracy) |
 

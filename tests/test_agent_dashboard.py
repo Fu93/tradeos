@@ -83,6 +83,9 @@ def test_one_click_plays_three_scenes_through_the_mcp_tools(site):
     section = agents_section(client.get(f"/?case={honest}").text)
     assert section.count('class="fm ok"') == 3 and "scripted MCP client" in section
     assert all(f"<code>{t}</code>" in section for t in ("place_demo_order", "request_return", "get_case_status"))
+    assert section.count("<strong>Next step:</strong>") == 3
+    assert "Approve to refund, or decline." in section
+    assert section.count("Rejected by the return policy. The Refund API was never called.") == 2
 
 
 def test_honest_tile_stays_green_after_a_person_approves(site):
