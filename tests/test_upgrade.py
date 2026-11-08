@@ -5,6 +5,7 @@ import json
 import re
 import sqlite3
 import threading
+from contextlib import closing
 from unittest.mock import MagicMock
 
 import httpx
@@ -673,7 +674,7 @@ def test_rejected_note_keeps_no_refund_wording(settings):
 
 # ------------------------------------------------------------------ forward migration (kept database)
 def _columns(path, table):
-    with sqlite3.connect(path) as conn:
+    with closing(sqlite3.connect(path)) as conn:
         return [r[1] for r in conn.execute(f"PRAGMA table_info({table})")]
 
 

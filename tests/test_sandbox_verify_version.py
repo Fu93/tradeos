@@ -5,6 +5,19 @@ import httpx
 from scripts import sandbox_verify
 
 
+def test_webhook_checks_skip_when_unconfigured_or_local():
+    assert sandbox_verify.public_webhook_receiver("https://tradeos-s33z.onrender.com")
+    assert not sandbox_verify.public_webhook_receiver("http://localhost:8000")
+    assert not sandbox_verify.public_webhook_receiver("http://127.0.0.1:8000")
+    assert sandbox_verify.webhook_skip_reason(True, True, "https://demo.example") == (
+        "mock mode: PayPal sends nothing")
+    assert "PAYPAL_WEBHOOK_ID not configured" in (
+        sandbox_verify.webhook_skip_reason(False, False, "https://demo.example") or "")
+    assert "no public webhook receiver" in (
+        sandbox_verify.webhook_skip_reason(False, True, "http://localhost:8000") or "")
+    assert sandbox_verify.webhook_skip_reason(False, True, "https://demo.example") is None
+
+
 def test_expected_version_mismatch_stops_before_any_post(monkeypatch, capsys):
     requests = []
 

@@ -191,11 +191,13 @@ def test_backfill_existing_db_marks_rows(tmp_path):
     # simulate a pre-chain database: drop the chain and add legacy rows
     raw(db, "DROP TABLE audit_chain")
     conn = sqlite3.connect(path)
-    conn.execute("PRAGMA foreign_keys = OFF")
-    conn.execute("INSERT INTO audit_events (case_id, ts, stage, title, detail_json) VALUES ('OLD-1','2026-10-01T00:00:01Z','policy','Policy','{}')")
-    conn.execute("INSERT INTO paypal_calls (case_id, ts, operation, ok, result) VALUES ('OLD-1','2026-10-01T00:00:02Z','refund_capture',1,'COMPLETED')")
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("PRAGMA foreign_keys = OFF")
+        conn.execute("INSERT INTO audit_events (case_id, ts, stage, title, detail_json) VALUES ('OLD-1','2026-10-01T00:00:01Z','policy','Policy','{}')")
+        conn.execute("INSERT INTO paypal_calls (case_id, ts, operation, ok, result) VALUES ('OLD-1','2026-10-01T00:00:02Z','refund_capture',1,'COMPLETED')")
+        conn.commit()
+    finally:
+        conn.close()
     db.init(reset=False)
     res = db.verify_chain("OLD-1")
     assert res["ok"] and res["entries"] == 2 and res["backfilled"] == 2

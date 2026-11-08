@@ -16,6 +16,7 @@ Nothing here runs without a human click: there is no autonomy path for mixed ord
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import threading
@@ -395,10 +396,27 @@ class MixedOrders:
                 if batch["status"] not in (ERROR, UNKNOWN, APPROVED) or batch["refund_id"]:
                     raise wf_refused(f"Batch {batch['batch_no']} is {batch['status']}; nothing to retry.")
                 prior = batch["status"]
-                if prior == UNKNOWN and not self._request_id_fresh(case_id, batch["request_id"]):
-                    raise wf_refused(self._too_old(batch))
+                if prior == UNKNOWN:
+                    if wf.paypal_mode != "mock":
+                        raise wf_refused(self._too_old(batch))
+                    if not self._request_id_fresh(case_id, batch["request_id"]):
+                        raise wf_refused(self._too_old(batch))
+                fields: dict[str, Any] = {}
                 if prior == ERROR:  # a definite refusal may be staged again; UNKNOWN must stay durable
-                    self.db.update_batch(batch_id, status=APPROVED)
+                    fields["status"] = APPROVED
+                    req = batch.get("request_id")
+                    if req and not self._request_id_fresh(case_id, req):
+                        # Payments v2 key may have expired; prior 4xx moved no money — mint a new id.
+                        digest = hashlib.sha256(req.encode()).hexdigest()[:8]
+                        new_req = f"{req}-e{digest}"[:38]
+                        fields["request_id"] = new_req
+                        self.db.audit(case_id, "paypal",
+                                      f"Batch {batch['batch_no']} ERROR retry after {IDEMPOTENCY_WINDOW_HOURS}h — "
+                                      "new PayPal-Request-Id (prior 4xx moved no money)",
+                                      {"batch_id": batch_id, "prior_paypal_request_id": req,
+                                       "paypal_request_id": new_req})
+                if fields:
+                    self.db.update_batch(batch_id, **fields)
                 try:
                     self._execute(case_id, batch_id, replay_unknown=prior == UNKNOWN)
                 except wf_refused_type():
@@ -713,8 +731,8 @@ class MixedOrders:
                           "outcome remains UNKNOWN", {})
 
     def _request_id_fresh(self, case_id: str, request_id: str | None) -> bool:
-        """Mock-only replay bound; the real refund endpoint publishes no key retention period."""
-        if self.wf.paypal_mode != "mock":
+        """True while PayPal Payments v2 still stores this Request-Id (default 6 hours)."""
+        if not request_id:
             return False
         sent = [c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture") if c.get("request_id") == request_id]
         # The approval predates the first send and survives a crash before log_paypal_call().
@@ -728,15 +746,19 @@ class MixedOrders:
 
     def _too_old(self, batch: dict) -> str:
         if self.wf.paypal_mode != "mock":
-            return (f"Batch {batch['batch_no']}'s refund outcome is UNKNOWN. PayPal does not document how long "
-                    "refund request IDs are retained; re-sending may create a second refund. "
-                    "Check this capture's refunds in PayPal by hand.")
+            return (f"Batch {batch['batch_no']}'s refund outcome is UNKNOWN. Re-sending may create a second refund; "
+                    "verify the Refund ID with PayPal GET, or check this capture's refunds in PayPal by hand.")
         return (f"Batch {batch['batch_no']}'s refund call got no answer more than {IDEMPOTENCY_WINDOW_HOURS} hours "
                 "ago. PayPal may already have made it, and after 6 hours re-sending the same request id could be "
                 "taken as a new refund. Check this capture's refunds in PayPal by hand.")
 
     def recover_unknown(self, case_id: str, trigger: str) -> bool:
+        """Replay UNKNOWN partial refunds only in mock mode (sandbox uses confirm-by-GET)."""
         wf = self.wf
+        if wf.paypal_mode != "mock":
+            self.db.audit(case_id, "paypal", "Partial UNKNOWN not replayed on sandbox — verify Refund ID with "
+                          "PayPal GET", {"trigger": trigger})
+            return False
         recovered = False
         with wf._money_op(), wf._lock(case_id):
             for batch in self.db.list_batches(case_id):

@@ -257,15 +257,15 @@ class Database:
     @contextmanager
     def connect(self) -> Iterator[sqlite3.Connection]:
         conn = sqlite3.connect(self.path, timeout=10)
-        conn.row_factory = sqlite3.Row
-        conn.create_function("casefold", 1, lambda value: str(value or "").casefold(), deterministic=True)
-        conn.execute("PRAGMA foreign_keys = ON")
-        if self.path != ":memory:":
-            # WAL: readers stop blocking the writer, so the dashboard's chain verification and the
-            # background reconcile no longer contend for the single journal lock. The mode is
-            # persistent per file, so this is a no-op after the first connection.
-            conn.execute("PRAGMA journal_mode = WAL")
         try:
+            conn.row_factory = sqlite3.Row
+            conn.create_function("casefold", 1, lambda value: str(value or "").casefold(), deterministic=True)
+            conn.execute("PRAGMA foreign_keys = ON")
+            if self.path != ":memory:":
+                # WAL: readers stop blocking the writer, so the dashboard's chain verification and the
+                # background reconcile no longer contend for the single journal lock. The mode is
+                # persistent per file, so this is a no-op after the first connection.
+                conn.execute("PRAGMA journal_mode = WAL")
             yield conn
             conn.commit()
         finally:
@@ -737,8 +737,8 @@ class Database:
         BEGIN gives the reads one view; a reader only holds a SHARED lock for the length of these reads.
         """
         conn = sqlite3.connect(self.path, timeout=10)
-        conn.row_factory = sqlite3.Row
         try:
+            conn.row_factory = sqlite3.Row
             conn.execute("BEGIN")
             yield conn
         finally:

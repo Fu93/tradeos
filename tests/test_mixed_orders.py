@@ -481,7 +481,7 @@ def test_real_sandbox_unknown_partial_refund_is_never_replayed(settings):
     wf.reconcile(cid)
     assert pp.refund_capture.call_count == 1
     assert not wf.mixed.view(cid)["batches"][0]["retryable"]
-    with pytest.raises(RefundNotAllowed, match="does not document"):
+    with pytest.raises(RefundNotAllowed, match="UNKNOWN|Refund ID|by hand"):
         wf.mixed.retry_batch(cid, batch["id"])
     assert pp.refund_capture.call_count == 1
     assert wf.db.verify_chain(cid)["ok"]

@@ -548,11 +548,12 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   times out or PayPal returns 5xx, the case remains
   `REFUND_OUTCOME_UNKNOWN` ("checking with PayPal" — never "no money moved", which is shown only when PayPal answered
   with an error). TradeOS GETs the capture in the background (5 s timeout). In real Sandbox mode, an unknown refund
-  is never re-sent: PayPal documents request-ID idempotency, but publishes no retention period for the refund endpoint,
-  so a replay could create another refund ([idempotency reference](https://developer.paypal.com/api/rest/reference/idempotency/),
-  [Payments v2 schema](https://developer.paypal.com/api/payments/v2/schema.json)). A person can inspect PayPal and
-  enter the Refund ID in TradeOS. TradeOS uses **GET refund** only and accepts it only if PayPal returns the same ID,
-  this case's capture link and `custom_id`, and the approved amount and currency. Otherwise the case stays UNKNOWN.
+  is never re-sent automatically. Payments v2 stores `PayPal-Request-Id` for **6 hours** by default
+  ([v1→v2 migration](https://developer.paypal.com/api/rest/integration/payments-api/v1-v2-migration)); after that
+  window the same id can create another refund. For a lost reply TradeOS therefore requires a person to enter the
+  Refund ID. TradeOS uses **GET refund** only and accepts it only if PayPal returns the same ID, this case's capture
+  link and `custom_id`, the approved amount/currency, and status COMPLETED, PENDING, or FAILED (CANCELLED stays
+  UNKNOWN). Otherwise the case stays UNKNOWN.
   New single refunds carry the case ID as `custom_id`; partial refunds carry the batch ID. Earlier refunds without
   this marker cannot be linked through this strict check and still need external manual review.
   In mock mode only, a matching capture, verified webhook, or manual check can replay the same request within a

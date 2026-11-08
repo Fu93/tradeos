@@ -11,6 +11,7 @@ can say which one it was.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import threading
@@ -963,32 +964,47 @@ class Workflow:
     def _request_id(case: dict) -> str:
         return case.get("refund_request_id") or f"tradeos-refund-{case['id']}"
 
-    def _refund_request_fresh(self, case_id: str, request_id: str) -> bool:
-        """Only mock refunds may be replayed: PayPal publishes no refund-key retention period.
-
-        For the mock, use the first chained reservation, which survives a crash before the call log.
-        """
-        if self.paypal_mode != "mock":
-            return False
+    def _refund_request_first_seen(self, case_id: str, request_id: str) -> datetime | None:
+        """Earliest time this PayPal-Request-Id was reserved or sent (chain survives a crash before the call log)."""
+        seen: list[str] = []
         for entry in self.db.chain_entries(case_id):
             if entry["type"] != "case:update":
                 continue
             if json.loads(entry["payload_json"]).get("refund_request_id") != request_id:
                 continue
-            try:
-                first = datetime.fromisoformat(entry["ts"].replace("Z", "+00:00"))
-                now = datetime.fromisoformat(self._now().replace("Z", "+00:00"))
-                return now - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
-            except ValueError:
-                return False
-        return False
+            seen.append(entry["ts"])
+        seen.extend(c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture")
+                    if c.get("request_id") == request_id and c.get("ts"))
+        if not seen:
+            return None
+        try:
+            return datetime.fromisoformat(min(seen).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    def _refund_request_fresh(self, case_id: str, request_id: str) -> bool:
+        """True while PayPal Payments v2 still stores this Request-Id (default 6 hours).
+
+        Sandbox UNKNOWN outcomes are never auto-replayed (confirm via GET). REFUND_ERROR retries
+        use this bound: same id inside the window, a new id after it (prior 4xx moved no money).
+        """
+        first = self._refund_request_first_seen(case_id, request_id)
+        if first is None:
+            return False
+        try:
+            now = datetime.fromisoformat(self._now().replace("Z", "+00:00"))
+        except ValueError:
+            return False
+        return now - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
 
     def _old_refund_request(self) -> str:
-        if self.paypal_mode != "mock":
-            return ("PayPal does not document how long refund request IDs are retained. Re-sending this "
-                    "request may create a second refund; check PayPal by hand.")
-        return (f"The refund request may have reached PayPal more than {IDEMPOTENCY_WINDOW_HOURS} hours ago. "
-                "Re-sending its PayPal-Request-Id could create a second refund; check PayPal by hand.")
+        return (f"PayPal stores a PayPal-Request-Id for {IDEMPOTENCY_WINDOW_HOURS} hours on Payments v2. "
+                "Re-sending this id after that window can create a second refund; check PayPal by hand.")
+
+    def _mint_error_retry_request_id(self, case_id: str, prior_request_id: str) -> str:
+        """Deterministic new id after a confirmed 4xx once the prior key may have expired."""
+        digest = hashlib.sha256(prior_request_id.encode()).hexdigest()[:12]
+        return f"tradeos-refund-{case_id}-after-error-{digest}"
 
     @staticmethod
     def _refund_amount(case: dict) -> dict[str, str]:
@@ -1009,6 +1025,18 @@ class Workflow:
                         (not case.get("refund_request_id") and case.get("refund_status") not in ("COMPLETED", "PENDING"))):
                     self._guard_refund(case)
                     self._preflight_refund(case_id, case)
+                    if case["status"] == REFUND_ERROR and case.get("refund_request_id"):
+                        prior = case["refund_request_id"]
+                        if not self._refund_request_fresh(case_id, prior):
+                            # Payments v2 key may have expired: re-using it risks a second refund.
+                            # The prior 4xx confirmed that attempt moved no money, so a new id is safe
+                            # after capture/policy preflight above.
+                            new_id = self._mint_error_retry_request_id(case_id, prior)
+                            self.db.update_case(case_id, refund_request_id=new_id)
+                            self.db.audit(case_id, "paypal",
+                                          f"REFUND_ERROR retry after {IDEMPOTENCY_WINDOW_HOURS}h — new "
+                                          "PayPal-Request-Id (prior 4xx moved no money; capture re-checked)",
+                                          {"prior_paypal_request_id": prior, "paypal_request_id": new_id})
                 return self._execute_refund(case_id)
         finally:
             self._after_money(case_id)
@@ -1133,6 +1161,8 @@ class Workflow:
             raise RefundNotAllowed(self._old_refund_request())
 
         request_id = self._request_id(case)  # idempotent: double clicks return the same refund
+        # REFUND_ERROR retries: same id while Payments v2 still stores it (execute_refund mints a
+        # new id past the window). UNKNOWN sandbox never reaches here for a replay.
         if (case.get("refund_request_id") and case["status"] != REFUND_ERROR and not after_failed
                 and not self._refund_request_fresh(case_id, request_id)):
             raise RefundNotAllowed(self._old_refund_request())
@@ -1158,7 +1188,8 @@ class Workflow:
                 # Outcome UNKNOWN (timeout / throttled / network / 5xx): PayPal may have refunded
                 # anyway, so the UI must not say "no money moved". A bounded GET check runs next
                 # (outside the lock). Only mock mode may replay the request to recover its ID;
-                # the real refund API does not document its request-ID retention period.
+                # sandbox UNKNOWN uses confirm-by-GET (Payments v2 stores keys 6h, but a lost
+                # reply still needs an identified refund before we record money moved).
                 self.db.update_case(case_id, status=REFUND_UNKNOWN, error=str(exc), refund_fault=None)
                 self.db.audit(case_id, "paypal", "Refund outcome UNKNOWN — no reply from PayPal; checking",
                               {**exc.to_dict(), "paypal_request_id": request_id})
@@ -1174,7 +1205,11 @@ class Workflow:
         return refund
 
     def recover_unknown_refund(self, case_id: str, trigger: str) -> bool:
-        """Recover an UNKNOWN refund by replay only in mock mode, with the usual money guard."""
+        """Recover an UNKNOWN refund by replay only in mock mode, with the usual money guard.
+
+        Sandbox UNKNOWN never replays: Payments v2 stores keys for 6 hours, but a lost reply still
+        needs a merchant-confirmed refund ID (GET) before TradeOS records that money moved.
+        """
         with self._locks_guard:
             if case_id in self._pending_recovery:
                 return False
@@ -1186,9 +1221,14 @@ class Workflow:
                     return False
                 self._guard_refund(case)
                 request_id = self._request_id(case)
+                if self.paypal_mode != "mock":
+                    self.db.audit(case_id, "paypal", "Unknown refund not replayed on sandbox — verify Refund ID "
+                                  "with PayPal GET", {"paypal_request_id": request_id, "trigger": trigger})
+                    return False
                 if not self._refund_request_fresh(case_id, request_id):
-                    self.db.audit(case_id, "paypal", "Unknown refund not replayed: request ID retention unverified; "
-                                  "check PayPal by hand", {"paypal_request_id": request_id, "trigger": trigger})
+                    self.db.audit(case_id, "paypal", "Unknown refund not replayed: PayPal-Request-Id older than "
+                                  f"{IDEMPOTENCY_WINDOW_HOURS}h; check PayPal by hand",
+                                  {"paypal_request_id": request_id, "trigger": trigger})
                     return False
                 note = (case.get("payer_note") or {}).get("text")
                 try:

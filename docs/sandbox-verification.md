@@ -47,15 +47,15 @@ lookup remains a manual step and is not included in the 31 checks.
 No new required variables. No database migration is needed (Render reseeds on start; kept databases get the new columns automatically).
 
 ## Sandbox check after deploy (about 2 minutes)
-`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B, one exchange (size 42 → 43, no refund) and one Case R (a forced 422 refund failure, then a retry that refunds). 27 checks:
-1. `/healthz`: PayPal mode `sandbox`, webhook configured.
+`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B, one exchange (size 42 → 43, no refund) and one Case R (a forced 422 refund failure, then a retry that refunds). **31 checks** (matches the default path in `scripts/sandbox_verify.py`):
+1. `/healthz`: PayPal mode `sandbox`, webhook configured, `auto_exchange_enabled` reported.
 2. Case A: approved; refund COMPLETED (or PENDING); **exactly one** refund call; a **real** `PayPal-Debug-Id` (not `mock-…`); `PayPal-Request-Id` recorded; retry on the finished refund returns 409.
-3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK).
+3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK). When `PAYPAL_WEBHOOK_ID` is unset or the target has no public webhook receiver (e.g. localhost), these print `SKIP … (reason)` instead of failing after a 90 s wait; against the hosted demo after redeploy they run fully.
 4. "Check against PayPal": result "Reconciled with PayPal — all match".
 5. Case B: approve returns 409, the refund API is never called; audit trails intact; badge rendered.
 6. Logic-review fixes: Case A's decision / human approval / status are on the hash chain (`chained_state` in `/cases/{id}/audit/verify`); Case A's `refund_request_id` and how COMPLETED was confirmed (`completed_via`); Case B's rejection on the chain with no approval; `GET /cases/{id}/paypal-return` changes nothing.
 7. Exchange: awaiting approval of the exchange → approve → `EXCHANGE_ARRANGED` with **0** refund calls; refund endpoint 409; audit chain intact. Case A's intent is a return (`REFUND`).
-8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
+8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` inside Payments v2's 6-hour window (2 refund calls).
 
 Not provable live without breaking PayPal on purpose (covered by `tests/test_refund_faults.py` and
 `tests/test_mixed_orders.py` and `tests/test_refund_lookup.py`): a refund whose reply times out
@@ -68,7 +68,7 @@ Manual steps:
 - Debug id lookup: in the PayPal Developer Dashboard (Sandbox), search the API call / event logs for the printed debug id.
 - Also confirm the dashboard shows **no** "MOCK PayPal" tag and no "Pending refund (MOCK)" tile.
 
-Expected on the local mock (dry run of the script, 2026-10-10): every check passes except the four that need real Sandbox (mode, real debug id, signed webhook + its method).
+Expected on the local mock (dry run of the script, 2026-10-10): every check passes except those that need real Sandbox (mode, real debug id). Signed-webhook checks print `SKIP` with an explicit reason when `PAYPAL_WEBHOOK_ID` is unset or the target is not publicly reachable; they are not ambiguous failures.
 
 ## After merging feat/paypal-hardening (webhook re-registration)
 1. Dry run: `python scripts/register_webhook.py https://<render-host>/webhooks/paypal` (needs `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET`). Expect `would update webhook <id> in place (ID unchanged)`.

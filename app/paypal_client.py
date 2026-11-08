@@ -70,10 +70,16 @@ class PayPalError(Exception):
         return " · ".join(bits)
 
 
-# How long a PayPal-Request-Id can be relied on to replay the first result. The Orders v2 reference documents 6 hours
-# ("The server stores keys for 6 hours"). The refund endpoint documents no retention window, so real refunds
-# with an unknown outcome are never replayed. This bound also limits mock refund recovery tests.
+# Payments v2 (including POST /v2/payments/captures/{id}/refund) stores PayPal-Request-Id for 6 hours by
+# default; an expired key is treated as a new transaction with no distinct error
+# (developer.paypal.com/api/rest/integration/payments-api/v1-v2-migration — "Idempotency key window reduction").
+# Within the window, re-sending the same id returns the first result. Past it, TradeOS must not reuse the id.
 IDEMPOTENCY_WINDOW_HOURS = 6
+
+# Statuses a merchant-supplied refund ID may bind to an UNKNOWN outcome (GET prove, no Refund API call).
+# COMPLETED/PENDING: money moved or is pending. FAILED: PayPal confirmed this attempt did not pay —
+# record it so "retry with a new request" can run. CANCELLED and anything else stay UNKNOWN.
+REFUND_CONFIRM_STATUSES = frozenset({"COMPLETED", "PENDING", "FAILED"})
 
 
 def outcome_unknown(exc: "PayPalError") -> bool:
@@ -123,13 +129,19 @@ def refund_lookup_issue(refund: dict, refund_id: str, capture_id: str, custom_id
     """Evidence required before a merchant-supplied refund ID can resolve an UNKNOWN outcome.
 
     A capture's status alone cannot identify an individual refund. Require the GET response to
-    bind this refund to the capture and TradeOS case/batch, with the exact approved amount.
+    bind this refund to the capture and TradeOS case/batch, with the exact approved amount, and a
+    status that the confirm state machine accepts (COMPLETED / PENDING / FAILED).
     """
     issue = refund_response_issue(refund, capture_id)
     if issue:
         return issue
     if refund["id"] != refund_id:
         return "PayPal returned a different refund ID"
+    status = refund.get("status")
+    if status == "CANCELLED":
+        return "PayPal refund was CANCELLED; leave UNKNOWN and check PayPal by hand"
+    if status not in REFUND_CONFIRM_STATUSES:
+        return "PayPal refund status cannot confirm an UNKNOWN outcome"
     links = refund.get("links") or []
     def matches_capture(link: dict) -> bool:
         href = link.get("href")

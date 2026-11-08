@@ -1,6 +1,11 @@
 """Read-only check that the demo serves the exact commit intended for submission.
 
 This does not prove a refund works. Run sandbox_verify.py separately for live PayPal evidence.
+
+    python scripts/submission_preflight.py https://<demo-host> --commit <40-char-lowercase-sha>
+
+Requires /healthz: ok, version==commit, paypal_mode=sandbox, llm_configured, webhook_configured,
+auto_enabled=false, auto_exchange_enabled=false. Prints JSON only (no secrets). Exit 0 = pass.
 """
 from __future__ import annotations
 

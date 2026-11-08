@@ -84,11 +84,11 @@ def test_real_sandbox_unknown_refund_is_never_replayed(settings):
     assert len(mock.refunds_by_request) == 1
     wf.reconcile(case_id)
     assert pp.refund_capture.call_count == 1
-    with pytest.raises(RefundNotAllowed, match="does not document"):
+    with pytest.raises(RefundNotAllowed, match="second refund|PayPal-Request-Id|by hand"):
         wf.execute_refund(case_id)
     # A migrated/incomplete UNKNOWN row must also fail closed if its request ID is missing.
     wf.db.update_case(case_id, refund_request_id=None)
-    with pytest.raises(RefundNotAllowed, match="does not document"):
+    with pytest.raises(RefundNotAllowed, match="second refund|PayPal-Request-Id|by hand"):
         wf.execute_refund(case_id)
     assert pp.refund_capture.call_count == 1
     assert wf.db.verify_chain(case_id)["ok"]
