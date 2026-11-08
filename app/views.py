@@ -139,7 +139,7 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
     st = {k: ("todo", "") for k, _ in STEPS}
     if case and case["status"] in (SAFETY_STATUS, "SAFETY_REVIEWED"):
         st["request"] = ("done", f"paid ${case['amount']} · message received")
-        st["intent"] = ("blocked", "extracted but not used — Safety Gate decides first")
+        st["intent"] = ("blocked", "extracted — Safety Gate holds before refund policy")
         st["policy"] = ("blocked", "not run — Safety Gate (code) routed it to a person")
         st["supplier"] = ("skipped", "not contacted")
         st["human"] = (("done", "reviewed by a person — note on the audit chain") if case["status"] == "SAFETY_REVIEWED"

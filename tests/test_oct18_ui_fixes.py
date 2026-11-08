@@ -231,7 +231,7 @@ def test_safety_complaint_gets_human_safety_review_state_from_the_gate(settings)
     assert "Refund API NOT CALLED" in html
     intent = next(s for s in pipeline(wf.db, case) if s["key"] == "intent")
     assert intent["state"] == "blocked"
-    assert intent["detail"] == "extracted but not used — Safety Gate decides first"
+    assert intent["detail"] == "extracted — Safety Gate holds before refund policy"
     assert "ignored — Safety Gate ran first" not in html
 
 

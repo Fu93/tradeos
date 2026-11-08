@@ -14,9 +14,9 @@ through the judging period ending 15 Dec 2026, 08:00 Pacific Time (16:00 in Lond
 English copy for the form: [`devpost-submission-final.md`](devpost-submission-final.md) (and the earlier
 [`devpost-submission-draft.md`](devpost-submission-draft.md)).
 
-## Current verified tip — `f2c7430` (hosted)
+## Latest verified hosted build — `1d5ab96` (8 Nov 2026)
 
-**Commit:** `f2c74302622d91f988ba7fad097052ed4c322a56`  
+**Commit:** `1d5ab96b19501f7827daf37538543141f9909e91`  
 **Demo:** https://tradeos-s33z.onrender.com (`/healthz` `version` matches this SHA; PayPal `sandbox`; LLM + webhook on;
 autonomy off; ephemeral persistence; safety AI layer off).
 
@@ -26,7 +26,7 @@ autonomy off; ephemeral persistence; safety AI layer off).
 | Hosted `sandbox_verify.py` | **31/31** |
 | AI end-to-end (`--ai-e2e-only`) | **11/11** |
 | Deterministic policy matrix | **582/582** (rules, not LLM requests) |
-| Offline pytest (this tip) | **1845** passed, coverage **95.08%**, ruff + mypy clean (hosted `f2c7430` baseline was **1841**) |
+| Offline pytest (local source, this tip) | **1845** passed, coverage **95.09%**, ruff + mypy clean; mock PayPal (not hosted refund evidence) |
 | Malformed Origin / Referer | **403** (58/58); no 500 |
 
 **LLM intent eval** (historical measurement on tip `9dafb70`, 2026-11-08, still the committed
@@ -82,7 +82,7 @@ not immutable.
 | B1 | Soft | Hosted service ≠ Blueprint | **Documented** |
 | B8 | Low | README test count drift | **Fixed** — tip count lives in this table (**1845**); avoid scattering stale counts elsewhere |
 | D7 | Low | Full LLM eval refresh | **Done** — committed results from 2026-11-08 |
-| D8 | Soft | Hosted tip ≠ `dc2c6b5` | **Done** — hosted now serves `f2c7430` |
+| D8 | Soft | Hosted tip ≠ `dc2c6b5` | **Done** — historical `f2c7430` verify; latest hosted verification is `1d5ab96` (8 Nov 2026) |
 | E4 | High | Public reset archives all cases | **Fixed** (`TRADEOS_ALLOW_PUBLIC_RESET=0`) |
 | E10 | Soft | YouTube URL TBD | **Open** — owner content |
 | F1 / B01 | Low→Med | Malformed Origin/Referer → 500 | **Fixed** — 403 (58/58) on `f2c7430` |
