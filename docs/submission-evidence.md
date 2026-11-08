@@ -12,10 +12,14 @@ design, potential impact, innovation and presentation — are equally weighted. 
 15 Dec 2026, 08:00 Pacific Time (16:00 in London). The [English submission draft](devpost-submission-draft.md) contains
 only claims that the current evidence can support; fill its remaining placeholders from the final deployed version.
 
-**Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox run on an isolated verification
-machine for `e1c510b` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2;
-1813 unit tests then, no regressions; tip now **1,838** tests / ~95% cov after keyword-fallback + judge-path
-hardening. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this tip is still pending** —
+**Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox on an isolated verification machine
+for `9dafb70` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; UNKNOWN 2/2; ERROR-retry 4/4; over-refund 422;
+AI e2e 11/11. Same-day full LLM eval on `9dafb70` with Groq **`openai/gpt-oss-20b`** (52 cases, one run, all
+HTTP 200): exact **41/52** (78.85%), lenient **47/52** (90.38%), intent 49/52, reason 45/52, action 48/52, policy
+request-check **52/52**, `unwarranted_accept` **0**, `missed_accept` **0**, injections 7/7 policy-safe (0 unwarranted);
+keyword **17/52** exact, unwarranted 0, missed_accept 25; tokens 39,637 in / 15,543 out (incl. 3 AI e2e) ≈ US$0.0076.
+The HTTP 400 → `json_object` path is unit-tested and was **not hit** live in that eval. Tip now **1,838** tests /
+~95% cov. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this tip is still pending** —
 do not cite 31/31 on the public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video
 URL still TBD.
 
@@ -71,7 +75,7 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | D4 | Low | Docs still pinned tip `a196741` / “owner's machine” after `e1c510b` Sandbox | **Fixed** (isolated verification machine + `e1c510b`) |
 | D5 | Med | Open `/mcp` order-injection race on shared demo | **Defer** — same as C4; no approve/refund tool; ownership when MCP tokens set |
 | D6 | Low | Shared-demo approve can finish another judge's case | **Defer** — intentional shared Sandbox; reset is advanced+confirm; rate limits apply |
-| D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Defer** — needs owner `LLM_API_KEY`; keyword column refreshed offline |
+| D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Measured** 2026-11-08 on tip `9dafb70` (Groq `openai/gpt-oss-20b`): exact 41/52, lenient 47/52, policy 52/52, unwarranted 0; all HTTP 200 (400 path unit-tested, not hit live). Judge docs updated; committed `docs/eval/results.json` per-case LLM rows still the 8 Oct artifact until a full JSON refresh is committed |
 | D8 | Soft | Hosted tip ≠ published `dc2c6b5` until redeploy | **Defer** — owner redeploy + `sandbox_verify` / `--ai-e2e-only` |
 | E1 | P1 | Agent finish CTA used `#agents` (MCP docs) not Approve | **Fixed** (`#pending` + blocked-case link) |
 | E2 | P1 | Busy flash plain path; guide hid in-progress state | **Fixed** (flash link + guide watch status) |

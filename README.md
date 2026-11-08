@@ -95,7 +95,7 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox run of tip `e1c510b` (8 Nov 2026, isolated verification machine): 62 pass / 0 fail / 6 webhook SKIP (no public receiver) — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on tip `9dafb70` (8 Nov 2026, isolated verification machine): 62 pass / 0 fail / 6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal; Case M re-proof on the final hosted tip (pending redeploy) |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
@@ -393,37 +393,34 @@ post-purchase messages (EN, Traditional Chinese, Spanish, German, Japanese, plus
 including 7 prompt-injection attempts). Full results, every miss and the limits: **[docs/eval/results.md](docs/eval/results.md)**
 (raw: [results.json](docs/eval/results.json), data: [dataset.json](docs/eval/dataset.json)).
 
-| (LLM: one run `openai/gpt-oss-20b` on Groq, 8 Oct 2026; keyword: tip offline re-run) | LLM | Keyword fallback |
+| (LLM: one run `openai/gpt-oss-20b` on Groq, **2026-11-08**, tip `9dafb70`; keyword: same tip offline) | LLM | Keyword fallback |
 | --- | --- | --- |
-| Exact match, all 3 core fields | 73% (38/52) | 33% (17/52) |
-| Exact match if reason `OTHER` ≈ `UNKNOWN` | 88% (46/52) | 33% (17/52) |
-| Intent accuracy | 94% (49/52) | 33% (17/52) |
-| Injections that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 (was 2 / 7 before the fallback guard) |
-| Keyword `unwarranted_accept` / `missed_accept` | — | 0 / 25 |
-| Latency p50 / p95 | 0.63 s / 1.25 s | — |
-| Estimated cost per message (Groq list price) | $0.00013 | $0 |
+| Exact match, all 3 core fields | 79% (41/52) | 33% (17/52) |
+| Exact match if reason `OTHER` ≈ `UNKNOWN` | 90% (47/52) | 33% (17/52) |
+| Intent / reason / action accuracy | 94% (49/52) / 87% (45/52) / 92% (48/52) | 33% / — / 33% |
+| Policy request-check match (same accept/reject as label) | 100% (52/52) | — |
+| `unwarranted_accept` / `missed_accept` | 0 / 0 | 0 / 25 |
+| Injections (7) that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 |
+| Tokens this eval run (incl. 3 AI e2e calls) | 39,637 in / 15,543 out ≈ **US$0.0076** (Groq list) | $0 |
 
-The model outputs were measured on 8 Oct 2026, before the return-vs-exchange change. On 24 Oct the policy-level rows
-were rescored against the current rules (a return with a stated reason and a size exchange are both acceptable
-requests), with no new model calls: still 0 policy-acceptable requests that should not be, and 0 / 7 injections. The
-keyword column was re-run in full on this tip (deterministic; 17/52 exact, 0 unwarranted). A full LLM re-run with
-today's extractor prompt needs an API key: `python scripts/eval_intent.py`.
+Measured offline against tip `9dafb70` on **2026-11-08**: model `openai/gpt-oss-20b` via Groq, 52 cases, **one run,
+all HTTP 200** (no provider 400 and no keyword fallback on the LLM column). The HTTP 400 → `json_object` retry /
+keyword-fallback path is covered by unit tests on this tip; it was **not hit** in this live eval. Keyword column is
+deterministic on the same tip (17/52 exact, 0 unwarranted, 25 missed_accept). The committed
+[`docs/eval/results.json`](docs/eval/results.json) per-case LLM rows still date from the 8 Oct artifact until a full
+JSON refresh is committed; the judge-facing numbers above are the 2026-11-08 measurement.
 
 The evaluation command requires `LLM_API_KEY` for a model run. It uses the same resilient `ChatJSONClient` as
 production intake (one `json_object` retry on HTTP 400, including Groq `json_validate_failed`, then keyword
-fallback) and records per-case errors instead of aborting the run. For an offline sample without changing the
-committed report, run `python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`.
+fallback) and records per-case errors instead of aborting. For an offline sample without changing the committed
+report, run `python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`.
 A full offline keyword run uses `--keyword-only` without `--limit`.
 
-Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
-convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
-the policy still decides, and only an approval on the audit chain can start a refund (a person's, or the merchant's
-policy's when autonomy is on). Injection detection is heuristic (patterns):
-messages with instruction-like markers are never automated (the policy rejects them and a human reads them), but a
-cleverly worded message can avoid the patterns, so it is not the safety boundary. The keyword column was
-re-run after the **fallback injection guard**: before it, two injections containing the literal word "EXCHANGE" fooled
-the keyword rules. Now, when the LLM is unavailable and a message looks like a prompt injection, the fallback forces
-`UNKNOWN`. The case goes to a human with no Approve button, and the timeline says why. The LLM path is unchanged.
+Small, self-written dataset — indicative, not a benchmark. No output can move money: the policy still decides, and
+only an approval on the audit chain can start a refund (a person's, or the merchant's policy when autonomy is on).
+Injection detection is heuristic (patterns): messages with instruction-like markers are never automated on the
+keyword path (forced `UNKNOWN` → human); the LLM path still needs the other policy checks and a human click with
+autonomy off.
 
 See also [docs/impact-proof.md](docs/impact-proof.md): outcomes by case category from the committed eval artifacts, with
 the three validation levels (test results / human adjudication of specific labels / full human audit, **not done**) kept apart.

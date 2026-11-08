@@ -48,9 +48,16 @@ capture and refund responses provide the monetary source of truth.
 The public demo runs on PayPal **Sandbox**, so no real money moves. On 5 Nov 2026, the published commit
 `dc2c6b5cd40e19c2f859d54a71f06b593c350864` passed all 31 default checks in `scripts/sandbox_verify.py`, including
 a completed refund after human approval, a verified signed webhook, a matching PayPal re-read and zero refund calls
-for a rejected case. A **local Sandbox run** of tip `e1c510b` (8 Nov 2026, isolated verification machine) reported 62 pass / 0 fail /
-6 webhook SKIP (no public receiver), ERROR-retry 4/4 and UNKNOWN recovery 2/2 — that is not a hosted-demo claim.
-**Replace this paragraph with hosted evidence for the final deployed commit** after redeploy.
+for a rejected case. A **local Sandbox run** of tip `9dafb70` (8 Nov 2026, isolated verification machine) reported
+62 pass / 0 fail / 6 webhook SKIP (no public receiver), UNKNOWN 2/2, ERROR-retry 4/4, over-refund 422, and AI e2e
+11/11 — that is not a hosted-demo claim. **Replace this paragraph with hosted evidence for the final deployed
+commit** after redeploy.
+
+Intent extraction (same day, tip `9dafb70`, Groq **`openai/gpt-oss-20b`**, 52 hand-labelled messages, one run, all
+HTTP 200): exact **41/52**, lenient **47/52**, policy request-check **52/52**, `unwarranted_accept` **0**,
+`missed_accept` **0**, injections 7/7 with 0 unwarranted. Keyword fallback: **17/52** exact, 0 unwarranted,
+25 missed_accept. The HTTP 400 recovery path is unit-tested and was not hit in that live eval. Tokens for the eval
+run (including 3 AI e2e calls): 39,637 in / 15,543 out ≈ US$0.0076.
 
 This is a one-merchant prototype. The public demo uses Sandbox orders created by the agent or merchant before the
 return request. A separate private profile can verify and import a pre-existing PayPal Sandbox capture, but it does

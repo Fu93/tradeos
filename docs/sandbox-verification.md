@@ -1,11 +1,19 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
-## Candidate tip — local Sandbox (8 Nov 2026)
+## Candidate tip — local Sandbox + LLM eval (8 Nov 2026)
 
-Tip `e1c510b` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
-0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry
-**4/4** and UNKNOWN recovery **2/2** (1813 unit tests on that tip; later tip adds keyword/judge-guide tests — see
-`git rev-parse HEAD`). That local run is not a hosted-demo claim.
+Tip `9dafb70` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
+0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), UNKNOWN recovery
+**2/2**, ERROR-retry **4/4**, over-refund **422**, and AI e2e **11/11**. That local run is not a hosted-demo claim.
+
+Same day, a full offline LLM eval on tip `9dafb70` with Groq **`openai/gpt-oss-20b`** (52 cases, one run, **all
+HTTP 200**, no 400 / no keyword fallback on the LLM column): exact **41/52** (78.85%), lenient **47/52** (90.38%),
+intent 49/52, reason 45/52, action 48/52, policy request-check **52/52**, `unwarranted_accept` **0**,
+`missed_accept` **0**, injections 7/7 policy-safe with 0 unwarranted. Keyword fallback on the same tip: **17/52**
+exact, unwarranted 0, missed_accept 25. Tokens for that eval run (including 3 AI e2e calls): 39,637 in / 15,543 out
+≈ US$0.0076 at Groq list price. The HTTP 400 → `json_object` retry path is covered by unit tests; it was **not hit**
+in this live eval.
+
 Re-run `scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz`
 `version` equals `git rev-parse HEAD` on this branch. Optional `--ai-e2e-only` covers the live LLM intent path
 and prints the **measured** `llm_chat_completions` count from case extraction metadata (target must have
