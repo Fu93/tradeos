@@ -5,6 +5,8 @@ from app.db import Database
 from app.intent import Extraction, IntentResult, KeywordIntentExtractor
 from app.paypal_client import PayPalError
 from app.paypal_mock import MockPayPalClient
+from app.inbox import _next_step
+from app.views import evidence_a, evidence_summary, paypal_proves, pipeline, result_card
 from app.workflow import RefundNotAllowed, Workflow
 
 
@@ -29,15 +31,78 @@ def test_case_a_full_loop(workflow, paypal):
 
     workflow.approve(case_id)
     case = workflow.db.get_case(case_id)
-    paypal.refund_capture.assert_called_once_with(case["capture_id"], f"tradeos-refund-{case_id}",
-                                                  note_to_payer=case["payer_note"]["text"])
+    paypal.refund_capture.assert_called_once_with(
+        case["capture_id"], f"tradeos-refund-{case_id}", note_to_payer=case["payer_note"]["text"],
+        amount={"currency_code": case["currency"], "value": case["amount"]}, custom_id=case_id)
     assert case["payer_note"]["outcome"] == "REFUND_NOTE" and case["payer_note"]["text"].startswith("This refund of 49.99 USD")
     assert case["note"]["outcome"] == "COMPLETED_NOTE"  # final note only after PayPal COMPLETED
     assert case["status"] == "REFUND_COMPLETED"
     assert case["refund_status"] == "COMPLETED" and case["refund_id"].startswith("MOCK-REFUND")
     assert case["human_decision"] == "APPROVED"
     assert stages(workflow, case_id) == ["payment", "request", "intent", "policy", "human", "note",
-                                       "human", "note", "paypal", "note"]
+                                       "human", "policy", "human", "note", "paypal", "note"]
+
+
+@pytest.mark.parametrize("change", [
+    {"status": "PARTIALLY_REFUNDED"},
+    {"status": "REFUNDED"},
+    {"status": "REVERSED"},
+    {"amount": {"value": "99.99", "currency_code": "USD"}},
+    {"amount": {"value": "49.99", "currency_code": "EUR"}},
+    {"id": "MOCK-OTHER-CAPTURE"},
+])
+def test_approval_refuses_changed_paypal_capture(workflow, paypal, change):
+    case_id = workflow.run_scenario("A")
+    case = workflow.db.get_case(case_id)
+    paypal._mock_wraps.captures[case["capture_id"]].update(change)
+
+    with pytest.raises(RefundNotAllowed, match="manual review"):
+        workflow.approve(case_id)
+
+    after = workflow.db.get_case(case_id)
+    assert after["status"] == "NEEDS_HUMAN" and after["decision"] == "NEEDS_HUMAN"
+    assert after["human_decision"] is None and after["refund_request_id"] is None
+    assert workflow.db.verify_chain(case_id)["ok"]
+    assert after["policy"]["preflight_blocked"] is True
+    assert "Refund re-check blocked" in result_card(workflow.db, after)["title"]
+    assert "PayPal capture or refund policy changed" in _next_step(after)[1]
+    assert "PayPal capture or policy changed" in next(
+        step["detail"] for step in pipeline(workflow.db, after) if step["key"] == "policy")
+    assert any("Refund API NOT CALLED — capture or policy changed" in e["title"]
+               for e in workflow.db.timeline(case_id))
+    paypal.refund_capture.assert_not_called()
+    assert workflow.db.paypal_calls(case_id, "refund_capture") == []
+
+
+def test_approval_recheck_unavailable_preserves_pending_case(workflow, paypal):
+    case_id = workflow.run_scenario("A")
+    paypal.get_capture.side_effect = PayPalError("temporary PayPal outage", 503)
+    with pytest.raises(RefundNotAllowed, match="Could not re-check"):
+        workflow.approve(case_id)
+    case = workflow.db.get_case(case_id)
+    assert case["status"] == "PENDING_APPROVAL" and case["human_decision"] is None
+    paypal.refund_capture.assert_not_called()
+    paypal.get_capture.side_effect = None
+    workflow.approve(case_id)
+    assert workflow.db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+
+
+def test_external_partial_refund_after_preflight_cannot_change_sent_amount(workflow, paypal):
+    case_id = workflow.run_scenario("A")
+    original = paypal._mock_wraps.refund_capture
+
+    def external_refund_first(capture_id, request_id, **kwargs):
+        original(capture_id, "external-after-preflight",
+                 amount={"currency_code": "USD", "value": "10.00"})
+        return original(capture_id, request_id, **kwargs)
+
+    paypal.refund_capture.side_effect = external_refund_first
+    with pytest.raises(PayPalError, match="exceeds what is left"):
+        workflow.approve(case_id)
+    case = workflow.db.get_case(case_id)
+    assert case["status"] == "REFUND_ERROR" and case["refund_id"] is None
+    assert set(paypal._mock_wraps.refunds_by_request) == {"external-after-preflight"}
+    assert workflow.db.verify_chain(case_id)["ok"]
 
 
 def test_case_a_double_approve_is_refused_and_refund_is_idempotent(workflow, paypal):
@@ -125,6 +190,88 @@ def test_pending_refund_is_not_success_until_completed(settings):
     pp.complete_refund(db.get_case(case_id)["refund_id"])
     wf.refresh_refund(case_id)
     assert db.get_case(case_id)["status"] == "REFUND_COMPLETED"
+
+
+@pytest.mark.parametrize("returned_amount", [
+    {"value": "5.00", "currency_code": "USD"},
+    {"value": "49.99", "currency_code": "EUR"},
+    None,
+])
+def test_completed_refund_requires_matching_amount_before_success(workflow, paypal, returned_amount):
+    case_id = workflow.run_scenario("A")
+    original = paypal._mock_wraps.refund_capture
+
+    def altered_response(*args, **kwargs):
+        refund = original(*args, **kwargs)
+        if returned_amount is None:
+            refund.pop("amount", None)
+        else:
+            refund["amount"] = returned_amount
+        return refund
+
+    paypal.refund_capture.side_effect = altered_response
+    workflow.approve(case_id)
+    case = workflow.db.get_case(case_id)
+    assert case["status"] == "REFUND_AMOUNT_REVIEW"
+    assert case["refund_status"] == "COMPLETED" and case["refund_id"]
+    assert (case.get("note") or {}).get("outcome") != "COMPLETED_NOTE"
+    assert result_card(workflow.db, case)["kind"] == "warn"
+    assert next(s for s in pipeline(workflow.db, case) if s["key"] == "paypal")["state"] == "waiting"
+    assert next(e for e in evidence_a(workflow.db, case) if e["label"] == "Refund")["ok"] is False
+    assert next(e for e in evidence_summary(workflow.db, case) if e["label"] == "PayPal refund")["ok"] is None
+    assert paypal_proves(workflow.db, case)["refund"]["ok"] is None
+    assert _next_step(case)[0] == "needs_you"
+    assert workflow.db.verify_chain(case_id)["ok"]
+    workflow.execute_refund(case_id)  # existing PayPal ID, no second money-moving call
+    assert paypal.refund_capture.call_count == 1
+
+    # A fresh PayPal GET with the exact amount can resolve the review without another refund call.
+    result = workflow.reconcile(case_id)
+    assert result["ok"] and result["advanced"]
+    case = workflow.db.get_case(case_id)
+    assert case["status"] == "REFUND_COMPLETED"
+    assert case["note"]["outcome"] == "COMPLETED_NOTE"
+    assert paypal.refund_capture.call_count == 1
+    assert workflow.db.verify_chain(case_id)["ok"]
+
+
+def test_pending_refund_with_wrong_completed_amount_stays_under_review(settings):
+    db = Database(settings.db_path)
+    db.init(reset=True)
+    pp = MockPayPalClient(refund_status="PENDING")
+    wf = Workflow(db, settings, KeywordIntentExtractor(), paypal=pp)
+    wf.seed_demo()
+    case_id = wf.run_scenario("A")
+    wf.approve(case_id)
+    refund_id = db.get_case(case_id)["refund_id"]
+    pp.complete_refund(refund_id)
+    refund = next(r for r in pp.refunds_by_request.values() if r["id"] == refund_id)
+    refund["amount"] = {"value": "5.00", "currency_code": "USD"}
+    result = wf.reconcile(case_id)
+    assert not result["ok"] and not result["advanced"]
+    assert db.get_case(case_id)["status"] == "REFUND_AMOUNT_REVIEW"
+    assert (db.get_case(case_id).get("note") or {}).get("outcome") != "COMPLETED_NOTE"
+
+
+def test_status_only_webhook_cannot_clear_wrong_amount_review(workflow, paypal):
+    case_id = workflow.run_scenario("A")
+    original = paypal._mock_wraps.refund_capture
+
+    def altered_response(*args, **kwargs):
+        refund = original(*args, **kwargs)
+        refund["amount"] = {"value": "5.00", "currency_code": "USD"}
+        return refund
+
+    paypal.refund_capture.side_effect = altered_response
+    workflow.approve(case_id)
+    refund_id = workflow.db.get_case(case_id)["refund_id"]
+    workflow.record_webhook({"id": "WH-AMOUNT-REVIEW", "event_type": "PAYMENT.CAPTURE.REFUNDED",
+                             "resource": {"id": refund_id, "status": "COMPLETED"}}, "SUCCESS")
+    case = workflow.db.get_case(case_id)
+    assert case["status"] == "REFUND_AMOUNT_REVIEW"
+    assert case["webhook_status"] == "VERIFIED"
+    assert (case.get("note") or {}).get("outcome") != "COMPLETED_NOTE"
+    assert workflow.db.verify_chain(case_id)["ok"]
 
 
 def test_refund_error_is_recorded_and_visible(settings):

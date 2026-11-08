@@ -160,7 +160,7 @@ def cap(value: Any) -> Any:
     if isinstance(value, str):
         return value if len(value) <= TEXT_CAP else value[:TEXT_CAP] + "…"
     if isinstance(value, dict):
-        return {k: cap(v) for k, v in value.items()}
+        return {k: ("[redacted]" if k == "return_pass" else cap(v)) for k, v in value.items()}
     if isinstance(value, list):
         return [cap(v) for v in value]
     return value

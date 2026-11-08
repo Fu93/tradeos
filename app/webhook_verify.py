@@ -40,9 +40,13 @@ class SelfVerifyUnavailable(Exception):
 
 
 def cert_url_allowed(url: str) -> bool:
-    p = urlparse(url or "")
-    host = (p.hostname or "").lower()
-    return (p.scheme == "https" and p.port in (None, 443) and host.endswith(ALLOWED_HOST_SUFFIX)
+    try:
+        p = urlparse(url or "")
+        host = (p.hostname or "").lower()
+        port_ok = p.port in (None, 443)
+    except ValueError:  # invalid port or malformed IPv6 from an untrusted webhook header
+        return False
+    return (p.scheme == "https" and port_ok and host.endswith(ALLOWED_HOST_SUFFIX)
             and p.path.startswith(CERT_PATH_PREFIX) and not p.username and not p.password)
 
 

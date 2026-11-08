@@ -35,8 +35,9 @@ class TimeoutAfterRefund(MockPayPalClient):
     """PayPal processed the refund but the HTTP response was lost (timeout) — once."""
     lose_reply = True
 
-    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None):
-        r = super().refund_capture(capture_id, request_id, note_to_payer)
+    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None, amount=None,
+                       custom_id=None):
+        r = super().refund_capture(capture_id, request_id, note_to_payer, amount=amount, custom_id=custom_id)
         if self.lose_reply:
             self.lose_reply = False
             raise PayPalError("Could not reach PayPal: ReadTimeout")
@@ -178,6 +179,16 @@ def test_F2_new_id_only_after_paypal_confirms_failed(tmp_path):
     pp.refunds_by_request[f"tradeos-refund-{cid}"]["status"] = "PENDING"  # PayPal GET disagrees
     with pytest.raises(RefundNotAllowed, match="not FAILED"):
         wf.retry_failed_refund(cid)
+    assert len(pp.refunds_by_request) == 1
+
+
+def test_F2_retry_refuses_changed_capture_amount(tmp_path):
+    pp, db, wf, cid = _failed_case(tmp_path)
+    case = db.get_case(cid)
+    pp.captures[case["capture_id"]]["amount"]["value"] = "99.99"
+    with pytest.raises(RefundNotAllowed, match="amount, or currency changed"):
+        wf.retry_failed_refund(cid)
+    assert db.get_case(cid)["refund_request_id"] == f"tradeos-refund-{cid}"
     assert len(pp.refunds_by_request) == 1
 
 

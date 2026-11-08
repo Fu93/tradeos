@@ -49,11 +49,11 @@ def test_refund_unknown_chain_is_narrated():
     out = narrate(ev("Checked with PayPal after the unanswered refund call: capture is REFUNDED — the request "
                      "went through. Recovering the refund with the same PayPal-Request-Id.",
                      {"capture_status": "REFUNDED"}, stage="paypal"))
-    assert "went through" in out
+    assert "reconciled" in out and "refund record" in out
     out = narrate(ev("Checked with PayPal after the unanswered refund call: capture is COMPLETED, no refund "
                      "seen yet. Retry is safe: it reuses the same PayPal-Request-Id.",
                      {"capture_status": "COMPLETED"}, stage="paypal"))
-    assert "retry stays safe" in out
+    assert "UNKNOWN" in out and "retry stays safe" not in out
     assert "re-sent once" in narrate(ev("Recovered the refund from PayPal (reconcile): same PayPal-Request-Id "
                                         "re-sent once, PayPal returned the refund it had already made",
                                         {"refund_id": "R1", "status": "COMPLETED", "trigger": "reconcile"},

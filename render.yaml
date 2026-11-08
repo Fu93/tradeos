@@ -9,7 +9,7 @@ services:
     healthCheckPath: /healthz
     envVars:
       - key: PYTHON_VERSION
-        value: 3.12.8
+        value: 3.12.15
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
@@ -23,6 +23,10 @@ services:
       - key: LLM_MODEL
         value: openai/gpt-oss-20b
       - key: PAYPAL_WEBHOOK_ID          # from scripts/register_webhook.py (not secret, but env-only)
+        sync: false
+      - key: TRADEOS_OPERATOR_TOKEN    # optional private Sandbox; username is "operator"
+        sync: false
+      - key: TRADEOS_MCP_TOKEN         # required with operator token if MCP remains enabled
         sync: false
       - key: CHANNEL3_API_KEY           # optional: real products for agents (find_product); empty = demo sneakers only
         sync: false

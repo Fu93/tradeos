@@ -2,6 +2,7 @@
 
     LLM_API_KEY=... python scripts/eval_intent.py            # full run (throttled for Groq free tier)
     python scripts/eval_intent.py --keyword-only               # no API key needed
+    python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample
 
 Reads docs/eval/dataset.json (hand-labelled), runs the production extractors from
 app/intent.py unchanged, and writes docs/eval/results.json + docs/eval/results.md.
@@ -19,6 +20,7 @@ import json
 import os
 import statistics
 import sys
+import tempfile
 import time
 from datetime import date, datetime, timezone
 from decimal import Decimal
@@ -37,6 +39,7 @@ DATASET = ROOT / "docs" / "eval" / "dataset.json"
 OUT_JSON = ROOT / "docs" / "eval" / "results.json"
 OUT_MD = ROOT / "docs" / "eval" / "results.md"
 FIELDS = ("intent", "reason", "requested_action")
+DATASET_FIELDS = ("id", "lang", "message", "expected", "injection")
 LANG_ORDER = ("en", "zh-Hant", "es", "de", "ja", "mixed")
 # Groq price for openai/gpt-oss-20b, USD per 1M tokens (https://console.groq.com/docs/model/openai/gpt-oss-20b,
 # read 2026-10-08). Update if Groq changes it.
@@ -115,28 +118,51 @@ def score(rows: list[dict], key: str) -> dict:
     return out
 
 
+def same_dataset(messages: list[dict], rows: list[dict]) -> bool:
+    """Saved model outputs may be reused only for the exact inputs and labels they were scored against."""
+    return len(messages) == len(rows) and all(
+        all(message.get(field) == row.get(field) for field in DATASET_FIELDS)
+        for message, row in zip(messages, rows)
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--keyword-only", action="store_true",
                     help="re-run only the keyword fallback; LLM results already in results.json are kept")
     ap.add_argument("--delay", type=float, default=8.0, help="seconds between LLM calls (Groq free-tier friendly)")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--output-dir", type=Path, help="write results outside docs/eval (required with --limit)")
     ap.add_argument("--rescore", action="store_true", help="recompute metrics from saved results.json (no API calls)")
     args = ap.parse_args()
-    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    if args.rescore:
-        old = json.loads(OUT_JSON.read_text())
-        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
-              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"),
-              policy_scored_at=now)
-        return
-
+    if args.limit < 0:
+        ap.error("--limit must be non-negative")
+    if args.limit and args.output_dir is None:
+        ap.error("--limit requires --output-dir so a sample cannot replace the full report")
+    if args.limit and args.output_dir.resolve() == OUT_JSON.parent.resolve():
+        ap.error("--output-dir must differ from docs/eval for a sample run")
+    out_json = args.output_dir / "results.json" if args.output_dir else OUT_JSON
+    out_md = args.output_dir / "results.md" if args.output_dir else OUT_MD
+    if not args.rescore and not args.keyword_only and not os.environ.get("LLM_API_KEY"):
+        ap.error("LLM_API_KEY is required for a model run; use --keyword-only for an offline run")
     data = json.loads(DATASET.read_text())
     msgs = data["messages"][: args.limit or None]
+    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    if args.rescore:
+        old = json.loads(out_json.read_text())
+        if not same_dataset(msgs, old["rows"]):
+            ap.error("saved results do not match the current dataset; run a fresh evaluation")
+        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
+              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"),
+              policy_scored_at=now, out_json=out_json, out_md=out_md)
+        return
+
     kw = KeywordIntentExtractor()
-    if args.keyword_only and OUT_JSON.exists():
-        old = json.loads(OUT_JSON.read_text())
-        if old.get("model") and [r["id"] for r in old["rows"]] == [m["id"] for m in msgs]:
+    if args.keyword_only and out_json.exists():
+        old = json.loads(out_json.read_text())
+        if old.get("model") and not same_dataset(msgs, old["rows"]):
+            ap.error("saved model results do not match the current dataset; run a fresh model evaluation")
+        if old.get("model"):
             history = old.get("keyword_history") or []
             history.append({"run_at": old.get("keyword_run_at") or old["run_at"], "exact": old["keyword"]["exact"],
                             "unwarranted_accept": old["keyword"]["unwarranted_accept"],
@@ -144,9 +170,10 @@ def main() -> None:
             for r, m in zip(old["rows"], msgs):
                 r["keyword"] = kw.extract(m["message"]).result.model_dump()
             write(old["rows"], old["model"], old["run_at"], old["llm_meta"]["retries_429"],
-                  keyword_run_at=now, keyword_history=history, policy_scored_at=now)
+                  keyword_run_at=now, keyword_history=history, policy_scored_at=now,
+                  out_json=out_json, out_md=out_md)
             return
-    use_llm = not args.keyword_only and bool(os.environ.get("LLM_API_KEY"))
+    use_llm = not args.keyword_only
     model = os.environ.get("LLM_MODEL") or DEFAULT_LLM_MODEL
     rec = RecordingTransport()
     llm = LLMIntentExtractor(os.environ.get("LLM_API_KEY", ""), os.environ.get("LLM_BASE_URL") or DEFAULT_LLM_BASE_URL,
@@ -162,6 +189,8 @@ def main() -> None:
             rec.last = None
             t0 = time.perf_counter()
             ex = llm.extract(m["message"])
+            if ex.llm_unavailable:
+                raise RuntimeError(f"{m['id']}: model call failed; evaluation stopped without writing results ({ex.note})")
             row["llm"] = ex.result.model_dump()
             row["llm_wall_s"] = round(time.perf_counter() - t0, 3)
             row["llm_http_s"] = round(rec.last["latency_s"], 3) if rec.last else None
@@ -173,12 +202,15 @@ def main() -> None:
             print(f"{m['id']} {m['lang']:7} kw={'✓' if row['keyword'] == m['expected'] else '✗'} "
                   f"llm={'✓' if row['llm'] == m['expected'] else '✗'} {row['llm_http_s']}s", flush=True)
         rows.append(row)
-    write(rows, model if llm else None, datetime.now(timezone.utc).replace(microsecond=0).isoformat(), rec.retries_429)
+    write(rows, model if llm else None, datetime.now(timezone.utc).replace(microsecond=0).isoformat(), rec.retries_429,
+          out_json=out_json, out_md=out_md)
 
 
 def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
           keyword_run_at: str | None = None, keyword_history: list | None = None,
-          policy_scored_at: str | None = None) -> None:
+          policy_scored_at: str | None = None, out_json: Path | None = None, out_md: Path | None = None) -> None:
+    out_json = out_json or OUT_JSON
+    out_md = out_md or OUT_MD
     llm = "llm" in rows[0]
     results = {"run_at": run_at, "keyword_run_at": keyword_run_at or run_at, "keyword_history": keyword_history or [],
                # When the policy-level rows were last computed from the saved outputs (the policy engine is the code
@@ -213,17 +245,41 @@ def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
             "cost_per_1000_msgs_usd": round(1000 * statistics.mean(cost), 4), "price_source": PRICE_SOURCE,
             "language_detect": {"correct": lang_ok, "n": len(lang_rows)},
         }
-    OUT_JSON.write_text(json.dumps(results, ensure_ascii=False, indent=1))
-    OUT_MD.write_text(render_md(results))
-    print(f"wrote {OUT_JSON.relative_to(ROOT)} and {OUT_MD.relative_to(ROOT)}")
+    json_text = json.dumps(results, ensure_ascii=False, indent=1)
+    md_text = render_md(results, os.path.relpath(DATASET, out_md.parent))
+    staged: list[Path] = []
+    try:
+        staged.append(_stage_report(out_json, json_text))
+        staged.append(_stage_report(out_md, md_text))
+        os.replace(staged[0], out_json)
+        os.replace(staged[1], out_md)
+    finally:
+        for path in staged:
+            path.unlink(missing_ok=True)
+    print(f"wrote {out_json} and {out_md}")
 
 
-def render_md(res: dict) -> str:
+def _stage_report(path: Path, content: str) -> Path:
+    """Write beside the target so a failed write never truncates an existing report."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    staged = Path(name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            stream.write(content)
+    except BaseException:
+        staged.unlink(missing_ok=True)
+        raise
+    return staged
+
+
+def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
     has_llm = "llm" in res
     k, L, rows = res["keyword"], res.get("llm"), res["rows"]
+    model_label = f"model: `{res['model']}` via Groq" if has_llm else "keyword fallback only; no model call"
     lines = ["# Intent extraction eval — LLM vs keyword fallback", "",
              f"Run: {res['run_at']} · dataset: {res['dataset_size']} hand-labelled messages "
-             f"([dataset.json](dataset.json)) · model: `{res['model']}` via Groq · script: `scripts/eval_intent.py`.", "",
+             f"([dataset.json]({dataset_link})) · {model_label} · script: `scripts/eval_intent.py`.", "",
              "Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards "
              "to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).", ""]
     scored = res.get("policy_scored_at") or res["run_at"]

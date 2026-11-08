@@ -34,14 +34,22 @@ More orders placed by agents means more returns requested by agents, and a refun
 
 ### Judge quick start — about 3 minutes
 
-1. The service runs on Render's Starter plan and does not sleep; if a page is slow, the AI call or PayPal is usually the cause — wait a few seconds and refresh once. The shared demo starts empty after every restart: **Fill the inbox** (top of the dashboard, or on the Inbox page) adds five real requests in one click.
-2. Click **Run Case A — eligible return (refund)**. This creates a real PayPal Sandbox order and capture.
-3. Click **Approve & refund**. The Refund API is not called before this human approval.
-4. Read the four evidence cards: **PayPal refund**, **Signed PayPal notice**, **Checked against PayPal**, and the audit-chain badge.
-5. For the contrast, run **Case B** (policy rejects, Refund API = 0) or the **Chinese (Traditional)** preset (exchange, no refund).
-6. **AI agents:** scroll to **AI agents (MCP)** and click **Run agent scenes**. A progress page shows a scripted MCP client asking for three returns, call by call, through the same tools any agent gets at `/mcp`: the honest one waits for you to approve it, the prompt injection and the late order end with Refund API calls = 0. There is no approve or refund tool for agents ([how it works](docs/agent-gateway.md)).
-7. **A live model:** click **Adversarial: “get $500”**. A real model is told to get 500 USD back by any wording and any tool, and chooses its own calls. Its transcript shows what it tried, and the order shows Refund API calls = 0. One run a minute (the model provider's rate limit).
-8. **The merchant's view:** open **Inbox** (top left). Everything you just ran, from customers and from AI agents, sorted by what needs you, with the next step in plain words, PayPal Refund API calls and audit-chain status per request. "Refunds an AI agent approved" is computed from the cases, not a label. The inbox updates itself while it is open (a new request flashes as it lands), and **Export CSV** downloads every row that matches the current filter and search (all pages, not only the 20 on screen).
+1. Click **Run agent scenes** in the judge guide. A **scripted MCP client** (not a model) places three Sandbox orders and asks for returns through the same tools offered at `/mcp`. The honest request waits for a person; the prompt-injection and late-order requests are blocked. No agent tool can approve or refund ([how it works](docs/agent-gateway.md)).
+2. Open **Honest return** from the run or the judge guide. Use **See intent reading** to inspect the extracted intent, merchant summary and actual extractor shown on the case; then click **Approve & refund**. Check the PayPal refund ID, signed notice, reconciliation and audit-chain cards. Until this click, Refund API calls = 0.
+3. Open **Blocked request** from the judge guide. It shows the refusal and Refund API calls = 0. The **Inbox** then shows both requests and the next merchant action. For an unscripted contrast, the **Adversarial: “get $500”** button runs a real model; its tool choices vary and the provider allows about one run per minute.
+
+This is a shared demo; the main path never requires **Reset demo**, which archives other visitors' active cases. The service may have been reseeded after a restart. If an agent run is already in progress, open its progress link; if the agent gateway is unavailable, use **Case A → Approve & refund → PayPal evidence**. The top ribbon identifies the environment as **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so a restart or deploy may reseed the shared demo cases.
+
+For a second agent path, expand **Try a merchant-created Sandbox order** on the dashboard. It creates a new captured
+demo order first and displays a short-lived return pass once. A buyer agent can then submit a request using the order
+ID and pass, but still cannot approve or refund. This does not import an external store order or verify buyer identity;
+the [agent gateway guide](docs/agent-gateway.md) explains the boundary.
+
+The optional **private persistent Sandbox profile** also lets a merchant import an earlier PayPal Sandbox capture
+for this configured demo product. TradeOS checks the payment with PayPal and refuses a duplicate capture before
+issuing the pass; the merchant attests the buyer and product. See [existing capture intake](docs/existing-order-intake.md).
+
+Before submission, record the deployed commit, the `/healthz` version, a fresh Sandbox verification and the final video together using the [submission evidence checklist](docs/submission-evidence.md). Historical checks below are evidence for their named commits, not proof of this working tree.
 
 The dashboard keeps the complete path visible: **AI intent → Python policy → human approval → PayPal → webhook → reconciliation**.
 The top ribbon and badges identify the environment: **Hackathon Demo · PayPal Sandbox · No real money**. The Starter service has no persistent disk (SQLite lives in `/tmp`), so data is ephemeral: a restart or deploy may reseed the shared demo cases.
@@ -87,7 +95,7 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the live demo (last run on tip `1acae45`, 19 Oct 2026 15:38–15:40 BST: 31/31 PASS; earlier same-day re-run on `5325db7`: 31/31), [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the published demo (`dc2c6b5`, 5 Nov 2026 23:19 GMT: 31/31 PASS; [complete log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); earlier checks and limits in [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers; uncommitted changes in this working tree |
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last run on tip `1acae45`, 19 Oct 2026: 16/16; earlier same-day on `5325db7`: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
@@ -117,7 +125,7 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 
 | Tool | Where | What it does in TradeOS |
 |---|---|---|
-| **AG Grid** (Community 36.2, vendored: the strict CSP allows no CDN) | Returns inbox, `/inbox` | The merchant's queue. The page is a server-rendered table that AG Grid upgrades, so it works without JavaScript. **Live:** while the tab is visible it re-reads the rows every 15 s; `getRowId` keeps the reader's sort, filter, search and page, changed cells flash and a new request flashes as it lands (an agent run in another tab shows up here), and the counts above follow. **Triage:** "Needs you", "Safety reviews" and "From AI agents" (external filter), search across the visible and hidden text (quick filter), safety cases marked on the row (`rowClassRules`), the next step per row in plain words. **Export CSV** of every row that matches the current filter and search (all pages, in the sort order shown), with every cell that starts with `= + - @` prefixed so a spreadsheet opens it as text (buyer and agent names come from outside). Cells are built with `textContent` only; Enter on a row opens the case; secondary columns hide at phone width. |
+| **AG Grid** (Community 36.2, vendored: the strict CSP allows no CDN) | Returns inbox, `/inbox` | The merchant's queue. The page is a server-rendered table that AG Grid upgrades, so it works without JavaScript. Server pages expose older requests; global search finds cases by ID, buyer, message or status; AI-agent orders are sorted by when a return was requested, not when the order was placed. **Live:** while the tab is visible it re-reads the current server page every 15 s; `getRowId` keeps the reader's sort, filter and grid page, changed cells flash and a new request flashes as it lands, and the counts above follow. **Triage:** "Needs you", "Safety reviews" and "From AI agents" filter the current server page; its quick filter covers visible and hidden text, safety cases are marked on the row, and each row gives the next step. **Export CSV** includes matching rows on the current server page (all grid pages, in the sort order shown), with cells starting `= + - @` prefixed so a spreadsheet opens them as text. Cells use `textContent`; Enter opens the case; secondary columns hide at phone width. |
 | **Channel3** | MCP tool `find_product`, live agent goal "Shop, buy, return" | Real products for agents to buy in the Sandbox. The server looks the product up again by id: title, category and price come from Channel3, never from the agent, and the category reaches the Safety Gate ([details](docs/agent-gateway.md)). |
 | **Render** | The hosted demo | Starter web service from the `render.yaml` Blueprint. `/healthz` reports the commit it serves, the PayPal mode, the autonomy switches, the Safety Gate rule version, whether the AI safety layer runs and whether agents get `find_product`, so a deploy and the demo's claims can be checked from outside ([Deploy](#deploy)). |
 
@@ -152,7 +160,7 @@ connection snippets and the demo scripts: [`docs/agent-gateway.md`](docs/agent-g
 
 1. A customer writes in any language; an LLM only extracts intent into a strict schema.
 2. Deterministic Python policy decides eligibility. Then the merchant's own autonomy setting decides who approves: a person, or — when the merchant has opted in and the amount is inside their limit — the policy itself. Only an approval recorded on the audit chain lets the PayPal Refund API be called.
-3. Success is shown only when PayPal says COMPLETED, confirmed by a signed webhook and GET reconciliation, with a hash-chained audit trail.
+3. A completed refund is shown only after PayPal reports `COMPLETED` with the approved amount and currency. Signed webhooks and GET reconciliation provide further confirmation when available; the audit trail records the evidence.
 
 TradeOS is an AI-powered operational bridge for cross-border commerce, built for the **PayPal AI Hackathon**.
 It sits *after* payment: it turns an unstructured customer request into a completed merchant operation —
@@ -400,6 +408,11 @@ requests), with no new model calls: still 0 policy-acceptable requests that shou
 keyword column was re-run in full (it is deterministic). A full LLM re-run with today's extractor prompt needs an API
 key: `python scripts/eval_intent.py`.
 
+The evaluation command requires `LLM_API_KEY` for a model run and stops if the provider fails, so a keyword fallback
+cannot be recorded as a new model result. For an offline sample without changing the committed report, run
+`python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`. A full offline keyword
+run uses `--keyword-only` without `--limit`.
+
 Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
 convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
 the policy still decides, and only an approval on the audit chain can start a refund (a person's, or the merchant's
@@ -476,7 +489,7 @@ is answerable from the audit trail rather than from a comment.
 | `POST /v2/checkout/orders` | Create a USD 49.99 order, `intent: CAPTURE`, paid with a PayPal **sandbox test card** (`payment_source.card`) so it captures without a buyer login |
 | `POST /v2/checkout/orders/{id}/capture` | Capture (fallback path when card capture is unavailable: the dashboard shows the buyer approve link, PayPal redirects back, TradeOS captures) |
 | `GET /v2/payments/captures/{id}` | Real capture status / amount / currency → policy engine input (incl. what PayPal says is already refunded); also used by “Check against PayPal” |
-| `POST /v2/payments/captures/{id}/refund` | Full refund (no amount) with an idempotent `PayPal-Request-Id` derived from the case ID, plus `note_to_payer` (grounded customer note, ≤ 255 chars). Failure demo: `PayPal-Mock-Response` negative-testing header (sandbox only) |
+| `POST /v2/payments/captures/{id}/refund` | Refund with the exact case amount and currency (verified against the PayPal capture before approval), an idempotent `PayPal-Request-Id` derived from the case ID, and `note_to_payer` (grounded customer note, ≤ 255 chars). Failure demo: `PayPal-Mock-Response` negative-testing header (sandbox only) |
 | `GET /v2/payments/refunds/{id}` | Refresh a `PENDING` refund and check the refund against PayPal (pending is never shown as success) |
 | `GET /v1/notifications/certs/…` (`paypal-cert-url`) | PayPal's signing certificate for self-verifying webhooks (cached) |
 | `POST /v1/notifications/verify-webhook-signature` | Fallback webhook verification when the self-check cannot run |
@@ -529,12 +542,28 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   | Unsigned / bad signature | Unverified path; no money-state change | `tests/test_webhook_state.py::test_unverified_completed_changes_nothing` |
   | Dedupe store wiped on ephemeral restart | Pre-restart cases are gone too; a replayed id finds no case and is ignored; residual shrinks only with a persistent disk (not enabled on the hosted demo) | Disclosed; no test claims otherwise |
 
-- **Unknown refund outcome.** If the refund call times out or PayPal returns 5xx, the case becomes
+- **Unknown refund outcome.** Before the Refund API call, TradeOS persists the request ID and an UNKNOWN state, so a
+  process crash after PayPal moves money but before TradeOS logs the reply remains visible and is checked on restart.
+  If the refund call
+  times out or PayPal returns 5xx, the case remains
   `REFUND_OUTCOME_UNKNOWN` ("checking with PayPal" — never "no money moved", which is shown only when PayPal answered
-  with an error). TradeOS GETs the capture in the background (5 s timeout) and refuses a retry (409) until that check
-  finishes. If PayPal shows the capture refunded, TradeOS re-sends the same request once (same `PayPal-Request-Id`, same
-  body), PayPal returns the refund it already made, and that is recorded. A verified webhook for this case's capture or a
-  "Check against PayPal" does the same. A manual retry also reuses the same `PayPal-Request-Id`, so it cannot refund twice.
+  with an error). TradeOS GETs the capture in the background (5 s timeout). In real Sandbox mode, an unknown refund
+  is never re-sent: PayPal documents request-ID idempotency, but publishes no retention period for the refund endpoint,
+  so a replay could create another refund ([idempotency reference](https://developer.paypal.com/api/rest/reference/idempotency/),
+  [Payments v2 schema](https://developer.paypal.com/api/payments/v2/schema.json)). A person can inspect PayPal and
+  enter the Refund ID in TradeOS. TradeOS uses **GET refund** only and accepts it only if PayPal returns the same ID,
+  this case's capture link and `custom_id`, and the approved amount and currency. Otherwise the case stays UNKNOWN.
+  New single refunds carry the case ID as `custom_id`; partial refunds carry the batch ID. Earlier refunds without
+  this marker cannot be linked through this strict check and still need external manual review.
+  In mock mode only, a matching capture, verified webhook, or manual check can replay the same request within a
+  six-hour simulation window. Evidence exports label
+  an unlogged UNKNOWN call as unknown, never as proof that the Refund API was not called. Mixed partial refunds follow
+  the same pre-send UNKNOWN rule. A successful HTTP reply with no refund ID, no recognized refund status, or a link
+  to another capture also stays UNKNOWN; it cannot prove a completed refund or free a batch's balance.
+- **Completed refund amount.** A PayPal `COMPLETED` status is not shown as a successful refund until the reported
+  value and currency match the approved amount. A missing or different amount moves the case to
+  `REFUND_AMOUNT_REVIEW`; the refund ID is kept, no second refund is sent, and the merchant can re-check PayPal.
+  A later GET or signed webhook can resolve the review when it confirms the amount for that same refund ID.
 - **Refund FAILED at PayPal.** A refund PayPal reports `FAILED` gets its own card ("needs a human"). Re-sending the same
   `PayPal-Request-Id` would only return the same failed refund, so that is refused; "Retry with a new request" first
   GETs the refund (PayPal must confirm `FAILED`), re-runs the policy on a fresh `GET` of the capture, requires the
@@ -551,7 +580,9 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   mock and are verified on Sandbox with `docs/sandbox-verification.md`.
 - **Hash-chained audit trail.** Every timeline record (policy result, human decision, refund results, reconcile
   results), every PayPal call result, every webhook outcome and every change of the case's status, policy decision,
-  human decision and refund state also gets an entry in an append-only `audit_chain` table:
+  human decision and refund state also gets an entry in an append-only `audit_chain` table. Mixed-order item and
+  refund-batch rows are snapshotted in the same transaction as each write; a kept database's first snapshot is
+  labelled `backfilled`, since it cannot prove changes made before the upgrade:
   `entry_hash = SHA-256(sorted-key JSON of {case_id, seq, type, ts, payload, prev_hash})`, one chain per case, starting
   from a fixed genesis value (64 zeros). The case page shows "Audit trail intact: N entries, head <hash>" or "BROKEN at
   entry k"; `GET /cases/{id}/audit/verify` returns the recomputation as JSON, including the case state folded from
@@ -584,9 +615,20 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   Every response carries CSP (`script-src 'self'`, no inline code), HSTS, `frame-ancestors 'none'` / X-Frame-Options,
   nosniff and Referrer-Policy; state-changing POSTs from another origin (Origin/Referer check) get 403, the webhook is
   exempt. Requests with neither header (scripts, curl) are allowed because they aren't a browser CSRF vector.
-- **Open demo by design:** money actions (approve / decline / refund / buyer capture / demo reset) are not gated by a shared secret. Rate limits, the deterministic policy hard guard, per-case locks, and the hash-chained audit trail remain. This is a shared hackathon demo on PayPal Sandbox (no real money). Do not treat it as a multi-tenant production system.
-- The PayPal client refuses any base URL that is not the sandbox unless `TRADEOS_ALLOW_LIVE=1`, so a mistyped `PAYPAL_BASE_URL` cannot point a
-  card payload or a refund at the live API.
+- **Open demo by default:** money actions (approve / decline / refund / buyer capture / demo reset) are public on the
+  shared hackathon Sandbox. For a private Sandbox, set `TRADEOS_OPERATOR_TOKEN` to a random value of at least 24
+  characters on an HTTPS deployment. The browser then prompts for HTTP Basic credentials: username `operator`,
+  password the token. The gate covers the dashboard, case evidence, APIs and action endpoints; `/healthz`, PayPal
+  webhooks and static assets remain public. `/mcp` keeps its own Bearer credentials: configure `TRADEOS_MCP_TOKEN` or
+  `TRADEOS_MCP_AGENTS` with distinct tokens of at least 24 characters, or set `TRADEOS_MCP=0`. Startup refuses an
+  unprotected agent gateway. This shared credential is a private-demo gate, not user accounts, roles or multi-tenancy.
+  Rate limits, the deterministic policy hard guard, per-case locks and the hash-chained audit trail also remain.
+  SQLite workflow locks and audit writes currently require one service process per database; startup refuses a
+  second process using the same database. The inbox filters, counts and pages in SQLite before reading row evidence.
+  The dashboard loads 14 recent tabs and at most 50 other cases needing attention; older cases remain in the inbox.
+- The PayPal client accepts only official PayPal HTTPS API hosts. Live hosts additionally require
+  `TRADEOS_ALLOW_LIVE=1`; sandbox test-card orders are always blocked on live hosts. A refund response
+  without a valid refund ID and status is treated as an unknown outcome until PayPal can be reconciled.
 - **Not covered:** acting on disputes (read-only view only), live-Sandbox proof of partial refunds beyond the two seeded mixed scenarios (Case M, Case M2), automatic handling of reversals/declines (logged only), certificate-chain
   validation of `paypal-cert-url` (host allow-list + signature + validity dates only), production (live) PayPal.
 
@@ -622,6 +664,10 @@ automated workflow; route to a human".
 With `TRADEOS_RESET_ON_START=1` every start archives the existing cases and seeds a fresh demo (on Render without a persistent disk
 the filesystem is empty after a restart anyway). Refunds still `PENDING` or with an unknown outcome in a kept database are
 reconciled against PayPal in the background at startup.
+For a private single-instance deployment with a mounted data directory, set `TRADEOS_PERSISTENT_DATA_DIR` to that
+directory, place `TRADEOS_DB_PATH` inside it, set `TRADEOS_RESET_ON_START=0`, and set `TRADEOS_OPERATOR_TOKEN`.
+Startup refuses inconsistent settings. This checks configuration; the hosting platform must actually mount a
+persistent disk.
 
 ### Environment variables
 
@@ -636,9 +682,11 @@ reconciled against PayPal in the background at startup.
 | `LLM_BASE_URL` | no | `https://api.groq.com/openai/v1` | any OpenAI-compatible API |
 | `LLM_MODEL` | no | `openai/gpt-oss-20b` | |
 | `TRADEOS_DB_PATH` | no | `tradeos.db` | |
+| `TRADEOS_PERSISTENT_DATA_DIR` | no | — | opt-in private single-instance profile: absolute mounted directory containing `TRADEOS_DB_PATH`; requires reset off and operator token |
 | `TRADEOS_RESET_ON_START` | no | `1` | archive old cases and reseed demo data at boot |
 | `TRADEOS_ALLOW_LIVE` | no | `0` | the PayPal client refuses any base URL that is not the sandbox unless this is explicitly `1` |
 | `PUBLIC_BASE_URL` | no | `RENDER_EXTERNAL_URL` or `http://localhost:8000` | PayPal return URL for the approval fallback |
+| `TRADEOS_OPERATOR_TOKEN` | no | — | optional private Sandbox gate: HTTP Basic username `operator`, token as password (24+ characters); requires HTTPS and MCP credentials or `TRADEOS_MCP=0` |
 | `RETURN_WINDOW_DAYS` | no | `30` | |
 | `FREE_TEXT_MAX_CHARS` | no | `500` | free-text length cap |
 | `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_HOUR`, `RATE_LIMIT_GLOBAL_PER_HOUR` | no | `5`, `30`, `200` | runs that create sandbox orders (per IP / global) |
@@ -710,6 +758,9 @@ repository, so the workflow does not verify anything today:** its verify job is 
 green "Deploy verify" run is not a live check. The live checks for the current commit were run by hand with the script
 (see [`docs/sandbox-verification.md`](docs/sandbox-verification.md) for the last run).
 
+For a private Sandbox, also set the repository secret `TRADEOS_OPERATOR_TOKEN` to the deployed token. Both the smoke
+test and the audit-head download use it; a missing or wrong value makes the live verification fail.
+
 Autonomy must be **off** on the hosted demo: the script fails (before creating any case) if `/healthz` reports
 `auto_enabled` or `auto_exchange_enabled` true, unless `--allow-autonomy` / `ALLOW_AUTONOMY=1` is given for a deliberate
 local run (deploy-verify never passes it). It reads the target's autonomy setting from `/healthz` and asserts the behaviour that goes with it — with autonomy
@@ -750,6 +801,8 @@ credits the merchant's policy rather than a human. Exit code 0 = every check pas
 
 **Illustrative cost model — assumptions configurable.** These are assumptions (see the `COST_*` env vars),
 not a measured or verified saving.
+The [merchant task-study protocol](docs/merchant-task-study.md) defines how to measure handling time and decision
+errors with independent participants; no study results are claimed yet.
 
 ## Deploy
 
@@ -764,15 +817,37 @@ Secrets are entered in the Render dashboard. For the webhook, run `scripts/regis
 URL and set `PAYPAL_WEBHOOK_ID`. The service has no persistent disk, so `/tmp` is wiped on restart or deploy (Starter does not sleep); webhooks for cases from before a
 restart are acknowledged and ignored.
 
+For a separate private Sandbox service, select [`render-persistent.yaml`](render-persistent.yaml) as the Blueprint
+file and set distinct operator and MCP tokens plus Sandbox credentials. It mounts `/var/data`, stores SQLite there,
+and keeps cases and audit chains across restarts (`TRADEOS_RESET_ON_START=0`). The remote MCP gateway requires its
+own Bearer token; the browser uses the separate HTTP Basic operator token. Create a new PayPal Sandbox webhook for
+that service URL.
+The current public demo and its ephemeral database are unchanged; this profile does not migrate old `/tmp` data.
+The persistent disk is a single-instance store, not high availability or a backup. Keep external backups before
+relying on retained evidence. This remains Sandbox-only and does not provide user accounts or merchant isolation.
+For a consistent backup while the app is running, use
+`python scripts/backup_db.py /var/data/tradeos.db /tmp/tradeos-YYYYMMDD.db`. The tool uses SQLite's online backup
+API, checks database integrity and every case's audit chain, prints the snapshot's SHA-256, and refuses to replace
+an existing backup. Move the resulting file to protected offsite storage promptly; `/tmp` is ephemeral and the
+backup contains case data. Compare retained audit heads when investigating a suspected chain rewrite, and test a
+restore before relying on this profile for long-lived records.
+After a restore, run `python scripts/check_audit_anchor.py /var/data/tradeos.db audit-heads-<commit>.json` with a
+previously downloaded CI artifact. It verifies that every anchored case still has the same head at the recorded
+sequence and that its current full chain is intact. The snapshot must be retained outside the database; a new
+snapshot made from the restored database cannot prove its history.
+
 ## Scope
 
 Out of scope for this MVP: product sourcing, scraping, multichannel commerce, live supplier chat, logistics/customs/
 invoicing, autonomous financial decisions, acting on disputes (they are shown read-only), live (production) PayPal, real fulfilment, extra agents.
 Partial refunds exist only for seeded mixed orders and are live-Sandbox-proven for two seeded scenarios only: Case M (one partial refund) and Case M2 (two partial refunds on one capture) (see `docs/partial-refunds.md`). The customer note is a
 translated refund/decision note, not a chatbot.
+The [existing-order intake design](docs/existing-order-intake.md) describes the buyer/order authorization needed before
+agents can request returns for orders they did not create through this demo gateway. It is a proposal, not an implemented endpoint.
 
 Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces).
-Money actions are open by design for this shared hackathon demo (rate limits + policy hard guards + audit chain).
+Money actions remain open by default for this shared hackathon demo; the optional operator gate makes a Sandbox
+deployment private with one shared credential. Rate limits, policy hard guards and the audit chain still apply.
 This is PayPal Sandbox only; it is not a production system for real merchant funds.
 
 ## License

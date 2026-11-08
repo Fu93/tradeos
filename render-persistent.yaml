@@ -1,0 +1,47 @@
+# Optional private, single-instance Sandbox profile. Select this Blueprint file explicitly.
+# A persistent disk keeps SQLite across restarts; it is not a multi-instance/HA database.
+services:
+  - type: web
+    name: tradeos-private
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.lock
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /healthz
+    disk:
+      name: tradeos-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.15
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_BASE_URL
+        value: https://api-m.sandbox.paypal.com
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: LLM_MODEL
+        value: openai/gpt-oss-20b
+      - key: CHANNEL3_API_KEY
+        sync: false
+      - key: TRADEOS_OPERATOR_TOKEN  # required: random 24+ characters
+        sync: false
+      - key: TRADEOS_MCP
+        value: "1"                 # private buyer-agent gateway, with its own Bearer token
+      - key: TRADEOS_MCP_TOKEN      # required: distinct from the operator token, random 24+ characters
+        sync: false
+      - key: TRADEOS_TRUST_CF_CONNECTING_IP
+        value: "1"
+      - key: TRADEOS_PERSISTENT_DATA_DIR
+        value: /var/data
+      - key: TRADEOS_DB_PATH
+        value: /var/data/tradeos.db
+      - key: TRADEOS_RESET_ON_START
+        value: "0"

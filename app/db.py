@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS cases (
     webhook_json TEXT,
     error TEXT,
     refund_request_id TEXT,             -- PayPal-Request-Id of the current refund attempt (idempotency key)
-    completed_via TEXT,                 -- refund_api / webhook / reconcile / recovery: who confirmed COMPLETED
+    completed_via TEXT,                 -- refund_api / webhook / reconcile / recovery / verified_get
     archived_at TEXT,                   -- demo reset archives cases (never DROPs them)
     shipping_minor TEXT                 -- mixed orders: shipping in minor units (the order lines carry the rest)
 );
@@ -137,8 +137,8 @@ CREATE INDEX IF NOT EXISTS idx_disputes_case ON disputes(case_id);
 
 -- Mixed orders (scenario M): one row per order line, and one row per refund/exchange BATCH. A batch is one PayPal
 -- partial refund (or an exchange-only approval) computed by code from the line prices (integer minor units).
--- Every state change of either is also written to the case's hash chain via audit(); these rows are the queryable
--- view, the chain is the evidence. Nothing here is read by the legacy single-refund path.
+-- Every write to either is snapshotted in the same transaction on the case's hash chain; these rows are the
+-- queryable view, the chain is the evidence. Nothing here is read by the legacy single-refund path.
 CREATE TABLE IF NOT EXISTS case_items (
     case_id TEXT NOT NULL REFERENCES cases(id),
     line_no INTEGER NOT NULL,
@@ -184,9 +184,19 @@ CREATE INDEX IF NOT EXISTS idx_case_batches_refund ON case_batches(refund_id);
 -- Secondary lookups: find_case_by (every webhook delivery), timeline, paypal_calls, webhook_events
 -- and verify_chain's coverage check would otherwise scan the whole table on every call.
 CREATE INDEX IF NOT EXISTS idx_cases_capture_id ON cases(capture_id);
+-- One real PayPal capture may back only one case, including archived cases. Mock IDs are local
+-- counters and can repeat across separate offline clients sharing a test/demo database.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cases_one_case_per_capture ON cases(capture_id)
+    WHERE capture_id IS NOT NULL AND capture_id NOT LIKE 'MOCK-%';
 CREATE INDEX IF NOT EXISTS idx_cases_refund_id ON cases(refund_id);
 CREATE INDEX IF NOT EXISTS idx_cases_order_id ON cases(order_id);
+CREATE INDEX IF NOT EXISTS idx_cases_active_created ON cases(created_at DESC)
+    WHERE archived_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_cases_active_status_created ON cases(status, created_at DESC)
+    WHERE archived_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_audit_events_case ON audit_events(case_id, id);
+CREATE INDEX IF NOT EXISTS idx_audit_agent_requests ON audit_events(case_id, ts)
+    WHERE stage='agent' AND title GLOB 'Return requested*';
 CREATE INDEX IF NOT EXISTS idx_paypal_calls_case ON paypal_calls(case_id, id);
 CREATE INDEX IF NOT EXISTS idx_webhook_events_case ON webhook_events(case_id);
 """
@@ -198,6 +208,7 @@ CHAINED_CASE_FIELDS = ("status", "decision", "human_decision", "approval_source"
                        "refund_request_id", "capture_id", "archived_at")
 JSON_COLUMNS = ("intent_json", "policy_json", "refund_json", "assist_json", "extraction_json", "note_json",
                 "duplicate_json", "webhook_json", "payer_note_json")
+IMMUTABLE_ITEM_FIELDS = ("case_id", "line_no", "sku", "name", "unit_minor", "qty", "tax_unit_minor", "returnable")
 
 # Statuses that are final: a completed refund, a policy rejection, a human decline and an arranged
 # exchange. update_case refuses to move a case OUT of one of them (same-status writes stay legal, so
@@ -247,6 +258,7 @@ class Database:
     def connect(self) -> Iterator[sqlite3.Connection]:
         conn = sqlite3.connect(self.path, timeout=10)
         conn.row_factory = sqlite3.Row
+        conn.create_function("casefold", 1, lambda value: str(value or "").casefold(), deterministic=True)
         conn.execute("PRAGMA foreign_keys = ON")
         if self.path != ":memory:":
             # WAL: readers stop blocking the writer, so the dashboard's chain verification and the
@@ -284,6 +296,8 @@ class Database:
                 conn.execute("ALTER TABLE webhook_events ADD COLUMN verify_method TEXT")
         self._backfill_chain()
         self._backfill_case_state()
+        self._backfill_item_state()
+        self._backfill_batch_state()
         if reset:
             self.archive_all()
 
@@ -386,21 +400,123 @@ class Database:
             row = conn.execute("SELECT * FROM cases WHERE id=?", (case_id,)).fetchone()
         return _decode_case(row) if row else None
 
+    def get_case_with_chain(self, case_id: str) -> tuple[dict | None, dict, dict]:
+        """Read a case and verify its chain from one snapshot for authorization checks."""
+        with self._read_snapshot() as conn:
+            row = conn.execute("SELECT * FROM cases WHERE id=?", (case_id,)).fetchone()
+            verdict, state = self._verify_snapshot(conn, case_id)
+        return (_decode_case(row) if row else None), verdict, state
+
     def list_cases(self, status: str | None = None, scenario: str | None = None,
-                   include_archived: bool = False) -> list[dict]:
-        sql, args = "SELECT * FROM cases WHERE 1=1", []
+                   include_archived: bool = False, *, label: str | None = None,
+                   statuses: tuple[str, ...] | None = None, exclude_status: str | None = None,
+                   exclude_id: str | None = None, limit: int | None = None) -> list[dict]:
+        """Return cases in newest-first order; callers rendering pages should set a limit."""
+        sql = "SELECT * FROM cases WHERE 1=1"
+        args: list[Any] = []
         if not include_archived:
             sql += " AND archived_at IS NULL"
         if status:
             sql += " AND status=?"
             args.append(status)
+        if statuses is not None:
+            if not statuses:
+                return []
+            sql += " AND status IN (" + ",".join("?" for _ in statuses) + ")"
+            args.extend(statuses)
+        if exclude_status:
+            sql += " AND status!=?"
+            args.append(exclude_status)
         if scenario:
             sql += " AND scenario=?"
             args.append(scenario)
+        if label:
+            sql += " AND label=?"
+            args.append(label)
+        if exclude_id:
+            sql += " AND id!=?"
+            args.append(exclude_id)
         sql += " ORDER BY created_at DESC, rowid DESC"
+        if limit is not None:
+            if limit < 0:
+                raise ValueError("case limit must not be negative")
+            sql += " LIMIT ?"
+            args.append(limit)
         with self.connect() as conn:
             rows = conn.execute(sql, args).fetchall()
         return [_decode_case(r) for r in rows]
+
+    def count_cases(self) -> int:
+        with self.connect() as conn:
+            return int(conn.execute("SELECT COUNT(*) FROM cases WHERE archived_at IS NULL").fetchone()[0])
+
+    def unresolved_refund_case_ids(self, statuses: tuple[str, ...]) -> list[str]:
+        """Include archived cases; only IDs are needed before each bounded PayPal reconciliation."""
+        marks = ",".join("?" for _ in statuses)
+        with self.connect() as conn:
+            rows = conn.execute("SELECT id FROM cases WHERE refund_status='PENDING' "
+                                f"OR status IN ({marks})", statuses).fetchall()
+        return [row["id"] for row in rows]
+
+    @staticmethod
+    def _inbox_filter(agent_no_request: str, query: str) -> tuple[str, list[Any]]:
+        where = ("c.archived_at IS NULL AND c.status NOT IN ('NEW', 'AGENT_ORDERED') "
+                 "AND NOT (c.scenario='G' AND c.customer_message=?)")
+        args: list[Any] = [agent_no_request]
+        term = query.strip().casefold()
+        if term:
+            fields = ("id", "label", "customer_name", "customer_message", "status", "scenario")
+            # instr() treats '%' and '_' literally, as the former Python substring search did.
+            where += " AND instr(casefold(" + " || ' ' || ".join(
+                f"coalesce(c.{column}, '')" for column in fields) + "), ?) > 0"
+            args.append(term)
+        return where, args
+
+    def inbox_count(self, agent_no_request: str, query: str = "") -> int:
+        where, args = self._inbox_filter(agent_no_request, query)
+        with self.connect() as conn:
+            return int(conn.execute(f"SELECT COUNT(*) FROM cases c WHERE {where}", args).fetchone()[0])
+
+    def inbox_cases(self, agent_no_request: str, limit: int | None = 200, offset: int = 0,
+                    query: str = "") -> list[dict]:
+        """Fetch only the requested page; agent orders sort by their first return request time."""
+        where, args = self._inbox_filter(agent_no_request, query)
+        sql = ("WITH requested AS (SELECT case_id, MIN(ts) AS requested_at FROM audit_events "
+               "WHERE stage='agent' AND title GLOB 'Return requested*' GROUP BY case_id) "
+               "SELECT c.*, coalesce(r.requested_at, c.created_at) AS requested_at FROM cases c "
+               f"LEFT JOIN requested r ON r.case_id=c.id WHERE {where} "
+               "ORDER BY requested_at DESC, c.created_at DESC, c.rowid DESC")
+        if limit is not None:
+            sql += " LIMIT ? OFFSET ?"
+            args.extend((limit, offset))
+        elif offset:
+            sql += " LIMIT -1 OFFSET ?"
+            args.append(offset)
+        with self.connect() as conn:
+            return [_decode_case(row) for row in conn.execute(sql, args).fetchall()]
+
+    def inbox_counts(self, agent_no_request: str, waiting: tuple[str, ...],
+                     closed: tuple[str, ...]) -> dict[str, int]:
+        """Counts for the whole inbox in one SQL query, including pages not currently loaded."""
+        where, args = self._inbox_filter(agent_no_request, "")
+        waiting_marks = ",".join("?" for _ in waiting)
+        closed_marks = ",".join("?" for _ in closed)
+        bucket = ("CASE WHEN c.status='ERROR' AND coalesce(c.order_status,'')!='OUTCOME_UNKNOWN' "
+                  "AND c.capture_id IS NULL THEN 'closed' "
+                  f"WHEN c.status IN ({waiting_marks}) THEN 'waiting' "
+                  f"WHEN c.status IN ({closed_marks}) THEN 'closed' ELSE 'needs_you' END")
+        sql = (f"SELECT count(*) AS total, "
+               f"sum(CASE WHEN bucket='needs_you' THEN 1 ELSE 0 END) AS needs_you, "
+               f"sum(CASE WHEN bucket='needs_you' AND scenario='G' THEN 1 ELSE 0 END) AS needs_you_agents, "
+               f"sum(CASE WHEN bucket='waiting' THEN 1 ELSE 0 END) AS waiting, "
+               f"sum(CASE WHEN bucket='closed' THEN 1 ELSE 0 END) AS closed, "
+               f"sum(CASE WHEN scenario='G' THEN 1 ELSE 0 END) AS agents, "
+               f"sum(CASE WHEN scenario='G' AND approval_source IS NOT NULL "
+               f"AND approval_source!='' AND approval_source!='human' THEN 1 ELSE 0 END) AS agent_approved "
+               f"FROM (SELECT c.scenario, c.approval_source, {bucket} AS bucket FROM cases c WHERE {where})")
+        with self.connect() as conn:
+            row = conn.execute(sql, [*waiting, *closed, *args]).fetchone()
+        return {key: int(row[key] or 0) for key in row.keys()}
 
     def latest_case(self, scenario: str, label: str | None = None) -> dict | None:
         """One indexed seek instead of list_cases + a Python filter (the dashboard renders several
@@ -433,6 +549,7 @@ class Database:
                              "returnable) VALUES (?,?,?,?,?,?,?,?)",
                              (case_id, r["line_no"], r["sku"], r["name"], r["unit_minor"], r["qty"],
                               r["tax_unit_minor"], int(r["returnable"])))
+                self._chain_item(conn, case_id, r["line_no"])
 
     def get_items(self, case_id: str) -> list[dict]:
         rows = self._rows("SELECT * FROM case_items WHERE case_id=? ORDER BY line_no", (case_id,))
@@ -442,9 +559,30 @@ class Database:
         return rows
 
     def update_item(self, case_id: str, line_no: int, **fields: Any) -> None:
+        if forbidden := set(fields) & set(IMMUTABLE_ITEM_FIELDS):
+            raise ValueError(f"order line identity and prices are immutable: {', '.join(sorted(forbidden))}")
         sets = ",".join(f"{k}=?" for k in fields)
         with _chain_lock, self.connect() as conn:
-            conn.execute(f"UPDATE case_items SET {sets} WHERE case_id=? AND line_no=?", (*fields.values(), case_id, line_no))
+            cur = conn.execute(f"UPDATE case_items SET {sets} WHERE case_id=? AND line_no=?",
+                               (*fields.values(), case_id, line_no))
+            if cur.rowcount:
+                self._chain_item(conn, case_id, line_no)
+
+    def _chain_item(self, conn: sqlite3.Connection, case_id: str, line_no: int, backfilled: bool = False) -> None:
+        row = conn.execute("SELECT * FROM case_items WHERE case_id=? AND line_no=?",
+                           (case_id, line_no)).fetchone()
+        if row is not None:
+            self._chain_append(conn, case_id, "item:snapshot", utcnow(), dict(row), None, None, backfilled)
+
+    def _backfill_item_state(self) -> None:
+        """Anchor current lines of kept orders once; pre-upgrade edits remain unprovable."""
+        with _chain_lock, self.connect() as conn:
+            have = {(r[0], json.loads(r[1])["line_no"]) for r in conn.execute(
+                "SELECT case_id,payload_json FROM audit_chain WHERE type='item:snapshot'")}
+            for row in conn.execute("SELECT case_id,line_no FROM case_items").fetchall():
+                key = (row["case_id"], row["line_no"])
+                if key not in have:
+                    self._chain_item(conn, *key, backfilled=True)
 
     def insert_batch(self, **fields: Any) -> None:
         now = utcnow()
@@ -454,12 +592,32 @@ class Database:
         marks = ",".join("?" for _ in fields)
         with _chain_lock, self.connect() as conn:
             conn.execute(f"INSERT INTO case_batches ({cols}) VALUES ({marks})", tuple(fields.values()))
+            self._chain_batch(conn, fields["id"])
 
     def update_batch(self, batch_id: str, **fields: Any) -> None:
         fields["updated_at"] = utcnow()
         sets = ",".join(f"{k}=?" for k in fields)
         with _chain_lock, self.connect() as conn:
-            conn.execute(f"UPDATE case_batches SET {sets} WHERE id=?", (*fields.values(), batch_id))
+            cur = conn.execute(f"UPDATE case_batches SET {sets} WHERE id=?", (*fields.values(), batch_id))
+            if cur.rowcount:
+                self._chain_batch(conn, batch_id)
+
+    def _chain_batch(self, conn: sqlite3.Connection, batch_id: str, backfilled: bool = False) -> None:
+        """Chain the complete queryable batch state in the same transaction as its write."""
+        row = conn.execute("SELECT * FROM case_batches WHERE id=?", (batch_id,)).fetchone()
+        if row is not None:
+            self._chain_append(conn, row["case_id"], "batch:snapshot",
+                               utcnow() if backfilled else row["updated_at"], dict(row),
+                               None, None, backfilled)
+
+    def _backfill_batch_state(self) -> None:
+        """Anchor kept batches once on upgrade; earlier row history cannot be proven retroactively."""
+        with _chain_lock, self.connect() as conn:
+            have = {json.loads(r[0])["id"] for r in conn.execute(
+                "SELECT payload_json FROM audit_chain WHERE type='batch:snapshot'")}
+            for row in conn.execute("SELECT id FROM case_batches").fetchall():
+                if row["id"] not in have:
+                    self._chain_batch(conn, row["id"], backfilled=True)
 
     def get_batch(self, batch_id: str) -> dict | None:
         rows = self._rows("SELECT * FROM case_batches WHERE id=?", (batch_id,))
@@ -488,6 +646,13 @@ class Database:
             row = dict(conn.execute("SELECT * FROM audit_events WHERE id=?", (cur.lastrowid,)).fetchone())
             self._chain_append(conn, case_id, f"audit:{stage}", ts, chain.audit_row_payload(row),
                                "audit_events", cur.lastrowid)
+
+    def agent_request_times(self) -> dict[str, str]:
+        """First return-request time per agent order, fetched in one query for inbox ordering."""
+        with self.connect() as conn:
+            rows = conn.execute("SELECT case_id, MIN(ts) AS requested_at FROM audit_events "
+                                "WHERE stage='agent' AND title GLOB 'Return requested*' GROUP BY case_id")
+            return {row["case_id"]: row["requested_at"] for row in rows}
 
     # -- hash chain (append-only) ---------------------------------------------
     @staticmethod
@@ -547,6 +712,15 @@ class Database:
                 "ORDER BY a.case_id").fetchall()
         return [{"case_id": r["case_id"], "seq": r["seq"], "head": r["entry_hash"]} for r in rows]
 
+    def extends_anchor(self, case_id: str, seq: int, expected_head: str) -> bool:
+        """Check an externally retained head against one consistent snapshot of the current chain."""
+        with self._read_snapshot() as conn:
+            verdict, _ = self._verify_snapshot(conn, case_id)
+            if not verdict["ok"]:
+                return False
+            row = conn.execute("SELECT entry_hash FROM audit_chain WHERE case_id=? AND seq=?", (case_id, seq)).fetchone()
+            return row is not None and row["entry_hash"] == expected_head
+
     def chain_entries(self, case_id: str) -> list[dict]:
         with self.connect() as conn:
             return [dict(r) for r in conn.execute("SELECT * FROM audit_chain WHERE case_id=? ORDER BY seq",
@@ -586,15 +760,19 @@ class Database:
     def verify_chain(self, case_id: str) -> dict:
         """Recompute every hash; report the first broken link (1-based seq).
 
-        Dashboard-facing: the result is memoized against the chain tip, because the dashboard
-        re-verifies on every render while the chain is append-only. The tip probe and the (cached)
-        verdict come from the same snapshot. The refund gate does NOT go through here — _guard_refund
-        uses verify_and_fold, which always re-reads, so out-of-app tampering is still caught where
-        it matters even when it leaves the chain tip untouched."""
+        Dashboard-facing: single-item cases are memoized against the chain tip;
+        mixed cases are always re-verified so an out-of-app edit to an item or
+        batch row cannot hide behind the same tip. Money gates use the uncached
+        verify_and_fold path regardless of case type."""
         with self._read_snapshot() as conn:
             tip = self._tip_from(conn, case_id)
             cached = self._chain_cache.get(case_id)
-            if cached is not None and cached[0] == tip:
+            # Batch rows are queryable state covered by snapshots. A direct SQLite
+            # edit can change one without changing the chain tip, so mixed cases
+            # must verify afresh even on dashboard reads.
+            has_mixed_state = (conn.execute("SELECT 1 FROM case_batches WHERE case_id=? LIMIT 1", (case_id,)).fetchone()
+                               or conn.execute("SELECT 1 FROM case_items WHERE case_id=? LIMIT 1", (case_id,)).fetchone())
+            if not has_mixed_state and cached is not None and cached[0] == tip:
                 return cached[1]
             result, _state = self._verify_snapshot(conn, case_id)
         if len(self._chain_cache) > 500:
@@ -613,6 +791,9 @@ class Database:
         """The full verification, running on the caller's snapshot connection. Returns (result, state)."""
         prev, n_back = chain.GENESIS, 0
         state: dict = {}
+        latest_items: dict[int, dict] = {}
+        item_baselines: dict[int, tuple] = {}
+        latest_batches: dict[str, dict] = {}
 
         def broken(e, k, reason):
             return {"ok": False, "case_id": case_id, "entries": len(entries), "broken_at": k, "reason": reason,
@@ -643,6 +824,20 @@ class Database:
                 return broken(e, k, "entry content does not match its hash"), state
             if e["type"] == "case:update":
                 state.update(payload)
+            elif e["type"] == "item:snapshot":
+                if (not isinstance(payload, dict) or payload.get("case_id") != case_id
+                        or not isinstance(payload.get("line_no"), int)):
+                    return broken(e, k, "item snapshot has invalid identity"), state
+                fixed = tuple(payload.get(field) for field in IMMUTABLE_ITEM_FIELDS)
+                baseline = item_baselines.setdefault(payload["line_no"], fixed)
+                if fixed != baseline:
+                    return broken(e, k, "item identity, price or returnability changed after creation"), state
+                latest_items[payload["line_no"]] = payload
+            elif e["type"] == "batch:snapshot":
+                if (not isinstance(payload, dict) or payload.get("case_id") != case_id
+                        or not isinstance(payload.get("id"), str)):
+                    return broken(e, k, "batch snapshot has invalid identity"), state
+                latest_batches[payload["id"]] = payload
             src = chain.SOURCE_PAYLOAD.get(e["source_table"] or "")
             if src is not None:
                 row = src_rows.get((e["source_table"], e["source_id"]))
@@ -660,6 +855,20 @@ class Database:
                 if (table, r["id"]) not in chained:
                     return broken(None, len(entries) + 1,
                                   f"record {table}#{r['id']} is missing from the chain"), state
+        live_items = {r["line_no"]: dict(r) for r in conn.execute("SELECT * FROM case_items WHERE case_id=?",
+                                                                 (case_id,))}
+        if live_items.keys() != latest_items.keys():
+            return broken(None, len(entries) + 1, "item rows and chained snapshots differ"), state
+        for line_no, row in live_items.items():
+            if chain.normalize(row) != latest_items[line_no]:
+                return broken(None, len(entries) + 1, f"item {line_no} differs from chained snapshot"), state
+        live_batches = {r["id"]: dict(r) for r in conn.execute("SELECT * FROM case_batches WHERE case_id=?",
+                                                                  (case_id,))}
+        if live_batches.keys() != latest_batches.keys():
+            return broken(None, len(entries) + 1, "batch rows and chained snapshots differ"), state
+        for batch_id, row in live_batches.items():
+            if chain.normalize(row) != latest_batches[batch_id]:
+                return broken(None, len(entries) + 1, f"batch {batch_id} differs from chained snapshot"), state
         return {"ok": True, "case_id": case_id, "entries": len(entries), "broken_at": None, "reason": None,
                 "head": prev, "backfilled": n_back}, state
 

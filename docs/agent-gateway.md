@@ -18,6 +18,27 @@ agent-originated case then waits for a person at the merchant, even with `AUTO_E
 | `get_case_status` | Reads the outcome: policy decision and reasons, who approved, PayPal refund id and status, Refund API call count, audit-chain verification, and a plain-words `next_step` that never calls a refund done before PayPal reports COMPLETED. While a payment waits for the buyer, `buyer_approval_url` is the PayPal link to hand them. | No |
 | approve / decline / refund | **Not offered.** Only a person on the dashboard (or the merchant's own autonomy policy, for non-agent cases) approves. | — |
 
+### A merchant-created Sandbox order
+
+The dashboard's **Try a merchant-created Sandbox order** form creates and captures a new demo order before an agent
+acts. If PayPal confirms the capture, its response shows the TradeOS order ID and a 30-minute return pass. Hand both
+to an MCP client: `request_return` and `get_case_status` accept an optional `return_pass` argument. The pass is
+required for this order, while agent-placed orders work as before. Only its SHA-256 digest is kept in the case's audit
+chain; the raw pass is shown once, in a no-store response. One order accepts one return request; subsequent requests
+do not re-run policy. When a verified agent credential makes the request, only that credential can read the result
+through MCP, including after the pass expires. The pass always expires for new requests; an anonymous agent needs
+an unexpired pass for reads too. The merchant can still see the case on the dashboard.
+
+This is a **new PayPal Sandbox demo order**, not an import of an older store order. Possession of the pass is the only
+demo authorization and does not verify the buyer's identity. See [existing-order intake](existing-order-intake.md)
+for the work required before making that production claim.
+
+On a **private, operator-gated deployment with persistent SQLite**, the merchant may instead import a pre-existing
+PayPal Sandbox capture through the dashboard. TradeOS checks it with the connected merchant's PayPal credentials,
+requires the configured demo sneaker amount/currency and an unrefunded completed status, and blocks reuse of that
+capture across cases. The merchant then receives the same return pass. The merchant attests the buyer and product;
+this does not verify a store order or buyer identity. The public shared demo does not expose this form.
+
 ```mermaid
 flowchart LR
   AG["Buyer's AI agent"] -- "request_return (MCP)" --> REQ["Agent request<br/>on the hash chain"]
@@ -35,7 +56,9 @@ flowchart LR
 
 ## What is guaranteed, and where it is tested
 
-All of the following are asserted in [`tests/test_agent_gateway.py`](../tests/test_agent_gateway.py). The suite
+The gateway properties below are asserted in [`tests/test_agent_gateway.py`](../tests/test_agent_gateway.py); merchant
+pass and capture-import paths are covered by [`tests/test_merchant_order_pass.py`](../tests/test_merchant_order_pass.py)
+and [`tests/test_existing_capture_import.py`](../tests/test_existing_capture_import.py). The original gateway suite
 was also mutation-checked: removing each defence below makes at least one test fail.
 
 | Property | How |
@@ -45,7 +68,7 @@ was also mutation-checked: removing each defence below makes at least one test f
 | The agent cannot set the amount | The refund is PayPal's whole capture (no `amount` sent), and the policy reads amount, currency, status and date from `GET /v2/payments/captures/{id}`. A message claiming "500 USD" changes nothing. |
 | Prompt injection, a late order and a safety report end with Refund API calls = 0 | Same policy, injection heuristic and Safety Gate as the dashboard; `approve()` is refused afterwards too. |
 | No re-rolls | Only an `AGENT_ORDERED` case is evaluated. A second `request_return` on the same order returns the first outcome without another LLM call or PayPal read. |
-| An agent sees only gateway orders | Any other id, including a real dashboard case, is "not found". Archived orders too. |
+| An agent sees only authorized agent cases | Gateway orders need their placing credential when configured; merchant-created and imported Sandbox cases need their return pass for the first request. Afterward the verified request owner may read by credential after the pass expires. Any other dashboard case or archived order is "not found". |
 | An agent sees only its own orders | An order placed with a per-agent token belongs to that credential. Any other caller, including one with no token, gets the same "no agent order" message as an unknown id, so a refusal never confirms that an id exists. Without this, agent B could read agent A's order and file the one allowed request on it, locking A's buyer out. Orders placed without a credential (the open demo) stay open to every caller. |
 | Nothing is truncated | A message over the 500-character limit is refused, as on the dashboard. Cutting it would hide whatever came after the cut (a fire, an injury) from the Safety Gate. |
 | Failures are reported as failures | An order PayPal could not complete is a tool error, not an order. A request on an order with no capture yet says the buyer must approve the payment first. After the buyer approves, the order waits for the agent's request; it is never evaluated on placeholder text. |
@@ -217,8 +240,8 @@ refund requests through TradeOS's `request_return`, where the policy decides and
   Accountability above).
 - **One request per order cuts both ways.** It stops an agent from rephrasing until it gets a yes, and it also
   means a buyer cannot correct a first request through the agent. Follow-ups go to a person at the merchant.
-- **Demo orders are Sandbox only.** In production, orders would come from the merchant's store, and the gateway
-  would look up an order the buyer actually placed instead of offering `place_demo_order`.
+- **Order data is Sandbox only.** Private capture import verifies a PayPal payment but does not connect a store order
+  or verify that the labelled buyer purchased the attested product. A production gateway needs those store records.
 - **One merchant, open demo.** Like the rest of TradeOS, there are no merchant accounts yet, and on Render the
   SQLite database is wiped on every restart or deploy.
 - **The Channel3 integration is lightly tested against the real API.** Offline, it is covered by a mock built from Channel3's published OpenAPI schema (`httpx.MockTransport`). On 2026-10-25 it was also tested against the real Channel3 API on the hosted demo: one search, one Sandbox purchase and one safety-gated return (one run each), plus one live-AI "Shop, buy, return" run (the model chose a 50.00 USD sneaker, bought it in the Sandbox and requested an ordinary size return: policy ELIGIBLE, waiting for a person, 0 refund calls; that run did not exercise the Safety Gate). That is one run each, not a measurement. Not covered: Safety Gate false positives (or misses) on real traffic with real Channel3 products; prices in any currency other than USD (a product with no in-stock USD offer is not offered); anything beyond the PayPal Sandbox.

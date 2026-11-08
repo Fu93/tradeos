@@ -185,6 +185,38 @@ def test_the_dashboard_strip_reads_only_the_cases_table(site, monkeypatch):
     assert inbox.inbox_summary(rows)["needs_you_agents"] == 1
 
 
+def test_inbox_page_does_not_load_all_cases_or_all_agent_request_times(site, monkeypatch):
+    client, wf = site()
+    client.post("/demo/run/A", follow_redirects=False)
+
+    def expensive(*args, **kwargs):
+        raise AssertionError("inbox fetched all cases instead of its SQL page")
+
+    monkeypatch.setattr(wf.db, "list_cases", expensive)
+    monkeypatch.setattr(wf.db, "agent_request_times", expensive)
+    data = client.get("/api/inbox").json()
+    assert data["summary"]["total"] == 1 and len(data["rows"]) == 1
+
+
+def test_inbox_search_treats_sql_wildcards_as_literal_text(site):
+    client, _ = site()
+    case_id = client.post("/cases/free", data={"message": "Need refund for 50% wear"},
+                          follow_redirects=False).headers["location"].split("=")[1]
+    assert [row["id"] for row in client.get("/api/inbox?q=50%25").json()["rows"]] == [case_id]
+    assert client.get("/api/inbox?q=50_").json()["matched_total"] == 0
+
+
+def test_database_summary_matches_each_row_bucket(site):
+    client, wf = site()
+    a = client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1]
+    client.post("/demo/run/B", follow_redirects=False)
+    order = wf.agents.place_order("Maria", agent="Shop assistant")
+    wf.agents.submit_request(order, DEMO_MESSAGE, agent="Shop assistant", on_behalf_of="Maria")
+    assert inbox.inbox_db_summary(wf) == inbox.inbox_summary(inbox.inbox_rows(wf, None, evidence=False))
+    client.post(f"/cases/{a}/approve")
+    assert inbox.inbox_db_summary(wf) == inbox.inbox_summary(inbox.inbox_rows(wf, None, evidence=False))
+
+
 # found by the logic review ---------------------------------------------------------------------------------------
 from app.config import Settings as _Settings  # noqa: E402
 from app.intent import Extraction, IntentResult  # noqa: E402
@@ -274,8 +306,48 @@ def test_the_counts_cover_every_request_even_when_the_table_is_cut(site, monkeyp
     data = client.get("/api/inbox").json()
     assert len(data["rows"]) == 2 and data["summary"]["total"] == 3 and data["summary"]["needs_you"] == 3
     page = client.get("/inbox").text
-    assert "Showing the newest 2 of 3 requests" in page and ">3<" in page.replace("<strong>3</strong>", ">3<")
-    assert set(ids) >= {r["id"] for r in data["rows"]}
+    assert "Showing requests 1–2 of 3" in page and ">3<" in page.replace("<strong>3</strong>", ">3<")
+    assert 'href="/inbox?page=2"' in page and 'data-api-url="/api/inbox?page=1"' in page
+    older = client.get("/api/inbox?page=2").json()
+    assert older["page"] == 2 and older["pages"] == 2 and len(older["rows"]) == 1
+    assert {r["id"] for r in data["rows"] + older["rows"]} == set(ids)
+    older_page = client.get("/inbox?page=2").text
+    assert "Showing requests 3–3 of 3" in older_page and 'href="/inbox?page=1"' in older_page
+    assert client.get("/api/inbox?page=999").json()["page"] == 2  # no misleading empty page
+
+
+def test_late_agent_request_is_not_lost_at_page_boundary(site, monkeypatch):
+    client, wf = site()
+    order = wf.agents.place_order("Maria", agent="Shop assistant")
+    wf.db.update_case(order, created_at="2000-01-01T00:00:00Z")
+    wf.agents.submit_request(order, DEMO_MESSAGE, agent="Shop assistant", on_behalf_of="Maria")
+    customer = client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1]
+    wf.db.update_case(customer, created_at="2001-01-01T00:00:00Z")
+    monkeypatch.setattr(inbox, "MAX_ROWS", 1)
+    newest = client.get("/api/inbox").json()
+    older = client.get("/api/inbox?page=2").json()
+    assert newest["rows"][0]["id"] == order
+    assert older["rows"][0]["id"] == customer
+
+
+def test_search_finds_older_requests_and_keeps_query_across_pages(site, monkeypatch):
+    client, wf = site()
+    ids = [client.post("/demo/run/A", follow_redirects=False).headers["location"].split("=")[1]
+           for _ in range(3)]
+    for case_id, buyer in zip(ids, ("Acme first", "Acme second", "Other buyer")):
+        wf.db.update_case(case_id, customer_name=buyer)
+    monkeypatch.setattr(inbox, "MAX_ROWS", 1)
+    first = client.get("/api/inbox?q=Acme").json()
+    second = client.get("/api/inbox?q=Acme&page=2").json()
+    assert first["summary"]["total"] == 3 and first["matched_total"] == 2 and first["pages"] == 2
+    assert {r["id"] for r in first["rows"] + second["rows"]} == set(ids[:2])
+    assert client.get("/api/inbox?q=first").json()["rows"][0]["id"] == ids[0]
+    page = client.get("/inbox?q=Acme").text
+    assert 'href="/inbox?page=2&amp;q=Acme"' in page
+    assert 'data-api-url="/api/inbox?page=1&amp;q=Acme"' in page
+    missing = client.get("/inbox?q=no-such-buyer").text
+    assert "No matching requests" in missing and 'id="inbox-empty"' not in missing
+    assert "&lt;script&gt;" in client.get("/inbox?q=%3Cscript%3E").text
 
 
 def test_the_live_grid_finds_every_count_it_updates(site):
@@ -291,6 +363,7 @@ def test_the_live_grid_finds_every_count_it_updates(site):
     assert 'data-inbox-filter="safety"' in page and 'id="inbox-export"' in page
     assert 'id="inbox-live" role="status" aria-live="polite"' in page
     js = Path("app/static/app.js").read_text()
+    assert 'fetch(apiUrl, { cache: "no-store" })' in js
     assert '"NEEDS_HUMAN_SAFETY_REVIEW"' in js and safety.SAFETY_STATUS == "NEEDS_HUMAN_SAFETY_REVIEW"
     empty = site()[0].get("/inbox").text
     assert 'id="inbox-empty"' in empty  # an empty inbox reloads itself when the first request arrives

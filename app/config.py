@@ -9,6 +9,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from decimal import Decimal
+from pathlib import Path
+from urllib.parse import urlsplit
 
 SANDBOX_BASE_URL = "https://api-m.sandbox.paypal.com"
 # Default LLM provider behind the adapter: Groq's OpenAI-compatible endpoint.
@@ -84,7 +86,11 @@ class Settings:
     # App
     db_path: str = "tradeos.db"
     reset_on_start: bool = True
+    # Set to the mounted persistent disk directory for the private single-instance profile.
+    persistent_data_dir: str = ""
     public_base_url: str = "http://localhost:8000"
+    # Optional private-Sandbox operator gate. Empty keeps the public hackathon demo open.
+    operator_token: str = ""
     # The PayPal client refuses any base_url that is not the sandbox unless this is explicitly set,
     # so a mistyped PAYPAL_BASE_URL can never point a card payload or a refund at the live API.
     allow_live: bool = False
@@ -162,6 +168,24 @@ class Settings:
 
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
+    def __post_init__(self) -> None:
+        if self.persistent_data_dir:
+            disk = Path(self.persistent_data_dir)
+            db = Path(self.db_path)
+            if not disk.is_absolute() or not db.is_absolute() or not db.parent.resolve().is_relative_to(disk.resolve()):
+                raise ValueError("TRADEOS_DB_PATH must be inside the absolute persistent data directory")
+            if self.reset_on_start:
+                raise ValueError("persistent deployment requires TRADEOS_RESET_ON_START=0")
+            if not self.operator_token:
+                raise ValueError("persistent deployment requires TRADEOS_OPERATOR_TOKEN")
+        if self.operator_token and len(self.operator_token) < 24:
+            raise ValueError("TRADEOS_OPERATOR_TOKEN must be at least 24 characters")
+        if self.operator_token:
+            public = urlsplit(self.public_base_url)
+            local_http = public.scheme == "http" and public.hostname in {"localhost", "127.0.0.1", "::1"}
+            if not (public.hostname and (public.scheme == "https" or local_http)):
+                raise ValueError("TRADEOS_OPERATOR_TOKEN requires an HTTPS public URL (or local HTTP)")
+
     @property
     def paypal_configured(self) -> bool:
         return bool(self.paypal_client_id and self.paypal_client_secret)
@@ -173,6 +197,7 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         public = _env("PUBLIC_BASE_URL") or _env("RENDER_EXTERNAL_URL") or "http://localhost:8000"
+        operator_token = _env("TRADEOS_OPERATOR_TOKEN")
         return cls(
             paypal_client_id=_env("PAYPAL_CLIENT_ID"),
             paypal_client_secret=_env("PAYPAL_CLIENT_SECRET"),
@@ -195,8 +220,10 @@ class Settings:
             llm_model=_env("LLM_MODEL") or DEFAULT_LLM_MODEL,
             db_path=_env("TRADEOS_DB_PATH", "tradeos.db"),
             reset_on_start=_env_bool("TRADEOS_RESET_ON_START", True),
+            persistent_data_dir=_env("TRADEOS_PERSISTENT_DATA_DIR"),
             allow_live=_env_bool("TRADEOS_ALLOW_LIVE", False),
             public_base_url=public.rstrip("/"),
+            operator_token=operator_token,
             return_window_days=int(_env("RETURN_WINDOW_DAYS", "30")),
             free_text_max_chars=int(_env("FREE_TEXT_MAX_CHARS", "500")),
             rate_limit_per_minute=int(_env("RATE_LIMIT_PER_MINUTE", "5")),

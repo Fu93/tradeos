@@ -7,7 +7,8 @@ import threading
 import pytest
 
 from app import audit_chain as chain
-from app.db import Database
+from app.db import Database, utcnow
+from scripts.validate_audit_heads import validate
 from tests.helpers import SIG, app_with, case_from, pending_case, refund_event, run_a
 
 
@@ -56,6 +57,71 @@ def test_append_only_triggers(settings):
     with pytest.raises(sqlite3.IntegrityError):
         raw(wf.db, "DELETE FROM audit_chain WHERE case_id=?", (case_id,))
     assert not hasattr(wf.db, "update_chain") and not hasattr(wf.db, "delete_chain")
+
+
+def test_mixed_batch_snapshot_detects_direct_row_edit_even_after_cached_read(settings):
+    client, pp, wf = app_with(settings)
+    case_id = wf.run_scenario("M")
+    batch_id = f"{case_id}-B1"
+    assert wf.db.verify_chain(case_id)["ok"]
+    assert any(e["type"] == "batch:snapshot" for e in wf.db.chain_entries(case_id))
+    raw(wf.db, "UPDATE case_batches SET status='COMPLETED' WHERE id=?", (batch_id,))
+    verdict = wf.db.verify_chain(case_id)
+    assert not verdict["ok"] and "differs from chained snapshot" in verdict["reason"]
+
+
+def test_mixed_item_snapshot_detects_direct_price_edit(settings):
+    client, pp, wf = app_with(settings)
+    case_id = wf.run_scenario("M")
+    assert wf.db.verify_chain(case_id)["ok"]
+    raw(wf.db, "UPDATE case_items SET unit_minor=unit_minor+100 WHERE case_id=? AND line_no=1", (case_id,))
+    verdict = wf.db.verify_chain(case_id)
+    assert not verdict["ok"] and "item 1 differs from chained snapshot" in verdict["reason"]
+    # A later normal write must not turn the edited price into trusted history.
+    wf.db.update_item(case_id, 1, proposal_json="{}")
+    assert "item identity, price or returnability changed" in wf.db.verify_chain(case_id)["reason"]
+    with pytest.raises(ValueError, match="immutable"):
+        wf.db.update_item(case_id, 1, unit_minor=1)
+
+
+def test_batch_snapshot_and_state_write_roll_back_together(settings, monkeypatch):
+    client, pp, wf = app_with(settings)
+    case_id = wf.run_scenario("M")
+    batch_id = f"{case_id}-B1"
+    before = wf.db.get_batch(batch_id)
+    head = wf.db.verify_chain(case_id)["head"]
+
+    def fail_snapshot(*args, **kwargs):
+        raise RuntimeError("snapshot write failed")
+
+    monkeypatch.setattr(wf.db, "_chain_append", fail_snapshot)
+    with pytest.raises(RuntimeError, match="snapshot write failed"):
+        wf.db.update_batch(batch_id, status="ERROR")
+    assert wf.db.get_batch(batch_id)["status"] == before["status"]
+    assert wf.db.verify_chain(case_id)["head"] == head
+
+
+def test_kept_mixed_rows_without_snapshots_are_backfilled_once(settings):
+    client, pp, wf = app_with(settings)
+    case_id = wf.run_scenario("M")
+    now = utcnow()
+    batch_id = f"{case_id}-B99"
+    raw(wf.db, "INSERT INTO case_batches (id,case_id,batch_no,items_hash,status,amount_minor,currency,"
+        "quote_json,created_at,updated_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+        (batch_id, case_id, 99, "legacy", "DECLINED", 0, "USD", "{}", now, now))
+    raw(wf.db, "INSERT INTO case_items (case_id,line_no,sku,name,unit_minor,qty,tax_unit_minor,returnable) "
+        "VALUES (?,?,?,?,?,?,?,?)", (case_id, 99, "OLD-ITEM", "Old item", 100, 1, 0, 1))
+    wf.db.init(reset=False)
+    snapshots = [e for e in wf.db.chain_entries(case_id) if e["type"] == "batch:snapshot"
+                 and json.loads(e["payload_json"])["id"] == batch_id]
+    assert len(snapshots) == 1 and snapshots[0]["backfilled"] == 1
+    item_snapshots = [e for e in wf.db.chain_entries(case_id) if e["type"] == "item:snapshot"
+                      and json.loads(e["payload_json"])["line_no"] == 99]
+    assert len(item_snapshots) == 1 and item_snapshots[0]["backfilled"] == 1
+    assert wf.db.verify_chain(case_id)["ok"]
+    wf.db.init(reset=False)
+    assert len([e for e in wf.db.chain_entries(case_id) if e["type"] == "batch:snapshot"
+                and json.loads(e["payload_json"])["id"] == batch_id]) == 1
 
 
 # ---- tamper demonstrations (test-only; there is no tamper button in the app) ----
@@ -338,6 +404,7 @@ def test_audit_heads_lists_every_chain_head_for_external_retention(settings):
     a = run_a(client)
     b = case_from(client.post("/demo/run/B", follow_redirects=False))
     data = client.get("/audit/heads").json()
+    assert validate(data) == len(data["heads"])
     assert data["generated_at"]
     by_id = {h["case_id"]: h for h in data["heads"]}
     assert by_id[a]["head"] == wf.db.verify_chain(a)["head"]

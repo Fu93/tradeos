@@ -1,4 +1,4 @@
-# Safety Gate (v3.2 principle, ported to `main`; rule 3 added in 3.3)
+# Safety Gate (v3.2 principle; clear-reason rule added in 3.3, conflicting-fault rule in 3.4)
 
 **Principle.** *Product category × fault signal.* Any reported fault or harm on a mains-powered, electric-heating, gas or
 battery / thermal-risk product, plus any injury / burn / fire / shock / melting / smoke language in any covered language,
@@ -17,8 +17,9 @@ the gate is here.
 | Rule 1: harm language | Any hit of a pattern for fire, smoke, sparks, burn, blister, melt, electric shock, gas, explosion, burnt smell, injury / bleeding, cut, allergic reaction / rash, choking / swallowing / small parts, chemical smell / dizziness, "dangerous / toxic" — for **any** product. |
 | Rule 2: product class × fault | A reported fault (broken, not heating, stopped working, leaking, flickering, …) on a product whose class is `MAINS_HEATING`, `MAINS_ELECTRIC`, `GAS` or `BATTERY_THERMAL`. The class comes from the catalogue category + product name (code). The LLM reading `reason = DAMAGED` also counts as a fault on those classes. |
 | Rule 3 (3.3): hazard-class products need a clear reason | On those four classes, a return skips the review **only** when the model read it as `SIZE_MISMATCH`, `WRONG_ITEM` or `CHANGED_MIND`. Any other reading (`DAMAGED`, `NOT_AS_DESCRIBED`, `OTHER`, `UNKNOWN`) goes to a person, whatever words were used. Order-status questions (`ORDER_STATUS`) are not returns. Rules 1 and 2 still apply on top. |
+| Rule 4 (3.4): explicit fault alongside a clear reason | On a hazard-class product, "keeps tripping" or a frayed cord/cable/wire/plug routes to safety review even when the one extracted reason is `SIZE_MISMATCH`, `WRONG_ITEM` or `CHANGED_MIND`. This is a narrow English pattern rule; other two-reason phrasings still need evaluation. |
 | Result | Case status and decision become `NEEDS_HUMAN_SAFETY_REVIEW`. Label: **Needs human safety review**. |
-| Which rule judged it | The rule version (`SAFETY_RULE_VERSION`, now `safety-gate/3.3.0-main`) is written to the case's hash chain: in the safety entry when the gate holds a case, in the `Intent extracted` entry (`safety_gate: {flagged, rule_version}`) when it does not. Case M's per-line hold writes it in its safety entry. |
+| Which rule judged it | The rule version (`SAFETY_RULE_VERSION`, now `safety-gate/3.4.0-main`) is written to the case's hash chain: in the safety entry when the gate holds a case, in the `Intent extracted` entry (`safety_gate: {flagged, rule_version}`) when it does not. Case M's per-line hold writes it in its safety entry. |
 | Nothing else happens | No PayPal capture lookup, no policy result, no supplier draft or task, no approve / decline button, Refund API **NOT CALLED**. Audit-chain entry `Safety Gate: Needs human safety review — ahead of refund and supplier tasks` with the matched signals, the (ignored) LLM reading, `refund_api_called: false`, `supplier_contacted: false`. |
 | Where it shows | Result card, pipeline strip, case-list chip, "other cases waiting" list, the `/queue` judge guide (the Spanish seed `q-es`), and a one-click Spanish preset. |
 
@@ -42,6 +43,11 @@ stove, a power bank and a power strip). Every reading and outcome is in
 | Faults the word lists miss (120) | 0 | 120 | 80 | **120** |
 | Faults the word lists know (32) | 32 | 32 | 32 | **32** |
 | Harmless returns: false positives (48) | 0 | 40 | 0 | **4** |
+
+These figures and the committed result files describe 3.3. Rule 4's two-reason phrases are absent from that set, so
+the table does not measure 3.4's added coverage. A local 3.4 keyword replay of the same 50 messages kept the counts
+at 120/120, 32/32 and 40/48; it adds no evidence about the new two-reason cases. No new live-model rate is claimed
+for 3.4.
 
 Live column: one run of the script on 2026-10-25 (12:25–12:35 London) with `openai/gpt-oss-20b` on Groq, rule
 `safety-gate/3.3.0-main` at `99dc962`, `--pace 10`. Every message got a model reading; none fell back to the keyword reader.
@@ -300,16 +306,13 @@ fault-word list is unchanged and has gaps: "doesn't turn on", "does not power on
   of mind. In one live run on 50 messages we wrote ourselves, the model did that for none of the 30 faults (see "Why rule
   3"); that is not a rate for real customers. With the LLM down, harmless returns of those products go to a person
   (40 / 48 in the offline measurement).
-* **One reason per message.** The extractor gives one reason. "I changed my mind, and it keeps tripping" can be read as
-  `CHANGED_MIND`; "too small, and the cord is frayed" is `SIZE_MISMATCH` to the keyword reader. Neither is held when the
-  fault words are on no list. Not fixed: pinned as a known gap in `test_known_gap_two_reasons_in_one_message`, so a fix
-  shows up as a test change. Seen with the live model, one sample each, so no rate: on the hosted demo at `c7326f5`
-  (2026-10-25) "I changed my mind but it keeps tripping the breaker" on a kettle was **not** held and waited for a
-  person's approval, while "It's too small and the cord is frayed" was held. The outcome depends on the wording. Such a case still waits for
-  a person's approval before any refund (agent requests always do; dashboard cases unless the merchant turned autonomy
-  on, which is off on the hosted demo), so it is a gap in what reaches the *safety* review, not a path to an unapproved
-  refund. A likely fix (not built): ask the model for a separate "reports a malfunction" flag rather than one reason, and
-  measure it on a set extended with two-reason and non-English messages.
+* **One reason per message remains.** The extractor gives one reason. In 3.4, two explicit English fault descriptions
+  ("keeps tripping" and frayed electrical cord/cable/wire/plug) override a `CHANGED_MIND`, `SIZE_MISMATCH` or `WRONG_ITEM`
+  reading on a hazard-class product. `test_explicit_fault_is_not_hidden_by_a_second_clear_reason` and an end-to-end
+  refund-backstop test cover those examples. This is a narrow fix, not a general two-reason classifier; other phrasings
+  and languages remain unmeasured. On the hosted 3.3 demo at `c7326f5` (2026-10-25), "I changed my mind but it keeps
+  tripping the breaker" on a kettle was **not** held. No 3.4 live model or PayPal run has been claimed. A separate
+  "reports a malfunction" model field, evaluated on two-reason and non-English messages, remains a possible broader fix.
 * The money backstop treats a missing stored reading as `UNKNOWN` (single case and each mixed line): a hazard-class
   product without a reading is refused, never assumed clear. Reaching that needs a database write.
 * Products that no category marks as hazard-class (for example candles, lawnmowers, treadmills) get rules 1 and 2 only,

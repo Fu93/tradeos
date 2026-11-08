@@ -17,6 +17,7 @@ Nothing here runs without a human click: there is no autonomy path for mixed ord
 from __future__ import annotations
 
 import json
+import re
 import threading
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -24,7 +25,8 @@ from typing import TYPE_CHECKING, Any
 from . import lineitems as li
 from .intent import looks_like_injection
 from .safety import assess as safety_assess, assess_any as safety_assess_any
-from .paypal_client import IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, outcome_unknown
+from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, outcome_unknown,
+                            refund_lookup_issue, refund_response_issue)
 
 if TYPE_CHECKING:  # pragma: no cover
     from .workflow import Workflow
@@ -160,7 +162,7 @@ class MixedOrders:
         s = self.wf.settings
         model = demo_order(s.currency)
         for ln in model.lines:
-            self.db.upsert_product(ln.sku, ln.name, "apparel", True, li.to_str(ln.unit_minor, s.currency),
+            self.db.upsert_product(ln.sku, ln.name, "apparel", ln.returnable, li.to_str(ln.unit_minor, s.currency),
                                    "Stride Footwear Co. (fictional demo supplier)")
         case_id = case_id or f"M-{uuid.uuid4().hex[:16].upper()}"
         self.db.insert_case(
@@ -238,7 +240,9 @@ class MixedOrders:
             return
         amount = capture.get("amount") or {}
         problem = None
-        if capture.get("status") != "COMPLETED":
+        if capture.get("id") != case["capture_id"]:
+            problem = "PayPal returned a different capture ID"
+        elif capture.get("status") != "COMPLETED":
             problem = f"PayPal capture status is {capture.get('status') or 'missing'} (must be COMPLETED)"
         elif amount.get("currency_code") != model.currency or amount.get("value") != li.to_str(model.total, model.currency):
             problem = (f"Captured {amount.get('value')} {amount.get('currency_code')} differs from the order lines "
@@ -383,8 +387,7 @@ class MixedOrders:
             self._sync(case_id)
 
     def retry_batch(self, case_id: str, batch_id: str) -> dict:
-        """After ERROR (PayPal refused, no money moved), UNKNOWN (no answer) or an approved batch that never got sent:
-        the same PayPal-Request-Id again (same guard, same amount)."""
+        """Retry a definite refusal or unsent approval; UNKNOWN is replayable only in mock mode."""
         wf = self.wf
         try:
             with wf._money_op(), wf._lock(case_id):
@@ -394,16 +397,57 @@ class MixedOrders:
                 prior = batch["status"]
                 if prior == UNKNOWN and not self._request_id_fresh(case_id, batch["request_id"]):
                     raise wf_refused(self._too_old(batch))
-                if prior != APPROVED:  # the money gate wants APPROVED; the chained human approval is still re-verified
+                if prior == ERROR:  # a definite refusal may be staged again; UNKNOWN must stay durable
                     self.db.update_batch(batch_id, status=APPROVED)
                 try:
-                    self._execute(case_id, batch_id)
+                    self._execute(case_id, batch_id, replay_unknown=prior == UNKNOWN)
                 except wf_refused_type():
-                    self.db.update_batch(batch_id, status=prior)
+                    if (self.db.get_batch(batch_id) or {}).get("status") != ERROR:
+                        self.db.update_batch(batch_id, status=prior)
                     raise
         finally:
             self._after_money(case_id)
         return self.db.get_batch(batch_id) or {}
+
+    def confirm_unknown_refund(self, case_id: str, batch_id: str, refund_id: str) -> None:
+        """Bind a real partial refund to its batch using PayPal GET; never re-send the refund."""
+        wf = self.wf
+        if wf.paypal_mode != "sandbox":
+            raise wf_refused("PayPal refund ID verification is available only for real Sandbox refunds.")
+        if not re.fullmatch(r"[A-Za-z0-9-]{1,64}", refund_id):
+            raise wf_refused("Enter a valid PayPal refund ID (letters, numbers or hyphens).")
+        with wf._money_op():
+            case, batch = self._load(case_id, batch_id)
+            if batch["status"] != UNKNOWN or batch.get("refund_id"):
+                raise wf_refused("This batch has no unresolved refund outcome to verify.")
+            proof_scope = (case["capture_id"], batch["amount_minor"], batch["currency"],
+                           batch["request_id"], batch["items_hash"])
+            try:
+                refund = wf._pp(case_id, "get_refund", refund_id, timeout=5.0)
+            except PayPalError as exc:
+                raise wf_refused(f"PayPal could not verify refund {refund_id}: {exc}") from exc
+            issue = refund_lookup_issue(refund, refund_id, case["capture_id"], batch_id,
+                                        li.to_str(batch["amount_minor"], batch["currency"]), batch["currency"])
+            if issue:
+                self.db.audit(case_id, "paypal", "Batch refund ID check rejected — outcome stays UNKNOWN",
+                              {"batch_id": batch_id, "refund_id": refund_id, "reason": issue})
+                raise wf_refused(issue)
+            with wf._lock(case_id):
+                case, batch = self._load(case_id, batch_id)
+                if batch["status"] != UNKNOWN or batch.get("refund_id"):
+                    raise wf_refused("The batch changed while PayPal was checked; refresh the case.")
+                if ((case["capture_id"], batch["amount_minor"], batch["currency"],
+                     batch["request_id"], batch["items_hash"]) != proof_scope):
+                    raise wf_refused("The capture or batch approval details changed while PayPal was checked; "
+                                     "verify the current batch again.")
+                other = self.db.find_batch_by_refund(refund_id)
+                if other and other["id"] != batch_id:
+                    raise wf_refused("This PayPal refund ID is already linked to another batch.")
+                self._guard(case_id, {**batch, "status": APPROVED})
+                self.db.audit(case_id, "paypal", "Batch refund ID verified against PayPal GET, capture, custom_id and amount",
+                              {"batch_id": batch_id, "refund_id": refund_id, "capture_id": case["capture_id"],
+                               "custom_id": batch_id, "amount": refund["amount"]})
+                self._record(case_id, batch_id, refund, via="verified_get")
 
     def repropose(self, case_id: str) -> dict | None:
         """Human asks for a fresh batch of whatever is open (e.g. after PayPal reported a refund FAILED)."""
@@ -461,7 +505,9 @@ class MixedOrders:
             raise wf_refused(f"Batch {batch['batch_no']} is {batch['status']}; refund refused.")
         if not batch.get("approved_by"):
             raise wf_refused("An approval is required before any refund.")
-        chain = self.db.verify_chain(case_id)
+        # A money gate must never accept the dashboard's cached chain verdict:
+        # an old entry can be edited directly in SQLite without changing the tip.
+        chain, _ = self.db.verify_and_fold(case_id)
         if not chain["ok"]:
             raise wf_refused(f"Audit trail BROKEN at entry {chain['broken_at']}; refund refused.")
         proposed = approved = False
@@ -470,6 +516,11 @@ class MixedOrders:
                 continue
             payload = json.loads(e["payload_json"])
             d = payload.get("detail") or {}
+            if (d.get("batch_id") == batch["id"] and d.get("refund_id")
+                    and d.get("via") in ("refund_api", "reconcile", "webhook", "recovery", "verified_get")):
+                raise wf_refused("The audit trail already records a PayPal refund for this batch; refund refused.")
+            if d.get("batch_id") == batch["id"] and payload.get("title", "").startswith("Human declined batch"):
+                raise wf_refused("The audit trail records a later human decline of this batch; refund refused.")
             if (d.get("batch_id") == batch["id"] and d.get("items_hash") == batch["items_hash"]
                     and d.get("amount_minor") == batch["amount_minor"] and d.get("currency") == batch["currency"]):
                 if payload.get("title", "").startswith("Batch ") and "proposed by code" in payload["title"]:
@@ -487,11 +538,13 @@ class MixedOrders:
         n = sum(q["qty"] for q in (batch["quote"] or {}).get("refund_lines", []))
         return f"Partial refund for {n} returned item{'s' if n != 1 else ''} from your order."[:255]
 
-    def _execute(self, case_id: str, batch_id: str) -> None:
+    def _execute(self, case_id: str, batch_id: str, replay_unknown: bool = False) -> None:
         wf = self.wf
         case = wf._case(case_id)
         batch = self.db.get_batch(batch_id) or {}
-        self._guard(case_id, batch)
+        # An UNKNOWN retry reuses the same request id. Keep UNKNOWN in the database
+        # through the GET and refund call so a crash remains visible on restart.
+        self._guard(case_id, {**batch, "status": APPROVED} if replay_unknown and batch["status"] == UNKNOWN else batch)
         cur = batch["currency"]
         # PayPal proves the precondition: the capture is read afresh, and must be the one the lines add up to.
         try:
@@ -501,14 +554,55 @@ class MixedOrders:
                           {**exc.to_dict(), "batch_id": batch_id})
             raise
         amount = capture.get("amount") or {}
-        if capture.get("status") not in ("COMPLETED", "PARTIALLY_REFUNDED") or amount.get("currency_code") != cur:
+        if (capture.get("id") != case["capture_id"]
+                or capture.get("status") not in ("COMPLETED", "PARTIALLY_REFUNDED")
+                or amount.get("currency_code") != cur or amount.get("value") != case["amount"]):
+            reason = (f"PayPal capture identity, status ({capture.get('status')}) or total differs from this "
+                      "order; refund refused, needs a human.")
+            if not replay_unknown:
+                self.db.update_batch(batch_id, status=ERROR, error=reason)
             self.db.audit(case_id, "paypal", f"Refund API NOT CALLED — capture is {capture.get('status')}, needs a human",
-                          {"batch_id": batch_id, "capture_status": capture.get("status"), "refund_id": None})
-            raise wf_refused(f"PayPal reports the capture as {capture.get('status')}; refund refused, needs a human.")
+                          {"batch_id": batch_id, "capture_status": capture.get("status"),
+                           "capture_id": capture.get("id"), "capture_amount": amount, "refund_id": None})
+            if not replay_unknown:
+                self._sync(case_id)
+            raise wf_refused(reason)
+        other_batches = [b for b in self.db.list_batches(case_id) if b["id"] != batch_id]
+        known_refunds = {b["refund_id"] for b in other_batches if b.get("refund_id")}
+        external_event = next((event for event in self.db.webhook_events(case_id)
+                               if event["verified"] and event["event_type"] == "PAYMENT.CAPTURE.REFUNDED"
+                               and event["resource_id"] not in known_refunds), None)
+        has_own_refund = any(b["status"] in (COMPLETED, PENDING) and b.get("refund_id") for b in other_batches)
+        if external_event or (capture.get("status") == "PARTIALLY_REFUNDED"
+                              and not replay_unknown and not has_own_refund):
+            # GET capture does not identify which items an external refund covered. A small external
+            # refund can leave enough balance for this batch while paying the same returned item twice.
+            # A recent UNKNOWN retry reuses its already-sent request id and body; it is not a new refund request.
+            reason = "PayPal capture may have been refunded outside TradeOS; review the payment before a new refund."
+            if not replay_unknown:
+                self.db.update_batch(batch_id, status=ERROR, error=reason)
+            self.db.audit(case_id, "paypal", ("Unknown partial refund not replayed — external refund needs a human"
+                                               if replay_unknown else
+                                               "Refund API NOT CALLED — external partial refund needs a human"),
+                          {"batch_id": batch_id, "capture_status": capture.get("status"), "refund_id": None,
+                           "external_refund_id": external_event["resource_id"] if external_event else None})
+            self._sync(case_id)
+            raise wf_refused(reason)
         cap_minor = li.to_minor(amount.get("value") or "0", cur)
         if cap_minor - self.ledger(case_id, exclude=batch_id).refunded_minor < batch["amount_minor"]:
-            raise wf_refused("The refund would exceed the remaining refundable balance of the capture; refused.")
+            reason = "The refund would exceed the remaining refundable balance of the capture; refused."
+            if not replay_unknown:
+                self.db.update_batch(batch_id, status=ERROR, error=reason)
+            self.db.audit(case_id, "paypal", "Refund API NOT CALLED — insufficient refundable capture balance",
+                          {"batch_id": batch_id, "capture_id": case["capture_id"], "refund_id": None})
+            if not replay_unknown:
+                self._sync(case_id)
+            raise wf_refused(reason)
         body_amount = {"currency_code": cur, "value": li.to_str(batch["amount_minor"], cur)}
+        # Leave durable uncertainty before the money-moving call. A crash before the response
+        # or PayPal call log then remains visible to startup reconciliation.
+        self.db.update_batch(batch_id, status=UNKNOWN)
+        self._sync(case_id)
         try:
             refund = wf._pp(case_id, "refund_capture", case["capture_id"], batch["request_id"],
                             note_to_payer=self._note(batch), amount=body_amount, custom_id=f"{case_id}-B{batch['batch_no']}")
@@ -537,14 +631,33 @@ class MixedOrders:
         batch = self.db.get_batch(batch_id) or {}
         cur = batch["currency"]
         status = refund.get("status")
+        issue = refund_response_issue(refund, wf._case(case_id)["capture_id"])
+        if issue:
+            reason = f"{issue}; money may have moved. Check PayPal."
+            self.db.update_batch(batch_id, status=UNKNOWN, refund_status=status,
+                                 refund_json=json.dumps(refund), error=reason)
+            self.db.audit(case_id, "paypal", f"Partial refund outcome UNKNOWN — {issue}",
+                          {"batch_id": batch_id, "status": status, "via": via,
+                           "paypal_request_id": batch["request_id"]})
+            self._sync(case_id)
+            return
         reported = refund.get("amount")
-        if not reported or reported.get("value") is None:  # minimal response: PayPal's GET is the proof
+        if not isinstance(reported, dict) or reported.get("value") is None:  # PayPal GET supplies missing amount
             try:
                 got = wf._pp(case_id, "get_refund", refund["id"], timeout=5.0)
-                reported = got.get("amount")
-                refund = {**refund, **got}
+                up = [link.get("href", "") for link in got.get("links") or [] if link.get("rel") == "up"]
+                if got.get("id") not in (None, refund["id"]) or (up and not any(
+                        href.rstrip("/").endswith("/captures/" + wf._case(case_id)["capture_id"]) for href in up)):
+                    reported = None
+                else:
+                    reported = got.get("amount")
+                    # GET supplies the missing amount; the API response remains the source of
+                    # this transition's status and ID (a GET can briefly lag behind it).
+                    refund = {**got, **refund, "amount": reported}
             except PayPalError:
                 reported = None
+        if not isinstance(reported, dict):
+            reported = None
         paypal_amount = (f"{reported['value']} {reported.get('currency_code')}"
                          if reported and reported.get("value") else None)
         computed = f"{li.to_str(batch['amount_minor'], cur)} {cur}"
@@ -584,8 +697,7 @@ class MixedOrders:
                 self.check_unknown(case_id)
 
     def check_unknown(self, case_id: str) -> None:
-        """Read-only GET of the capture after an unanswered refund call. The same request id is re-sent (recovery)
-        only when PayPal shows the capture refunded AND no other batch explains that."""
+        """Read-only GET after an unanswered refund; only mock mode may replay on recovery."""
         wf = self.wf
         try:
             case = wf._case(case_id)
@@ -597,21 +709,28 @@ class MixedOrders:
             if status in ("REFUNDED", "PARTIALLY_REFUNDED") and not others:
                 self.recover_unknown(case_id, "after the GET check")
         except PayPalError:
-            self.db.audit(case_id, "paypal", "Could not check with PayPal after the unanswered refund call — a retry "
-                          "still uses the same PayPal-Request-Id", {})
+            self.db.audit(case_id, "paypal", "Could not check with PayPal after the unanswered refund call — "
+                          "outcome remains UNKNOWN", {})
 
     def _request_id_fresh(self, case_id: str, request_id: str | None) -> bool:
-        """True while PayPal can be relied on to replay this request id: never sent yet, or first sent inside the
-        window. The clock starts at the first call that carried it (PayPal keys from the first request), not at a
-        later status change."""
+        """Mock-only replay bound; the real refund endpoint publishes no key retention period."""
+        if self.wf.paypal_mode != "mock":
+            return False
         sent = [c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture") if c.get("request_id") == request_id]
+        # The approval predates the first send and survives a crash before log_paypal_call().
+        # It is a conservative lower bound: it may block a safe replay, never allow a late one.
+        sent.extend(b["approved_at"] for b in self.db.list_batches(case_id)
+                    if b.get("request_id") == request_id and b.get("approved_at"))
         if not sent:
-            return True
+            return False
         first = datetime.fromisoformat(min(sent))
         return datetime.fromisoformat(self.wf._now()) - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
 
-    @staticmethod
-    def _too_old(batch: dict) -> str:
+    def _too_old(self, batch: dict) -> str:
+        if self.wf.paypal_mode != "mock":
+            return (f"Batch {batch['batch_no']}'s refund outcome is UNKNOWN. PayPal does not document how long "
+                    "refund request IDs are retained; re-sending may create a second refund. "
+                    "Check this capture's refunds in PayPal by hand.")
         return (f"Batch {batch['batch_no']}'s refund call got no answer more than {IDEMPOTENCY_WINDOW_HOURS} hours "
                 "ago. PayPal may already have made it, and after 6 hours re-sending the same request id could be "
                 "taken as a new refund. Check this capture's refunds in PayPal by hand.")
@@ -627,17 +746,17 @@ class MixedOrders:
                     self.db.audit(case_id, "paypal", "Partial refund outcome still UNKNOWN — not re-sent; check PayPal "
                                   "by hand", {"batch_id": batch["id"], "trigger": trigger, "why": self._too_old(batch)})
                     continue
-                self.db.update_batch(batch["id"], status=APPROVED)  # the guard needs APPROVED; chain proves the approval
                 try:
-                    self._guard(case_id, self.db.get_batch(batch["id"]) or {})
+                    # Keep UNKNOWN durable until PayPal answers. The guard still checks the
+                    # chained human approval, fingerprint, amount and current ledger.
+                    self._guard(case_id, {**batch, "status": APPROVED})
                     case = wf._case(case_id)
                     refund = wf._pp(case_id, "refund_capture", case["capture_id"], batch["request_id"],
                                     note_to_payer=self._note(batch),
                                     amount={"currency_code": batch["currency"],
                                             "value": li.to_str(batch["amount_minor"], batch["currency"])},
                                     custom_id=f"{case_id}-B{batch['batch_no']}")
-                except Exception as exc:  # restore UNKNOWN whatever went wrong
-                    self.db.update_batch(batch["id"], status=UNKNOWN)
+                except Exception as exc:
                     self.db.audit(case_id, "paypal", "Could not recover the partial refund from PayPal — outcome "
                                   "still UNKNOWN, needs a human", {"batch_id": batch["id"], "trigger": trigger,
                                                                    "error": str(exc)[:200]})
@@ -649,8 +768,7 @@ class MixedOrders:
         return recovered
 
     def reconcile(self, case_id: str, timeout: float | None = None) -> dict | None:
-        """Read-only towards PayPal: GET capture, GET refund for each PENDING batch. Only PENDING -> COMPLETED/FAILED
-        is applied (never a downgrade, never a refund call)."""
+        """Read-only towards PayPal: validate capture and refund identity before applying a PENDING result."""
         wf = self.wf
         case = wf._case(case_id)
         if not case.get("capture_id"):
@@ -669,23 +787,59 @@ class MixedOrders:
             self.check_unknown(case_id)
         checks = []
         with wf._lock(case_id):
+            case = wf._case(case_id)  # a webhook may have changed the case while PayPal GETs were in flight
+            cap_status = capture.get("status")
+            checks.append({"field": "capture.status", "local": "COMPLETED/PARTIALLY_REFUNDED/REFUNDED",
+                           "paypal": cap_status,
+                           "match": cap_status in ("COMPLETED", "PARTIALLY_REFUNDED", "REFUNDED")})
+            if capture.get("id") not in (None, case["capture_id"]):
+                checks.append({"field": "capture.id", "local": case["capture_id"],
+                               "paypal": capture.get("id"), "match": False})
+            cap_amount = capture.get("amount")
+            if cap_amount:
+                try:
+                    amount_matches = (isinstance(cap_amount, dict)
+                                      and cap_amount.get("currency_code") == case["currency"]
+                                      and li.to_minor(cap_amount["value"], case["currency"])
+                                      == li.to_minor(case["amount"], case["currency"]))
+                except (KeyError, li.MoneyError):
+                    amount_matches = False
+                checks.append({"field": "capture.amount", "local": f"{case['amount']} {case['currency']}",
+                               "paypal": cap_amount, "match": amount_matches})
+            capture_trusted = all(c["match"] for c in checks)
             for batch in self.db.list_batches(case_id):
                 got = fetched.get(batch["id"])
                 if got is None:
                     continue
+                if got.get("id") not in (None, batch["refund_id"]):
+                    checks.append({"field": f"batch {batch['batch_no']} refund.id", "local": batch["refund_id"],
+                                   "paypal": got.get("id"), "match": False})
+                    continue
+                up = [link.get("href", "") for link in got.get("links") or [] if link.get("rel") == "up"]
+                if up and not any(h.rstrip("/").endswith("/captures/" + case["capture_id"]) for h in up):
+                    checks.append({"field": f"batch {batch['batch_no']} refund.capture",
+                                   "local": case["capture_id"], "paypal": up[0], "match": False})
+                    continue
                 st = got.get("status")
-                ok = st in ("COMPLETED", "PENDING", "FAILED")
-                advance = ok and st != batch["refund_status"]  # PENDING -> COMPLETED/FAILED: PayPal's GET is applied
+                advance = (capture_trusted and batch["status"] == PENDING and batch["refund_status"] == "PENDING"
+                           and st in ("COMPLETED", "FAILED"))
+                if advance:
+                    self._record(case_id, batch["id"], {**(batch["refund"] or {}), **got}, via="reconcile")
+                    recorded = self.db.get_batch(batch["id"]) or {}
+                    amount_matches = recorded.get("status") != MISMATCH
+                    checks.append({"field": f"batch {batch['batch_no']} refund.amount",
+                                   "local": f"{li.to_str(batch['amount_minor'], batch['currency'])} {batch['currency']}",
+                                   "paypal": recorded.get("paypal_amount") or "missing",
+                                   "match": amount_matches})
+                    advance = amount_matches and recorded.get("status") in (COMPLETED, FAILED)
                 checks.append({"field": f"batch {batch['batch_no']} refund.status", "local": batch["refund_status"],
                                "paypal": st, "match": st == batch["refund_status"] or advance,
                                "advanced": advance})
-                if advance:
-                    self._record(case_id, batch["id"], {**(batch["refund"] or {}), **got}, via="reconcile")
             led = self.ledger(case_id)
-            cap_total = li.to_minor((capture.get("amount") or {}).get("value") or "0", case["currency"])
-            checks.append({"field": "capture.status", "local": "COMPLETED/PARTIALLY_REFUNDED/REFUNDED",
-                           "paypal": capture.get("status"),
-                           "match": capture.get("status") in ("COMPLETED", "PARTIALLY_REFUNDED", "REFUNDED")})
+            try:
+                cap_total = li.to_minor((capture.get("amount") or {}).get("value") or "0", case["currency"])
+            except (AttributeError, li.MoneyError):
+                cap_total = 0  # invalid capture evidence was flagged above; never advance a batch on it
             if capture.get("status") == "REFUNDED" and led.refunded_minor < cap_total and not any(
                     b["status"] == UNKNOWN for b in self.db.list_batches(case_id)):
                 checks.append({"field": "refunded total", "local": li.to_str(led.refunded_minor, case["currency"]),
@@ -703,12 +857,20 @@ class MixedOrders:
         case_id = case["id"]
         batch = self.db.find_batch_by_refund(resource.get("id") or "")
         res_status = resource.get("status")
+        if batch is not None and batch["case_id"] != case_id:
+            return ("MISMATCH_IGNORED", "Verified PayPal webhook refund id belongs to another order — no state change")
+        up = [link.get("href", "") for link in resource.get("links") or [] if link.get("rel") == "up"]
+        if up and not any(href.rstrip("/").endswith("/captures/" + case["capture_id"]) for href in up):
+            return ("MISMATCH_IGNORED", "Verified PayPal webhook links this refund to another capture — no state change")
         if batch is None:
             unknown = [b for b in self.db.list_batches(case_id) if b["status"] == UNKNOWN and not b["refund_id"]]
             if unknown and etype in ("PAYMENT.CAPTURE.REFUNDED", "PAYMENT.REFUND.PENDING"):
-                wf._pending_recovery_requests.add(case_id)
-                return ("UNKNOWN_RECOVERY", f"Verified PayPal webhook {etype} for this order's capture while a partial "
-                        "refund outcome is UNKNOWN — recovering it from PayPal (same PayPal-Request-Id)")
+                if wf.paypal_mode == "mock":
+                    wf._pending_recovery_requests.add(case_id)
+                    return ("UNKNOWN_RECOVERY", f"Verified PayPal webhook {etype} for this order's capture while a partial "
+                            "refund outcome is UNKNOWN — recovering it from PayPal (same PayPal-Request-Id)")
+                return ("UNKNOWN_NEEDS_REFUND_ID", f"Verified PayPal webhook {etype} for this order's capture while a "
+                        "partial refund outcome is UNKNOWN — verify the Refund ID with PayPal GET; no request replay")
             return ("MISMATCH_IGNORED", "Verified PayPal webhook does not match any batch refund id of this order "
                     "— logged, no state change")
         local = batch["refund_status"]
@@ -848,7 +1010,9 @@ class MixedOrders:
                        "amount": m(b["amount_minor"]), "refund_id": b["refund_id"], "refund_status": b["refund_status"],
                        "paypal_amount": b["paypal_amount"], "debug_id": b["debug_id"], "request_id": b["request_id"],
                        "equal": (b["paypal_amount"] == f"{li.to_str(b['amount_minor'], cur)} {cur}") if b["paypal_amount"] else None,
-                       "retryable": b["status"] in (ERROR, UNKNOWN, APPROVED) and not b["refund_id"],
+                       "retryable": (b["status"] in (ERROR, APPROVED) or
+                                     (b["status"] == UNKNOWN and self.wf.paypal_mode == "mock"))
+                       and not b["refund_id"],
                        "declinable": b["status"] in (PROPOSED, ERROR, APPROVED) and not b["refund_id"], "error": b["error"]} for b in batches]
         return {"case_id": case_id, "currency": cur, "lines": lines, "approval": approval, "batches": batch_rows,
                 "captured": m(model.total), "committed": m(led.refunded_minor),

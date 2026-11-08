@@ -6,8 +6,10 @@ import logging
 import json
 import os
 import threading
+import weakref
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import quote
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, Form, HTTPException, Request
@@ -20,10 +22,11 @@ from fastapi.templating import Jinja2Templates
 import anyio
 
 from .agent_gateway import mount_mcp
+from . import inbox as inbox_module
 from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, fill_inbox, live_run,
                            play_scenes)
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
-from .inbox import BUCKET_LABELS, inbox_rows, inbox_summary
+from .inbox import BUCKET_LABELS, inbox_rows, inbox_db_summary
 from .catalog import Channel3Catalog
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
@@ -41,10 +44,12 @@ from .presets import BY_KEY, PRESETS, preset_label
 from .policy import DISPUTE_RECOMMENDATION_LABEL
 from .ratelimit import Cooldown, MinInterval, RateLimiter, client_key
 from .security import install_security
+from .single_worker import SingleWorkerGuard
 from .safety import SAFETY_RULE_VERSION
 from .views import (ai_panel, backend_controls, evidence_a, evidence_b, failure_modes, fmt_ts, pipeline,
                     preset_for, result_card, section_title, timeline_view, evidence_log, evidence_summary, paypal_proves)
-from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_ERROR, REFUND_FAILED, REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed, SafetyNoteInvalid,
+from .workflow import (AWAITING_BUYER, PENDING_APPROVAL, REFUND_AMOUNT_REVIEW, REFUND_ERROR, REFUND_FAILED,
+                       REFUND_UNKNOWN, RUNNABLE, MOCK_ONLY, CaseNotFound, RefundNotAllowed, SafetyNoteInvalid,
                        Workflow, clean_message)
 
 MIXED_ATTENTION_STATUSES = tuple(x for x in MIXED_STATUSES if x != "MIXED_DONE")
@@ -72,6 +77,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     if settings is None:
         load_dotenv()
         settings = Settings.from_env()
+    if settings.operator_token and settings.mcp_enabled:
+        mcp_tokens = ([settings.mcp_token] if settings.mcp_token else []) + [token for _, token in settings.mcp_agents]
+        if not mcp_tokens:
+            raise ValueError("TRADEOS_OPERATOR_TOKEN requires MCP credentials or TRADEOS_MCP=0")
+        if any(len(token) < 24 or token == settings.operator_token for token in mcp_tokens):
+            raise ValueError("private Sandbox requires distinct MCP tokens of at least 24 characters")
     db = Database(settings.db_path)
     kwargs = {"today": today} if today else {}
     extractor = extractor or build_extractor(settings)
@@ -86,12 +97,17 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                                 settings.money_rate_limit_global_per_hour)
 
     # Render (no persistent disk) wipes the filesystem: reset + seed the demo on every start.
-    db.init(reset=settings.reset_on_start)
-    if not db.list_cases():
-        wf.seed_demo()
-    # A kept database with refunds still PENDING / outcome UNKNOWN (incl. archived cases): resolve them
-    # against PayPal in the background (bounded GETs; recovery re-sends only the same PayPal-Request-Id).
-    wf.resume_unresolved_refunds()
+    worker_guard = SingleWorkerGuard(settings.db_path)
+    try:
+        db.init(reset=settings.reset_on_start)
+        if not db.count_cases():
+            wf.seed_demo()
+        # A kept database with PENDING / UNKNOWN refunds (incl. archived cases): check them against PayPal
+        # with bounded GETs. Only mock-mode UNKNOWN refunds may replay their request ID.
+        wf.resume_unresolved_refunds()
+    except BaseException:
+        worker_guard.release()
+        raise
 
     reset_cooldown = Cooldown(settings.reset_cooldown_per_ip_s, settings.reset_cooldown_global_s)
     # Disputes reads hit PayPal (sync = 1 list + up to 10 GETs): on top of the per-IP limiter, one sync per 20 s and
@@ -104,6 +120,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @asynccontextmanager
     async def lifespan(the_app: FastAPI):
+        worker_guard.ensure_current_process()
         # The MCP endpoint (agent gateway) needs its session manager running for the life of the server.
         server = the_app.state.mcp_server
         if server is None:
@@ -113,6 +130,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             yield
 
     app = FastAPI(title="TradeOS", docs_url=None, redoc_url=None, lifespan=lifespan)
+    weakref.finalize(app, worker_guard.release)
     app.state.workflow = wf
     # Real products for agents (Channel3), only with a key. Set before the MCP server is built: it offers find_product.
     if catalog is None and settings.channel3_api_key:
@@ -155,7 +173,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
     # on, which then shows up literally on the page ("I\u0027d"). This returns a plain string, so autoescape applies.
     templates.env.filters["textjson"] = lambda value, indent=None: json.dumps(value, ensure_ascii=False,
                                                                               indent=indent, default=str)
-    install_security(app, templates, csrf_exempt=("/webhooks/paypal",))
+    install_security(app, templates, csrf_exempt=("/webhooks/paypal",), operator_token=settings.operator_token)
 
     @app.get("/api/docs", include_in_schema=False, response_class=HTMLResponse)
     def api_docs() -> HTMLResponse:
@@ -174,17 +192,29 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
                          status_code: int = 200, draft: str = "", draft_late: bool = False) -> HTMLResponse:
-        cases = db.list_cases()
+        case_tabs = db.list_cases(limit=14)
         current = db.get_case(selected) if selected else None
-        if current is None and cases:
-            current = next((c for c in cases if c["status"] != "NEW"), cases[0])
+        if current is None and case_tabs:
+            # The newest case may be a refund-failure probe or an unfinished judge run. Keep the shared
+            # landing page on the core story; explicit ?case= links still open exactly that case.
+            showcase = ("PENDING_APPROVAL", "REFUND_PENDING", "REFUND_COMPLETED")
+            if settings.mcp_enabled and settings.agent_demo_orders:
+                current = next(iter(db.list_cases(scenario="G", label="Agent: honest return",
+                                                  statuses=showcase, limit=1)), None)
+            if current is None:
+                current = next(iter(db.list_cases(scenario="A", statuses=showcase, limit=1)), None)
+            if current is None:
+                current = next(iter(db.list_cases(exclude_status="NEW", limit=1)), case_tabs[0])
+        if current and not current.get("archived_at") and current not in case_tabs:
+            case_tabs = [current, *case_tabs[:13]]
         if current and current.get("archived_at") and not flash:
             flash = (f"Case {current['id']} was archived by a demo reset at {current['archived_at']} — kept with its "
                      "audit trail (it no longer appears in the case list).")
-        pending = [c for c in cases if c["status"] in (PENDING_APPROVAL, AWAITING_BUYER, REFUND_ERROR,
-                                                       REFUND_UNKNOWN, REFUND_FAILED, "ERROR",
-                                                       "NEEDS_HUMAN", "NEEDS_HUMAN_SAFETY_REVIEW", *MIXED_ATTENTION_STATUSES)
-                   and (not current or c["id"] != current["id"])]
+        attention = (PENDING_APPROVAL, AWAITING_BUYER, REFUND_AMOUNT_REVIEW, REFUND_ERROR,
+                     REFUND_UNKNOWN, REFUND_FAILED, "ERROR", "NEEDS_HUMAN",
+                     "NEEDS_HUMAN_SAFETY_REVIEW", *MIXED_ATTENTION_STATUSES)
+        pending_page = db.list_cases(statuses=attention, exclude_id=current["id"] if current else None, limit=51)
+        pending, pending_more = pending_page[:50], len(pending_page) > 50
         if current:
             wf.auto_reconcile(current["id"], background=settings.reconcile_in_background)
         latest_a, latest_b = db.latest_case("A"), db.latest_case("B")
@@ -196,7 +226,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         ctx = {
             "mixed_await_webhook": mixed_await,
             "pipeline": pipeline(db, current),
-            "result": result_card(db, current, bool(settings.paypal_webhook_id)),
+            "result": result_card(db, current, bool(settings.paypal_webhook_id), wf.paypal_mode),
             "section_title": section_title(current),
             "ai": ai_panel(current),
             "controls": backend_controls(db, current),
@@ -210,7 +240,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "settings": settings,
             "paypal_mode": wf.paypal_mode,
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
-            "cases": cases,
+            "case_tabs": case_tabs,
             "current": current,
             "mixed": wf.mixed.view(current["id"]) if current and current["scenario"] == "M" else None,
             "timeline": timeline_view(db.timeline(current["id"])) if current else [],
@@ -219,6 +249,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "proves": proves,
             "evidence": evidence_log(db, current["id"]) if current else [],
             "pending": pending,
+            "pending_more": pending_more,
             "economics": case_economics(settings.order_amount, settings.costs),
             "evidence_a": evidence_a(db, latest_a),
             "evidence_b": evidence_b(db, latest_b),
@@ -229,9 +260,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "agents": (agent_panel(db, mcp_tools(), settings.agent_demo_orders,
                                    agent_llm.model if agent_llm else None,
                                    wf.catalog.name if wf.catalog else None) if app.state.mcp_server else None),
+            "judge_honest_case": db.latest_case("G", "Agent: honest return"),
+            "judge_blocked_case": db.latest_case("G", "Agent: prompt injection"),
             "live_run": live_run(db, current),
             "agent_run_in_progress": agent_runs.running() if app.state.mcp_server else None,
-            "inbox": inbox_summary(inbox_rows(wf, None, evidence=False)),
+            "private_capture_import_available": private_capture_import_available(),
+            "inbox": inbox_db_summary(wf),
             "can_fill": can_fill(),
             "flash": flash,
         }
@@ -239,6 +273,10 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     def back(case_id: str) -> RedirectResponse:
         return RedirectResponse(f"/?case={case_id}", status_code=303)
+
+    def private_capture_import_available() -> bool:
+        return bool(settings.operator_token and settings.persistent_data_dir and wf.paypal_mode == "sandbox" and
+                    getattr(wf.paypal(), "is_sandbox", False))
 
     def limited(request: Request) -> HTMLResponse | None:
         reason = limiter.check(ip(request))
@@ -273,24 +311,34 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
             "webhook_configured": bool(settings.paypal_webhook_id), "q": queue_view(wf.today())})
 
+    def inbox_page_data(page: int, query: str = "") -> dict:
+        query = query.strip()[:100]
+        summary = inbox_db_summary(wf)
+        matched_total = (db.inbox_count(inbox_module.AGENT_NO_REQUEST, query) if query else summary["total"])
+        pages = max(1, (matched_total + inbox_module.MAX_ROWS - 1) // inbox_module.MAX_ROWS)
+        page = max(1, min(page, pages))
+        rows = inbox_rows(wf, offset=(page - 1) * inbox_module.MAX_ROWS, query=query)
+        return {"rows": rows, "summary": summary, "page": page, "pages": pages,
+                "matched_total": matched_total, "query": query,
+                "query_suffix": f"&q={quote(query)}" if query else "",
+                "first_row": (page - 1) * inbox_module.MAX_ROWS + 1 if rows else 0,
+                "last_row": (page - 1) * inbox_module.MAX_ROWS + len(rows)}
+
     @app.head("/inbox", include_in_schema=False, response_class=HTMLResponse)
     @app.get("/inbox", response_class=HTMLResponse)
-    def inbox_page(request: Request):
+    def inbox_page(request: Request, page: int = 1, q: str = ""):
         """The returns inbox: every request from customers and AI agents, and what each needs from the merchant.
         Server-rendered as a table (works without JavaScript); static/app.js upgrades it to a sortable grid."""
-        rows = inbox_rows(wf)
         return templates.TemplateResponse(request, "inbox.html", {
             "settings": settings, "paypal_mode": wf.paypal_mode,
             "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
-            "webhook_configured": bool(settings.paypal_webhook_id), "rows": rows,
-            # Counts cover every request; the table shows the newest MAX_ROWS and says so when it is cut.
-            "summary": inbox_summary(inbox_rows(wf, None, evidence=False)), "buckets": BUCKET_LABELS,
-            "can_fill": can_fill()})
+            "webhook_configured": bool(settings.paypal_webhook_id), "buckets": BUCKET_LABELS,
+            "can_fill": can_fill(), **inbox_page_data(page, q)})
 
     @app.get("/api/inbox")
-    def inbox_api():
+    def inbox_api(page: int = 1, q: str = ""):
         """The inbox rows as JSON (what the grid loads). Read-only."""
-        return {"rows": inbox_rows(wf), "summary": inbox_summary(inbox_rows(wf, None, evidence=False))}
+        return inbox_page_data(page, q)
 
     @app.get("/healthz")
     def healthz():
@@ -300,15 +348,16 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                 # scripts/sandbox_verify.py against the instance. Empty when unset (local runs).
                 "version": os.environ.get("RENDER_GIT_COMMIT", ""),
                 "paypal_mode": wf.paypal_mode, "llm_configured": settings.llm_configured,
-                "webhook_configured": bool(settings.paypal_webhook_id), "cases": len(db.list_cases()),
+                "webhook_configured": bool(settings.paypal_webhook_id), "cases": db.count_cases(),
                 # Autonomy, so a verification run can tell which configuration it is talking to
                 # (scripts/sandbox_verify.py) instead of scraping the page. Neither value is a secret.
                 "auto_enabled": settings.auto_enabled,
                 "auto_exchange_enabled": settings.auto_exchange_enabled,
                 "auto_refund_max_amount": str(settings.auto_refund_max_amount),
-                # Render (no disk) stores SQLite under /tmp; a restart or redeploy wipes it.
-                # Surfaced so a judge (or deploy-verify) can see the demo is ephemeral without scraping.
-                "persistence": "ephemeral" if settings.db_path.startswith("/tmp") else "durable",
+                # The public Render demo stores SQLite under /tmp. A separate private profile can
+                # declare a mounted disk; report the configuration, not a claim that storage survived a restart.
+                "persistence": ("persistent-disk-configured" if settings.persistent_data_dir else
+                                "ephemeral" if settings.db_path.startswith("/tmp/") else "local-file"),
                 # Which safety layers this deployment runs, so "the AI safety classifier is off on the hosted demo"
                 # and the gate's rule version can be checked from outside: True only when the classifier was built
                 # (TRADEOS_SAFETY_AI=1 and an LLM key), not merely requested.
@@ -327,6 +376,57 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             case_id = wf.run_scenario(scenario)
         except MoneyError as exc:  # e.g. the seeded mixed order in a zero-decimal currency
             return render_dashboard(request, flash=f"Cannot create this demo case: {exc}", status_code=422)
+        return back(case_id)
+
+    @app.post("/demo/merchant-order")
+    def merchant_demo_order(request: Request, buyer_name: str = Form("")):
+        """Make a captured Sandbox demo order first, then show its agent return pass once."""
+        if not settings.agent_demo_orders or wf.paypal_mode not in ("mock", "sandbox"):
+            raise HTTPException(404)
+        if (refused := limited(request)) is not None:
+            return refused
+        try:
+            case_id, return_pass = wf.agents.place_merchant_order(buyer_name)
+        except (MoneyError, RefundNotAllowed) as exc:
+            return render_dashboard(request, flash=f"Could not create the merchant demo order: {exc}",
+                                    status_code=422)
+        case = db.get_case(case_id) or {}
+        return templates.TemplateResponse(request, "merchant_pass.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id),
+            "case": case, "return_pass": return_pass,
+        }, headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
+
+    @app.post("/merchant/import-sandbox-capture")
+    def import_sandbox_capture(request: Request, capture_id: str = Form(""), buyer_name: str = Form("")):
+        """Private merchant intake; never offered to an agent or the public shared demo."""
+        if not private_capture_import_available():
+            raise HTTPException(404)
+        if (refused := limited(request)) is not None:
+            return refused
+        try:
+            case_id, return_pass = wf.agents.import_sandbox_capture(capture_id, buyer_name)
+        except (ValueError, RefundNotAllowed, PayPalError) as exc:
+            return render_dashboard(request, flash=f"Capture not imported: {exc}", status_code=422)
+        return templates.TemplateResponse(request, "merchant_pass.html", {
+            "settings": settings, "paypal_mode": wf.paypal_mode,
+            "extractor": getattr(wf.extractor, "name", type(wf.extractor).__name__),
+            "webhook_configured": bool(settings.paypal_webhook_id),
+            "case": db.get_case(case_id), "return_pass": return_pass, "imported": True,
+        }, headers={"Cache-Control": "private, no-store", "Referrer-Policy": "no-referrer"})
+
+    @app.post("/merchant/orders/{case_id}/revoke-return-pass")
+    def revoke_return_pass(request: Request, case_id: str):
+        """Private merchant may cancel an unused agent authorization."""
+        if not private_capture_import_available():
+            raise HTTPException(404)
+        try:
+            wf.agents.revoke_return_pass(case_id)
+        except CaseNotFound:
+            raise HTTPException(404, "Order not found") from None
+        except RefundNotAllowed as exc:
+            return render_dashboard(request, case_id, flash=f"Return pass not revoked: {exc}", status_code=409)
         return back(case_id)
 
     @app.post("/demo/agent-scenes")
@@ -531,7 +631,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if wf.refund_check_pending(case_id):
             return render_dashboard(request, case_id, status_code=409,
                                     flash="Checking with PayPal whether the last refund request went through — "
-                                          "retry in a few seconds (it will reuse the same PayPal-Request-Id).")
+                                          + ("wait a few seconds before retrying the mock request."
+                                             if wf.paypal_mode == "mock" else
+                                             "the real refund request will not be re-sent."))
         if case and case["status"] == REFUND_FAILED:
             return guarded(request, case_id, wf.retry_failed_refund)
         return guarded(request, case_id, wf.execute_refund)
@@ -570,6 +672,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         if (refused := money_limited(request, case_id)) is not None:
             return refused
         return mixed_guarded(request, case_id, lambda: wf.mixed.retry_batch(case_id, batch_id))
+
+    @app.post("/cases/{case_id}/batches/{batch_id}/confirm-refund")
+    def confirm_batch_refund(request: Request, case_id: str, batch_id: str, refund_id: str = Form("")):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return mixed_guarded(request, case_id, lambda: wf.mixed.confirm_unknown_refund(case_id, batch_id, refund_id))
 
     @app.post("/cases/{case_id}/lines/{line_no}/resolve")
     def resolve_line(request: Request, case_id: str, line_no: int, action: str = Form(""), reason: str = Form("UNKNOWN")):
@@ -726,6 +834,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             return refused  # each click is two PayPal GETs: keep it bounded like the money actions
         return guarded(request, case_id, wf.refresh_refund)
 
+    @app.post("/cases/{case_id}/confirm-refund")
+    def confirm_refund(request: Request, case_id: str, refund_id: str = Form("")):
+        if (refused := money_limited(request, case_id)) is not None:
+            return refused
+        return guarded(request, case_id, lambda cid: wf.confirm_unknown_refund(cid, refund_id))
+
     @app.get("/cases/{case_id}/paypal-return")
     def paypal_return(request: Request, case_id: str):
         """PayPal redirects the buyer here with a GET. GET never changes state (no capture, no CSRF
@@ -773,8 +887,12 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
                     "refund_id": b.get("refund_id"), "refund_status": b.get("refund_status"),
                     "paypal_amount": b.get("paypal_amount"), "debug_id": b.get("debug_id"),
                     "request_id": b.get("request_id")} for b in db.list_batches(case_id)]
-        refund_api_called = any(c["operation"] == "refund_capture" for c in calls) or bool(
+        logged_or_identified = any(c["operation"] == "refund_capture" for c in calls) or bool(
             ids.get("refund_id") or any(b["refund_id"] for b in batches))
+        # A process can stop after PayPal receives the request but before log_paypal_call().
+        # UNKNOWN with no log/ID is uncertainty, not proof that the API was never called.
+        refund_api_called = (True if logged_or_identified else None if case["status"] == REFUND_UNKNOWN or any(
+            b["status"] == "UNKNOWN" for b in batches) else False)
         return {
             "report": "TradeOS case evidence", "generated_at": utcnow(), "case_id": case_id,
             "environment": {"paypal_mode": wf.paypal_mode, "note": "PayPal Sandbox only — no real money"

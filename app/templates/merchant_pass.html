@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Merchant Sandbox order · TradeOS{% endblock %}
+{% block content %}
+<section class="block">
+  <h1>{{ 'Imported Sandbox capture' if imported|default(false) else 'Merchant Sandbox order' }}</h1>
+  {% if imported|default(false) %}
+  <p class="small muted">PayPal Sandbox confirmed this pre-existing capture under the connected merchant credentials. The merchant attested the demo sneakers and buyer; the capture lookup cannot verify them or connect a store order system.</p>
+  {% else %}
+  <p class="small muted">This is a new TradeOS demo order captured in PayPal Sandbox, created before an AI agent asks for a return. It is not an imported store order or proof of buyer identity.</p>
+  {% endif %}
+  <p>Order: <a href="/?case={{ case.id }}">{{ case.id }}</a> · Status: <strong>{{ case.status }}</strong></p>
+  {% if return_pass %}
+  <p>Give this order ID and return pass to a buyer's agent. The pass expires in 30 minutes, permits one return request on this order, and cannot approve or issue a refund. It appears only on this page; save it now.</p>
+  <p><strong>Return pass:</strong> <code>{{ return_pass }}</code></p>
+  <p class="small muted">In an MCP client, call <code>request_return(order_id, message, agent_name, on_behalf_of, return_pass)</code>. Use the same pass with <code>get_case_status(order_id, return_pass)</code> before it expires. The merchant's policy and human approval still control any refund.</p>
+  {% if settings.operator_token and settings.persistent_data_dir %}
+  <form method="post" action="/merchant/orders/{{ case.id }}/revoke-return-pass" class="actions"><button class="btn ghost">Revoke unused return pass</button></form>
+  {% endif %}
+  {% else %}
+  <p>No return pass was issued because PayPal did not confirm a capture. Check the order status; do not hand it to an agent as a paid order.</p>
+  {% endif %}
+  <p><a href="/#agents">Back to agent demo</a></p>
+</section>
+{% endblock %}

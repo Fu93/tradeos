@@ -3,7 +3,7 @@ import json
 import httpx
 import pytest
 
-from app.paypal_client import SANDBOX_TEST_CARD, PayPalClient, PayPalError, find_link, first_capture
+from app.paypal_client import SANDBOX_TEST_CARD, PayPalClient, PayPalError, find_link, first_capture, outcome_unknown
 
 
 class Recorder:
@@ -31,6 +31,65 @@ def client(routes):
 def test_missing_credentials_raise_visible_error():
     with pytest.raises(PayPalError, match="not configured"):
         PayPalClient("", "", "https://api-m.sandbox.paypal.com")
+
+
+@pytest.mark.parametrize("base_url", [
+    "https://api-m.sandbox.paypal.com.attacker.test",
+    "https://sandbox.evil.test",
+    "https://api-m.paypal.com.attacker.test",
+    "http://api-m.sandbox.paypal.com",
+    "https://user:pass@api-m.sandbox.paypal.com",
+    "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+    "https://api-m.sandbox.paypal.com:abc",
+])
+def test_paypal_client_rejects_non_paypal_or_ambiguous_url_before_auth(base_url):
+    with pytest.raises(PayPalError) as exc:
+        PayPalClient("id", "secret", base_url, allow_live=True)
+    assert exc.value.sent is False
+
+
+def test_malformed_oauth_response_is_a_certain_preflight_error():
+    rec = Recorder({("POST", "/v1/oauth2/token"): httpx.Response(200, text="not JSON")})
+    pp = PayPalClient("id", "secret", "https://api-m.sandbox.paypal.com",
+                      transport=httpx.MockTransport(rec))
+    with pytest.raises(PayPalError, match="invalid OAuth token") as exc:
+        pp.get_capture("C1")
+    assert exc.value.sent is False
+    assert [r.url.path for r in rec.requests] == ["/v1/oauth2/token"]
+
+
+@pytest.mark.parametrize("response", [
+    httpx.Response(201, text="not JSON"),
+    httpx.Response(201, json=["unexpected", "array"]),
+])
+def test_malformed_success_after_refund_send_is_an_unknown_outcome(response):
+    pp, rec = client({("POST", "/v2/payments/captures/C1/refund"): response})
+    with pytest.raises(PayPalError) as exc:
+        pp.refund_capture("C1", "tradeos-refund-A-1")
+    assert exc.value.sent is True and outcome_unknown(exc.value)
+    assert [r.url.path for r in rec.requests].count("/v2/payments/captures/C1/refund") == 1
+
+
+@pytest.mark.parametrize("payload", [
+    {"status": "COMPLETED"},
+    {"id": "R1"},
+    {"id": " ", "status": "COMPLETED"},
+    {"id": "R1", "status": "NOT_A_PAYPAL_STATUS"},
+])
+def test_incomplete_refund_evidence_is_an_unknown_outcome(payload):
+    pp, rec = client({("POST", "/v2/payments/captures/C1/refund"): httpx.Response(201, json=payload)})
+    with pytest.raises(PayPalError, match="valid ID and status") as exc:
+        pp.refund_capture("C1", "tradeos-refund-A-1")
+    assert exc.value.sent is True and outcome_unknown(exc.value)
+    assert [r.url.path for r in rec.requests].count("/v2/payments/captures/C1/refund") == 1
+
+
+def test_malformed_paypal_error_details_still_raise_paypal_error():
+    pp, _ = client({("POST", "/v2/payments/captures/C1/refund"):
+                    httpx.Response(422, json={"name": "UNPROCESSABLE_ENTITY", "details": ["bad"]})})
+    with pytest.raises(PayPalError) as exc:
+        pp.refund_capture("C1", "tradeos-refund-A-1")
+    assert exc.value.status_code == 422 and not outcome_unknown(exc.value)
 
 
 def test_token_is_cached_and_card_order_payload():

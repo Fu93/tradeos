@@ -1,10 +1,13 @@
-"""Security headers, CSRF (Origin/Referer) check and friendly HTML error pages."""
+"""Security headers, optional operator gate, CSRF check and friendly HTML error pages."""
 from __future__ import annotations
 
+import base64
+import binascii
+import secrets
 from urllib.parse import urlsplit
 
 from fastapi import Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Templates use only /static/app.js and /static/style.css (no inline scripts, styles or handlers).
@@ -20,6 +23,25 @@ HEADERS = {
     "Referrer-Policy": "strict-origin-when-cross-origin",
 }
 UNSAFE = {"POST", "PUT", "PATCH", "DELETE"}
+PUBLIC_PATHS = {"/healthz", "/webhooks/paypal"}
+
+
+def _operator_valid(header: str, token: str) -> bool:
+    """HTTP Basic uses a fixed username; compare the secret in constant time."""
+    scheme, _, value = header.partition(" ")
+    if scheme.lower() != "basic" or len(value) > 4096:
+        return False
+    try:
+        decoded = base64.b64decode(value, validate=True)
+    except (ValueError, binascii.Error):
+        return False
+    username, sep, password = decoded.partition(b":")
+    return bool(sep) and secrets.compare_digest(username, b"operator") and secrets.compare_digest(
+        password, token.encode("utf-8"))
+
+
+def _public_path(path: str) -> bool:
+    return path in PUBLIC_PATHS or path.startswith("/static/") or path == "/mcp" or path.startswith("/mcp/")
 
 
 def _origin_of(url: str) -> str | None:
@@ -41,14 +63,21 @@ def same_origin(request: Request) -> bool:
     return True
 
 
-def install_security(app, templates, csrf_exempt: tuple[str, ...] = ()) -> None:
+def install_security(app, templates, csrf_exempt: tuple[str, ...] = (), operator_token: str = "") -> None:
     @app.middleware("http")
     async def security(request: Request, call_next):
-        if request.method in UNSAFE and request.url.path not in csrf_exempt and not same_origin(request):
+        protected = bool(operator_token) and not _public_path(request.url.path)
+        resp: Response
+        if protected and not _operator_valid(request.headers.get("authorization", ""), operator_token):
+            resp = JSONResponse({"detail": "operator credentials required"}, status_code=401,
+                                headers={"WWW-Authenticate": 'Basic realm="TradeOS operator", charset="UTF-8"'})
+        elif request.method in UNSAFE and request.url.path not in csrf_exempt and not same_origin(request):
             resp = HTMLResponse(page("Request blocked", "This action must be started from the TradeOS page "
                                      "itself (cross-site request refused)."), status_code=403)
         else:
             resp = await call_next(request)
+        if protected:
+            resp.headers["Cache-Control"] = "private, no-store"
         for k, v in HEADERS.items():
             resp.headers.setdefault(k, v)
         return resp

@@ -22,8 +22,9 @@ import json as _json
 import threading
 import time
 from datetime import date
+from decimal import Decimal, InvalidOperation
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 
 import httpx
 
@@ -31,6 +32,8 @@ import httpx
 SANDBOX_TEST_CARD = "4012888888881881"
 # Scope the app needs to READ disputes (GET /v1/customer/disputes). TradeOS never uses the write scopes.
 DISPUTES_READ_SCOPE = "https://uri.paypal.com/services/disputes/read-seller"
+SANDBOX_HOSTS = frozenset({"api-m.sandbox.paypal.com", "api.sandbox.paypal.com"})
+LIVE_HOSTS = frozenset({"api-m.paypal.com", "api.paypal.com"})
 
 
 class PayPalError(Exception):
@@ -68,8 +71,8 @@ class PayPalError(Exception):
 
 
 # How long a PayPal-Request-Id can be relied on to replay the first result. The Orders v2 reference documents 6 hours
-# ("The server stores keys for 6 hours"); the refund reference documents no window at all, so TradeOS uses the same
-# bound for refunds. Past it, re-sending a request id is not provably safe, and a person checks PayPal instead.
+# ("The server stores keys for 6 hours"). The refund endpoint documents no retention window, so real refunds
+# with an unknown outcome are never replayed. This bound also limits mock refund recovery tests.
 IDEMPOTENCY_WINDOW_HOURS = 6
 
 
@@ -98,6 +101,62 @@ def find_link(resource: dict, *rels: str) -> str | None:
     return None
 
 
+def refund_response_issue(refund: dict, capture_id: str) -> str | None:
+    """A successful HTTP reply still needs enough identity to prove a refund result."""
+    if not isinstance(refund.get("id"), str) or not refund["id"].strip():
+        return "PayPal supplied no refund ID"
+    if refund.get("status") not in ("COMPLETED", "PENDING", "FAILED", "CANCELLED"):
+        return "PayPal supplied no recognized refund status"
+    links = refund.get("links")
+    if links is not None:
+        if not isinstance(links, list) or any(not isinstance(link, dict) for link in links):
+            return "PayPal supplied malformed refund links"
+        up = [link.get("href") for link in links if link.get("rel") == "up"]
+        if up and not all(isinstance(href, str) and href.rstrip("/").endswith("/captures/" + capture_id)
+                          for href in up):
+            return "PayPal linked the refund to another capture"
+    return None
+
+
+def refund_lookup_issue(refund: dict, refund_id: str, capture_id: str, custom_id: str,
+                        amount: str, currency: str) -> str | None:
+    """Evidence required before a merchant-supplied refund ID can resolve an UNKNOWN outcome.
+
+    A capture's status alone cannot identify an individual refund. Require the GET response to
+    bind this refund to the capture and TradeOS case/batch, with the exact approved amount.
+    """
+    issue = refund_response_issue(refund, capture_id)
+    if issue:
+        return issue
+    if refund["id"] != refund_id:
+        return "PayPal returned a different refund ID"
+    links = refund.get("links") or []
+    def matches_capture(link: dict) -> bool:
+        href = link.get("href")
+        if link.get("rel") != "up" or not isinstance(href, str):
+            return False
+        target = urlsplit(href)
+        return (target.scheme == "https" and target.hostname in SANDBOX_HOSTS | LIVE_HOSTS
+                and target.path.rstrip("/") == "/v2/payments/captures/" + capture_id)
+
+    up_links = [link for link in links if link.get("rel") == "up"]
+    if not up_links or not all(matches_capture(link) for link in up_links):
+        return "PayPal supplied no matching capture link"
+    if refund.get("custom_id") != custom_id:
+        return "PayPal refund custom_id does not match this case or batch"
+    reported = refund.get("amount")
+    if not isinstance(reported, dict) or reported.get("currency_code") != currency:
+        return "PayPal refund currency does not match the approved amount"
+    try:
+        value = Decimal(str(reported["value"]))
+        expected = Decimal(amount)
+    except (KeyError, TypeError, ValueError, InvalidOperation):
+        return "PayPal supplied no valid refund amount"
+    if not value.is_finite() or value != expected:
+        return "PayPal refund amount does not match the approved amount"
+    return None
+
+
 def first_capture(order: dict) -> dict | None:
     for unit in order.get("purchase_units", []) or []:
         caps = (unit.get("payments") or {}).get("captures") or []
@@ -117,6 +176,16 @@ class PayPalClient:
         self._id = client_id
         self._secret = client_secret
         self.base_url = base_url.rstrip("/")
+        try:
+            parsed = urlsplit(self.base_url)
+            valid_port = parsed.port in (None, 443)
+        except ValueError:
+            raise PayPalError("PAYPAL_BASE_URL is not a valid PayPal API URL.", sent=False) from None
+        if (parsed.scheme != "https" or parsed.hostname not in SANDBOX_HOSTS | LIVE_HOSTS
+                or not valid_port or parsed.username or parsed.password
+                or parsed.path or parsed.query or parsed.fragment):
+            raise PayPalError("PAYPAL_BASE_URL must be an HTTPS PayPal API host, with no path or credentials.",
+                              sent=False)
         if not self.is_sandbox and not allow_live:
             # Fail at construction, before any card payload or refund can reach a live account.
             raise PayPalError("PAYPAL_BASE_URL is not the PayPal Sandbox — refusing to continue. "
@@ -147,9 +216,16 @@ class PayPalClient:
                 token_err = self._error(resp, "OAuth token request failed")
                 token_err.sent = False  # same: nothing was sent without a token
                 raise token_err
-            body = resp.json()
-            self._token = body["access_token"]
-            self._token_expiry = time.time() + int(body.get("expires_in", 300))
+            try:
+                body = resp.json()
+                token = body["access_token"]
+                expires_in = int(body.get("expires_in", 300))
+                if not isinstance(token, str) or not token or expires_in <= 0:
+                    raise ValueError("invalid OAuth token response")
+            except (ValueError, TypeError, KeyError) as exc:
+                raise PayPalError("PayPal returned an invalid OAuth token response.", sent=False) from exc
+            self._token = token
+            self._token_expiry = time.time() + expires_in
             scope = body.get("scope")
             self._scopes = frozenset(scope.split()) if isinstance(scope, str) else None
             return self._token
@@ -161,17 +237,25 @@ class PayPalClient:
             body = resp.json()
         except ValueError:
             body = {}
+        if not isinstance(body, dict):
+            body = {}
         message = body.get("message") or body.get("error_description") or fallback
+        if not isinstance(message, str):
+            message = fallback
         details = body.get("details")
-        if details and isinstance(details, list):
+        if isinstance(details, list) and details and isinstance(details[0], dict):
             issue = details[0].get("issue") or ""
             desc = details[0].get("description") or ""
+            issue = issue if isinstance(issue, str) else ""
+            desc = desc if isinstance(desc, str) else ""
             message = f"{message} ({issue}{': ' + desc if desc else ''})"
+        name = body.get("name") or body.get("error") or ""
+        debug_id = body.get("debug_id") or resp.headers.get("paypal-debug-id", "")
         return PayPalError(
             message,
             status_code=resp.status_code,
-            name=body.get("name") or body.get("error") or "",
-            debug_id=body.get("debug_id") or resp.headers.get("paypal-debug-id", ""),
+            name=name if isinstance(name, str) else "",
+            debug_id=debug_id if isinstance(debug_id, str) else "",
             details=details,
         )
 
@@ -196,7 +280,17 @@ class PayPalClient:
         self.last_debug_id = resp.headers.get("paypal-debug-id", "") or None
         if resp.status_code >= 400:
             raise self._error(resp, f"{method} {path} failed")
-        return resp.json() if resp.content else {}
+        if not resp.content:
+            return {}
+        try:
+            body = resp.json()
+        except ValueError as exc:
+            raise PayPalError(f"PayPal returned invalid JSON for {method} {path}.",
+                              debug_id=self.last_debug_id or "") from exc
+        if not isinstance(body, dict):
+            raise PayPalError(f"PayPal returned an unexpected JSON shape for {method} {path}.",
+                              debug_id=self.last_debug_id or "")
+        return body
 
     # -- Orders v2 --------------------------------------------------------
     @staticmethod
@@ -273,7 +367,7 @@ class PayPalClient:
 
     @property
     def is_sandbox(self) -> bool:
-        return "sandbox" in self.base_url
+        return urlsplit(self.base_url).hostname in SANDBOX_HOSTS
 
     def refund_capture(self, capture_id: str, request_id: str, note_to_payer: str | None = None,
                        mock_response: str | None = None, amount: dict | None = None,
@@ -298,8 +392,15 @@ class PayPalClient:
         if note_to_payer:
             body["note_to_payer"] = note_to_payer[:255]
         content = _json.dumps(body, ensure_ascii=False).encode() if body else b"{}"
-        return self._request("POST", f"/v2/payments/captures/{capture_id}/refund", content=content,
-                             request_id=request_id, extra_headers=extra)
+        refund = self._request("POST", f"/v2/payments/captures/{capture_id}/refund", content=content,
+                               request_id=request_id, extra_headers=extra)
+        if (not isinstance(refund.get("id"), str) or not refund["id"].strip()
+                or refund.get("status") not in {"COMPLETED", "PENDING", "FAILED", "CANCELLED"}):
+            # The refund request reached PayPal, but this response cannot prove its outcome.
+            # Callers must keep the request ID and reconcile rather than issue a new refund.
+            raise PayPalError("PayPal returned a refund without a valid ID and status.",
+                              debug_id=self.last_debug_id or "")
+        return refund
 
     def get_refund(self, refund_id: str, timeout: float | None = None) -> dict:
         return self._request("GET", f"/v2/payments/refunds/{refund_id}", timeout=timeout)

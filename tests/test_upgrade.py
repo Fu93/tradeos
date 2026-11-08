@@ -432,10 +432,11 @@ def test_dashboard_has_new_panels(app_ctx):
 
 
 # ------------------------------------------------------------------ webhook
-def refund_event(refund_id, capture_id="C-unknown", event_type="PAYMENT.CAPTURE.REFUNDED"):
+def refund_event(refund_id, capture_id=None, event_type="PAYMENT.CAPTURE.REFUNDED"):
     return {"id": "WH-EVT-1", "event_type": event_type, "create_time": "2026-10-08T22:00:00Z",
             "resource": {"id": refund_id, "status": "COMPLETED",
-                         "links": [{"rel": "up", "href": f"https://api.sandbox.paypal.com/v2/payments/captures/{capture_id}"}]}}
+                         "links": ([{"rel": "up", "href": f"https://api.sandbox.paypal.com/v2/payments/captures/{capture_id}"}]
+                                   if capture_id else [])}}
 
 
 def test_webhook_verified_is_second_confirmation(app_ctx):

@@ -1,4 +1,4 @@
-"""Safety Gate 3.3: for a hazard-class product, only a clearly harmless reason skips the safety review.
+"""Safety Gate 3.4: explicit faults cannot be hidden by a second, harmless extracted reason.
 
 The word rules ("sparks", "burning smell", ...) can never list every way a customer describes a fault: on a kettle,
 "keeps tripping", "hot to touch", "battery bulging" got past them. So for products in GATED_CLASSES the gate no
@@ -90,7 +90,7 @@ def test_an_order_status_question_is_not_a_return_and_other_products_are_unchang
 
 def test_the_new_rule_only_ever_adds_reviews():
     """Escalate-only, checked against the released 3.2 on a message pool x products x readings x intents: whatever 3.2
-    flagged, 3.3 flags too."""
+    flagged, 3.4 flags too."""
     pool = (PHRASES["fault_missed_by_words"] + PHRASES["fault_caught_by_words"] + PHRASES["benign"]
             + ["The sole melted in the heat and burned my foot.", "It caught fire!", ""])
     products = [*HAZARD_PRODUCTS.values(), SHIRT, None]
@@ -111,13 +111,14 @@ def test_mixed_orders_use_the_same_rule_line_by_line():
     kettle, shirt = HAZARD_PRODUCTS["MAINS_HEATING"], SHIRT
     for order in ([shirt, kettle], [kettle, shirt]):  # whichever line the hazard product is on
         assert assess_any("It keeps tripping.", order, "OTHER", "REFUND_REQUEST").flagged, order
+        assert assess_any("Too small, and the cord is frayed.", order, "SIZE_MISMATCH", "REFUND_REQUEST").flagged
     assert not assess_any("I changed my mind.", [shirt, kettle], "CHANGED_MIND", "REFUND_REQUEST").flagged
 
 
 @pytest.mark.parametrize("reason,expected", [("OTHER", NEEDS_SAFETY), ("NOT_AS_DESCRIBED", NEEDS_SAFETY),
-                                             ("UNKNOWN", NEEDS_SAFETY), ("CHANGED_MIND", PENDING_APPROVAL)])
+                                             ("UNKNOWN", NEEDS_SAFETY), ("CHANGED_MIND", NEEDS_SAFETY)])
 def test_end_to_end_a_hazard_product_order(settings, reason, expected):
-    """Through the real workflow: a kettle bought by an agent from the catalogue, a message the word lists miss."""
+    """Through the real workflow: rule 4 also holds a clear reading of a fault the old word lists miss."""
     from app.catalog import CatalogProduct
     core = {"intent": "REFUND_REQUEST", "reason": reason, "requested_action": "REFUND"}
     wf, paypal = make_wf(settings, extractor=FakeExtractor(core=core))
@@ -129,7 +130,8 @@ def test_end_to_end_a_hazard_product_order(settings, reason, expected):
     assert case["status"] == expected and paypal.refund_capture.call_count == 0
     if expected == NEEDS_SAFETY:
         gate = next(e for e in wf.db.timeline(order) if e["stage"] == "safety")["detail"]
-        assert gate["trigger"] == "gated_product_unclear" and gate["product_class"] == "MAINS_HEATING"
+        trigger = "gated_product_fault" if reason == "CHANGED_MIND" else "gated_product_unclear"
+        assert gate["trigger"] == trigger and gate["product_class"] == "MAINS_HEATING"
 
 
 def test_the_money_backstop_applies_the_same_rule(settings):
@@ -250,12 +252,35 @@ def test_the_rule_version_that_judged_a_case_is_on_its_hash_chain(settings):
     assert wf.db.verify_chain(order)["ok"]
 
 
-def test_known_gap_two_reasons_in_one_message(settings):
-    """Documented limit (docs/safety-gate.md): one reason per message. When the reading is a clear reason and the
-    fault is described in words on no list, the return is not held. Pinned so a fix shows up as a change here."""
+def test_explicit_fault_is_not_hidden_by_a_second_clear_reason():
+    """A clear extracted reason does not override an explicit malfunction on a gated product."""
     kettle = HAZARD_PRODUCTS["MAINS_HEATING"]
-    assert not assess("I changed my mind, it also keeps tripping.", kettle, "CHANGED_MIND", "REFUND_REQUEST").flagged
-    assert not assess("Too small, and the cord is frayed.", kettle, "SIZE_MISMATCH", "REFUND_REQUEST").flagged
+    for message, reason in (("I changed my mind, it also keeps tripping.", "CHANGED_MIND"),
+                            ("Too small, and the cord is frayed.", "SIZE_MISMATCH"),
+                            ("Wrong item, with a frayed power cable.", "WRONG_ITEM")):
+        gate = assess(message, kettle, reason, "REFUND_REQUEST")
+        assert gate.flagged and gate.trigger == "gated_product_fault"
+        assert not assess(message, SHIRT, reason, "REFUND_REQUEST").flagged
+    assert not assess("I changed my mind about the kettle.", kettle, "CHANGED_MIND", "REFUND_REQUEST").flagged
+    assert not assess("The cord is too short for my counter.", kettle, "CHANGED_MIND", "REFUND_REQUEST").flagged
+
+
+def test_two_reason_fault_is_held_at_intake_and_by_the_money_backstop(settings):
+    from app.workflow import RefundNotAllowed
+
+    core = {"intent": "REFUND_REQUEST", "reason": "CHANGED_MIND", "requested_action": "REFUND"}
+    wf, paypal, order = _kettle_case(settings, core, "I changed my mind, it also keeps tripping.")
+    assert wf.db.get_case(order)["status"] == NEEDS_SAFETY
+    with pytest.raises(RefundNotAllowed, match="Safety Gate"):
+        wf.approve(order)
+    assert paypal.refund_capture.call_count == 0
+
+    wf2, paypal2, pending = _kettle_case(settings, core, "I changed my mind.")
+    assert wf2.db.get_case(pending)["status"] == PENDING_APPROVAL
+    wf2.db.update_case(pending, customer_message="I changed my mind, it also keeps tripping.")
+    with pytest.raises(RefundNotAllowed, match="Safety Gate"):
+        wf2.approve(pending)
+    assert paypal2.refund_capture.call_count == 0
 
 
 def test_the_live_measurement_refuses_keyword_readings():

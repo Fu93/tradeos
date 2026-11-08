@@ -1,7 +1,8 @@
 """The agent gateway's side of the workflow: what an AI agent acting for a buyer may do with an order.
 
-An agent can place a (Sandbox demo) order, ask for a return on it, and read the outcome. It cannot approve, decline
-or refund: there is no method for that here, and the MCP tools in app/agent_gateway.py only call these. Amount,
+An agent can place a (Sandbox demo) order, or receive a return pass for one created by the merchant, ask for a return
+on it, and read the outcome. It cannot approve, decline or refund: there is no method for that here, and the MCP tools
+in app/agent_gateway.py only call these. Amount,
 currency, capture and purchase date come from PayPal and the merchant's own record, never from the agent. A request
 runs the same _after_capture() loop as a dashboard case, and Workflow._autonomy_verdict sends every agent case to a
 person.
@@ -11,19 +12,30 @@ run registry and money-operation guard, so an agent request is serialised exactl
 """
 from __future__ import annotations
 
+import hashlib
+import hmac
+import re
+import secrets
+import sqlite3
+from datetime import datetime, timedelta, timezone
+from decimal import Decimal, InvalidOperation
 from typing import TYPE_CHECKING, Any
 
 from .db import CaseFinalized
 from .catalog import CatalogProduct
-from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
+from .workflow import (AGENT, AGENT_ORDERED, AWAITING_BUYER, DECLINED, DEMO_PRODUCT, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
                        NEEDS_SAFETY, PAYMENT_UNKNOWN, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
-                       REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SCENARIOS, CaseNotFound, RefundNotAllowed, clean_message)
+                       REFUND_AMOUNT_REVIEW, REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SCENARIOS, CaseNotFound,
+                       RefundNotAllowed, clean_message)
 
 if TYPE_CHECKING:  # pragma: no cover
     from .workflow import Workflow
 
 AGENT_NO_REQUEST = "(no request yet: order placed by an AI agent for the buyer)"
+MERCHANT_NO_REQUEST = "(no return request yet: merchant-created Sandbox order)"
 AGENT_TEXT_MAX = 80  # agent / buyer names are labels, not free text
+RETURN_PASS_LIFETIME = timedelta(minutes=30)
+CAPTURE_ID = re.compile(r"[A-Za-z0-9-]{8,64}\Z")
 
 
 class AgentDesk:
@@ -31,18 +43,55 @@ class AgentDesk:
         self.wf = wf
 
     def case(self, case_id: str, caller: dict | None = None, *, check_owner: bool = True,
-             include_archived: bool = False) -> dict:
-        """An agent may only see orders that were placed through the agent gateway. Any other id, including a real
-        dashboard case, is reported as not found, so an agent cannot probe or act on other customers' cases.
+             include_archived: bool = False, return_pass: str | None = None,
+             allow_owner_after_expiry: bool = False) -> dict:
+        """An agent may only see its own gateway order or a merchant-created demo order with its return pass. Any
+        other id, including a customer dashboard case, is reported as not found.
 
         An order placed under a verified credential belongs to that credential: any other caller, including one
         with no credential (the open gateway, or an in-process agent such as the live LLM demo), gets "not found"
         too. Orders placed without a credential stay open to every caller, as the open demo gateway always was.
         check_owner=False is for the server's own bookkeeping (recording a run), never for a tool."""
-        case = self.wf.db.get_case(case_id) if isinstance(case_id, str) else None
+        if check_owner and isinstance(case_id, str):
+            case, verdict, chained = self.wf.db.get_case_with_chain(case_id)
+        else:
+            case = self.wf.db.get_case(case_id) if isinstance(case_id, str) else None
         if not case or case.get("scenario") != AGENT or (case.get("archived_at") and not include_archived):
             raise CaseNotFound(case_id)
         if check_owner:
+            # Owner and return-pass authority come from audit entries. Never
+            # authorize reads or requests from a row whose chain was altered.
+            if (not verdict["ok"] or any(case.get(field) != chained.get(field)
+                                      for field in ("status", "capture_id", "archived_at"))):
+                raise CaseNotFound(case_id)
+            events = self.wf.db.timeline(case_id)
+            if any(e["title"] in ("Merchant Sandbox order created", "Merchant Sandbox capture imported")
+                   for e in events):
+                issued = next((e.get("detail") or {} for e in reversed(events)
+                               if e["title"] == "Merchant return pass issued"), {})
+                revoked = any(e["title"] == "Merchant return pass revoked" and
+                              (e.get("detail") or {}).get("pass_digest") == issued.get("pass_digest")
+                              for e in events)
+                digest = hashlib.sha256((return_pass or "").encode()).hexdigest()
+                try:
+                    valid_until = datetime.fromisoformat(issued["expires_at"])
+                    valid = (isinstance(return_pass, str) and len(return_pass) <= 200 and
+                             hmac.compare_digest(digest, issued["pass_digest"]) and
+                             valid_until > datetime.now(timezone.utc) and not revoked)
+                except (KeyError, TypeError, ValueError):
+                    valid = False
+                requested = next((e.get("detail") or {} for e in events
+                                  if e["title"] == "Return requested by an AI agent for the buyer"), None)
+                credential = requested.get("credential") if requested else None
+                # The pass is a short-lived authority to make the *first* request. Once a
+                # verified agent has made it, that same credential may read the outcome later;
+                # anonymous callers still need an unexpired pass.
+                owner_read = (allow_owner_after_expiry and isinstance(credential, str) and bool(credential)
+                              and credential == (caller or {}).get("credential"))
+                if not valid and not owner_read:
+                    raise CaseNotFound(case_id)
+                if credential is not None and credential != (caller or {}).get("credential"):
+                    raise CaseNotFound(case_id)
             owner = self.owner(case_id)
             if owner is not None and (caller or {}).get("credential") != owner:
                 raise CaseNotFound(case_id)
@@ -82,9 +131,113 @@ class AgentDesk:
             self.wf._order_and_capture(case_id)
         return case_id
 
+    def place_merchant_order(self, buyer: str) -> tuple[str, str | None]:
+        """Create a merchant-owned Sandbox demo order before any agent request.
+
+        Its short-lived bearer pass authorizes one return request on this order. Only the hash is kept on the
+        audit chain; the raw pass is returned once to the merchant's browser. No pass is issued without a capture.
+        This does not import an arbitrary external PayPal order or verify a real buyer's identity."""
+        buyer = clean_message(buyer, AGENT_TEXT_MAX) or SCENARIOS[AGENT]["customer_name"]
+        with self.wf._money_op():
+            case_id = self.wf.new_case(AGENT, message=MERCHANT_NO_REQUEST, customer_name=buyer,
+                                       label="Merchant Sandbox order — awaiting agent request", status=AGENT_ORDERED)
+            self.wf.db.audit(case_id, "agent", "Merchant Sandbox order created",
+                             {"buyer": buyer, "channel": "merchant-demo", "agent_can_approve": False})
+            if not self.wf._order_and_capture(case_id):
+                return case_id, None
+            return case_id, self._issue_return_pass(case_id)
+
+    def import_sandbox_capture(self, capture_id: str, buyer: str) -> tuple[str, str]:
+        """Private merchant-only intake of an already captured Sandbox payment for the demo sneakers.
+
+        PayPal authenticates the capture read under the connected merchant's credentials. The merchant attests the
+        buyer and product; PayPal cannot verify those from a capture ID. The persistent DB's unique capture index
+        prevents a second case (including after archive/restart) from acquiring a fresh refund idempotency key.
+        """
+        settings = self.wf.settings
+        if not settings.operator_token or not settings.persistent_data_dir or settings.reset_on_start:
+            raise RefundNotAllowed("Capture import requires the private persistent merchant profile.")
+        if not isinstance(capture_id, str) or not CAPTURE_ID.fullmatch(capture_id):
+            raise ValueError("Enter a PayPal capture ID (8–64 letters, digits or hyphens).")
+        buyer = clean_message(buyer, AGENT_TEXT_MAX)
+        if not buyer:
+            raise ValueError("The merchant must name the demo buyer before issuing a return pass.")
+        paypal = self.wf.paypal()
+        if getattr(paypal, "is_mock", False) or not getattr(paypal, "is_sandbox", False):
+            raise RefundNotAllowed("Only PayPal Sandbox captures may be imported.")
+        with self.wf._money_op():
+            # No case or pass is created for an inaccessible, malformed, refunded or mismatched capture.
+            capture = paypal.get_capture(capture_id)
+            amount = capture.get("amount") or {}
+            try:
+                value = Decimal(str(amount["value"]))
+                expected = Decimal(settings.order_amount)
+                datetime.fromisoformat(capture["create_time"].replace("Z", "+00:00"))
+            except (KeyError, TypeError, ValueError, InvalidOperation, AttributeError):
+                raise RefundNotAllowed("PayPal did not return a complete capture amount and date.") from None
+            if (capture.get("id") != capture_id or capture.get("status") != "COMPLETED" or
+                    amount.get("currency_code") != settings.currency or value != expected):
+                raise RefundNotAllowed("Capture must be completed, unrefunded, and match the demo sneaker amount "
+                                       "and currency before it can be imported.")
+            order_id = ((capture.get("supplementary_data") or {}).get("related_ids") or {}).get("order_id")
+            try:
+                case_id = self.wf.new_case(
+                    AGENT, message=MERCHANT_NO_REQUEST, customer_name=buyer,
+                    label="Imported Sandbox capture — merchant-attested demo sneakers", status=AGENT_ORDERED,
+                    product_sku=DEMO_PRODUCT["sku"], amount=str(value), capture_id=capture_id,
+                    capture_status="COMPLETED", capture_time=capture["create_time"], order_id=order_id)
+            except sqlite3.IntegrityError:
+                raise RefundNotAllowed("This PayPal capture already belongs to a TradeOS case; no new pass issued.") from None
+            self.wf.db.log_paypal_call(case_id, "get_capture", True, "merchant import verified",
+                                       evidence={"id": capture_id, "status": "COMPLETED", "amount": amount})
+            self.wf.db.audit(case_id, "agent", "Merchant Sandbox capture imported",
+                             {"buyer": buyer, "capture_id": capture_id, "order_id": order_id,
+                              "amount": amount, "capture_time": capture["create_time"],
+                              "product": "demo sneakers (merchant-attested)", "buyer_verified": False,
+                              "channel": "private-merchant-import", "agent_can_approve": False})
+            return case_id, self._issue_return_pass(case_id)
+
+    def _issue_return_pass(self, case_id: str) -> str:
+        return_pass = secrets.token_urlsafe(32)
+        self.wf.db.audit(case_id, "agent", "Merchant return pass issued",
+                         {"pass_digest": hashlib.sha256(return_pass.encode()).hexdigest(),
+                          "expires_at": (datetime.now(timezone.utc) + RETURN_PASS_LIFETIME).isoformat(),
+                          "scope": "one Sandbox order, one return request; no approval or refund"})
+        return return_pass
+
+    def revoke_return_pass(self, case_id: str) -> bool:
+        """Private merchant revokes an unused pass; a used request remains auditable."""
+        settings = self.wf.settings
+        if not settings.operator_token or not settings.persistent_data_dir or settings.reset_on_start:
+            raise RefundNotAllowed("Return-pass revocation requires the private persistent merchant profile.")
+        with self.wf._lock(case_id):
+            case, verdict, chained = self.wf.db.get_case_with_chain(case_id)
+            if not case or case["scenario"] != AGENT or case.get("archived_at"):
+                raise CaseNotFound(case_id)
+            if (not verdict["ok"] or any(case.get(field) != chained.get(field)
+                                      for field in ("status", "capture_id", "archived_at"))):
+                raise RefundNotAllowed("Audit trail is broken; return pass cannot be changed.")
+            events = self.wf.db.timeline(case_id)
+            if not any(e["title"] in ("Merchant Sandbox order created", "Merchant Sandbox capture imported")
+                       for e in events):
+                raise RefundNotAllowed("This order has no merchant return pass.")
+            issued = next((e.get("detail") or {} for e in reversed(events)
+                          if e["title"] == "Merchant return pass issued"), {})
+            if not issued.get("pass_digest"):
+                raise RefundNotAllowed("This order has no merchant return pass.")
+            if any(e["title"] == "Return requested by an AI agent for the buyer" for e in events):
+                raise RefundNotAllowed("This return pass was already used for a request.")
+            if any(e["title"] == "Merchant return pass revoked" and
+                   (e.get("detail") or {}).get("pass_digest") == issued["pass_digest"] for e in events):
+                return False
+            self.wf.db.audit(case_id, "human", "Merchant return pass revoked",
+                             {"pass_digest": issued["pass_digest"], "scope": "agent request no longer authorized"})
+            return True
+
     def submit_request(self, case_id: str, message: str, agent: str, on_behalf_of: str,
-                       caller: dict | None = None) -> bool:
-        """An agent asks for a return / exchange on an order it placed. Runs the same _after_capture() loop as a
+                       caller: dict | None = None, return_pass: str | None = None) -> bool:
+        """An agent asks for a return / exchange on its order or one shared with a merchant return pass. Runs the same
+        _after_capture() loop as a
         dashboard case (AI intent, Safety Gate, PayPal GET capture, deterministic policy), then stops at the
         approval step: autonomy treats every agent-originated case as HUMAN.
 
@@ -103,7 +256,7 @@ class AgentDesk:
         on_behalf_of = clean_message(on_behalf_of, AGENT_TEXT_MAX)
         if not agent:
             raise ValueError("agent_name is required: the audit trail records which agent asked.")
-        self.case(case_id, caller)
+        self.case(case_id, caller, return_pass=return_pass)
         with self.wf._locks_guard:
             if self.wf._resetting:
                 raise RefundNotAllowed("A demo reset is in progress — try again in a moment.")
@@ -111,22 +264,26 @@ class AgentDesk:
                 return False
             self.wf._running.add(case_id)
         try:
-            case = self.wf._case(case_id)
-            if case["status"] == AWAITING_BUYER:
-                raise ValueError("This order has no PayPal capture yet: the buyer has to approve the payment at "
-                                 "PayPal first (buyer_approval_url in get_case_status).")
-            if case["status"] == ERROR and case.get("order_status") == PAYMENT_UNKNOWN:
-                raise ValueError("PayPal has not confirmed this order's payment yet: the merchant checks it with "
-                                 "PayPal. Do not place a new order; call get_case_status later.")
-            if case["status"] == ERROR and not case.get("capture_id"):
-                raise ValueError("This order failed at PayPal before any payment was captured, so there is "
-                                 "nothing to return. Place a new order.")
-            if case["status"] != AGENT_ORDERED:
-                return False
-            self.wf.db.update_case(case_id, customer_message=text)
-            self.wf.db.audit(case_id, "agent", "Return requested by an AI agent for the buyer",
-                          {"agent": agent, "on_behalf_of": on_behalf_of or None, "channel": "mcp",
-                           **caller_fields(caller), "message": text, "agent_can_approve": False})
+            with self.wf._lock(case_id):
+                # Revocation and the first request use this lock. A pass
+                # revoked after the early check cannot slip through here.
+                self.case(case_id, caller, return_pass=return_pass)
+                case = self.wf._case(case_id)
+                if case["status"] == AWAITING_BUYER:
+                    raise ValueError("This order has no PayPal capture yet: the buyer has to approve the payment at "
+                                     "PayPal first (buyer_approval_url in get_case_status).")
+                if case["status"] == ERROR and case.get("order_status") == PAYMENT_UNKNOWN:
+                    raise ValueError("PayPal has not confirmed this order's payment yet: the merchant checks it with "
+                                     "PayPal. Do not place a new order; call get_case_status later.")
+                if case["status"] == ERROR and not case.get("capture_id"):
+                    raise ValueError("This order failed at PayPal before any payment was captured, so there is "
+                                     "nothing to return. Place a new order.")
+                if case["status"] != AGENT_ORDERED:
+                    return False
+                self.wf.db.update_case(case_id, customer_message=text)
+                self.wf.db.audit(case_id, "agent", "Return requested by an AI agent for the buyer",
+                              {"agent": agent, "on_behalf_of": on_behalf_of or None, "channel": "mcp",
+                               **caller_fields(caller), "message": text, "agent_can_approve": False})
             self.wf._after_capture(case_id)
             return True
         except CaseFinalized as exc:
@@ -165,9 +322,9 @@ class AgentDesk:
         self.wf.db.audit(case_id, "agent", f"Live AI agent run ({record.get('model')}): "
                       f"{len(record.get('steps') or [])} tool calls, {record.get('stop_reason')}", record)
 
-    def view(self, case_id: str, caller: dict | None = None) -> dict:
+    def view(self, case_id: str, caller: dict | None = None, return_pass: str | None = None) -> dict:
         """What the agent may read back: the outcome and the evidence, never the dashboard's controls."""
-        case = self.case(case_id, caller)
+        case = self.case(case_id, caller, return_pass=return_pass, allow_owner_after_expiry=True)
         policy = case.get("policy") or {}
         chain_result = self.wf.db.verify_chain(case_id)
         refund_calls = self.wf.db.paypal_calls(case_id, "refund_capture")
@@ -231,6 +388,9 @@ def next_step(case: dict) -> str:
             return ("PayPal could not be read while checking the request. A person at the merchant will re-check "
                     "it. No refund was made.")
         return "The order failed at PayPal. No payment was captured and nothing can be returned."
+    if status == REFUND_AMOUNT_REVIEW:
+        return ("PayPal reports COMPLETED, but the approved refund amount is not yet verified. The merchant will "
+                "check PayPal; do not request another refund.")
     if status == REFUND_PENDING:
         return "Approved. PayPal reports the refund PENDING: it is not completed yet. Do not tell the buyer it is."
     if status == REFUND_UNKNOWN:

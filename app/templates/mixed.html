@@ -61,6 +61,7 @@
       {% if b.request_id %}<br><span class="muted small">PayPal-Request-Id <code>{{ b.request_id }}</code></span>{% endif %}
       {% if b.error %}<br><span class="muted small">{{ b.error }}</span>{% endif %}
       {% if b.retryable %}<form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ b.id }}/retry" class="js-busy inline"><button class="btn small">Retry (same PayPal-Request-Id)</button></form>{% endif %}
+      {% if b.status == "UNKNOWN" and paypal_mode == "sandbox" %}<form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ b.id }}/confirm-refund" class="inline"><label class="small">PayPal Refund ID <input name="refund_id" maxlength="64" pattern="[A-Za-z0-9-]+" required autocomplete="off"></label><button class="btn small">Verify with PayPal (GET only)</button></form>{% endif %}
       {% if b.declinable and not (mixed.approval and mixed.approval.batch.id == b.id) %}<form method="post" action="/cases/{{ mixed.case_id }}/batches/{{ b.id }}/decline" class="js-busy inline"><button class="btn small ghost">Decline</button></form>{% endif %}
     </li>
     {% endfor %}

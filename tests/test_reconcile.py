@@ -2,6 +2,8 @@
 import json
 from unittest.mock import MagicMock
 
+import pytest
+
 from app.paypal_client import PayPalError
 from app.paypal_mock import MockPayPalClient
 from app.views import evidence_log, evidence_summary
@@ -38,6 +40,24 @@ def test_pending_advances_to_completed_from_paypal_get(settings):
     assert r["advanced"] and case["status"] == "REFUND_COMPLETED" and case["refund_status"] == "COMPLETED"
     assert case["note"]["outcome"] == "COMPLETED_NOTE"
     assert pp.refund_capture.call_count == 1
+
+
+@pytest.mark.parametrize("change", [
+    {"id": "OTHER-CAPTURE"}, {"status": "DENIED"},
+    {"amount": {"value": "5.00", "currency_code": "USD"}},
+])
+def test_pending_does_not_advance_from_mismatched_capture_evidence(settings, change):
+    wf, pp, case_id = approved_a(settings, refund_status="PENDING")
+    pp.complete_refund(wf.db.get_case(case_id)["refund_id"])
+    real = pp._mock_wraps.get_capture
+    pp.get_capture.side_effect = lambda cid, timeout=None: {**real(cid), **change}
+    result = wf.reconcile(case_id)
+    case = wf.db.get_case(case_id)
+    assert not result["ok"] and not result["advanced"]
+    assert case["status"] == "REFUND_PENDING" and case["refund_status"] == "PENDING"
+    assert (case.get("note") or {}).get("outcome") != "COMPLETED_NOTE"
+    assert pp.refund_capture.call_count == 1
+    assert wf.db.verify_chain(case_id)["ok"]
 
 
 def test_pending_stays_pending_when_paypal_still_pending(settings):

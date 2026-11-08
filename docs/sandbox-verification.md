@@ -1,5 +1,28 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
+## Published demo technical recheck — 7 Nov 2026
+
+The published `dc2c6b5` build passed the default live Sandbox verification
+and the separate two-batch partial-refund verification. Exact case, refund,
+Debug-ID, amount and audit-chain results are in
+[`docs/evidence/sandbox-verify-dc2c6b5-2026-11-07.md`](evidence/sandbox-verify-dc2c6b5-2026-11-07.md).
+The development tree still contains unpublished changes, so this is evidence
+for the published commit only.
+
+## Published demo recheck — 5 Nov 2026
+
+At 23:19 GMT, the public demo's `/healthz` reported commit
+`dc2c6b5cd40e19c2f859d54a71f06b593c350864`, PayPal mode `sandbox`, LLM and webhook configured, and autonomy off.
+Running `python scripts/sandbox_verify.py https://tradeos-s33z.onrender.com` against that published build returned
+**31/31 PASS**: human approval before refund, one completed Sandbox refund, a self-verified signed webhook, a
+matching PayPal reconciliation, a rejected Case B with zero refund calls, an exchange with zero refund calls, and a
+refused-then-retried Case R. The complete output is preserved in
+[`docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log`](evidence/sandbox-verify-dc2c6b5-2026-11-05.log).
+The verifier was run from this working tree; its uncommitted change adds optional Basic Auth for private deployments,
+while the default checks are unchanged from the committed script. This recheck proves the **published commit**, not
+the other uncommitted changes in this workspace or any future deployment. The PayPal Developer Dashboard debug-ID
+lookup remains a manual step and is not included in the 31 checks.
+
 ## Pre-merge checklist
 
 *(All done 2026-10-10 — #10, #11 and #12 are merged; kept for the record.)*
@@ -34,7 +57,11 @@ No new required variables. No database migration is needed (Render reseeds on st
 7. Exchange: awaiting approval of the exchange → approve → `EXCHANGE_ARRANGED` with **0** refund calls; refund endpoint 409; audit chain intact. Case A's intent is a return (`REFUND`).
 8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
 
-Not provable live without breaking PayPal on purpose (covered by tests in `tests/test_logic_review.py`): a refund whose reply times out (`REFUND_OUTCOME_UNKNOWN` → recovery), a refund PayPal reports `FAILED` (new request id after a confirmed failure), a reset during an in-flight refund.
+Not provable live without breaking PayPal on purpose (covered by `tests/test_refund_faults.py` and
+`tests/test_mixed_orders.py` and `tests/test_refund_lookup.py`): a refund whose reply times out
+(`REFUND_OUTCOME_UNKNOWN` remains UNKNOWN in real Sandbox until a matching Refund ID is verified by GET, with no
+replay), a refund PayPal reports `FAILED` (new request id after a confirmed failure), and a
+reset during an in-flight refund. Mock mode separately tests same-request-ID recovery.
 
 Manual steps:
 - Open Case A in the browser. In the **PayPal evidence** panel, check the 4 summary lines and "Show details".
@@ -57,7 +84,7 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   with a person; resolving one creates batch 2 on the same capture. Asserts: no refund before approval, two different refund ids and Debug-Ids,
   PayPal-reported = computed per batch, cumulative <= capture, third attempts refused with no new refund call, one verified signed webhook per refund id.
 * `--paypal-overrefund-probe` (with the above): one direct Sandbox refund call above the remaining capture using the env credentials. It is a probe of PayPal, outside the app.
-* Last run: main tip `1acae45` (the deployed commit, `/healthz` `version` 1acae45…), 2026-10-19 15:38–15:40 BST: default 31/31 PASS
+* Earlier run: main tip `1acae45` (the deployed commit then, `/healthz` `version` 1acae45…), 2026-10-19 15:38–15:40 BST: default 31/31 PASS
   (webhook verification method `self`), `--mixed-only` 16/16 PASS (partial refund 161.69 of 191.21 USD), `--multi-batch-only`
   21/21 PASS (55.74 + 85.32 USD on one capture, two refund ids, one verified signed webhook each; the over-refund probe was
   not run this time). Logs are kept outside the repo. App code for money/safety is unchanged since `5325db7` (#69 docs,

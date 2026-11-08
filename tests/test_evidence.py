@@ -48,7 +48,8 @@ def test_log_is_in_call_order_and_summary_is_short(app_ctx):
         client.post("/webhooks/paypal", content=json.dumps(refund_event(rid)),
                     headers={"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature"})
     rows = evidence_log(wf.db, case_id)
-    assert [r["what"] for r in rows][:3] == ["Create order (Orders v2, card)", "Get capture details", "Refund capture"]
+    assert [r["what"] for r in rows][:4] == ["Create order (Orders v2, card)", "Get capture details",
+                                            "Get capture details", "Refund capture"]
     assert rows[-1]["source"] == "webhook" and [r["seq"] for r in rows] == sorted(r["seq"] for r in rows)
     assert not any(r["source"] == "tradeos" for r in rows)  # decisions live in the case timeline
     summary = {r["label"]: r["value"] for r in evidence_summary(wf.db, wf.db.get_case(case_id))}

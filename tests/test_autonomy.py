@@ -72,8 +72,9 @@ def test_auto_refunds_within_the_merchant_limit(settings):
     assert case["status"] == "REFUND_COMPLETED" and case["refund_status"] == "COMPLETED"
     assert case["approval_source"] == "auto"
     # exactly what a human approval sends: same capture, same idempotency key, same payer note
-    pp.refund_capture.assert_called_once_with(case["capture_id"], f"tradeos-refund-{cid}",
-                                              note_to_payer=case["payer_note"]["text"])
+    pp.refund_capture.assert_called_once_with(
+        case["capture_id"], f"tradeos-refund-{cid}", note_to_payer=case["payer_note"]["text"],
+        amount={"currency_code": case["currency"], "value": case["amount"]}, custom_id=cid)
     assert case["note"]["outcome"] == "COMPLETED_NOTE"
 
 

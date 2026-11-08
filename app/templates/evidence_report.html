@@ -44,6 +44,6 @@
     <tbody>{% for c in r.paypal_calls %}<tr><td>{{ c.ts }}</td><td>{{ c.operation }}</td><td>{{ "yes" if c.ok else "no" }}</td><td><code>{{ c.debug_id or "—" }}</code></td><td><code>{{ c.request_id or "—" }}</code></td></tr>{% endfor %}</tbody>
   </table></div>
   {% else %}<p class="muted">No PayPal API call was made for this case.</p>{% endif %}
-  {% if not r.refund_api_called %}<p><strong>Refund API: NOT CALLED</strong> — no PayPal refund exists for this case.</p>{% endif %}
+  {% if r.refund_api_called is sameas false %}<p><strong>Refund API: NOT CALLED</strong> — no PayPal refund exists for this case.</p>{% elif r.refund_api_called is none %}<p><strong>Refund API: OUTCOME UNKNOWN</strong> — the request may have reached PayPal before its call log was written. Check PayPal before retrying.</p>{% endif %}
 </section>
 {% endblock %}

@@ -259,6 +259,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
 (function () {
   var host = document.getElementById("inbox-grid");
   if (!host || !window.agGrid || !window.fetch) return;
+  var apiUrl = host.getAttribute("data-api-url") || "/api/inbox";
   var table = document.getElementById("inbox-table"), tools = document.getElementById("inbox-tools");
   var search = document.getElementById("inbox-search"), mode = "all";
 
@@ -345,7 +346,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
     });
   }
 
-  fetch("/api/inbox", { cache: "no-store" }).then(function (r) {
+  fetch(apiUrl, { cache: "no-store" }).then(function (r) {
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }).then(function (data) {
@@ -402,7 +403,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
     function poll(delay) {
       setTimeout(function () {
         if (document.hidden) return poll(INBOX_POLL_MS);
-        fetch("/api/inbox", { cache: "no-store" }).then(function (r) {
+        fetch(apiUrl, { cache: "no-store" }).then(function (r) {
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
         }).then(function (d) {

@@ -1,12 +1,14 @@
 """Post-deploy Sandbox check for the PayPal depth work (#10-#12, #20) and the autonomy path (#23).
 
     python scripts/sandbox_verify.py https://<your-render-host>
+    TRADEOS_EXPECTED_VERSION=<commit-sha> python scripts/sandbox_verify.py https://<your-render-host>
     AUTO_ENABLED=1 uvicorn app.main:app --port 8000   # then, in another shell:
     python scripts/sandbox_verify.py http://localhost:8000 --allow-autonomy
 
 Creates ONE new Case A (one Sandbox order + one Sandbox refund of the demo amount), ONE Case B, ONE exchange
 (0 refund calls) and ONE Case R (a forced 422 refund failure, then a retry that refunds).
-It needs no credentials: it only talks to the app it is pointed at.
+For a private Sandbox, set TRADEOS_OPERATOR_TOKEN to the same token as the deployment;
+otherwise it only talks to the open app it is pointed at.
 
 Case A is asserted against the target's ACTUAL autonomy setting, read from /healthz:
 with autonomy OFF the case must wait for a person and make no refund call until one approves; with autonomy
@@ -35,6 +37,13 @@ import sys
 import time
 
 import httpx
+
+
+def verify_client(base: str, transport: httpx.BaseTransport | None = None) -> httpx.Client:
+    token = os.environ.get("TRADEOS_OPERATOR_TOKEN", "")
+    auth = httpx.BasicAuth("operator", token) if token else None
+    return httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False, auth=auth,
+                        transport=transport)
 
 
 def mixed_checks(c: httpx.Client, check, allow_mock: bool = False) -> None:
@@ -219,9 +228,9 @@ def multi_batch_checks(c: httpx.Client, check, allow_mock: bool = False, probe: 
 
 def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_only: bool = False,
          allow_mock: bool = False, multi_batch: bool = False, multi_only: bool = False,
-         probe: bool = False) -> int:
+         probe: bool = False, expected_version: str | None = None) -> int:
     allow_autonomy = allow_autonomy or os.environ.get("ALLOW_AUTONOMY") == "1"
-    c = httpx.Client(base_url=base.rstrip("/"), timeout=90, follow_redirects=False)
+    c = verify_client(base)
     fails: list[str] = []
 
     def check(ok: bool, label: str) -> None:
@@ -229,9 +238,29 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
         if not ok:
             fails.append(label)
 
+    try:
+        health = c.get("/healthz").json()
+    except (httpx.RequestError, ValueError) as exc:
+        check(False, f"cannot read target /healthz ({type(exc).__name__}); stopped before Sandbox transactions")
+        return 1
+    if not isinstance(health, dict):
+        check(False, "target /healthz returned an invalid shape; stopped before Sandbox transactions")
+        return 1
+    observed_version = health.get("version") or ""
+    expected_version = expected_version or os.environ.get("TRADEOS_EXPECTED_VERSION") or None
+    print(f"Target version: {observed_version or 'unreported'}")
+    if expected_version and observed_version != expected_version:
+        check(False, f"target version {observed_version or 'unreported'} differs from expected {expected_version}; "
+              "stopped before creating any Sandbox order or refund")
+        return 1
+    expected_mode = "mock" if allow_mock else "sandbox"
+    if health.get("paypal_mode") != expected_mode:
+        check(False, f"target PayPal mode is {health.get('paypal_mode')}, expected {expected_mode}; "
+              "stopped before Sandbox transactions")
+        return 1
+
     if multi_only:
         try:
-            health = c.get("/healthz").json()
             check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
                   f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
             multi_batch_checks(c, check, allow_mock, probe)
@@ -242,7 +271,6 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
 
     if mixed_only:
         try:
-            health = c.get("/healthz").json()
             check(health.get("paypal_mode") == ("mock" if allow_mock else "sandbox"),
                   f"PayPal mode is {'mock (--allow-mock)' if allow_mock else 'sandbox'} (got {health.get('paypal_mode')})")
             mixed_checks(c, check, allow_mock)
@@ -251,7 +279,6 @@ def main(base: str, allow_autonomy: bool = False, mixed: bool = False, mixed_onl
         print("RESULT:", "ALL PASS" if not fails else f"{len(fails)} FAILED: {fails}")
         return 0 if not fails else 1
 
-    health = c.get("/healthz").json()
     check(health.get("paypal_mode") == "sandbox", f"PayPal mode is sandbox (got {health.get('paypal_mode')})")
     check(bool(health.get("webhook_configured")), "PAYPAL_WEBHOOK_ID configured")
     auto = bool(health.get("auto_enabled"))

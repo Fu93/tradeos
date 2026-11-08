@@ -15,7 +15,7 @@ from .mixed import MIXED, S_ATTENTION, S_DONE, S_NEEDS, S_PENDING, S_PROGRESS, S
 from .supplier import OUT_OF_STOCK
 from .workflow import (AGENT, AGENT_ORDERED, PAYMENT_UNKNOWN, AWAITING_BUYER, DECLINED, ERROR, EXCHANGE_ARRANGED, NEEDS_HUMAN,
                        NEEDS_SAFETY, NEW, PENDING_APPROVAL, REFUND_COMPLETED, REFUND_ERROR, REFUND_FAILED,
-                       REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SAFETY_REVIEWED, Workflow)
+                       REFUND_AMOUNT_REVIEW, REFUND_PENDING, REFUND_UNKNOWN, REJECTED, SAFETY_REVIEWED, Workflow)
 
 MAX_ROWS = 200  # newest first; the demo is shared and a reset archives everything anyway
 
@@ -32,6 +32,8 @@ NEXT_STEP: dict[str, tuple[str, str]] = {
     REFUND_ERROR: (NEEDS_YOU, "PayPal rejected the refund request, so no refund was made. Read the error, then "
                               "retry from the case."),
     REFUND_UNKNOWN: (NEEDS_YOU, "PayPal did not answer the refund call. Check with PayPal before anything else."),
+    REFUND_AMOUNT_REVIEW: (NEEDS_YOU, "PayPal says COMPLETED, but the amount is not verified. Check the refund "
+                                    "with PayPal; do not retry it."),
     ERROR: (NEEDS_YOU, "PayPal could not be read during the policy check. Retry the check from the case."),  # refined
     AWAITING_BUYER: (WAITING, "Waiting for the buyer to approve the payment in PayPal."),
     REFUND_PENDING: (WAITING, "Refund sent; PayPal reports it pending. Shown as done only when PayPal says so."),
@@ -63,6 +65,9 @@ def _next_step(case: dict) -> tuple[str, str]:
     """(bucket, plain words). Two statuses have more than one cause, and the words must match the cause."""
     status = case["status"]
     if status == NEEDS_HUMAN:
+        if (case.get("policy") or {}).get("preflight_blocked"):
+            return NEEDS_YOU, ("PayPal capture or refund policy changed before the refund. Review the payment "
+                               "with PayPal; no new refund request was sent.")
         if case.get("supplier_reply") == OUT_OF_STOCK:
             return NEEDS_YOU, "The replacement is out of stock. Decide whether to offer a refund."
         return NEEDS_YOU, ("The AI could not read this message (the model was unavailable). Read it yourself and "
@@ -93,28 +98,20 @@ def _why(case: dict) -> str:
     return str(reasons[0]) if reasons else ""
 
 
-def _requested_at(wf: Workflow, case: dict) -> str:
-    """When the request arrived. A customer case is opened by its message; an agent's order may be placed well before
-    the agent asks, so its request time is the chained "Return requested" entry."""
-    if case["scenario"] != AGENT:
-        return case["created_at"]
-    asked = [e["ts"] for e in wf.db.timeline(case["id"])
-             if e["stage"] == "agent" and e["title"].startswith("Return requested")]
-    return asked[0] if asked else case["created_at"]
+def inbox_rows(wf: Workflow, limit: int | None = 0, *, evidence: bool = True, offset: int = 0,
+               query: str = "") -> list[dict[str, Any]]:
+    """One row per return request, newest request first; limit 0 means MAX_ROWS, None means all.
 
-
-def inbox_rows(wf: Workflow, limit: int | None = 0, *, evidence: bool = True) -> list[dict[str, Any]]:
-    """One row per return request, newest request first; limit 0 means MAX_ROWS (read at call time), None means all. evidence=False skips everything per
-    case that reads more than the cases table (request time, agent provenance, the chain check, the PayPal call
-    count): the dashboard's strip renders on every page view and only needs counts."""
-    cases = [c for c in wf.db.list_cases() if _is_request(c)]
-    cases.sort(key=lambda c: c["created_at"], reverse=True)
+    evidence=False skips per-case evidence reads: the dashboard's strip only needs counts.
+    """
+    selected = wf.db.inbox_cases(AGENT_NO_REQUEST, MAX_ROWS if limit == 0 else limit,
+                                 offset=offset, query=query)
     rows = []
-    for case in cases[:MAX_ROWS if limit == 0 else limit]:
+    for case in selected:
         bucket, step = _next_step(case)
         from_agent = case["scenario"] == AGENT
         row: dict[str, Any] = {
-            "id": case["id"], "received": case["created_at"], "label": case.get("label") or "",
+            "id": case["id"], "received": case["requested_at"], "label": case.get("label") or "",
             "channel": "AI agent (MCP)" if from_agent else "Customer message",
             "from_agent": from_agent, "requested_by": case["customer_name"], "verified": None,
             "buyer": case["customer_name"], "request": _request_kind(case),
@@ -128,16 +125,19 @@ def inbox_rows(wf: Workflow, limit: int | None = 0, *, evidence: bool = True) ->
             row["buyer"] = who["on_behalf_of"] or case["customer_name"]
             row["verified"] = who["identity_verified"]
         if evidence:
-            row["received"] = _requested_at(wf, case)
             if str(case.get("product_sku") or "").startswith("C3-"):  # a real product an agent bought (Channel3)
                 product = wf.db.get_product(case["product_sku"]) or {}
                 row["item"] = product.get("name") or ""
             row["refund_api_calls"] = len(wf.db.paypal_calls(case["id"], "refund_capture"))
             row["chain_ok"] = bool(wf.db.verify_chain(case["id"])["ok"])
         rows.append(row)
-    if evidence:
-        rows.sort(key=lambda r: r["received"], reverse=True)
     return rows
+
+
+def inbox_db_summary(wf: Workflow) -> dict[str, int]:
+    waiting = tuple(status for status, (bucket, _) in NEXT_STEP.items() if bucket == WAITING)
+    closed = tuple(status for status, (bucket, _) in NEXT_STEP.items() if bucket == CLOSED)
+    return wf.db.inbox_counts(AGENT_NO_REQUEST, waiting, closed)
 
 
 def inbox_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:

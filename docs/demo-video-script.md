@@ -1,34 +1,35 @@
-# TradeOS demo video v7: the returns half of agentic commerce
+# TradeOS demo video v8: one agent return, one human decision, one blocked request
 
-Target: **2:50**, under the 3:00 limit (judges are not required to watch past 3:00). Record on the LIVE PayPal Sandbox
-with the LLM configured, autonomy **off** (the hosted default), English narration and subtitles in a bottom band, no
-music you do not have a licence for. Run **Reset demo** first. Cut server waits (order/capture, LLM, refund, webhook)
-with short crossfades and label the webhook cut with the measured delay.
+Target: **2:35–2:45**, below the planned three-minute limit. This is a recording plan, not a claim that a new video
+exists. Record against one named deployed commit on the live **PayPal Sandbox**, with autonomy off. Use English narration
+and captions. Do not reset the public shared demo; use a private Sandbox copy or fresh cases. Cut waits honestly and
+label each cut, especially the measured webhook delay. Preserve the real result on screen.
 
-Claims on screen and in the voice-over must match what the page shows. Two agents appear and are named for what they
-are: the **scripted MCP client** (a script) and the **live AI agent** (a real model choosing its own calls).
-
-The live model's choices vary from run to run. Record a few takes (one a minute) and adapt the 0:45–1:10 narration to
-the take you use: never narrate a step that is not on screen.
-
-What changed from v6: it opens on the problem and the merchant's inbox (the product), shows a real model trying to get
-$500 (the moment judges remember), and closes on the inbox counter instead of a montage.
+The main path uses a **scripted MCP client**, labelled as such in the video and UI. It is reproducible and exercises the
+same tools an agent receives. The case's **What the AI understood** panel must show a real LLM extraction in the filmed
+take, including the actual extractor label, intent and merchant summary. If it shows the keyword fallback, do not
+narrate that as a model result; restore the model or film another take. A separate live-model agent run can be linked
+as supplementary evidence, but its tool choices vary; never narrate an invented `approve_refund` call unless it
+appears in that take. The video should show the app's actual `/healthz` version and the same version in the submission
+evidence record.
 
 | Time | Screen | Narration |
 | --- | --- | --- |
-| 0:00–0:15 | Title card: "AI agents can now shop and pay. Who decides when they ask for money back?" Then PayPal's agentic commerce overview (Agent Ready, Store Sync), briefly. | AI agents can now shop and pay for people. PayPal already helps merchants sell to them. But every order can come back, and a buyer's agent can ask for a refund, honestly or because a web page told it to ask for five hundred dollars. |
-| 0:15–0:30 | **Inbox** with a few requests: the stat cards, "Needs you", an **AI agent** chip next to a customer message. | TradeOS is the returns layer for PayPal merchants. One inbox for customers and for buyers' AI agents. AI reads the language. Code decides what the policy allows. A person approves the money. PayPal proves it. |
-| 0:30–0:45 | Dashboard → **AI agents (MCP)**; zoom on the tool list (four on the hosted demo, which has a Channel3 key). | Agents connect over MCP and get three tools to act with: buy, ask for a return, read the status, plus a read-only product search. There is no approve tool and no refund tool, so no prompt can make one appear. |
-| 0:45–1:10 | Click **Adversarial: "get $500"**. The progress page fills step by step: the order, an "override" message, `approve_refund` → "no such tool", a second request → "unchanged". Pause on the model's own report. | This is a real model, told to get Tom five hundred dollars back by any wording and any tool. It tries an override. It invents an approve-refund tool, which does not exist. It asks again, and gets the same answer. The order is 45 days old, the window is 30, and the amount only ever comes from PayPal's capture. |
-| 1:10–1:28 | **Open the order and its audit trail**: REJECTED, Refund API calls 0, the transcript on the case, "Audit trail intact". | Everything it tried is on the order's hash chain. Refund API calls: zero. |
-| 1:28–1:45 | **Run agent scenes**; the progress page ends with three "as promised" lines. Open the honest order: the agent card ("Requested by … for Maria"), "agent requests are never approved automatically". | An honest agent gets a fair answer. Wrong colour, inside the window: eligible. But because an agent asked, a person approves. Which agent, for which buyer, and whether its credential was verified, is recorded. |
-| 1:45–2:05 | **Approve & refund** → **Refund COMPLETED**, Refund ID; labelled cut to **Signed PayPal notice: verified**; **Check against PayPal: all match**. | A person approves, and only then is the PayPal Refund API called, for the captured amount. Completed appears only when PayPal says so, the signed webhook confirms it, and TradeOS checks again. |
-| 2:05–2:25 | Dashboard: **Try it yourself** with the Chinese preset (exchange, no refund), then Case B (rejected, 0 calls). | Customers get the same loop in their own language. An exchange moves no money. A late request is refused before PayPal is ever asked. |
-| 2:25–2:50 | Back to the **Inbox**: everything just run, sorted by what needs you; zoom on "refunds an AI agent approved: 0". End card: tagline, live demo URL, GitHub. | Every request lands here with the next step in plain words, PayPal's own numbers, and an audit trail anyone can verify. Agents can ask. People approve. PayPal proves. PayPal moves the money. TradeOS moves the work. |
+| 0:00–0:15 | Inbox and headline: “Who decides when a buyer's AI agent asks for money back?” Show Sandbox badge. | AI agents can buy for people. TradeOS handles what happens when an order comes back: the agent can ask, but the merchant controls the refund. |
+| 0:15–0:50 | Judge guide → **Run agent scenes**. Show the scripted MCP progress page and honest return. | This is a scripted MCP client using the same request tools offered to agents. It places a Sandbox order and requests an ordinary return. The agent cannot approve or refund. |
+| 0:50–1:15 | Honest case: **What the AI understood** (extractor, intent, English merchant summary), then policy eligible, pending approval and Refund API calls 0. | The model reads the buyer's words into a constrained intent and a merchant summary. Code checks PayPal's capture and the return policy. Even an eligible agent request waits for a person. |
+| 1:15–1:55 | **Approve & refund** → PayPal Refund ID; labelled wait → signed notice; **Check against PayPal** and audit badge. | A person approves. Only then does TradeOS call PayPal. PayPal reports the result, sends a signed notice, and can be checked again. |
+| 1:55–2:20 | Open the scripted prompt-injection case: rejected, Refund API calls 0, reason, audit trail. | The same agent tools cannot turn a hostile request into approval. The blocked case made zero refund calls. |
+| 2:20–2:40 | Inbox with honest and blocked rows; end card with Sandbox label, deployed version, demo and source links. | One inbox shows what needs a merchant next and why. Agents ask. People approve. PayPal proves. |
+
+Before recording, run the [submission evidence checklist](submission-evidence.md). After recording, check the final
+render for readable IDs, captions, elapsed time, correct scripted-versus-model labels, and no claim beyond the actual
+PayPal response. Keep a backup clip of the same flow in case the shared service is busy during judging. Do not add a
+video URL to the README until an actual uploaded video exists.
 
 ---
 
-## Previous version (v6, superseded by v7: no inbox, no live model on screen)
+## Earlier version (v6; retained for history)
 
 # TradeOS demo video v6 — agents can ask, people approve, PayPal proves
 

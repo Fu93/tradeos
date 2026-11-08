@@ -160,7 +160,8 @@ def test_judge_guidance_and_environment_status_are_visible(settings):
     assert "PayPal Sandbox" in html
     assert "No real money" in html
     assert "Judge path" in html
-    assert "Start with Case A above" in html
+    assert "Agents ask. People approve. PayPal proves." in html
+    assert 'action="/demo/agent-scenes"' in html
     assert "LLM: Fallback" in html
     assert "Webhook: configured" in html
 
@@ -197,9 +198,9 @@ def test_mobile_css_lets_confirmation_chips_wrap():
 def test_home_three_step_hint_and_sandbox_notice_without_stale_or_overclaiming_text(settings):
     client, pp, wf = make(settings)
     html = client.get("/").text
-    for step in ("Pick a case", "Press approve", "See the PayPal result"):
+    for step in ("Agent asks", "Inspect, then approve", "Compare the refusal"):
         assert step in html
-    assert html.index("Pick a case") < html.index("Press approve") < html.index("See the PayPal result")
+    assert html.index("Agent asks") < html.index("Inspect, then approve") < html.index("Compare the refusal")
     assert "PayPal Sandbox: no real money moves" in html
     # the old "wakes up" cold-start note and "free tier" wording are stale on the Starter plan
     assert "Free-tier note" not in html and "wakes up" not in html and "free tier" not in html.lower()
