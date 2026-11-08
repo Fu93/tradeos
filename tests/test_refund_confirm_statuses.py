@@ -89,6 +89,10 @@ def test_lookup_helper_status_matrix():
                                                "10.00", "USD") or "")
     assert "no recognized refund status" in (refund_lookup_issue({**base, "status": "OTHER"}, "RF-1", "CAP-1",
                                                                  "A-1", "10.00", "USD") or "")
+    # String suffix matches the capture id but urlsplit raises on bad brackets — must not crash.
+    malformed = {**base, "links": [{"rel": "up", "href": "https://[/v2/payments/captures/CAP-1"}]}
+    assert "no matching capture link" in (refund_lookup_issue(malformed, "RF-1", "CAP-1", "A-1",
+                                                              "10.00", "USD") or "")
 
 
 def test_refund_error_reuses_request_id_inside_six_hour_window(settings):

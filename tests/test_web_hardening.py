@@ -169,6 +169,79 @@ def test_csrf_cross_origin_post_blocked_same_origin_allowed(settings):
     assert ok2.status_code == 303
 
 
+def _csrf_guarded_paths(case_id: str, batch_id: str = "batch-1") -> list[str]:
+    """Every unsafe browser route the Origin/Referer check guards (webhook is exempt)."""
+    return [
+        "/demo/run/B",
+        "/demo/merchant-order",
+        "/merchant/import-sandbox-capture",
+        f"/merchant/orders/{case_id}/revoke-return-pass",
+        "/demo/agent-scenes",
+        "/demo/fill-inbox",
+        "/demo/live-agent",
+        "/cases/free",
+        "/demo/reset",
+        f"/cases/{case_id}/approve",
+        f"/cases/{case_id}/decline",
+        f"/cases/{case_id}/safety-reviewed",
+        f"/cases/{case_id}/refund",
+        f"/cases/{case_id}/batches/{batch_id}/approve",
+        f"/cases/{case_id}/batches/{batch_id}/decline",
+        f"/cases/{case_id}/batches/{batch_id}/retry",
+        f"/cases/{case_id}/batches/{batch_id}/confirm-refund",
+        f"/cases/{case_id}/lines/1/resolve",
+        f"/cases/{case_id}/mixed/propose",
+        f"/cases/{case_id}/retry-payment",
+        f"/cases/{case_id}/retry-policy",
+        f"/demo/mock-webhook/{case_id}",
+        f"/cases/{case_id}/approve-twice",
+        "/disputes/sync",
+        "/disputes/D-1/refresh",
+        f"/cases/{case_id}/refresh-refund",
+        f"/cases/{case_id}/confirm-refund",
+        f"/cases/{case_id}/paypal-return",
+    ]
+
+
+def test_malformed_origin_or_referer_is_403_not_500_on_all_csrf_routes(settings):
+    """B01: urlsplit ValueError on `Origin: https://[` (or Referer) must not become HTTP 500."""
+    client, pp, wf = make(settings)
+    case = wf.run_scenario("A")
+    before = wf.db.get_case(case)
+    chain_before = [(e["seq"], e["entry_hash"]) for e in wf.db.chain_entries(case)]
+    timeline_before = wf.db.timeline(case)
+    refunds_before = pp.refund_capture.call_count
+    bad = ("https://[", "http://[::1", "https://[bad")
+    headers_sets = (
+        [{"Origin": o} for o in bad]
+        + [{"Referer": o} for o in bad]
+        + [{"Origin": o, "Referer": o} for o in bad]
+    )
+    for path in _csrf_guarded_paths(case):
+        for headers in headers_sets:
+            r = client.post(path, headers=headers, follow_redirects=False)
+            assert r.status_code == 403, (path, headers, r.status_code, r.text[:200])
+            assert r.status_code != 500
+    after = wf.db.get_case(case)
+    assert after["status"] == before["status"]
+    assert after.get("refund_id") == before.get("refund_id")
+    assert [(e["seq"], e["entry_hash"]) for e in wf.db.chain_entries(case)] == chain_before
+    assert wf.db.timeline(case) == timeline_before
+    assert wf.db.verify_chain(case)["ok"]
+    assert pp.refund_capture.call_count == refunds_before
+    # Webhook stays CSRF-exempt and must not 500 on the same malformed headers.
+    for headers in headers_sets:
+        wr = client.post("/webhooks/paypal", content="{}", headers=headers)
+        assert wr.status_code == 200 and wr.status_code != 500
+
+
+def test_origin_of_treats_parse_failures_as_invalid():
+    from app.security import _origin_of
+    assert _origin_of("https://[") is None
+    assert _origin_of("http://[::1") is None
+    assert _origin_of("https://tradeos.example") == "tradeos.example"
+
+
 def test_judge_guidance_and_environment_status_are_visible(settings):
     client, pp, wf = make(settings)
     html = client.get("/").text
