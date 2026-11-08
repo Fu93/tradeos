@@ -16,7 +16,6 @@ Nothing here runs without a human click: there is no autonomy path for mixed ord
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import threading
@@ -26,7 +25,8 @@ from typing import TYPE_CHECKING, Any
 from . import lineitems as li
 from .intent import looks_like_injection
 from .safety import assess as safety_assess, assess_any as safety_assess_any
-from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, outcome_unknown,
+from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, PayPalError, first_capture, mint_retry_request_id,
+                            outcome_unknown,
                             refund_lookup_issue, refund_response_issue)
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -407,8 +407,9 @@ class MixedOrders:
                     req = batch.get("request_id")
                     if req and not self._request_id_fresh(case_id, req):
                         # Payments v2 key may have expired; prior 4xx moved no money — mint a new id.
-                        digest = hashlib.sha256(req.encode()).hexdigest()[:8]
-                        new_req = f"{req}-e{digest}"[:38]
+                        # Do not append+truncate: a 36-char tos-mx-… key leaves only "-e" and a second
+                        # rotation collapses to the same string (PayPal-Request-Id max 38).
+                        new_req = mint_retry_request_id(req)
                         fields["request_id"] = new_req
                         self.db.audit(case_id, "paypal",
                                       f"Batch {batch['batch_no']} ERROR retry after {IDEMPOTENCY_WINDOW_HOURS}h — "
@@ -735,10 +736,19 @@ class MixedOrders:
         if not request_id:
             return False
         sent = [c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture") if c.get("request_id") == request_id]
-        # The approval predates the first send and survives a crash before log_paypal_call().
-        # It is a conservative lower bound: it may block a safe replay, never allow a late one.
-        sent.extend(b["approved_at"] for b in self.db.list_batches(case_id)
-                    if b.get("request_id") == request_id and b.get("approved_at"))
+        # A mint after ERROR expiry writes paypal_request_id on an audit row at "now". That stamp must
+        # bound the NEW key — do not fall back to the batch's original approved_at, or the successor
+        # looks immediately stale and the next retry mints again inside the window.
+        for e in self.db.timeline(case_id):
+            if e.get("stage") != "paypal":
+                continue
+            detail = e.get("detail") or {}
+            if detail.get("paypal_request_id") == request_id:
+                sent.append(e["ts"])
+        if not sent:
+            # Reserved at approval but not yet sent — approval time is a conservative lower bound.
+            sent = [b["approved_at"] for b in self.db.list_batches(case_id)
+                    if b.get("request_id") == request_id and b.get("approved_at")]
         if not sent:
             return False
         first = datetime.fromisoformat(min(sent))

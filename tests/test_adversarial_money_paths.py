@@ -52,10 +52,11 @@ def test_mixed_error_retry_mints_new_request_id_after_six_hours(settings):
     mock.fail_refund = False
     wf._now = lambda: (datetime.now(timezone.utc) + timedelta(hours=7)).isoformat()
     wf.mixed.retry_batch(cid, batch["id"])
+    from app.paypal_client import PAYPAL_REQUEST_ID_MAX_LEN, mint_retry_request_id
     done = only_batch(wf, cid)
     assert done["status"] == "COMPLETED"
-    assert done["request_id"] != prior
-    assert done["request_id"].startswith(prior[:16]) or "-e" in done["request_id"]
+    assert done["request_id"] == mint_retry_request_id(prior)
+    assert len(done["request_id"]) <= PAYPAL_REQUEST_ID_MAX_LEN
     assert {c.args[1] for c in pp.refund_capture.call_args_list} == {prior, done["request_id"]}
 
 

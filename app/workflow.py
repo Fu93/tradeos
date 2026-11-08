@@ -11,7 +11,6 @@ can say which one it was.
 
 from __future__ import annotations
 
-import hashlib
 import json
 import re
 import threading
@@ -32,8 +31,9 @@ from .disputes import DisputeService
 from .mixed import MIXED, MixedOrders
 from .intent import AssistFields, IntentExtractor
 from .notes import Outcome, TemplateNoteWriter
-from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link, first_capture,
-                            outcome_unknown, refund_lookup_issue, refund_response_issue)
+from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link,
+                            first_capture, mint_retry_request_id, outcome_unknown, refund_lookup_issue,
+                            refund_response_issue)
 from .paypal_mock import MockPayPalClient
 from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
@@ -1002,9 +1002,12 @@ class Workflow:
                 "Re-sending this id after that window can create a second refund; check PayPal by hand.")
 
     def _mint_error_retry_request_id(self, case_id: str, prior_request_id: str) -> str:
-        """Deterministic new id after a confirmed 4xx once the prior key may have expired."""
-        digest = hashlib.sha256(prior_request_id.encode()).hexdigest()[:12]
-        return f"tradeos-refund-{case_id}-after-error-{digest}"
+        """Deterministic new id after a confirmed 4xx once the prior key may have expired.
+
+        Must stay within PayPal's 38-char Request-Id budget. Hashing ``prior`` (not appending to it)
+        keeps each successive expiry rotation unique.
+        """
+        return mint_retry_request_id(prior_request_id)
 
     @staticmethod
     def _refund_amount(case: dict) -> dict[str, str]:
@@ -1130,7 +1133,10 @@ class Workflow:
                 if not result.eligible:
                     raise RefundNotAllowed("Policy re-check failed; no new refund request was sent.")
                 failed_refund_id = case["refund_id"]
-                new_id = f"tradeos-refund-{case_id}-after-{failed_refund_id}"
+                prior_req = case.get("refund_request_id") or self._request_id(case)
+                # Hash into a ≤38-char id (do not embed the PayPal refund id — those alone can exceed
+                # the PayPal-Request-Id budget when concatenated with tradeos-refund-{case}-after-).
+                new_id = mint_retry_request_id(f"{prior_req}|failed|{failed_refund_id}")
                 # Drop the FAILED refund identity before the new attempt. Keeping it would leave
                 # REFUND_UNKNOWN / REFUND_ERROR retries looking like the old FAILED refund, which
                 # blocks confirm_unknown_refund, reconcile recovery, and a later execute_refund.
@@ -1138,7 +1144,8 @@ class Workflow:
                                     refund_json=None)
                 self.db.audit(case_id, "paypal", "PayPal confirmed the refund FAILED — retrying with a NEW "
                               "PayPal-Request-Id (policy re-checked, human approval on record)",
-                              {"failed_refund_id": failed_refund_id, "paypal_request_id": new_id})
+                              {"failed_refund_id": failed_refund_id, "prior_paypal_request_id": prior_req,
+                               "paypal_request_id": new_id})
                 return self._execute_refund(case_id, after_failed=True)
         finally:
             self._after_money(case_id)

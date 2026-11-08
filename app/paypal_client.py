@@ -18,6 +18,7 @@ refused outside the sandbox.
 
 from __future__ import annotations
 
+import hashlib
 import json as _json
 import threading
 import time
@@ -75,6 +76,30 @@ class PayPalError(Exception):
 # (developer.paypal.com/api/rest/integration/payments-api/v1-v2-migration — "Idempotency key window reduction").
 # Within the window, re-sending the same id returns the first result. Past it, TradeOS must not reuse the id.
 IDEMPOTENCY_WINDOW_HOURS = 6
+# PayPal documents UUID-length guidance for PayPal-Request-Id (38 chars). Longer values are rejected or
+# truncated by intermediaries; TradeOS keeps every minted/retry key within this budget.
+PAYPAL_REQUEST_ID_MAX_LEN = 38
+
+
+def mint_retry_request_id(prior: str) -> str:
+    """Deterministic successor of an expired (or FAILED) PayPal-Request-Id.
+
+    Always ``<= PAYPAL_REQUEST_ID_MAX_LEN``, always different from ``prior``, and derived by hashing
+    the previous key so a second expiry rotation cannot collide with the first successor (appending
+    a suffix and truncating to 38 collapses when ``prior`` is already near the limit).
+    """
+    if not prior:
+        raise ValueError("prior PayPal-Request-Id required")
+    digest = hashlib.sha256(f"tradeos-expired-retry:{prior}".encode()).hexdigest()
+    if prior.startswith("tos-mx-"):
+        out = f"tos-mx-{digest[:PAYPAL_REQUEST_ID_MAX_LEN - 7]}"
+    elif prior.startswith("tradeos-"):
+        out = f"tradeos-{digest[:PAYPAL_REQUEST_ID_MAX_LEN - 8]}"
+    else:
+        out = digest[:PAYPAL_REQUEST_ID_MAX_LEN]
+    if out == prior:  # astronomically unlikely with sha256; keep the invariant explicit
+        out = ("z" + digest)[:PAYPAL_REQUEST_ID_MAX_LEN]
+    return out
 
 # Statuses a merchant-supplied refund ID may bind to an UNKNOWN outcome (GET prove, no Refund API call).
 # COMPLETED/PENDING: money moved or is pending. FAILED: PayPal confirmed this attempt did not pay —

@@ -160,13 +160,16 @@ def test_F2_same_request_id_retry_is_refused(tmp_path):
 
 
 def test_F2_retry_after_confirmed_failure_uses_new_id_once(tmp_path):
+    from app.paypal_client import PAYPAL_REQUEST_ID_MAX_LEN, mint_retry_request_id
     pp, db, wf, cid = _failed_case(tmp_path)
     failed_id = db.get_case(cid)["refund_id"]
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
     pp.refund_status = "COMPLETED"
     wf.retry_failed_refund(cid)
     case = db.get_case(cid)
-    new_id = f"tradeos-refund-{cid}-after-{failed_id}"
+    new_id = mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
     assert case["status"] == "REFUND_COMPLETED" and case["refund_request_id"] == new_id
+    assert len(new_id) <= PAYPAL_REQUEST_ID_MAX_LEN
     assert any("Policy re-check before a new refund request: ELIGIBLE" == e["title"] for e in db.timeline(cid))
     # idempotent: a second click can't send anything (COMPLETED); PayPal holds exactly one live refund
     with pytest.raises(RefundNotAllowed):
@@ -190,12 +193,14 @@ def test_F2_retry_clears_failed_identity_so_unknown_is_recoverable(tmp_path):
         raise PayPalError("refund reply lost", status_code=408)
 
     pp.refund_capture = post_then_timeout
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
     with pytest.raises(PayPalError):
         wf.retry_failed_refund(cid)
     case = db.get_case(cid)
     assert case["status"] == "REFUND_OUTCOME_UNKNOWN"
     assert case["refund_id"] is None and case["refund_status"] is None
-    assert case["refund_request_id"] == f"tradeos-refund-{cid}-after-{failed_id}"
+    from app.paypal_client import mint_retry_request_id
+    assert case["refund_request_id"] == mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
 
 
 def test_F2_retry_definite_error_does_not_stick_failed_status(tmp_path):
@@ -212,12 +217,14 @@ def test_F2_retry_definite_error_does_not_stick_failed_status(tmp_path):
         return original(*args, **kwargs)
 
     pp.refund_capture = refuse_once
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
     with pytest.raises(PayPalError):
         wf.retry_failed_refund(cid)
     case = db.get_case(cid)
     assert case["status"] == "REFUND_ERROR"
     assert case["refund_id"] is None and case["refund_status"] is None
-    assert case["refund_request_id"] == f"tradeos-refund-{cid}-after-{failed_id}"
+    from app.paypal_client import mint_retry_request_id
+    assert case["refund_request_id"] == mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
     # execute_refund must be able to try the same new request again (not demand retry_failed_refund).
     pp.refund_status = "COMPLETED"
     wf.execute_refund(cid)

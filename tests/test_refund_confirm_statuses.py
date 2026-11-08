@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from app.paypal_client import PayPalError, refund_lookup_issue
+from app.paypal_client import PAYPAL_REQUEST_ID_MAX_LEN, PayPalError, mint_retry_request_id, refund_lookup_issue
 from app.paypal_mock import MockPayPalClient
 from app.workflow import REFUND_COMPLETED, REFUND_FAILED, REFUND_PENDING, REFUND_UNKNOWN, RefundNotAllowed
 from tests.helpers import make_wf
@@ -67,10 +67,12 @@ def test_confirm_failed_unlocks_retry_with_new_request_id(settings):
     wf.confirm_unknown_refund(cid, rid)
     assert wf.db.get_case(cid)["status"] == REFUND_FAILED
     pp.refund_capture.side_effect = None
+    prior_req = case["refund_request_id"] or f"tradeos-refund-{cid}"
     wf.retry_failed_refund(cid)
     case = wf.db.get_case(cid)
+    expected = mint_retry_request_id(f"{prior_req}|failed|{rid}")
     assert case["status"] == REFUND_COMPLETED
-    assert case["refund_request_id"] == f"tradeos-refund-{cid}-after-{rid}"
+    assert case["refund_request_id"] == expected and len(expected) <= PAYPAL_REQUEST_ID_MAX_LEN
     assert pp.refund_capture.call_count == 2
 
 
@@ -134,7 +136,7 @@ def test_refund_error_mints_new_request_id_after_six_hour_window(settings):
     wf.execute_refund(case_id)
     case = wf.db.get_case(case_id)
     assert case["status"] == REFUND_COMPLETED
-    assert case["refund_request_id"] != prior
-    assert case["refund_request_id"].startswith(f"tradeos-refund-{case_id}-after-error-")
+    assert case["refund_request_id"] == mint_retry_request_id(prior)
+    assert len(case["refund_request_id"]) <= PAYPAL_REQUEST_ID_MAX_LEN
     assert {c.args[1] for c in pp.refund_capture.call_args_list} == {prior, case["refund_request_id"]}
     assert any("new PayPal-Request-Id" in e["title"] for e in wf.db.timeline(case_id))
