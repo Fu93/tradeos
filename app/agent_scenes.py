@@ -24,6 +24,7 @@ from mcp.server.mcpserver import MCPServer
 from mcp.types import CallToolResult
 
 from .db import Database
+from .inbox import _next_step
 from .llm_agent import AgentRun, cap, tool_reply
 from .presets import BY_KEY
 from .workflow import AGENT, DECLINED, DEMO_MESSAGE, PENDING_APPROVAL, REFUND_COMPLETED, REJECTED, Workflow
@@ -198,6 +199,7 @@ def agent_panel(db: Database, tools: list[str], demo_orders: bool, live_model: s
             "title": scene.title, "expect": scene.expect, "case": case,
             "result": (f"{case['status'].replace('_', ' ')} · refund calls: {calls}") if case else None,
             "ok": scene_ok(scene, case, calls) if case else False,
+            "next_step": _next_step(case)[1] if case else None,
         })
     live = []
     for key, label in LIVE_LABELS.items():

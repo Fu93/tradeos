@@ -525,7 +525,9 @@
       <div class="fm {{ 'ok' if s.ok else '' }}">
         <strong>{{ s.title }}</strong>
         <p class="small muted">{{ s.expect }}</p>
-        {% if s.case %}<p class="small"><a href="/?case={{ s.case.id }}#pending">{{ s.case.id }}</a>: <strong>{{ s.result }}</strong> {{ '✓' if s.ok }}</p>{% endif %}
+        {% if s.case %}<p class="small"><a href="/?case={{ s.case.id }}#pending">{{ s.case.id }}</a>: <strong>{{ s.result }}</strong> {{ '✓' if s.ok }}</p>
+          {% if s.next_step %}<p class="small case-next-step"><strong>Next step:</strong> {{ s.next_step }}</p>{% endif %}
+        {% endif %}
       </div>
     {% endfor %}
   </div>

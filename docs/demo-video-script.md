@@ -1,9 +1,11 @@
 # TradeOS demo video v9 — 2:45 (strictly under 3:00)
 
 **Status:** recording plan only. **YouTube URL: TBD (placeholder)** — do not claim a video exists until uploaded.  
-**Record against tip `f2c7430`** on https://tradeos-s33z.onrender.com (confirm `/healthz` `version` first). PayPal
-**Sandbox**, autonomy **OFF**, English narration + captions. Do not reset the public shared demo; use fresh cases or a
-private copy. Label every wait cut. Claims must match what the UI shows.
+**Record against the hosted build verified on `1d5ab96`** at https://tradeos-s33z.onrender.com (confirm `/healthz`
+`version` is that SHA or a later docs/UI-only commit). Hosted verify on `1d5ab96`: preflight **9/9**, sandbox **31/31**,
+AI e2e **11/11**, **3** signed webhooks **VERIFIED**, GET reconciliation **all match**, malformed Origin/Referer **58/58**
+→ **403**, public reset → **403**. PayPal **Sandbox**, autonomy **OFF**, English narration + captions. Do not reset the
+public shared demo; use fresh cases or a private copy. Label every wait cut. Claims must match what the UI shows.
 
 **Agent honesty:** the main path uses the dashboard **scripted MCP client** (not a model). Say so on screen and in VO.
 The honest case's **What the AI understood** panel must show a real LLM extraction (`llm:openai/gpt-oss-20b` or the
@@ -19,11 +21,11 @@ live extractor label). If it shows keyword fallback, refilm.
 | **1:00–1:30** | Click **Approve & refund**. Wait cut labelled if needed. Show Sandbox **Refund ID** and status **COMPLETED**. | The merchant approves. Only then does TradeOS call PayPal. PayPal returns a Sandbox refund ID marked COMPLETED. | Merchant approves → Sandbox refund COMPLETED |
 | **1:30–1:55** | On-screen: **Wait cut — webhook ~Ns**. Chip **Signed PayPal notice: verified**. Click **Check against PayPal** → **all match**. Audit badge intact. | We cut the wait for PayPal’s signed notice. TradeOS verifies the signature, then checks the refund again with PayPal. All match — on a tamper-evident audit chain. | Verified signed webhook · Check against PayPal · all match |
 | **1:55–2:20** | Open blocked / injection case: **Refund API calls = 0**. **Prep (before this beat, or cut in ~8s):** Try it yourself → paste Spanish safety message *«La suela se derritió con el calor y me quemó el pie.»* → Run → open the new case showing **Needs human safety review** and Refund API calls = 0. (Scripted MCP scenes do **not** create a safety case; do not substitute only the Adversarial $500 tile for this narration.) | A hostile ask moves no money. Separately, a dangerous-product report is held for a human safety review before any automatic action — zero refund calls. | Hostile ask → $0 · Safety review → human |
-| **2:20–2:45** | Inbox with honest + blocked + safety rows. End card: Sandbox only · tip `f2c7430` · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
+| **2:20–2:45** | Inbox with honest + blocked + safety rows. End card: Sandbox only · verified on `1d5ab96` · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
 
 ### Recording checklist
 
-1. `GET /healthz` → `version` = `f2c74302622d91f988ba7fad097052ed4c322a56`, `paypal_mode=sandbox`, autonomy flags false.
+1. `GET /healthz` → `version` = `1d5ab96b19501f7827daf37538543141f9909e91` (or a later docs/UI-only commit), `paypal_mode=sandbox`, autonomy flags false.
 2. **Before filming 1:55–2:20:** create the Spanish dangerous-product case via free-text intake (message above) so the safety-review narration matches the screen.
 3. Film actual UI chrome (judge guide title, Sandbox badge, Refund API calls, webhook chip, audit badge, safety status).
 4. Keep total runtime **≤ 2:45** (trim wait cuts; safety prep may be a pre-roll cutaway). Export captions matching the Subtitles column.
