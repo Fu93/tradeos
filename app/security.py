@@ -45,7 +45,12 @@ def _public_path(path: str) -> bool:
 
 
 def _origin_of(url: str) -> str | None:
-    p = urlsplit(url)
+    """Parse scheme+host for CSRF comparison. Malformed values (e.g. `https://[`) must not raise —
+    treat them as no origin so same_origin rejects with 403 instead of leaking a 500."""
+    try:
+        p = urlsplit(url)
+    except ValueError:
+        return None
     return p.netloc.lower() if p.scheme in ("http", "https") and p.netloc else None
 
 

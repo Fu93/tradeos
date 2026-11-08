@@ -192,7 +192,10 @@ def refund_lookup_issue(refund: dict, refund_id: str, capture_id: str, custom_id
         href = link.get("href")
         if link.get("rel") != "up" or not isinstance(href, str):
             return False
-        target = urlsplit(href)
+        try:
+            target = urlsplit(href)
+        except ValueError:
+            return False  # malformed PayPal link (e.g. bad IPv6 brackets) is not a match
         return (target.scheme == "https" and target.hostname in SANDBOX_HOSTS | LIVE_HOSTS
                 and target.path.rstrip("/") == "/v2/payments/captures/" + capture_id)
 
