@@ -57,7 +57,7 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 | Hosted `sandbox_verify` | 31/31 |
 | AI end-to-end | 11/11 |
 | Deterministic policy matrix | 582/582 (rules, not LLM requests) |
-| pytest / coverage / lint | 1841 on hosted `f2c7430` · 95.08% · ruff + mypy clean (docs/UI follow-up tip: 1842) |
+| pytest / coverage / lint | See [`submission-evidence.md`](submission-evidence.md) for the tip count (1845 on this head; 1841 on hosted `f2c7430`); ~95% cov; ruff + mypy clean |
 | Malformed Origin / Referer | 403 (58/58) |
 | LLM intent eval (52 author-written messages) | exact 41/52 vs keyword 17/52; request-check 52/52 on this small set (not general accuracy) |
 

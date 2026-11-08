@@ -4,8 +4,8 @@
 
 https://tradeos-s33z.onrender.com serves `f2c74302622d91f988ba7fad097052ed4c322a56` (`/healthz` matches). Measured on
 this hosted tip: submission preflight **9/9**, `sandbox_verify` **31/31**, AI e2e **11/11**, deterministic policy
-matrix **582/582**, offline pytest **1841** / coverage **95.08%** / ruff+mypy clean (docs/UI follow-up tip: **1842**),
-malformed Origin/Referer → **403** (58/58). See [`submission-evidence.md`](submission-evidence.md).
+matrix **582/582**, malformed Origin/Referer → **403** (58/58). Offline pytest tip count and coverage live in
+[`submission-evidence.md`](submission-evidence.md) (hosted `f2c7430` baseline **1841**; this docs/UI tip **1845**).
 
 ## Historical — local Sandbox + LLM eval on `9dafb70` (8 Nov 2026)
 

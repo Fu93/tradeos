@@ -48,8 +48,8 @@ No APIMatic, Postman-run, or Render Workflows claims.
 ## Evidence (tip `f2c7430`, hosted)
 
 - Preflight **9/9**; hosted `sandbox_verify` **31/31**; AI e2e **11/11**; policy matrix **582/582** (deterministic);
-  pytest **1841** on hosted `f2c7430` (this tip **1842**), coverage **95.08%**, ruff + mypy clean; malformed
-  Origin/Referer → **403** (58/58).
+  pytest tip count in [`submission-evidence.md`](submission-evidence.md) (**1845** here; **1841** on hosted
+  `f2c7430`); ~95% cov; ruff + mypy clean; malformed Origin/Referer → **403** (58/58).
 - LLM eval (52 author-written messages): exact **41/52** vs keyword **17/52**; request-check **52/52** on this small
   set (not general accuracy).
 - Audit chain is **tamper-evident**, not immutable. Sandbox only; shared ephemeral demo; autonomy OFF on hosted.

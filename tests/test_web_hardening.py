@@ -314,6 +314,27 @@ def test_private_persistent_profile_omits_public_shared_ephemeral_notice(tmp_pat
     assert "This public demo is shared" not in html and "ephemeral database" not in html
 
 
+def test_local_file_db_omits_public_shared_ephemeral_notice(tmp_path):
+    """healthz reports local-file when db_path is outside /tmp; the shared/ephemeral notice must not appear."""
+    from pathlib import Path
+    # Prefer a non-/tmp path (pytest's tmp_path is usually under /tmp and would look ephemeral).
+    root = Path("/var/tmp") if Path("/var/tmp").is_dir() else Path.cwd()
+    local = root / f"tradeos-local-file-{tmp_path.name}"
+    local.mkdir(parents=True, exist_ok=True)
+    try:
+        s = Settings(db_path=str(local / "tradeos.db"), allow_public_reset=True, paypal_webhook_id="WH-X",
+                     trust_cf_connecting_ip=False)
+        assert not s.db_path.startswith("/tmp/")
+        assert not s.operator_token and not s.persistent_data_dir
+        client, _, _ = make(s)
+        html = client.get("/").text
+        assert "PayPal Sandbox: no real money moves" in html
+        assert "This public demo is shared" not in html and "ephemeral database" not in html
+    finally:
+        import shutil
+        shutil.rmtree(local, ignore_errors=True)
+
+
 def test_selected_case_next_step_matches_case_type(settings):
     from app.intent import KeywordIntentExtractor
     from app.workflow import EXCHANGE_MESSAGE

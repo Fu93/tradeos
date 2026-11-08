@@ -26,7 +26,7 @@ autonomy off; ephemeral persistence; safety AI layer off).
 | Hosted `sandbox_verify.py` | **31/31** |
 | AI end-to-end (`--ai-e2e-only`) | **11/11** |
 | Deterministic policy matrix | **582/582** (rules, not LLM requests) |
-| Offline pytest on `f2c7430` | **1841** passed, coverage **95.08%**, ruff + mypy clean (this docs/UI tip adds tests → **1842**) |
+| Offline pytest (this tip) | **1845** passed, coverage **95.08%**, ruff + mypy clean (hosted `f2c7430` baseline was **1841**) |
 | Malformed Origin / Referer | **403** (58/58); no 500 |
 
 **LLM intent eval** (historical measurement on tip `9dafb70`, 2026-11-08, still the committed
@@ -80,7 +80,7 @@ not immutable.
 | C4 / D5 / E11 | Med | Open-demo MCP / shared approve | **Defer** — intentional shared Sandbox; no approve/refund tool |
 | C5 | Low | CSRF trusts `X-Forwarded-Host` | **Defer** — browsers cannot set it |
 | B1 | Soft | Hosted service ≠ Blueprint | **Documented** |
-| B8 | Low | README test count drift | **Fixed** (1842 on this tip; 1841 measured on hosted `f2c7430`) |
+| B8 | Low | README test count drift | **Fixed** — tip count lives in this table (**1845**); avoid scattering stale counts elsewhere |
 | D7 | Low | Full LLM eval refresh | **Done** — committed results from 2026-11-08 |
 | D8 | Soft | Hosted tip ≠ `dc2c6b5` | **Done** — hosted now serves `f2c7430` |
 | E4 | High | Public reset archives all cases | **Fixed** (`TRADEOS_ALLOW_PUBLIC_RESET=0`) |

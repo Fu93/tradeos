@@ -102,7 +102,7 @@ flowchart LR
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
-| **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, tamper-evident hash chain, evidence report, accessibility structure | Hosted tip `f2c7430`: **1841** pytest / **95.08%** cov (this tip: **1842**); ruff + mypy clean; deterministic policy matrix **582/582** (rules, not LLM requests). CI: ruff, mypy, pip-audit, 90% coverage gate | Any PayPal behaviour: the mock is not PayPal; “fraud-proof” / production readiness |
+| **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, tamper-evident hash chain, evidence report, accessibility structure | Tip pytest count + coverage in [`docs/submission-evidence.md`](docs/submission-evidence.md) (CI: ruff, mypy, pip-audit, 90% coverage gate); deterministic policy matrix **582/582** (rules, not LLM requests) | Any PayPal behaviour: the mock is not PayPal; “fraud-proof” / production readiness |
 | **Evals (synthetic messages)** | Multilingual intent and safety routing | [`docs/eval/`](docs/eval/results.md), [`docs/impact-proof.md`](docs/impact-proof.md) (states what is and is not human-checked) | Real-world accuracy |
 | **Seeded / mock demo data** | `/queue` view, supplier replies, cost model | Labelled DEMO / MOCK on screen | Any measured saving or merchant validation |
 | **Dev tooling** | [Postman collection](docs/postman/README.md) of the Sandbox calls | Not run against PayPal by us as part of this evidence; a manual run you do is your own evidence | Any proof |
@@ -747,15 +747,15 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-**1,842** tests on this tip (8 Nov 2026; **1,841** measured on hosted `f2c7430`; was 1,609 at `99dc962` on 25 Oct 2026),
-run by GitHub Actions CI on every push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit`
-scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage (**95.08%**). Deterministic policy matrix
-**582/582** (rules, not LLM requests). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity,
-mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox,
-lost-PayPal-reply recovery, confirm-by-GET status handling, Request-Id expiry rotation, and malformed Origin/Referer →
-403. The defect fixes of 24 Oct (and later money-path hardening) were each mutation-checked: putting the defect back
-makes a test fail. The repository is public, so GitHub's standard hosted runners cost nothing here. License: **MIT**
-([`LICENSE`](LICENSE)).
+**1,845** tests on this tip (exact count kept in [`docs/submission-evidence.md`](docs/submission-evidence.md); was
+1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
+`ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
+(**~95%**). Deterministic policy matrix **582/582** (rules, not LLM requests). They include eval dataset checks,
+VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent
+gateway and live-agent loop, the returns inbox, lost-PayPal-reply recovery, confirm-by-GET status handling, Request-Id
+expiry rotation, and malformed Origin/Referer → 403. The defect fixes of 24 Oct (and later money-path hardening) were
+each mutation-checked: putting the defect back makes a test fail. The repository is public, so GitHub's standard hosted
+runners cost nothing here. License: **MIT** ([`LICENSE`](LICENSE)).
 
 ### Verify a deployment
 

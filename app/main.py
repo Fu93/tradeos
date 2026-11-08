@@ -273,9 +273,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "flash_kind": flash_kind or ("warn" if status_code in (409, 429) else "bad"),
             "flash_link": ({"href": flash_link[0], "text": flash_link[1]} if flash_link else None),
             "allow_public_reset": bool(settings.operator_token or settings.allow_public_reset),
-            # Hosted public demo: no operator gate and no mounted disk. Private persistent profiles must not
-            # see the "shared / ephemeral" notice (healthz reports persistent-disk-configured there).
-            "public_shared_ephemeral": not bool(settings.operator_token or settings.persistent_data_dir),
+            # Same classification as /healthz "persistence": only the public /tmp demo is ephemeral.
+            # A local-file DB (path outside /tmp, no mounted disk) survives restarts — do not call it ephemeral.
+            # Private profiles (operator token and/or persistent_data_dir) never get the shared-demo notice.
+            "public_shared_ephemeral": (not settings.operator_token and not settings.persistent_data_dir
+                                        and settings.db_path.startswith("/tmp/")),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 
