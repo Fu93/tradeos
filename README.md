@@ -842,8 +842,10 @@ Out of scope for this MVP: product sourcing, scraping, multichannel commerce, li
 invoicing, autonomous financial decisions, acting on disputes (they are shown read-only), live (production) PayPal, real fulfilment, extra agents.
 Partial refunds exist only for seeded mixed orders and are live-Sandbox-proven for two seeded scenarios only: Case M (one partial refund) and Case M2 (two partial refunds on one capture) (see `docs/partial-refunds.md`). The customer note is a
 translated refund/decision note, not a chatbot.
-The [existing-order intake design](docs/existing-order-intake.md) describes the buyer/order authorization needed before
-agents can request returns for orders they did not create through this demo gateway. It is a proposal, not an implemented endpoint.
+The [existing-order intake](docs/existing-order-intake.md) is implemented for the private persistent Sandbox profile
+only: a merchant can create a demo order or import a matching Sandbox capture, issue a short-lived return pass, and let
+an authenticated agent request a return with that pass. It is not available on the public shared demo and does not verify
+a real store order, product or buyer.
 
 Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces).
 Money actions remain open by default for this shared hackathon demo; the optional operator gate makes a Sandbox

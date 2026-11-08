@@ -6,7 +6,7 @@ services:
     runtime: python
     plan: starter
     buildCommand: pip install -r requirements.lock
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
     healthCheckPath: /healthz
     disk:
       name: tradeos-data

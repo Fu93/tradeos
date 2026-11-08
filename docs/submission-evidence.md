@@ -20,7 +20,8 @@ only claims that the current evidence can support; fill its remaining placeholde
    python scripts/submission_preflight.py https://<demo-host> --commit <40-character-sha> > preflight-<sha>.json
    ```
 
-   It fails if `/healthz` reports a different commit, non-Sandbox PayPal, no LLM, no webhook, or autonomy on. A pass is
+   It fails if `/healthz` reports a different commit, non-Sandbox PayPal, no LLM, no webhook, or either
+   auto-refund or auto-exchange autonomy on. A pass is
    **only** a deployment/configuration check, not a refund test. Do not edit the JSON after capture.
 3. Run `python scripts/sandbox_verify.py https://<demo-host>` and save the full output, exit status, UTC timestamp and
    reported PayPal mode. The script creates new Sandbox orders/refunds. If a run fails, preserve that log too; explain

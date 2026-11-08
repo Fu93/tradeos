@@ -25,6 +25,7 @@ def check(url: str, commit: str) -> dict:
         "llm_configured": True,
         "webhook_configured": True,
         "auto_enabled": False,
+        "auto_exchange_enabled": False,
     }
     failed = {key: {"expected": value, "observed": health.get(key)}
               for key, value in expected.items() if health.get(key) != value}
