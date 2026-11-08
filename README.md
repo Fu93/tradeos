@@ -95,7 +95,7 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox run of tip `a196741` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP (no public receiver) — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox run of tip `e1c510b` (8 Nov 2026, isolated verification machine): 62 pass / 0 fail / 6 webhook SKIP (no public receiver) — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal; Case M re-proof on the final hosted tip (pending redeploy) |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
@@ -647,14 +647,17 @@ git clone https://github.com/Fu93/tradeos.git && cd tradeos
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.lock  # hash-pinned build (regenerate with:
                                       #   uv pip compile requirements-dev.txt -o requirements-dev.lock --generate-hashes --universal)
-cp .env.example .env        # fill in PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET (Sandbox) and optionally LLM_API_KEY
-uvicorn app.main:app --reload
-# open http://localhost:8000 and click "Run Case A", approve it, then "Run Case B"
-# experimental, local only: to see the opt-in auto-approval path, AUTO_ENABLED=1 uvicorn app.main:app --reload
+# Zero-config offline loop (fake MOCK- PayPal IDs; red "MOCK mode" badge — not live proof):
+PAYPAL_MOCK=1 uvicorn app.main:app --reload
+# open http://localhost:8000 → Run Case A → Approve & refund → Run Case B
+
+# Live Sandbox (+ optional LLM): copy env and fill PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET
+# (and optionally LLM_API_KEY / LLM_BASE_URL / LLM_MODEL), then:
+#   cp .env.example .env && uvicorn app.main:app --reload
+# experimental, local only: AUTO_ENABLED=1 uvicorn app.main:app --reload
 ```
 
-No PayPal credentials yet? `PAYPAL_MOCK=1 uvicorn app.main:app` runs the whole loop offline with fake `MOCK-` IDs.
-A red "MOCK mode" badge is shown; nothing in that mode is a real PayPal result.
+`PAYPAL_MOCK=1` is the clean-checkout path that needs no secrets. Nothing in that mode is a real PayPal result.
 
 An offline run **without `LLM_API_KEY`** uses the keyword extractor, which reads **English only**. The non-English
 presets (Chinese / Spanish / German / Japanese) then come back as `UNKNOWN` and are rejected to a human — the intended
@@ -733,7 +736,7 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-**1,813** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
+**1,821** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
 push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a
 `pytest-cov` gate at 90% line coverage (**about 95%** today). They include eval dataset checks, VAT-inclusive mock tests,
 CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop,

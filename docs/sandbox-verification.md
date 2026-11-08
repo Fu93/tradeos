@@ -4,7 +4,8 @@
 
 Tip `e1c510b` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
 0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), plus ERROR-retry
-**4/4** and UNKNOWN recovery **2/2** (1813 unit tests, no regressions). That local run is not a hosted-demo claim.
+**4/4** and UNKNOWN recovery **2/2** (1813 unit tests on that tip; later tip adds keyword/judge-guide tests — see
+`git rev-parse HEAD`). That local run is not a hosted-demo claim.
 Re-run `scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz`
 `version` equals `git rev-parse HEAD` on this branch. Optional `--ai-e2e-only` covers the live LLM intent path
 and prints the **measured** `llm_chat_completions` count from case extraction metadata (target must have

@@ -48,7 +48,7 @@ capture and refund responses provide the monetary source of truth.
 The public demo runs on PayPal **Sandbox**, so no real money moves. On 5 Nov 2026, the published commit
 `dc2c6b5cd40e19c2f859d54a71f06b593c350864` passed all 31 default checks in `scripts/sandbox_verify.py`, including
 a completed refund after human approval, a verified signed webhook, a matching PayPal re-read and zero refund calls
-for a rejected case. A **local Sandbox run** of candidate tip `a196741` (8 Nov 2026) reported 62 pass / 0 fail /
+for a rejected case. A **local Sandbox run** of tip `e1c510b` (8 Nov 2026, isolated verification machine) reported 62 pass / 0 fail /
 6 webhook SKIP (no public receiver), ERROR-retry 4/4 and UNKNOWN recovery 2/2 — that is not a hosted-demo claim.
 **Replace this paragraph with hosted evidence for the final deployed commit** after redeploy.
 

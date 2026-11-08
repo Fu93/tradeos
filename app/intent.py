@@ -109,18 +109,36 @@ class KeywordIntentExtractor:
 
     _EXCHANGE = re.compile(
         r"\b(exchange|swap|switch|replace(ment)?|change (it|them|this) for)\b"
-        r"|size\s*\d+\s*(for|to|->)\s*(a\s*)?size\s*\d+",
+        r"|size\s*\d+\s*(for|to|->)\s*(a\s*)?size\s*\d+"
+        # Plain "send the right pair" / "can I get a 41" without the word "exchange".
+        r"|send (me )?the right\b|can i get (a |an |size )?\d{1,3}\b",
         re.I,
     )
     _REFUND = re.compile(r"\b(refund|money back|reimburse)\b", re.I)
-    _STATUS = re.compile(r"\b(where is|tracking|shipped|delivery status|not arrived)\b", re.I)
-    _SIZE = re.compile(r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size)\b", re.I)
-    _DAMAGED = re.compile(r"\b(damaged|broken|torn|defective|faulty)\b", re.I)
-    _WRONG = re.compile(r"\b(wrong item|wrong product|not what i ordered)\b", re.I)
+    _STATUS = re.compile(
+        r"\b(where is|tracking|shipped|delivery status|not arrived|"
+        r"confirmation email|order went through)\b",
+        re.I,
+    )
+    _SIZE = re.compile(
+        r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size|"
+        r"run(s)? really (big|small|large|tight|loose)|even that is (too )?(loose|tight))\b",
+        re.I,
+    )
+    _DAMAGED = re.compile(
+        r"\b(damaged|broken|torn|defective|faulty|crushed|cracked|ripped|split)\b",
+        re.I,
+    )
+    _WRONG = re.compile(
+        r"\b(wrong item|wrong product|not what i ordered|but i ordered|"
+        r"sent me .{1,40}\bbut\b)\b",
+        re.I,
+    )
     _COLOUR = re.compile(
         r"\b(wrong colou?r|different colou?r|colou?r\s+(is\s+)?(wrong|different|incorrect|off)|"
         r"colou?r\s+(does\s*n[o']?t|isn'?t|is\s+not)\s+(match|the\s+same)|"
-        r"(isn'?t|is\s+not|not)\s+the\s+(same\s+)?colou?r)",
+        r"(isn'?t|is\s+not|not)\s+the\s+(same\s+)?colou?r|"
+        r"colou?r looks nothing like|looks nothing like the (photo|photos|picture|pictures|listing))\b",
         re.I,
     )
     _CHANGED = re.compile(r"\b(changed my mind|don'?t want|no longer need)\b", re.I)

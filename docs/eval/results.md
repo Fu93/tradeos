@@ -4,17 +4,18 @@ Run: 2026-10-08T23:04:09+00:00 · dataset: 52 hand-labelled messages ([dataset.j
 
 Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).
 
-> **Policy rows rescored 2026-10-24T08:52:49+00:00 (no model calls).** The rows that ask what the policy would do ("same outcome as the label", "would accept a request it should not", injections, "missed") were recomputed with the policy engine as it was at that time, where a return with a stated reason and a size exchange are both requests the policy accepts. The LLM's outputs themselves are still the ones from the 2026-10-08T23:04:09+00:00 run, made with the extractor prompt from before the return-vs-exchange change (10 Oct 2026). A full re-run with today's prompt needs `LLM_API_KEY`: `python scripts/eval_intent.py`. These rows check the policy's request rule alone; in production the instruction-text heuristic also rejects injection-like messages, so the live system is at least this strict.
+> **Policy rows rescored 2026-11-08T14:57:42+00:00 (no model calls).** The rows that ask what the policy would do ("same outcome as the label", "would accept a request it should not", injections, "missed") were recomputed with the policy engine as it was at that time, where a return with a stated reason and a size exchange are both requests the policy accepts. The LLM's outputs themselves are still the ones from the 2026-10-08T23:04:09+00:00 run, made with the extractor prompt from before the return-vs-exchange change (10 Oct 2026). A full re-run with today's prompt needs `LLM_API_KEY`: `python scripts/eval_intent.py`. These rows check the policy's request rule alone; in production the instruction-text heuristic also rejects injection-like messages, so the live system is at least this strict.
 
-**Keyword-fallback column re-run 2026-10-24T08:52:49+00:00 (keyword-only, no LLM calls), after the fallback injection guard:** when the LLM is unavailable and the message looks like a prompt injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged from the 2026-10-08T23:04:09+00:00 run.
+**Keyword-fallback column re-run 2026-11-08T14:57:42+00:00 (keyword-only, no LLM calls), after the fallback injection guard:** when the LLM is unavailable and the message looks like a prompt injection, the fallback now forces `UNKNOWN` (routed to a human). The LLM column is unchanged from the 2026-10-08T23:04:09+00:00 run.
 
 * Before (keyword run 2026-10-08T23:04:09+00:00): exact match 10/52; injections the policy would wrongly accept: 2 (m37, m52).
 * Before (keyword run 2026-10-08T23:50:54+00:00): exact match 8/52; injections the policy would wrongly accept: 0.
-* After: exact match 8/52; injections the policy would wrongly accept: 0.
+* Before (keyword run 2026-10-24T08:52:49+00:00): exact match 8/52; injections the policy would wrongly accept: 0.
+* After: exact match 13/52; injections the policy would wrongly accept: 0.
 
 ## Headline
 
-* LLM exact match **73% (38/52)** vs keyword fallback **15% (8/52)**; intent alone 94% (49/52) vs 21% (11/52).
+* LLM exact match **73% (38/52)** vs keyword fallback **25% (13/52)**; intent alone 94% (49/52) vs 27% (14/52).
 * 14 LLM misses: 8 are only `OTHER` vs `UNKNOWN` in the reason (labelling convention), 2 pick a different concrete reason, 4 get intent or action wrong.
 * Prompt injections (7): the LLM output never produced a policy-acceptable request that was not warranted (0 across all 52 messages). The keyword fallback produced 0 (none) — with the injection guard, an instruction-like message on the fallback path becomes UNKNOWN and goes to a human (this also routes m11, a genuine exchange wrapped in an injection, to a human).
 * The keyword fallback is English-only by design (a no-key demo path); outside English it mostly returns UNKNOWN, which the policy routes to a human.
@@ -23,20 +24,20 @@ Labels were written by hand from the schema in `app/intent.py` before the run an
 
 | Metric | LLM | Keyword fallback |
 | --- | --- | --- |
-| **Exact match (all 3 core fields)** | 73% (38/52) | 15% (8/52) |
-| Exact match, reason OTHER≈UNKNOWN | 88% (46/52) | 15% (8/52) |
-| `intent` accuracy | 94% (49/52) | 21% (11/52) |
-| `reason` accuracy | 81% (42/52) | 27% (14/52) |
-| `requested_action` accuracy | 92% (48/52) | 21% (11/52) |
-| Same policy request-check outcome as the label | 98% (51/52) | 38% (20/52) |
+| **Exact match (all 3 core fields)** | 73% (38/52) | 25% (13/52) |
+| Exact match, reason OTHER≈UNKNOWN | 88% (46/52) | 25% (13/52) |
+| `intent` accuracy | 94% (49/52) | 27% (14/52) |
+| `reason` accuracy | 81% (42/52) | 37% (19/52) |
+| `requested_action` accuracy | 92% (48/52) | 27% (14/52) |
+| Same policy request-check outcome as the label | 98% (51/52) | 46% (24/52) |
 | Policy would accept a request it should not | 0  | 0  |
-| Acceptable request missed → routed to a human | 1 | 32 |
+| Acceptable request missed → routed to a human | 1 | 28 |
 
 ## Exact match per language
 
 | Language | n | LLM | Keyword |
 | --- | --- | --- | --- |
-| en | 11 | 73% (8/11) | 36% (4/11) |
+| en | 11 | 73% (8/11) | 82% (9/11) |
 | zh-Hant | 9 | 67% (6/9) | 11% (1/9) |
 | es | 9 | 67% (6/9) | 11% (1/9) |
 | de | 8 | 75% (6/8) | 12% (1/8) |

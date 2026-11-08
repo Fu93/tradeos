@@ -14,9 +14,10 @@ only claims that the current evidence can support; fill its remaining placeholde
 
 **Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox run on an isolated verification
 machine for `e1c510b` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2;
-1813 unit tests, no regressions. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this
-tip is still pending** — do not cite 31/31 on the public URL until `/healthz` `version` matches and
-`sandbox_verify.py` is re-run there. Video URL still TBD.
+1813 unit tests then, no regressions; tip now **1,821** tests / ~95% cov after keyword-fallback + judge-guide
+hardening. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this tip is still pending** —
+do not cite 31/31 on the public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video
+URL still TBD.
 
 1. Freeze the candidate source and record its full Git SHA. The working tree must be clean, including the video/script
    changes that are part of the submission. Keep the public demo, README, video and verification on that same commit.
@@ -60,7 +61,15 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | B1 | Soft | Hosted service ≠ Blueprint (lockfile + health check) | **Documented** — operator action at redeploy; not claimed fixed on the live service |
 | B6 | Low | README Scope said intake “not implemented” | **Fixed** earlier |
 | B7 | Low | Preflight missed `auto_exchange_enabled` | **Fixed** |
-| B8 | Low | README test count drift | **Fixed** (1,813 on this tip) |
+| B8 | Low | README test count drift | **Fixed** (1,821 on this tip) |
 | B9 | Low | README PR count | **Fixed** (85 merged) |
 | B13 | Low | Preflight ignored safety AI / persistence | **Fixed** (requires `safety_ai_layer=false`, `persistence=ephemeral`) |
 | — | — | SQLite ResourceWarnings; webhook SKIP; docs 27→31 | **Fixed** |
+| D1 | Med | Keyword fallback missed common EN phrasings (eval m02–m09) under LLM outage | **Fixed** (deterministic patterns + tests; EN exact 4→9/11; overall 8→13/52; inj unwarranted still 0) |
+| D2 | Med | Judge guide hid steps 2–3 with no explanation during cold start | **Fixed** (muted “steps 2–3 appear…” until cases exist) |
+| D3 | Low | README quick-start led with Sandbox secrets before zero-config mock | **Fixed** (`PAYPAL_MOCK=1` first) |
+| D4 | Low | Docs still pinned tip `a196741` / “owner's machine” after `e1c510b` Sandbox | **Fixed** (isolated verification machine + `e1c510b`) |
+| D5 | Med | Open `/mcp` order-injection race on shared demo | **Defer** — same as C4; no approve/refund tool; ownership when MCP tokens set |
+| D6 | Low | Shared-demo approve can finish another judge's case | **Defer** — intentional shared Sandbox; reset is advanced+confirm; rate limits apply |
+| D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Defer** — needs owner `LLM_API_KEY`; keyword column refreshed offline |
+| D8 | Soft | Hosted tip ≠ published `dc2c6b5` until redeploy | **Defer** — owner redeploy + `sandbox_verify` / `--ai-e2e-only` |

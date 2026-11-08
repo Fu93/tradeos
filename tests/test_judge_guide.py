@@ -31,6 +31,7 @@ def test_judge_path_shows_agent_and_blocked_case_links(tmp_path):
     assert 'action="/demo/agent-scenes"' in initial
     assert "The MCP scenes use a script, not a model" in initial
     assert "Open honest return" not in initial
+    assert "steps 2–3 appear here" in initial
 
     wf = app.state.workflow
     honest = wf.agents.place_order("Maria", agent="Scripted MCP client")
@@ -40,6 +41,7 @@ def test_judge_path_shows_agent_and_blocked_case_links(tmp_path):
     current = guide(dashboard(app))
     assert f'href="/?case={honest}#pending"' in current
     assert f'href="/?case={blocked}#pending"' in current
+    assert "steps 2–3 appear here" not in current
 
 
 def test_judge_path_falls_back_without_agent_demo_orders(tmp_path):

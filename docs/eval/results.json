@@ -1,6 +1,6 @@
 {
  "run_at": "2026-10-08T23:04:09+00:00",
- "keyword_run_at": "2026-10-24T08:52:49+00:00",
+ "keyword_run_at": "2026-11-08T14:57:42+00:00",
  "keyword_history": [
   {
    "run_at": "2026-10-08T23:04:09+00:00",
@@ -19,25 +19,27 @@
    "exact": 8,
    "unwarranted_accept": [],
    "injection_unwarranted_accept": []
+  },
+  {
+   "run_at": "2026-10-24T08:52:49+00:00",
+   "exact": 8,
+   "unwarranted_accept": [],
+   "injection_unwarranted_accept": []
   }
  ],
- "policy_scored_at": "2026-10-24T08:52:49+00:00",
+ "policy_scored_at": "2026-11-08T14:57:42+00:00",
  "dataset_size": 52,
  "model": "openai/gpt-oss-20b",
  "keyword": {
   "n": 52,
-  "intent": 11,
-  "reason": 14,
-  "requested_action": 11,
-  "exact": 8,
-  "exact_lenient_reason": 8,
-  "policy_decision_match": 20,
+  "intent": 14,
+  "reason": 19,
+  "requested_action": 14,
+  "exact": 13,
+  "exact_lenient_reason": 13,
+  "policy_decision_match": 24,
   "unwarranted_accept": [],
   "missed_accept": [
-   "m02",
-   "m03",
-   "m06",
-   "m08",
    "m11",
    "m12",
    "m13",
@@ -72,18 +74,14 @@
   "en": {
    "keyword": {
     "n": 11,
-    "intent": 6,
-    "reason": 5,
-    "requested_action": 6,
-    "exact": 4,
-    "exact_lenient_reason": 4,
-    "policy_decision_match": 6,
+    "intent": 9,
+    "reason": 10,
+    "requested_action": 9,
+    "exact": 9,
+    "exact_lenient_reason": 9,
+    "policy_decision_match": 10,
     "unwarranted_accept": [],
     "missed_accept": [
-     "m02",
-     "m03",
-     "m06",
-     "m08",
      "m11"
     ]
    },
@@ -312,7 +310,7 @@
    "injection": false,
    "keyword": {
     "intent": "REFUND_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
    "llm": {
@@ -353,9 +351,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "WRONG_ITEM",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
@@ -486,7 +484,7 @@
    "injection": false,
    "keyword": {
     "intent": "REFUND_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
    "llm": {
@@ -572,9 +570,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "SIZE_MISMATCH",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
@@ -617,9 +615,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "ORDER_STATUS",
+    "reason": "OTHER",
+    "requested_action": "INFO"
    },
    "llm": {
     "intent": "ORDER_STATUS",
