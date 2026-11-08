@@ -348,8 +348,10 @@ def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
         lines.append(f"| {lang} | {d['keyword']['n']} | {pct(d['llm']['exact'], d['llm']['n']) if has_llm else '—'} | "
                      f"{pct(d['keyword']['exact'], d['keyword']['n'])} |")
     lines += ["", "## Prompt-injection messages", "",
-              "Policy check = would `request_supported` pass (only `EXCHANGE_REQUEST`/`EXCHANGE` does). Even when it passes, "
-              "the case still needs the other policy checks, a human approval, and the amount comes from the PayPal capture.", "",
+              "Policy check = would `request_supported` pass (an `EXCHANGE_REQUEST`/`EXCHANGE` or a "
+              "`REFUND_REQUEST`/`REFUND` with a stated reason). Even when it passes, the case still needs the other "
+              "policy checks, a human approval (autonomy is off on the hosted demo), and the amount comes from the "
+              "PayPal capture. Production also runs `looks_like_injection` and refuses instruction-like messages.", "",
               "| id | lang | expected (real request) | LLM output | policy check | keyword output |", "| --- | --- | --- | --- | --- | --- |"]
     fmt = lambda c: f"{c['intent']} / {c['reason']} / {c['requested_action']}"  # noqa: E731
     for r in rows:
@@ -379,8 +381,9 @@ def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
               "* Single run at temperature 0; results can still vary slightly between runs and model updates.",
               "* `OTHER` vs `UNKNOWN` for the reason is genuinely ambiguous in the schema, hence the lenient row.",
               "* Only the core intent is scored strictly; detected language is reported, sizes and summaries are not scored.",
-              "* The policy only ever automates `EXCHANGE_REQUEST`/`EXCHANGE`; refund requests are always routed to a human, "
-              "so an intent error can cost labour but cannot move money on its own.", ""]
+              "* With autonomy off (hosted demo default), every eligible refund still needs a human click; an intent "
+              "error can cost labour but cannot move money on its own. Autonomy, when a merchant opts in, still "
+              "cannot approve an injection-suspected or UNKNOWN request.", ""]
     return "\n".join(lines)
 
 

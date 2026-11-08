@@ -132,6 +132,20 @@ def find_link(resource: dict, *rels: str) -> str | None:
     return None
 
 
+_PAYPAL_BROWSER_HOSTS = frozenset({"www.sandbox.paypal.com", "www.paypal.com"})
+
+
+def paypal_browser_url(url: str | None) -> str | None:
+    """Allow only official PayPal buyer-approval HTTPS hosts (reject javascript:/open redirects)."""
+    if not url or not isinstance(url, str):
+        return None
+    from urllib.parse import urlsplit
+    parsed = urlsplit(url.strip())
+    if parsed.scheme != "https" or parsed.netloc.lower() not in _PAYPAL_BROWSER_HOSTS:
+        return None
+    return url.strip()
+
+
 def refund_response_issue(refund: dict, capture_id: str) -> str | None:
     """A successful HTTP reply still needs enough identity to prove a refund result."""
     if not isinstance(refund.get("id"), str) or not refund["id"].strip():

@@ -461,7 +461,8 @@ def test_webhook_bad_signature_is_not_trusted(app_ctx):
     capture_id = wf.db.get_case(case_id)["capture_id"]
     r = client.post("/webhooks/paypal", content=json.dumps(refund_event("R-other", capture_id)),
                     headers={"PAYPAL-TRANSMISSION-SIG": "forged"})
-    assert r.json()["verified"] is False and r.json()["case"] == case_id  # matched via capture link
+    body = r.json()
+    assert body["verified"] is False and "case" not in body  # no refund_id→case oracle when unverified
     case = wf.db.get_case(case_id)
     # Changed in #10 review fix: unverified deliveries are log-only and never touch the displayed status.
     assert case["webhook_status"] is None and case["status"] == "REFUND_COMPLETED"

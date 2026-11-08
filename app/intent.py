@@ -109,12 +109,13 @@ class KeywordIntentExtractor:
 
     _EXCHANGE = re.compile(
         r"\b(exchange|swap|switch|replace(ment)?|change (it|them|this) for)\b"
-        r"|size\s*\d+\s*(for|to|->)\s*(a\s*)?size\s*\d+"
-        # Plain "send the right pair" / "can I get a 41" without the word "exchange".
-        r"|send (me )?the right\b|can i get (a |an |size )?\d{1,3}\b",
+        r"|size\s*\d+\s*(for|to|->|→)\s*(a\s*)?(size\s*)?\d+"
+        # Plain "send the right pair" / "can I get a 41" / "get the 43" without the word "exchange".
+        r"|send (me )?the right\b|can i get (a |an |the |size )?\d{1,3}\b"
+        r"|send (the )?corect\b|send (the )?correct\b",
         re.I,
     )
-    _REFUND = re.compile(r"\b(refund|money back|reimburse)\b", re.I)
+    _REFUND = re.compile(r"\b(refund|money back|reimburse)\b|\$\$ back\b", re.I)
     _STATUS = re.compile(
         r"\b(where is|tracking|shipped|delivery status|not arrived|"
         r"confirmation email|order went through)\b",
@@ -122,16 +123,18 @@ class KeywordIntentExtractor:
     )
     _SIZE = re.compile(
         r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size|"
-        r"run(s)? really (big|small|large|tight|loose)|even that is (too )?(loose|tight))\b",
+        r"run(s)? really (big|small|large|tight|loose)|even that is (too )?(loose|tight)|"
+        r"\d+\s*small)\b"
+        r"|size\s*\d+\s*(for|to|->|→)\s*(a\s*)?(size\s*)?\d+",
         re.I,
     )
     _DAMAGED = re.compile(
-        r"\b(damaged|broken|torn|defective|faulty|crushed|cracked|ripped|split)\b",
+        r"\b(damaged|broken|broke|torn|defective|faulty|crushed|cracked|ripped|split|came off)\b",
         re.I,
     )
     _WRONG = re.compile(
-        r"\b(wrong item|wrong product|not what i ordered|but i ordered|"
-        r"sent me .{1,40}\bbut\b)\b",
+        r"\b(wrong item|wrong itme|wrong product|not what i ordered|but i ordered|"
+        r"sent me .{1,40}\bbut\b|ordred .{1,20} got)\b",
         re.I,
     )
     _COLOUR = re.compile(
@@ -145,10 +148,12 @@ class KeywordIntentExtractor:
 
     def extract(self, message: str) -> Extraction:
         text = message or ""
-        if self._SIZE.search(text):
-            reason: Reason = "SIZE_MISMATCH"
-        elif self._DAMAGED.search(text):
-            reason = "DAMAGED"
+        # Prefer DAMAGED over SIZE when both match so a "damaged and too small" fault still
+        # routes through the Safety Gate's hazard-product path (CLEAR_REASON includes SIZE).
+        if self._DAMAGED.search(text):
+            reason: Reason = "DAMAGED"
+        elif self._SIZE.search(text):
+            reason = "SIZE_MISMATCH"
         elif self._COLOUR.search(text):
             reason = "NOT_AS_DESCRIBED"
         elif self._WRONG.search(text):
@@ -184,8 +189,10 @@ INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected �
 
 
 # ---------------------------------------------------------------------------
-# Instruction-like text detector. With the LLM, it only drives the UI banner. On the keyword-fallback path
-# it forces UNKNOWN (see KeywordIntentExtractor), because keyword rules have no notion of "data, not orders".
+# Instruction-like text detector. On the keyword-fallback path it forces UNKNOWN
+# (see KeywordIntentExtractor). On the LLM path the extractor may still return a structured
+# intent, but policy (_evaluate) and autonomy both consume looks_like_injection and refuse /
+# force HUMAN — it is not UI-only.
 # ---------------------------------------------------------------------------
 
 _INJECTION = re.compile(

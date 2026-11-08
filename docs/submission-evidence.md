@@ -14,7 +14,7 @@ only claims that the current evidence can support; fill its remaining placeholde
 
 **Current tip (PR #100):** use `git rev-parse HEAD` on this branch. Local Sandbox run on an isolated verification
 machine for `e1c510b` (8 Nov 2026): 62 pass / 0 fail / 6 webhook SKIP; ERROR-retry 4/4; UNKNOWN recovery 2/2;
-1813 unit tests then, no regressions; tip now **1,821** tests / ~95% cov after keyword-fallback + judge-guide
+1813 unit tests then, no regressions; tip now **1,827** tests / ~95% cov after keyword-fallback + judge-path
 hardening. Hosted cases record extractor `llm:openai/gpt-oss-20b`. **Hosted redeploy of this tip is still pending** —
 do not cite 31/31 on the public URL until `/healthz` `version` matches and `sandbox_verify.py` is re-run there. Video
 URL still TBD.
@@ -61,7 +61,7 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | B1 | Soft | Hosted service ≠ Blueprint (lockfile + health check) | **Documented** — operator action at redeploy; not claimed fixed on the live service |
 | B6 | Low | README Scope said intake “not implemented” | **Fixed** earlier |
 | B7 | Low | Preflight missed `auto_exchange_enabled` | **Fixed** |
-| B8 | Low | README test count drift | **Fixed** (1,821 on this tip) |
+| B8 | Low | README test count drift | **Fixed** (1,827 on this tip) |
 | B9 | Low | README PR count | **Fixed** (85 merged) |
 | B13 | Low | Preflight ignored safety AI / persistence | **Fixed** (requires `safety_ai_layer=false`, `persistence=ephemeral`) |
 | — | — | SQLite ResourceWarnings; webhook SKIP; docs 27→31 | **Fixed** |
@@ -73,3 +73,14 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | D6 | Low | Shared-demo approve can finish another judge's case | **Defer** — intentional shared Sandbox; reset is advanced+confirm; rate limits apply |
 | D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Defer** — needs owner `LLM_API_KEY`; keyword column refreshed offline |
 | D8 | Soft | Hosted tip ≠ published `dc2c6b5` until redeploy | **Defer** — owner redeploy + `sandbox_verify` / `--ai-e2e-only` |
+| E1 | P1 | Agent finish CTA used `#agents` (MCP docs) not Approve | **Fixed** (`#pending` + blocked-case link) |
+| E2 | P1 | Busy flash plain path; guide hid in-progress state | **Fixed** (flash link + guide watch status) |
+| E3 | P1 | `.badge.warn` missing (LLM/webhook/ephemeral) | **Fixed** (CSS) |
+| E4 | High | Public `POST /demo/reset` archives every judge's cases | **Fixed** (`TRADEOS_ALLOW_PUBLIC_RESET=0` on Blueprint) |
+| E5 | Med | Unverified webhook wrote case audit + returned `case` id | **Fixed** (log-only; omit `case` unless verified) |
+| E6 | Low | Verified webhook without `event_id` treated as duplicate | **Fixed** (`MISSING_EVENT_ID`) |
+| E7 | Low | `approve_url` not host-allowlisted | **Fixed** (`paypal_browser_url`) |
+| E8 | Med | Keyword misses m46/m48/m49/m51; SIZE beat DAMAGED | **Fixed** (patterns + DAMAGED-first; keyword exact 17/52) |
+| E9 | Low | Eval Limits prose said refunds never automated | **Fixed** (`render_md`) |
+| E10 | Soft | YouTube URL TBD | **Defer** — owner content |
+| E11 | Med | Open MCP / shared approve (C4/D5/D6) | **Defer** — intentional shared demo; private = operator + MCP tokens |

@@ -137,9 +137,19 @@ def test_keyword_extractor_colour_mismatch_is_not_as_described(msg):
      {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}),
     ("Can you confirm my order went through? I didn't get a confirmation email.",
      {"intent": "ORDER_STATUS", "reason": "OTHER", "requested_action": "INFO"}),
+    ("shoes 2 small lol can i get the 43 instead of 42 thx",
+     {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}),
+    ("鞋子太小 size 42 → 43 please exchange 謝謝",
+     {"intent": "EXCHANGE_REQUEST", "reason": "SIZE_MISMATCH", "requested_action": "EXCHANGE"}),
+    ("my order is broke af, sole came off day 1. want my $$ back",
+     {"intent": "REFUND_REQUEST", "reason": "DAMAGED", "requested_action": "REFUND"}),
+    ("recieved wrong itme, ordred blue got red. pls send corect one",
+     {"intent": "EXCHANGE_REQUEST", "reason": "WRONG_ITEM", "requested_action": "EXCHANGE"}),
+    ("The shoes arrived damaged and too small, please exchange them.",
+     {"intent": "EXCHANGE_REQUEST", "reason": "DAMAGED", "requested_action": "EXCHANGE"}),
 ])
 def test_keyword_extractor_covers_eval_english_phrasing_gaps(msg, expected):
-    """Deterministic fallback must cover common English phrasings from docs/eval/dataset.json (m02–m09)."""
+    """Deterministic fallback must cover common English/mixed phrasings from docs/eval/dataset.json."""
     assert KeywordIntentExtractor().extract(msg).result.model_dump() == expected
 
 

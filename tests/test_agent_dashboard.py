@@ -72,10 +72,14 @@ def test_one_click_plays_three_scenes_through_the_mcp_tools(site):
         request = [e for e in wf.db.timeline(c["id"]) if e["title"].startswith("Return requested")]
         assert request and request[0]["detail"]["agent"] == SCRIPTED_AGENT
     honest = cases["Agent: honest return"]["id"]
-    assert run["case_id"] == honest and run["case_link"]["href"] == f"/?case={honest}#agents"
+    blocked = cases["Agent: prompt injection"]["id"]
+    assert run["case_id"] == honest and run["case_link"]["href"] == f"/?case={honest}#pending"
+    assert run["case_links"][0]["href"] == f"/?case={honest}#pending"
+    assert run["case_links"][1]["href"] == f"/?case={blocked}#pending"
     page = client.get(f"/agent-runs/{run['id']}").text
     assert "A script, not a model" in page and "chooses every tool call itself" not in page
-    assert "Scripted MCP client" in page and "Prompt injection:" in page and f'href="/?case={honest}#agents"' in page
+    assert "Scripted MCP client" in page and "Prompt injection:" in page
+    assert f'href="/?case={honest}#pending"' in page and f'href="/?case={blocked}#pending"' in page
     section = agents_section(client.get(f"/?case={honest}").text)
     assert section.count('class="fm ok"') == 3 and "scripted MCP client" in section
     assert all(f"<code>{t}</code>" in section for t in ("place_demo_order", "request_return", "get_case_status"))

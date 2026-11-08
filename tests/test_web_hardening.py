@@ -82,6 +82,20 @@ def test_reset_cooldown_per_ip_and_global(settings):
     assert "data-confirm" in client.get("/").text
 
 
+def test_public_reset_disabled_without_operator_token(tmp_path):
+    """Open shared demo: reset off so one visitor cannot wipe other judges' cases."""
+    from app.config import Settings
+    from app.intent import KeywordIntentExtractor
+    from app.main import create_app
+    from app.paypal_mock import MockPayPalClient
+    from fastapi.testclient import TestClient
+    s = Settings(db_path=str(tmp_path / "no-reset.db"), allow_public_reset=False, operator_token="")
+    client = TestClient(create_app(settings=s, paypal=MockPayPalClient(), extractor=KeywordIntentExtractor()))
+    assert "/demo/reset" not in client.get("/").text
+    r = client.post("/demo/reset", follow_redirects=False)
+    assert r.status_code == 403 and "disabled on the open shared demo" in r.text
+
+
 def test_cooldown_expires():
     t = [0.0]
     c = Cooldown(60, 15, clock=lambda: t[0])

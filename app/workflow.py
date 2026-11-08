@@ -33,8 +33,8 @@ from .intent import (AssistFields, IntentExtractor, LLM_DOWN_NOTICE, LLM_DOWN_TI
                      begin_llm_http_scope, llm_http_call_count, looks_like_injection)
 from .notes import Outcome, TemplateNoteWriter
 from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link,
-                            first_capture, mint_retry_request_id, outcome_unknown, refund_lookup_issue,
-                            refund_response_issue)
+                            first_capture, mint_retry_request_id, outcome_unknown, paypal_browser_url,
+                            refund_lookup_issue, refund_response_issue)
 from .paypal_mock import MockPayPalClient
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
 from .safety import SAFETY_LABEL, SAFETY_RULE_VERSION, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
@@ -433,7 +433,7 @@ class Workflow:
                     raise
             capture = first_capture(order)
             if not capture:
-                approve = find_link(order, "payer-action", "approve")
+                approve = paypal_browser_url(find_link(order, "payer-action", "approve"))
                 self.db.update_case(case_id, status=AWAITING_BUYER, approve_url=approve)
                 self.db.audit(case_id, "payment", "Waiting for sandbox buyer approval",
                               {"approve_url": approve, "order_status": order.get("status")})
@@ -1688,12 +1688,18 @@ class Workflow:
                               f"(transmission time {transmission_time}) — no state change", info)
                 return case_id
             if not verified:
-                # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
+                # Log only (webhook_events table): never write the case audit chain for an unverified
+                # POST — anyone can hit the public URL with a guessed refund id and would otherwise
+                # pollute the trail. No state change either way.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
-                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} received but NOT verified — ignored "
+                return case_id
+            if not event_id:
+                # Verified but missing id: cannot dedupe. Do not apply; ask PayPal to retry with an id.
+                self.db.log_webhook_event(case_id=case_id, outcome="MISSING_EVENT_ID", **{**log, "verified": False})
+                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} verified but missing event id — ignored "
                               "(no state change)", info)
                 return case_id
-            if not event_id or not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
+            if not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
                 self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED", **{**log, "verified": False})
                 self.db.audit(case_id, "webhook", "Duplicate PayPal webhook delivery ignored (event already processed)",
                               info)

@@ -1,6 +1,6 @@
 {
  "run_at": "2026-10-08T23:04:09+00:00",
- "keyword_run_at": "2026-11-08T14:57:42+00:00",
+ "keyword_run_at": "2026-11-08T15:10:13+00:00",
  "keyword_history": [
   {
    "run_at": "2026-10-08T23:04:09+00:00",
@@ -25,19 +25,25 @@
    "exact": 8,
    "unwarranted_accept": [],
    "injection_unwarranted_accept": []
+  },
+  {
+   "run_at": "2026-11-08T14:57:42+00:00",
+   "exact": 13,
+   "unwarranted_accept": [],
+   "injection_unwarranted_accept": []
   }
  ],
- "policy_scored_at": "2026-11-08T14:57:42+00:00",
+ "policy_scored_at": "2026-11-08T15:10:13+00:00",
  "dataset_size": 52,
  "model": "openai/gpt-oss-20b",
  "keyword": {
   "n": 52,
-  "intent": 14,
-  "reason": 19,
-  "requested_action": 14,
-  "exact": 13,
-  "exact_lenient_reason": 13,
-  "policy_decision_match": 24,
+  "intent": 17,
+  "reason": 23,
+  "requested_action": 17,
+  "exact": 17,
+  "exact_lenient_reason": 17,
+  "policy_decision_match": 27,
   "unwarranted_accept": [],
   "missed_accept": [
    "m11",
@@ -63,11 +69,8 @@
    "m40",
    "m42",
    "m43",
-   "m46",
    "m47",
-   "m49",
-   "m50",
-   "m51"
+   "m50"
   ]
  },
  "per_language": {
@@ -224,19 +227,16 @@
   "mixed": {
    "keyword": {
     "n": 7,
-    "intent": 1,
-    "reason": 1,
-    "requested_action": 1,
-    "exact": 0,
-    "exact_lenient_reason": 0,
-    "policy_decision_match": 2,
+    "intent": 4,
+    "reason": 5,
+    "requested_action": 4,
+    "exact": 4,
+    "exact_lenient_reason": 4,
+    "policy_decision_match": 5,
     "unwarranted_accept": [],
     "missed_accept": [
-     "m46",
      "m47",
-     "m49",
-     "m50",
-     "m51"
+     "m50"
     ]
    },
    "llm": {
@@ -2232,9 +2232,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "SIZE_MISMATCH",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
@@ -2323,7 +2323,7 @@
    "injection": false,
    "keyword": {
     "intent": "EXCHANGE_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
    "llm": {
@@ -2364,9 +2364,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "REFUND_REQUEST",
+    "reason": "DAMAGED",
+    "requested_action": "REFUND"
    },
    "llm": {
     "intent": "REFUND_REQUEST",
@@ -2454,9 +2454,9 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "WRONG_ITEM",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",

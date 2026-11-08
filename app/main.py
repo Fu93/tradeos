@@ -191,7 +191,8 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             '<script src="/static/swagger/swagger-init.js"></script></body></html>')
 
     def render_dashboard(request: Request, selected: str | None = None, flash: str | None = None,
-                         status_code: int = 200, draft: str = "", draft_late: bool = False) -> HTMLResponse:
+                         status_code: int = 200, draft: str = "", draft_late: bool = False,
+                         flash_kind: str | None = None, flash_link: tuple[str, str] | None = None) -> HTMLResponse:
         case_tabs = db.list_cases(limit=14)
         current = db.get_case(selected) if selected else None
         if current is None and case_tabs:
@@ -268,6 +269,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "inbox": inbox_db_summary(wf),
             "can_fill": can_fill(),
             "flash": flash,
+            "flash_kind": flash_kind or ("warn" if status_code in (409, 429) else "bad"),
+            "flash_link": ({"href": flash_link[0], "text": flash_link[1]} if flash_link else None),
+            "allow_public_reset": bool(settings.operator_token or settings.allow_public_reset),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 
@@ -478,8 +482,9 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         return RedirectResponse(f"/agent-runs/{run_id}", status_code=303)
 
     def busy_flash(request: Request, busy: str | None) -> HTMLResponse:
-        where = f" Watch it at /agent-runs/{busy}" if busy else ""
-        return render_dashboard(request, flash=f"An agent run is already in progress.{where}", status_code=409)
+        link = (f"/agent-runs/{busy}", "Watch the run in progress") if busy else None
+        return render_dashboard(request, flash="An agent run is already in progress.",
+                                flash_link=link, flash_kind="warn", status_code=409)
 
     @app.post("/demo/live-agent")
     def run_live_agent(request: Request, goal: str = Form("")):
@@ -561,7 +566,15 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
 
     @app.post("/demo/reset")
     def reset_demo(request: Request):
-        """Shared demo: confirm step in the page (JS confirm), per-IP + global cooldown."""
+        """Shared demo: confirm step in the page (JS confirm), per-IP + global cooldown.
+
+        On the open public demo (no operator token) reset is off unless TRADEOS_ALLOW_PUBLIC_RESET=1,
+        so one visitor cannot archive every other judge's cases. Private operator-gated demos keep it.
+        """
+        if not settings.operator_token and not settings.allow_public_reset:
+            return render_dashboard(request, flash="Reset is disabled on the open shared demo so one visitor "
+                                    "cannot clear other judges' cases. Use Case A or Fill the inbox instead.",
+                                    flash_kind="warn", status_code=403)
         if (reason := reset_cooldown.check(ip(request))) is not None:
             return render_dashboard(request, flash=f"Not reset: {reason}", status_code=429)
         # Never underneath a refund: refused while any refund call is in flight or a case lock is held.
@@ -791,8 +804,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
         except Exception:
             # Not acknowledged: PayPal retries the delivery (the event id was released, see record_webhook).
             return JSONResponse({"ok": False, "handled": False, "retry": True}, status_code=500)
-        return JSONResponse({"ok": True, "handled": True, "verified": verification == "SUCCESS",
-                             "case": case_id, "method": method})
+        # Omit case id when unverified — otherwise a guessed refund_id is a case oracle.
+        body: dict = {"ok": True, "handled": True, "verified": verification == "SUCCESS", "method": method}
+        if verification == "SUCCESS":
+            body["case"] = case_id
+        return JSONResponse(body)
 
     def render_disputes(request: Request, flash: str | None = None, status_code: int = 200) -> HTMLResponse:
         return templates.TemplateResponse(request, "disputes.html", {

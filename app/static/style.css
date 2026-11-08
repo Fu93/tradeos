@@ -21,7 +21,11 @@ pre { white-space: pre-wrap; background: #f6f8fb; border: 1px solid var(--line);
 .badges { display: flex; gap: 8px; flex-wrap: wrap; }
 .badge { font-size: 12.5px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
 .badge.ok { background: #d1fadf; color: #05603a; } .badge.bad { background: #fee4e2; color: var(--bad); }
+.badge.warn { background: var(--warn-bg); color: var(--warn); }
 .badge.neutral { background: rgba(255,255,255,.15); color: #fff; }
+body[data-busy] { cursor: progress; }
+body[data-busy] main { opacity: .72; pointer-events: none; }
+form.js-busy.busy-now { outline: 2px solid var(--blue); outline-offset: 2px; }
 main { max-width: 1320px; margin: 0 auto; padding: 22px 28px 40px; }
 h1 { margin: 0 0 4px; font-size: 22px; } h2 { margin: 0 0 12px; font-size: 17px; } h3 { font-size: 15px; margin: 4px 0 10px; }
 .muted { color: var(--muted); } .small { font-size: 12.5px; }
@@ -64,6 +68,8 @@ form.inline { display: inline; }
 .error { background: var(--bad-bg); color: var(--bad); border-radius: 8px; padding: 8px 10px; margin: 8px 0; font-size: 13.5px; }
 .flash { border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; font-weight: 600; }
 .flash.bad { background: var(--bad-bg); color: var(--bad); }
+.flash.warn { background: var(--warn-bg); color: #5a4300; }
+.flash a { font-weight: 700; }
 .result { border-radius: 8px; padding: 10px 12px; margin-top: 10px; font-size: 14px; }
 .result.ok { background: var(--ok-bg); color: var(--ok); } .result.warn { background: var(--warn-bg); color: var(--warn); }
 .note { border-left: 3px solid var(--blue); background: #eef4ff; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 13.5px; }
@@ -204,7 +210,7 @@ table.evidence tr.bad td{background:#fef2f2}
   .demo-guide { align-items: stretch; flex-direction: column; }
   .guide-links { justify-content: flex-start; min-width: 0; }
   .guide-steps { flex-direction: column; gap: 8px; }
-  .evidence-highlights { grid-template-columns: 1fr 1fr; }
+  .evidence-highlights { grid-template-columns: 1fr; }
   .tabs { flex-wrap: wrap; }
   .tabs .tab { white-space: normal; }
   .fm-grid { grid-template-columns: 1fr; }
