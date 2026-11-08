@@ -249,7 +249,7 @@ def test_judge_guidance_and_environment_status_are_visible(settings):
     assert "PayPal Sandbox" in html
     assert "No real money" in html
     assert "Judge path" in html
-    assert "Agents ask. People approve. PayPal proves." in html
+    assert "Buyer agents request. Merchants approve. PayPal confirms." in html
     assert 'action="/demo/agent-scenes"' in html
     assert "LLM: Fallback" in html
     assert "Webhook: configured" in html
@@ -291,6 +291,83 @@ def test_home_three_step_hint_and_sandbox_notice_without_stale_or_overclaiming_t
         assert step in html
     assert html.index("Agent asks") < html.index("Inspect, then approve") < html.index("Compare the refusal")
     assert "PayPal Sandbox: no real money moves" in html
+    assert "This public demo is shared" in html and "ephemeral database" in html
+    assert "new PayPal Sandbox demo order" in html and "not looked up" in html
     # the old "wakes up" cold-start note and "free tier" wording are stale on the Starter plan
     assert "Free-tier note" not in html and "wakes up" not in html and "free tier" not in html.lower()
     assert "guaranteed" not in html.lower()
+
+
+def test_private_persistent_profile_omits_public_shared_ephemeral_notice(tmp_path):
+    import base64
+    disk = tmp_path / "disk"
+    disk.mkdir()
+    token = "x" * 24
+    s = Settings(db_path=str(disk / "tradeos.db"), persistent_data_dir=str(disk), reset_on_start=False,
+                 operator_token=token, public_base_url="https://merchant.example", mcp_enabled=False,
+                 allow_public_reset=False, paypal_webhook_id="WH-X", agent_demo_orders=False)
+    app = create_app(settings=s, paypal=MagicMock(wraps=MockPayPalClient(), is_mock=True),
+                     extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
+    auth = "Basic " + base64.b64encode(b"operator:" + token.encode()).decode()
+    html = TestClient(app).get("/", headers={"Authorization": auth}).text
+    assert "PayPal Sandbox: no real money moves" in html
+    assert "This public demo is shared" not in html and "ephemeral database" not in html
+
+
+def test_local_file_db_omits_public_shared_ephemeral_notice(tmp_path):
+    """healthz reports local-file when db_path is outside /tmp; the shared/ephemeral notice must not appear."""
+    from pathlib import Path
+    # Prefer a non-/tmp path (pytest's tmp_path is usually under /tmp and would look ephemeral).
+    root = Path("/var/tmp") if Path("/var/tmp").is_dir() else Path.cwd()
+    local = root / f"tradeos-local-file-{tmp_path.name}"
+    local.mkdir(parents=True, exist_ok=True)
+    try:
+        s = Settings(db_path=str(local / "tradeos.db"), allow_public_reset=True, paypal_webhook_id="WH-X",
+                     trust_cf_connecting_ip=False)
+        assert not s.db_path.startswith("/tmp/")
+        assert not s.operator_token and not s.persistent_data_dir
+        client, _, _ = make(s)
+        html = client.get("/").text
+        assert "PayPal Sandbox: no real money moves" in html
+        assert "This public demo is shared" not in html and "ephemeral database" not in html
+    finally:
+        import shutil
+        shutil.rmtree(local, ignore_errors=True)
+
+
+def test_selected_case_next_step_matches_case_type(settings):
+    from app.intent import KeywordIntentExtractor
+    from app.workflow import EXCHANGE_MESSAGE
+    # Keyword extractor so free-text exchange/safety messages classify correctly (FakeExtractor is refund-only).
+    pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)
+    s = Settings(db_path=settings.db_path, rate_limit_per_minute=50, rate_limit_per_hour=200,
+                 rate_limit_global_per_hour=500, paypal_webhook_id="WH-X", trust_cf_connecting_ip=False,
+                 allow_public_reset=True)
+    app = create_app(settings=s, paypal=pp, extractor=KeywordIntentExtractor(), note_writer=TemplateNoteWriter())
+    client = TestClient(app)
+    wf = app.state.workflow
+
+    refund_id = wf.run_scenario("A")
+    exchange_id = wf.run_free_text(EXCHANGE_MESSAGE)
+    safety_id = client.post("/cases/free", data={"message": "The sole melted in the heat and burned my foot."},
+                            follow_redirects=False).headers["location"].split("case=")[1]
+    rejected_id = wf.run_scenario("B")
+
+    refund_html = client.get(f"/?case={refund_id}").text
+    assert 'class="case-next-step"' in refund_html
+    assert "Approve to refund" in refund_html
+    assert "supplier replacement" not in refund_html
+
+    exchange_html = client.get(f"/?case={exchange_id}").text
+    assert "Approve the exchange" in exchange_html and "no refund" in exchange_html
+    assert "Approve to refund" not in exchange_html
+    assert wf.db.get_case(exchange_id)["decision"] == "EXCHANGE_ELIGIBLE"
+
+    safety_html = client.get(f"/?case={safety_id}").text
+    assert "safety" in safety_html.lower() and "no money moves" in safety_html
+    assert "Approve to refund" not in safety_html
+
+    rejected_html = client.get(f"/?case={rejected_id}").text
+    assert "Rejected by the return policy" in rejected_html or "never called" in rejected_html
+    assert "Approve to refund" not in rejected_html
+    assert pp.refund_capture.call_count == 0

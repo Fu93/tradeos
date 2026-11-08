@@ -26,7 +26,7 @@ from . import inbox as inbox_module
 from .agent_scenes import (LIVE_LABELS, SCRIPTED_AGENT, agent_panel, agent_provenance, fill_inbox, live_run,
                            play_scenes)
 from .agent_runs import LIVE, SCRIPTED, AgentRunRegistry
-from .inbox import BUCKET_LABELS, inbox_rows, inbox_db_summary
+from .inbox import BUCKET_LABELS, inbox_rows, inbox_db_summary, _next_step as inbox_next_step
 from .catalog import Channel3Catalog
 from .llm_agent import GOALS, AgentRun, ToolCallingLLM, run_agent
 from .config import Settings
@@ -229,6 +229,7 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "pipeline": pipeline(db, current),
             "result": result_card(db, current, bool(settings.paypal_webhook_id), wf.paypal_mode),
             "section_title": section_title(current),
+            "case_next_step": (inbox_next_step(current)[1] if current else None),
             "ai": ai_panel(current),
             "controls": backend_controls(db, current),
             "failure_modes": failure_modes(db, mock=wf.paypal_mode == "mock"),
@@ -272,6 +273,11 @@ def create_app(settings: Settings | None = None, paypal=None, extractor: IntentE
             "flash_kind": flash_kind or ("warn" if status_code in (409, 429) else "bad"),
             "flash_link": ({"href": flash_link[0], "text": flash_link[1]} if flash_link else None),
             "allow_public_reset": bool(settings.operator_token or settings.allow_public_reset),
+            # Same classification as /healthz "persistence": only the public /tmp demo is ephemeral.
+            # A local-file DB (path outside /tmp, no mounted disk) survives restarts — do not call it ephemeral.
+            # Private profiles (operator token and/or persistent_data_dir) never get the shared-demo notice.
+            "public_shared_ephemeral": (not settings.operator_token and not settings.persistent_data_dir
+                                        and settings.db_path.startswith("/tmp/")),
         }
         return templates.TemplateResponse(request, "dashboard.html", ctx, status_code=status_code)
 

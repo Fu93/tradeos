@@ -22,7 +22,7 @@ from app.intent import KeywordIntentExtractor
 from app.main import create_app
 from app.paypal_mock import MockPayPalClient
 from app.security import CSP
-from app.workflow import DEMO_MESSAGE
+from app.workflow import DEMO_MESSAGE, EXCHANGE_MESSAGE
 
 SAFETY_MESSAGE = "The sole melted in the heat and burned my foot."
 
@@ -65,6 +65,7 @@ def test_customer_requests_land_in_the_right_bucket_with_a_next_step(site):
     b = client.post("/demo/run/B", follow_redirects=False).headers["location"].split("=")[1]
     rows = rows_by_id(client)
     assert rows[a]["bucket"] == "needs_you" and rows[a]["next_step"].startswith("Policy says eligible")
+    assert "Approve to refund" in rows[a]["next_step"]
     assert rows[b]["bucket"] == "closed" and "never called" in rows[b]["next_step"]
     assert rows[b]["why"]  # the policy's first reason, so the merchant sees why without opening the case
     for r in (rows[a], rows[b]):
@@ -74,6 +75,21 @@ def test_customer_requests_land_in_the_right_bucket_with_a_next_step(site):
     done = rows_by_id(client)[a]
     assert done["bucket"] == "closed" and done["status"] == "REFUND_COMPLETED"
     assert done["refund_api_calls"] == 1 and done["approved_by"] == "human"
+
+
+def test_exchange_pending_next_step_says_no_refund(site):
+    client, wf = site()
+    cid = wf.run_free_text(EXCHANGE_MESSAGE)
+    assert wf.db.get_case(cid)["decision"] == "EXCHANGE_ELIGIBLE"
+    row = rows_by_id(client)[cid]
+    assert row["bucket"] == "needs_you" and row["request"] == "Exchange"
+    assert "Approve the exchange" in row["next_step"] and "no refund" in row["next_step"]
+    assert "Approve to refund" not in row["next_step"]
+    safety = client.post("/cases/free", data={"message": SAFETY_MESSAGE}, follow_redirects=False)
+    sid = safety.headers["location"].split("=")[1]
+    srow = rows_by_id(client)[sid]
+    assert srow["request"] == "Safety report" and "no money moves" in srow["next_step"]
+    assert "Approve to refund" not in srow["next_step"]
 
 
 def test_rows_are_newest_first(site):

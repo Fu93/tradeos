@@ -1,31 +1,30 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
-## Candidate tip — local Sandbox + LLM eval (8 Nov 2026)
+## Current hosted tip — `f2c7430` (8 Nov 2026)
 
-Tip `9dafb70` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
+https://tradeos-s33z.onrender.com serves `f2c74302622d91f988ba7fad097052ed4c322a56` (`/healthz` matches). Measured on
+this hosted tip: submission preflight **9/9**, `sandbox_verify` **31/31**, AI e2e **11/11**, deterministic policy
+matrix **582/582**, malformed Origin/Referer → **403** (58/58). Offline pytest tip count and coverage live in
+[`submission-evidence.md`](submission-evidence.md) (hosted `f2c7430` baseline **1841**; this docs/UI tip **1845**).
+
+## Historical — local Sandbox + LLM eval on `9dafb70` (8 Nov 2026)
+
+Tip `9dafb70` was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
 0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), UNKNOWN recovery
-**2/2**, ERROR-retry **4/4**, over-refund **422**, and AI e2e **11/11**. That local run is not a hosted-demo claim.
+**2/2**, ERROR-retry **4/4**, over-refund **422**, and AI e2e **11/11**. That local run is historical evidence for
+`9dafb70`, not a substitute for the current hosted tip.
 
-Same day, a full offline LLM eval on tip `9dafb70` with Groq **`openai/gpt-oss-20b`** (52 cases, one run, **all
-HTTP 200**, no 400 / no keyword fallback on the LLM column): exact **41/52** (78.85%), lenient **47/52** (90.38%),
-intent 49/52, reason 45/52, action 48/52, policy request-check **52/52**, `unwarranted_accept` **0**,
-`missed_accept` **0**, injections 7/7 policy-safe with 0 unwarranted. Keyword fallback on the same tip: **17/52**
-exact, unwarranted 0, missed_accept 25. Tokens for that eval run (including 3 AI e2e calls): 39,637 in / 15,543 out
-≈ US$0.0076 at Groq list price. The HTTP 400 → `json_object` retry path is covered by unit tests; it was **not hit**
-in this live eval.
+Same day, a full offline LLM eval on tip `9dafb70` with Groq **`openai/gpt-oss-20b`** (52 author-written messages,
+one run, **all HTTP 200**): exact **41/52**, lenient **47/52**, policy request-check **52/52** on this small set
+(not general accuracy), keyword **17/52**. Committed in [`docs/eval/`](eval/).
 
-Re-run `scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz`
-`version` equals `git rev-parse HEAD` on this branch. Optional `--ai-e2e-only` covers the live LLM intent path
-and prints the **measured** `llm_chat_completions` count from case extraction metadata (target must have
-`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`; hosted demo extractor records `llm:openai/gpt-oss-20b`).
-
-## Published demo technical recheck — 7 Nov 2026
+## Historical — published demo technical recheck — 7 Nov 2026
 
 The published `dc2c6b5` build passed the default live Sandbox verification
 and the separate two-batch partial-refund verification. Exact case, refund,
 Debug-ID, amount and audit-chain results are in
 [`docs/evidence/sandbox-verify-dc2c6b5-2026-11-07.md`](evidence/sandbox-verify-dc2c6b5-2026-11-07.md).
-This is evidence for the **published** commit only; the public demo may still serve `dc2c6b5` until redeployed.
+This is historical evidence for `dc2c6b5` only.
 
 ## Published demo recheck — 5 Nov 2026
 
