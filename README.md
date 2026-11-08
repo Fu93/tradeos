@@ -406,9 +406,9 @@ including 7 prompt-injection attempts). Full results, every miss and the limits:
 Measured offline against tip `9dafb70` on **2026-11-08**: model `openai/gpt-oss-20b` via Groq, 52 cases, **one run,
 all HTTP 200** (no provider 400 and no keyword fallback on the LLM column). The HTTP 400 → `json_object` retry /
 keyword-fallback path is covered by unit tests on this tip; it was **not hit** in this live eval. Keyword column is
-deterministic on the same tip (17/52 exact, 0 unwarranted, 25 missed_accept). The committed
-[`docs/eval/results.json`](docs/eval/results.json) per-case LLM rows still date from the 8 Oct artifact until a full
-JSON refresh is committed; the judge-facing numbers above are the 2026-11-08 measurement.
+deterministic on the same tip (17/52 exact, 0 unwarranted, 25 missed_accept). Committed
+[`docs/eval/results.json`](docs/eval/results.json) / [`results.md`](docs/eval/results.md) are that same 2026-11-08
+full LLM run (`run_at` 2026-11-08T15:57:31+00:00).
 
 The evaluation command requires `LLM_API_KEY` for a model run. It uses the same resilient `ChatJSONClient` as
 production intake (one `json_object` retry on HTTP 400, including Groq `json_validate_failed`, then keyword

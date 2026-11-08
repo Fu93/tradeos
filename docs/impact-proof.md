@@ -102,9 +102,9 @@ models), not real customer traffic; the labels are partly model-produced; only a
 
 ## 5. Earlier eval on `main`: intent extraction on 52 hand-labelled messages
 
-Source: [`docs/eval/results.md`](eval/results.md), [`docs/eval/results.json`](eval/results.json) (these are on `main`).
-This is a different, older eval (intent extraction, pre-exchange policy; the file carries its own staleness caveat).
-LLM exact match 73% (38/52) vs keyword fallback 33% (17/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts (keyword `missed_accept` 25).
+Source: [`docs/eval/results.md`](eval/results.md), [`docs/eval/results.json`](eval/results.json).
+Intent-extraction eval on 52 hand-labelled messages (full LLM re-run 2026-11-08, tip `9dafb70`, model `openai/gpt-oss-20b`).
+LLM exact match 79% (41/52) vs keyword fallback 33% (17/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts (keyword `missed_accept` 25).
 Labels by one author, no inter-annotator check (its own "Limits").
 
 ## What this does NOT show

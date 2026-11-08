@@ -35,16 +35,19 @@ def test_eval_scoring_keyword_only():
     assert s["unwarranted_accept"] == ["x1"]  # an injected "EXCHANGE" would pass the request check
 
 
-def test_committed_results_say_when_the_policy_rows_were_rescored():
-    """A rescore recomputes the policy rows from saved model outputs. The page must say so, and say the outputs are
-    older, every time: the generator writes that note itself, so a later rescore cannot silently drop it."""
+def test_committed_results_are_a_fresh_full_llm_run():
+    """Committed artifacts are a full 2026-11-08 LLM re-run (not a policy-only rescore of older outputs)."""
     import json
     res = json.loads((ROOT / "docs/eval/results.json").read_text())
     md = (ROOT / "docs/eval/results.md").read_text()
-    assert res["policy_scored_at"] != res["run_at"]
-    assert f"Policy rows rescored {res['policy_scored_at']}" in md and "needs `LLM_API_KEY`" in md
+    assert res["run_at"].startswith("2026-11-08")
+    assert res["policy_scored_at"] == res["run_at"]
+    assert res["keyword_run_at"] == res["run_at"]
+    assert "Policy rows rescored" not in md and "needs `LLM_API_KEY`" not in md
     assert "Exchange missed" not in md and "Acceptable request missed" in md
+    assert res["llm"]["exact"] == 41 and res["keyword"]["exact"] == 17
     assert res["llm"]["unwarranted_accept"] == [] and res["injection"]["llm"]["unwarranted_accept"] == []
+    assert "[dataset.json](dataset.json)" in md
 
 
 def test_render_md_omits_the_rescore_note_for_a_fresh_run():
@@ -54,8 +57,21 @@ def test_render_md_omits_the_rescore_note_for_a_fresh_run():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     res = json.loads((ROOT / "docs/eval/results.json").read_text())
-    res["policy_scored_at"] = res["run_at"]
+    assert res["policy_scored_at"] == res["run_at"]
     assert "Policy rows rescored" not in mod.render_md(res)
+
+
+def test_render_md_includes_rescore_note_when_policy_scored_later():
+    """A rescore recomputes policy rows from saved model outputs; the generator must say so every time."""
+    import importlib.util
+    import json
+    spec = importlib.util.spec_from_file_location("eval_intent", ROOT / "scripts/eval_intent.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    res = json.loads((ROOT / "docs/eval/results.json").read_text())
+    res["policy_scored_at"] = "2099-01-01T00:00:00+00:00"
+    md = mod.render_md(res)
+    assert f"Policy rows rescored {res['policy_scored_at']}" in md and "needs `LLM_API_KEY`" in md
 
 
 def test_model_eval_requires_key_before_writing(monkeypatch, tmp_path):

@@ -75,7 +75,7 @@ flow and link the exact verification log for the named commit. This is a fallbac
 | D4 | Low | Docs still pinned tip `a196741` / “owner's machine” after `e1c510b` Sandbox | **Fixed** (isolated verification machine + `e1c510b`) |
 | D5 | Med | Open `/mcp` order-injection race on shared demo | **Defer** — same as C4; no approve/refund tool; ownership when MCP tokens set |
 | D6 | Low | Shared-demo approve can finish another judge's case | **Defer** — intentional shared Sandbox; reset is advanced+confirm; rate limits apply |
-| D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Measured** 2026-11-08 on tip `9dafb70` (Groq `openai/gpt-oss-20b`): exact 41/52, lenient 47/52, policy 52/52, unwarranted 0; all HTTP 200 (400 path unit-tested, not hit live). Judge docs updated; committed `docs/eval/results.json` per-case LLM rows still the 8 Oct artifact until a full JSON refresh is committed |
+| D7 | Low | Full LLM eval re-run (`eval_intent` without `--keyword-only`) | **Done** — committed `docs/eval/results.json` / `results.md` are the 2026-11-08 full LLM run on tip `9dafb70` (Groq `openai/gpt-oss-20b`): exact 41/52, lenient 47/52, policy 52/52, unwarranted 0; all HTTP 200 (400 path unit-tested, not hit live); `run_at` 2026-11-08T15:57:31+00:00 |
 | D8 | Soft | Hosted tip ≠ published `dc2c6b5` until redeploy | **Defer** — owner redeploy + `sandbox_verify` / `--ai-e2e-only` |
 | E1 | P1 | Agent finish CTA used `#agents` (MCP docs) not Approve | **Fixed** (`#pending` + blocked-case link) |
 | E2 | P1 | Busy flash plain path; guide hid in-progress state | **Fixed** (flash link + guide watch status) |
