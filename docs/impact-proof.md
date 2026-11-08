@@ -9,7 +9,7 @@
 
 | Level | What it is | Where it stands |
 |---|---|---|
-| **1. Test / automated eval results** | A frozen pipeline run once on a labelled message set and scored against the labels. Labels came from the design plus two LLM judges (nemotron-3-super "N", gemma-4-31b-it "G"). | **Done**, numbers below. |
+| **1. Test / automated eval results** | A frozen pipeline run once on a labelled message set and scored against the labels. Labels came from the design plus two offline LLM judges (nemotron-3-super "N", gemma-4-31b-it "G") — **not** the hosted demo extractor (`llm:openai/gpt-oss-20b`). | **Done**, numbers below. |
 | **2. Human adjudication of specific disputed labels** | The author and the user ruled on individual labels where judges and design disagreed or a guide rule changed. | **Done only for the specific items listed in section 4**: 8 author adjudications in v4 (4 of them reviewed by the user), plus a 40-row user spot-check on the earlier held-out v2 set. |
 | **3. Full human audit of every label and every outcome** | A person independently labelling or re-checking all 308 messages. | **NOT done.** In `heldout-v4-review.csv` (44 rows pre-selected for review: 22 safety, 18 errors, 4 low-risk) only 4 rows carry a human label. |
 
@@ -102,9 +102,9 @@ models), not real customer traffic; the labels are partly model-produced; only a
 
 ## 5. Earlier eval on `main`: intent extraction on 52 hand-labelled messages
 
-Source: [`docs/eval/results.md`](eval/results.md), [`docs/eval/results.json`](eval/results.json) (these are on `main`).
-This is a different, older eval (intent extraction, pre-exchange policy; the file carries its own staleness caveat).
-LLM exact match 73% (38/52) vs keyword fallback 15% (8/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts.
+Source: [`docs/eval/results.md`](eval/results.md), [`docs/eval/results.json`](eval/results.json).
+Intent-extraction eval on 52 hand-labelled messages (full LLM re-run 2026-11-08, tip `9dafb70`, model `openai/gpt-oss-20b`).
+LLM exact match 79% (41/52) vs keyword fallback 33% (17/52); intent alone 94% (49/52); 7 prompt-injection messages, 0 unwarranted accepts (keyword `missed_accept` 25).
 Labels by one author, no inter-annotator check (its own "Limits").
 
 ## What this does NOT show

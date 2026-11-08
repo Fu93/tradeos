@@ -14,6 +14,7 @@ again. Keys are kept for 6 hours (Orders v2 capture reference). So:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -21,7 +22,7 @@ from app import inbox
 from app.agent_desk import next_step
 from app.paypal_client import PayPalError
 from app.paypal_mock import MockPayPalClient
-from app.workflow import PAYMENT_UNKNOWN, RefundNotAllowed
+from app.workflow import PAYMENT_UNKNOWN, RefundNotAllowed, Workflow
 from tests.helpers import make_wf
 
 
@@ -239,11 +240,95 @@ def test_an_old_unknown_partial_refund_is_not_re_sent(settings):
     assert any("check PayPal by hand" in e["title"] for e in wf.db.timeline(case_id))
 
 
+@pytest.mark.parametrize("expired", [False, True])
+def test_partial_refund_crash_before_call_log_keeps_one_refund(settings, expired):
+    from app import lineitems as li
+    from app.intent import KeywordIntentExtractor
+
+    pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)
+    wf, _ = make_wf(settings, paypal=pp)
+    case_id = wf.run_scenario("M")
+    batch_id = f"{case_id}-B1"
+    batch = wf.db.get_batch(batch_id)
+    real_refund = pp._mock_wraps.refund_capture
+
+    def crash_after_money(*args, **kwargs):
+        real_refund(*args, **kwargs)
+        raise SystemExit("process died before recording PayPal's reply")
+
+    pp.refund_capture.side_effect = crash_after_money
+    with pytest.raises(SystemExit):
+        wf.mixed.approve_batch(case_id, batch_id, li.to_str(batch["amount_minor"], batch["currency"]),
+                               batch["items_hash"])
+    assert wf.db.get_batch(batch_id)["status"] == "UNKNOWN"
+    assert wf.db.paypal_calls(case_id, "refund_capture") == []
+    pp.refund_capture.side_effect = real_refund
+
+    restarted = Workflow(wf.db, settings, KeywordIntentExtractor(), paypal=pp)
+    if expired:
+        restarted._now = lambda: (datetime.now(timezone.utc) + timedelta(hours=7)).isoformat()
+    restarted.resume_unresolved_refunds()
+    if expired:
+        assert restarted.db.get_batch(batch_id)["status"] == "UNKNOWN"
+        with pytest.raises(RefundNotAllowed, match="6 hours"):
+            restarted.mixed.retry_batch(case_id, batch_id)
+        assert pp.refund_capture.call_count == 1
+    else:
+        assert restarted.db.get_batch(batch_id)["status"] == "COMPLETED"
+        assert pp.refund_capture.call_count == 2
+    assert len(pp._mock_wraps.refunds_by_request) == 1
+    assert restarted.db.verify_chain(case_id)["ok"]
+
+
 def test_a_recent_unknown_partial_refund_is_still_recovered_with_the_same_request_id(settings):
     wf, mock, case_id, batch_id, state = unknown_partial_refund(settings)
     state["down"] = False
     wf.mixed.retry_batch(case_id, batch_id)
     assert wf.db.get_batch(batch_id)["status"] == "COMPLETED" and len(mock.refunds_by_request) == 1
+
+
+def test_external_refund_signal_does_not_erase_unknown_partial_outcome(settings):
+    wf, mock, case_id, batch_id, state = unknown_partial_refund(settings)
+    state["down"] = False
+    wf.db.log_webhook_event("WH-UNKNOWN-EXTERNAL", "PAYMENT.CAPTURE.REFUNDED", "SUCCESS", True,
+                            case_id, "OTHER-REFUND", "COMPLETED", "NEEDS_HUMAN")
+    sent = state["refunds"]
+    with pytest.raises(RefundNotAllowed, match="outside TradeOS"):
+        wf.mixed.retry_batch(case_id, batch_id)
+    assert wf.db.get_batch(batch_id)["status"] == "UNKNOWN"
+    assert wf.db.get_case(case_id)["status"] == "MIXED_OUTCOME_UNKNOWN"
+    assert state["refunds"] == sent and len(mock.refunds_by_request) == 1
+
+
+@pytest.mark.parametrize("retry_path", ["automatic", "merchant"])
+def test_partial_refund_recovery_crash_stays_unknown_for_restart(settings, retry_path):
+    """A second crash on either retry path must leave the batch on the startup scan."""
+    from app.intent import KeywordIntentExtractor
+
+    wf, mock, case_id, batch_id, state = unknown_partial_refund(settings)
+    state["down"] = False
+    real_refund = mock.refund_capture
+
+    def crash_after_replay(*args, **kwargs):
+        real_refund(*args, **kwargs)
+        raise SystemExit("process died after PayPal replayed the refund")
+
+    wf._paypal.refund_capture.side_effect = crash_after_replay
+    with pytest.raises(SystemExit):
+        if retry_path == "automatic":
+            wf.mixed.recover_unknown(case_id, "startup")
+        else:
+            wf.mixed.retry_batch(case_id, batch_id)
+    assert wf.db.get_batch(batch_id)["status"] == "UNKNOWN"
+    assert wf.db.get_case(case_id)["status"] == "MIXED_OUTCOME_UNKNOWN"
+    assert len(mock.refunds_by_request) == 1
+
+    wf._paypal.refund_capture.side_effect = real_refund
+    restarted = Workflow(wf.db, settings, KeywordIntentExtractor(), paypal=wf._paypal)
+    restarted.resume_unresolved_refunds()
+    assert restarted.db.get_batch(batch_id)["status"] == "COMPLETED"
+    assert len(mock.refunds_by_request) == 1
+    assert restarted.db.verify_chain(case_id)["ok"]
 
 
 def test_the_window_starts_when_paypal_first_saw_the_request_id(settings):

@@ -2,6 +2,8 @@
 import hashlib
 import json
 
+import pytest
+
 from tests.helpers import app_ctx, case_from  # noqa: F401
 from tests.test_evidence import run_a
 
@@ -56,3 +58,23 @@ def test_dashboard_links_to_report(app_ctx):
     client, _, _ = app_ctx
     cid = run_a(client)
     assert f"/cases/{cid}/evidence" in client.get(f"/?case={cid}").text
+
+
+def test_crash_before_call_log_does_not_claim_refund_api_was_never_called(app_ctx):
+    client, pp, wf = app_ctx
+    cid = case_from(client.post("/demo/run/A", follow_redirects=False))
+    real_refund = pp._mock_wraps.refund_capture
+
+    def crash_after_money(*args, **kwargs):
+        real_refund(*args, **kwargs)
+        raise SystemExit("lost process after PayPal moved money")
+
+    pp.refund_capture.side_effect = crash_after_money
+    with pytest.raises(SystemExit):
+        wf.approve(cid)
+    assert wf.db.paypal_calls(cid, "refund_capture") == []
+    report = client.get(f"/cases/{cid}/evidence.json").json()
+    assert report["refund_api_called"] is None
+    page = client.get(f"/cases/{cid}/evidence").text
+    assert "Refund API: OUTCOME UNKNOWN" in page and "Refund API: NOT CALLED" not in page
+    assert wf.db.verify_chain(cid)["ok"]

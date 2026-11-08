@@ -12,7 +12,7 @@ SIG_OK = {"PAYPAL-TRANSMISSION-SIG": "valid-mock-signature", "Content-Type": "ap
 SIG_BAD = {"PAYPAL-TRANSMISSION-SIG": "forged", "Content-Type": "application/json"}
 
 
-def event(refund_id, event_id="WH-EVT-1", status="COMPLETED", capture_id="C-unknown"):
+def event(refund_id, event_id="WH-EVT-1", status="COMPLETED", capture_id=None):
     e = refund_event(refund_id, capture_id)
     e["id"] = event_id
     e["resource"]["status"] = status
@@ -57,6 +57,15 @@ def test_verified_completed_moves_pending_to_completed(app_ctx):
     assert outcomes(wf, case_id) == ["PENDING_TO_COMPLETED"]
     titles = [e["title"] for e in wf.db.timeline(case_id)]
     assert "Verified PayPal webhook moved refund PENDING → COMPLETED" in titles
+
+
+def test_verified_webhook_with_wrong_capture_link_cannot_complete_refund(app_ctx):
+    client, pp, wf = app_ctx
+    case_id, refund_id = pending_case(client, wf)
+    post(client, event(refund_id, capture_id="OTHER-CAPTURE"))
+    assert wf.db.get_case(case_id)["status"] == "REFUND_PENDING"
+    assert outcomes(wf, case_id) == ["MISMATCH_IGNORED"]
+    assert refund_calls(pp) == 1
 
 
 def test_unverified_completed_changes_nothing(app_ctx):

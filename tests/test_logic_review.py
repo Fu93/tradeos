@@ -35,8 +35,9 @@ class TimeoutAfterRefund(MockPayPalClient):
     """PayPal processed the refund but the HTTP response was lost (timeout) — once."""
     lose_reply = True
 
-    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None):
-        r = super().refund_capture(capture_id, request_id, note_to_payer)
+    def refund_capture(self, capture_id, request_id, note_to_payer=None, mock_response=None, amount=None,
+                       custom_id=None):
+        r = super().refund_capture(capture_id, request_id, note_to_payer, amount=amount, custom_id=custom_id)
         if self.lose_reply:
             self.lose_reply = False
             raise PayPalError("Could not reach PayPal: ReadTimeout")
@@ -159,13 +160,16 @@ def test_F2_same_request_id_retry_is_refused(tmp_path):
 
 
 def test_F2_retry_after_confirmed_failure_uses_new_id_once(tmp_path):
+    from app.paypal_client import PAYPAL_REQUEST_ID_MAX_LEN, mint_retry_request_id
     pp, db, wf, cid = _failed_case(tmp_path)
     failed_id = db.get_case(cid)["refund_id"]
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
     pp.refund_status = "COMPLETED"
     wf.retry_failed_refund(cid)
     case = db.get_case(cid)
-    new_id = f"tradeos-refund-{cid}-after-{failed_id}"
+    new_id = mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
     assert case["status"] == "REFUND_COMPLETED" and case["refund_request_id"] == new_id
+    assert len(new_id) <= PAYPAL_REQUEST_ID_MAX_LEN
     assert any("Policy re-check before a new refund request: ELIGIBLE" == e["title"] for e in db.timeline(cid))
     # idempotent: a second click can't send anything (COMPLETED); PayPal holds exactly one live refund
     with pytest.raises(RefundNotAllowed):
@@ -173,11 +177,76 @@ def test_F2_retry_after_confirmed_failure_uses_new_id_once(tmp_path):
     assert [r["status"] for r in pp.refunds_by_request.values()] == ["FAILED", "COMPLETED"]
 
 
+def test_F2_retry_clears_failed_identity_so_unknown_is_recoverable(tmp_path):
+    """A lost reply on the NEW request must not keep the old FAILED refund_id.
+
+    Leaving that identity would block confirm_unknown_refund / reconcile (they treat any
+    refund_id as already bound) and would make a later execute_refund think the case is still
+    the FAILED refund that needs 'Retry with a new request'.
+    """
+    pp, db, wf, cid = _failed_case(tmp_path)
+    failed_id = db.get_case(cid)["refund_id"]
+    original = pp.refund_capture
+
+    def post_then_timeout(*args, **kwargs):
+        original(*args, **kwargs)
+        raise PayPalError("refund reply lost", status_code=408)
+
+    pp.refund_capture = post_then_timeout
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
+    with pytest.raises(PayPalError):
+        wf.retry_failed_refund(cid)
+    case = db.get_case(cid)
+    assert case["status"] == "REFUND_OUTCOME_UNKNOWN"
+    assert case["refund_id"] is None and case["refund_status"] is None
+    from app.paypal_client import mint_retry_request_id
+    assert case["refund_request_id"] == mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
+
+
+def test_F2_retry_definite_error_does_not_stick_failed_status(tmp_path):
+    """A 4xx on the new request must leave REFUND_ERROR, not a FAILED refund_status ghost."""
+    pp, db, wf, cid = _failed_case(tmp_path)
+    failed_id = db.get_case(cid)["refund_id"]
+    calls = {"n": 0}
+    original = pp.refund_capture
+
+    def refuse_once(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise PayPalError("REFUND_FAILED_INSUFFICIENT_FUNDS", status_code=422, name="UNPROCESSABLE_ENTITY")
+        return original(*args, **kwargs)
+
+    pp.refund_capture = refuse_once
+    prior_req = db.get_case(cid)["refund_request_id"] or f"tradeos-refund-{cid}"
+    with pytest.raises(PayPalError):
+        wf.retry_failed_refund(cid)
+    case = db.get_case(cid)
+    assert case["status"] == "REFUND_ERROR"
+    assert case["refund_id"] is None and case["refund_status"] is None
+    from app.paypal_client import mint_retry_request_id
+    assert case["refund_request_id"] == mint_retry_request_id(f"{prior_req}|failed|{failed_id}")
+    # execute_refund must be able to try the same new request again (not demand retry_failed_refund).
+    pp.refund_status = "COMPLETED"
+    wf.execute_refund(cid)
+    assert db.get_case(cid)["status"] == "REFUND_COMPLETED"
+    assert calls["n"] == 2
+
+
 def test_F2_new_id_only_after_paypal_confirms_failed(tmp_path):
     pp, db, wf, cid = _failed_case(tmp_path)
     pp.refunds_by_request[f"tradeos-refund-{cid}"]["status"] = "PENDING"  # PayPal GET disagrees
     with pytest.raises(RefundNotAllowed, match="not FAILED"):
         wf.retry_failed_refund(cid)
+    assert len(pp.refunds_by_request) == 1
+
+
+def test_F2_retry_refuses_changed_capture_amount(tmp_path):
+    pp, db, wf, cid = _failed_case(tmp_path)
+    case = db.get_case(cid)
+    pp.captures[case["capture_id"]]["amount"]["value"] = "99.99"
+    with pytest.raises(RefundNotAllowed, match="amount, or currency changed"):
+        wf.retry_failed_refund(cid)
+    assert db.get_case(cid)["refund_request_id"] == f"tradeos-refund-{cid}"
     assert len(pp.refunds_by_request) == 1
 
 
@@ -235,7 +304,7 @@ def test_F7_archived_pending_refund_resolves_on_restart(tmp_path):
 
 def test_F7_reset_endpoint_409_while_in_flight(tmp_path):
     s = Settings(db_path=str(tmp_path / "a.db"), rate_limit_per_minute=100, reset_cooldown_per_ip_s=0,
-                 reset_cooldown_global_s=0)
+                 reset_cooldown_global_s=0, allow_public_reset=True)
     app = create_app(settings=s, paypal=MockPayPalClient(), extractor=KeywordIntentExtractor(),
                      note_writer=TemplateNoteWriter())
     client, wf = TestClient(app), app.state.workflow
@@ -393,7 +462,39 @@ def test_F4_injection_phrased_as_exchange_reaches_human_with_fixed_amount(tmp_pa
 def test_F4b_genuine_refund_request_follows_refund_path(tmp_path):
     db, wf = mk(tmp_path)
     # Changed by the return-vs-exchange decision: a return with a stated reason now follows the refund path.
-    assert db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))["status"] == "PENDING_APPROVAL"
+    case = db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))
+    assert case["status"] == "PENDING_APPROVAL"
+    # Keyword path makes no /chat/completions POSTs; intake still records the measured count.
+    assert case["extraction"]["llm_chat_completions"] == 0
+
+
+def test_intake_stamps_measured_llm_chat_completions(tmp_path):
+    """Workflow persists ChatJSONClient POST count (incl. 400 json_object retry) on the case."""
+    import httpx
+    from app.intent import LLMIntentExtractor
+
+    calls = {"n": 0}
+
+    def handler(request):
+        calls["n"] += 1
+        body = json.loads(request.content)
+        if body["response_format"]["type"] == "json_schema":
+            return httpx.Response(400, json={"error": {"message": "json_schema not supported"}})
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps({
+            "intent": "REFUND_REQUEST", "reason": "DAMAGED", "requested_action": "REFUND",
+            "language": "English", "language_code": "en",
+            "current_size": None, "requested_size": None,
+            "merchant_summary_en": "Damaged shoes, wants a refund.",
+        })}}]})
+
+    ex = LLMIntentExtractor("k", "https://llm.example/v1", "openai/gpt-oss-20b",
+                            transport=httpx.MockTransport(handler))
+    db, wf = mk(tmp_path, extractor=ex)
+    case = db.get_case(wf.run_free_text("The shoes arrived damaged, I want a refund."))
+    assert case["status"] == "PENDING_APPROVAL"
+    assert case["extraction"]["extractor"] == "llm:openai/gpt-oss-20b"
+    assert case["extraction"]["llm_chat_completions"] == 2
+    assert calls["n"] == 2
 
 
 def _intent():

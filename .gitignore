@@ -8,9 +8,12 @@ venv/
 *.db
 *.sqlite
 *.sqlite3
+*.db.worker.lock
+tradeos.db.worker.lock
 .pytest_cache/
 .coverage
 htmlcov/
 .DS_Store
 .idea/
 .vscode/
+/artifacts/

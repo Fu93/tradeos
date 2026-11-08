@@ -92,6 +92,8 @@ async def play_scenes(server: MCPServer, db: Database, on_progress: Progress | N
                 "on_behalf_of": DEMO_BUYER})
             if scene.key == "honest":
                 run.order_id = order_id
+            elif scene.key == "injection":
+                run.blocked_order_id = order_id
             if asked.is_error:
                 failed += 1
                 lines.append(f"{scene.title}: could not run ({run.steps[-1]['result'].get('error')})")

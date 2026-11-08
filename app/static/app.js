@@ -85,16 +85,23 @@ window.addEventListener("pageshow", function (e) {
     late.checked = !!saved.late;
     preset.value = saved.preset || "";
     document.querySelectorAll(".chip-btn").forEach(function (c) {
-      c.classList.toggle("on", c.dataset.message === box.value && c.dataset.preset === (saved.preset || ""));
+      var on = c.dataset.message === box.value && c.dataset.preset === (saved.preset || "");
+      c.classList.toggle("on", on);
+      c.setAttribute("aria-pressed", on ? "true" : "false");
     });
   }
   document.querySelectorAll(".chip-btn").forEach(function (chip) {
+    if (!chip.hasAttribute("aria-pressed")) chip.setAttribute("aria-pressed", "false");
     chip.addEventListener("click", function () {
       box.value = chip.dataset.message;
       late.checked = chip.dataset.late === "1";
       preset.value = chip.dataset.preset;
-      document.querySelectorAll(".chip-btn").forEach(function (c) { c.classList.remove("on"); });
+      document.querySelectorAll(".chip-btn").forEach(function (c) {
+        c.classList.remove("on");
+        c.setAttribute("aria-pressed", "false");
+      });
       chip.classList.add("on");
+      chip.setAttribute("aria-pressed", "true");
       save();
       update();
       box.focus();
@@ -209,11 +216,17 @@ document.querySelectorAll("[data-print]").forEach(function (b) {
     document.getElementById("run-report").textContent = run.final_report || "—";
     var outcome = document.getElementById("run-outcome");
     outcome.textContent = "";
-    if (run.case_link && /^\/(\?case=[\w-]+#[\w-]+|inbox)$/.test(run.case_link.href)) {  // only links into this app
-      var a = el("a", "btn small", run.case_link.text);
-      a.id = "run-case";
-      a.href = run.case_link.href;
-      outcome.appendChild(a);
+    var links = (run.case_links && run.case_links.length) ? run.case_links
+      : (run.case_link ? [run.case_link] : []);
+    var safe = links.filter(function (L) { return L && /^\/(\?case=[\w-]+#[\w-]+|inbox)$/.test(L.href); });
+    if (safe.length) {
+      safe.forEach(function (L, i) {
+        var a = el("a", "btn small" + (i ? " ghost" : ""), L.text);
+        if (i === 0) a.id = "run-case";
+        a.href = L.href;
+        outcome.appendChild(a);
+        outcome.appendChild(document.createTextNode(" "));
+      });
     } else {
       outcome.textContent = run.no_case_text;
     }
@@ -259,6 +272,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
 (function () {
   var host = document.getElementById("inbox-grid");
   if (!host || !window.agGrid || !window.fetch) return;
+  var apiUrl = host.getAttribute("data-api-url") || "/api/inbox";
   var table = document.getElementById("inbox-table"), tools = document.getElementById("inbox-tools");
   var search = document.getElementById("inbox-search"), mode = "all";
 
@@ -345,7 +359,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
     });
   }
 
-  fetch("/api/inbox", { cache: "no-store" }).then(function (r) {
+  fetch(apiUrl, { cache: "no-store" }).then(function (r) {
     if (!r.ok) throw new Error("HTTP " + r.status);
     return r.json();
   }).then(function (data) {
@@ -402,7 +416,7 @@ var SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW";
     function poll(delay) {
       setTimeout(function () {
         if (document.hidden) return poll(INBOX_POLL_MS);
-        fetch("/api/inbox", { cache: "no-store" }).then(function (r) {
+        fetch(apiUrl, { cache: "no-store" }).then(function (r) {
           if (!r.ok) throw new Error("HTTP " + r.status);
           return r.json();
         }).then(function (d) {

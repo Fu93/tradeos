@@ -1,4 +1,4 @@
-"""v3.2 Safety Gate: product category x fault signal -> human SAFETY review, ahead of refunds and supplier tasks.
+"""Safety Gate: product category x fault signal -> human SAFETY review, ahead of refunds and supplier tasks.
 
 Deterministic code, independent of the LLM. The LLM's reading (intent / reason) can only ever ADD a signal here
 (reason DAMAGED on a gated product); it can never remove one. So a misread such as "la suela se derritio ... me
@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 
 SAFETY_STATUS = "NEEDS_HUMAN_SAFETY_REVIEW"
 SAFETY_LABEL = "Needs human safety review"
-SAFETY_RULE_VERSION = "safety-gate/3.3.0-main"
+SAFETY_RULE_VERSION = "safety-gate/3.4.0-main"
 
 GATED_CLASSES = ("MAINS_HEATING", "MAINS_ELECTRIC", "GAS", "BATTERY_THERMAL")
 
@@ -169,6 +169,14 @@ _FAULT: list[tuple[str, str]] = [
            r"不通電|不通电|失靈|失灵|有問題|有问题|不能開機|不能开机|不充電|不充电)"),
 ]
 FAULT_PATTERNS = [(lang, re.compile(pat)) for lang, pat in _FAULT]
+# A single extracted reason can hide a second, explicit malfunction in the same message. These narrow phrases
+# override a CLEAR_REASONS reading on a gated product; they do not change the historical word-list evaluation.
+_CONFLICTING_FAULT = [
+    ("en", re.compile(_B + r"(?:keeps? tripping(?: (?:the )?(?:breaker|circuit))?|"
+                       r"(?:breaker|circuit) keeps? tripping)" + _E)),
+    ("en", re.compile(_B + r"(?:frayed (?:power )?(?:cord|cable|wire|plug)|"
+                       r"(?:power )?(?:cord|cable|wire|plug) (?:is |looks? |seems? )?frayed)" + _E)),
+]
 FAULT_REASONS = frozenset({"DAMAGED"})  # LLM reasons that count as a reported fault (escalate-only)
 # The only reasons that let a hazard-class product (GATED_CLASSES) skip the safety review: they say nothing about how
 # the product works. Any other reading (DAMAGED, NOT_AS_DESCRIBED, OTHER, UNKNOWN) goes to a person, whatever words
@@ -393,6 +401,12 @@ def scan_fault(message: str | None) -> list[Signal]:
     return out
 
 
+def scan_conflicting_fault(message: str | None) -> list[Signal]:
+    """Explicit fault clauses that must not be hidden by a second, harmless extracted reason."""
+    return [Signal("pattern", "fault", lang, hit)
+            for lang, rx in _CONFLICTING_FAULT if (hit := _first(rx, message))]
+
+
 def assess(message: str | None, product: dict | None = None, llm_reason: str | None = None,
            intent: str | None = None) -> SafetyAssessment:
     """The Safety Gate. `llm_reason` is the extractor's reading of the message. For a hazard-class product it must be
@@ -408,6 +422,10 @@ def assess(message: str | None, product: dict | None = None, llm_reason: str | N
             fault.append(Signal("llm-reason", "fault", "-", f"LLM reason {llm_reason}"))
         if fault:
             return SafetyAssessment(True, "gated_product_fault", cls, tuple(fault))
+        if llm_reason in CLEAR_REASONS:
+            conflict = scan_conflicting_fault(message)
+            if conflict:
+                return SafetyAssessment(True, "gated_product_fault", cls, tuple(conflict))
         if llm_reason is not None and llm_reason not in CLEAR_REASONS and intent != "ORDER_STATUS":
             return SafetyAssessment(True, "gated_product_unclear", cls,
                                     (Signal("llm-reason", "unclear reason", "-", f"reason {llm_reason}"),))

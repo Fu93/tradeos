@@ -148,7 +148,8 @@ def test_after_the_merchant_approves_paypal_refunds_the_capture_not_an_agent_amo
     assert view["refund_api_calls"] == 1 and view["refund"]["status"] == "COMPLETED"
     assert view["amount"] == "49.99 USD" and view["audit_trail"]["intact"] is True
     (capture_id, _request_id), kwargs = paypal.refund_capture.call_args
-    assert capture_id == view["capture_id"] and kwargs.get("amount") is None  # full refund of PayPal's capture
+    assert capture_id == view["capture_id"] and kwargs["amount"] == {
+        "currency_code": "USD", "value": "49.99"}  # exact server-side capture amount
 
 
 # 4 --------------------------------------------------------------------------- attacks end without a refund call

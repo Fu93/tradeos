@@ -16,7 +16,7 @@ Nothing here is proof of anything on its own: it is a convenience, and a manual 
 | 2 | `POST /v2/checkout/orders` (sandbox test card, intent CAPTURE) | `create_order_with_card` |
 | 2 | `POST /v2/checkout/orders/{id}/capture` | `capture_order` |
 | 3 | `GET /v2/payments/captures/{id}` | `get_capture` |
-| 3 | `POST /v2/payments/captures/{id}/refund` (full: no amount) | `refund_capture` |
+| 3 | `POST /v2/payments/captures/{id}/refund` (the collection shows PayPal's optional full-refund form; TradeOS sends its verified case amount) | `refund_capture` |
 | 3 | same, **partial** (`amount`) | used by mixed-order batches (mixed-order batches, now on `main`) |
 | 3 | `GET /v2/payments/refunds/{id}` | `get_refund` |
 | 4 | `GET /v1/customer/disputes`, `GET /v1/customer/disputes/{id}` (read-only, needs `disputes/read-seller`) | `list_disputes`, `get_dispute` |

@@ -48,7 +48,8 @@ def test_cf_connecting_ip_preferred_when_valid():
 def make(settings, mock=True, **kw):
     pp = MagicMock(wraps=MockPayPalClient(), is_mock=mock)
     s = Settings(db_path=settings.db_path, rate_limit_per_minute=5, rate_limit_per_hour=30,
-                 rate_limit_global_per_hour=200, paypal_webhook_id="WH-X", trust_cf_connecting_ip=False, **kw)
+                 rate_limit_global_per_hour=200, paypal_webhook_id="WH-X", trust_cf_connecting_ip=False,
+                 allow_public_reset=True, **kw)
     app = create_app(settings=s, paypal=pp, extractor=FakeExtractor(), note_writer=TemplateNoteWriter())
     return TestClient(app), pp, app.state.workflow
 
@@ -80,6 +81,21 @@ def test_reset_cooldown_per_ip_and_global(settings):
     r2 = client.post("/demo/reset", headers={"x-forwarded-for": "198.51.100.9"}, follow_redirects=False)
     assert r2.status_code == 429 and "someone else" in r2.text
     assert "data-confirm" in client.get("/").text
+
+
+def test_public_reset_disabled_by_default_without_operator_token(tmp_path):
+    """Safe default: allow_public_reset=False so any public host cannot wipe other judges' cases."""
+    from app.config import Settings
+    from app.intent import KeywordIntentExtractor
+    from app.main import create_app
+    from app.paypal_mock import MockPayPalClient
+    from fastapi.testclient import TestClient
+    s = Settings(db_path=str(tmp_path / "no-reset.db"), operator_token="")  # default allow_public_reset=False
+    assert s.allow_public_reset is False
+    client = TestClient(create_app(settings=s, paypal=MockPayPalClient(), extractor=KeywordIntentExtractor()))
+    assert "/demo/reset" not in client.get("/").text
+    r = client.post("/demo/reset", follow_redirects=False)
+    assert r.status_code == 403 and "disabled on the open shared demo" in r.text
 
 
 def test_cooldown_expires():
@@ -160,7 +176,8 @@ def test_judge_guidance_and_environment_status_are_visible(settings):
     assert "PayPal Sandbox" in html
     assert "No real money" in html
     assert "Judge path" in html
-    assert "Start with Case A above" in html
+    assert "Agents ask. People approve. PayPal proves." in html
+    assert 'action="/demo/agent-scenes"' in html
     assert "LLM: Fallback" in html
     assert "Webhook: configured" in html
 
@@ -197,9 +214,9 @@ def test_mobile_css_lets_confirmation_chips_wrap():
 def test_home_three_step_hint_and_sandbox_notice_without_stale_or_overclaiming_text(settings):
     client, pp, wf = make(settings)
     html = client.get("/").text
-    for step in ("Pick a case", "Press approve", "See the PayPal result"):
+    for step in ("Agent asks", "Inspect, then approve", "Compare the refusal"):
         assert step in html
-    assert html.index("Pick a case") < html.index("Press approve") < html.index("See the PayPal result")
+    assert html.index("Agent asks") < html.index("Inspect, then approve") < html.index("Compare the refusal")
     assert "PayPal Sandbox: no real money moves" in html
     # the old "wakes up" cold-start note and "free tier" wording are stale on the Starter plan
     assert "Free-tier note" not in html and "wakes up" not in html and "free tier" not in html.lower()

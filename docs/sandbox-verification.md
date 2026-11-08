@@ -1,5 +1,46 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
+## Candidate tip — local Sandbox + LLM eval (8 Nov 2026)
+
+Tip `9dafb70` (PR #100) was exercised in a **local Sandbox run** on an isolated verification machine: **62 pass /
+0 fail / 6 webhook SKIP** (no public webhook receiver / `PAYPAL_WEBHOOK_ID` path for localhost), UNKNOWN recovery
+**2/2**, ERROR-retry **4/4**, over-refund **422**, and AI e2e **11/11**. That local run is not a hosted-demo claim.
+
+Same day, a full offline LLM eval on tip `9dafb70` with Groq **`openai/gpt-oss-20b`** (52 cases, one run, **all
+HTTP 200**, no 400 / no keyword fallback on the LLM column): exact **41/52** (78.85%), lenient **47/52** (90.38%),
+intent 49/52, reason 45/52, action 48/52, policy request-check **52/52**, `unwarranted_accept` **0**,
+`missed_accept` **0**, injections 7/7 policy-safe with 0 unwarranted. Keyword fallback on the same tip: **17/52**
+exact, unwarranted 0, missed_accept 25. Tokens for that eval run (including 3 AI e2e calls): 39,637 in / 15,543 out
+≈ US$0.0076 at Groq list price. The HTTP 400 → `json_object` retry path is covered by unit tests; it was **not hit**
+in this live eval.
+
+Re-run `scripts/sandbox_verify.py` against the public URL **after** an authorized redeploy when `/healthz`
+`version` equals `git rev-parse HEAD` on this branch. Optional `--ai-e2e-only` covers the live LLM intent path
+and prints the **measured** `llm_chat_completions` count from case extraction metadata (target must have
+`LLM_API_KEY` / `LLM_BASE_URL` / `LLM_MODEL`; hosted demo extractor records `llm:openai/gpt-oss-20b`).
+
+## Published demo technical recheck — 7 Nov 2026
+
+The published `dc2c6b5` build passed the default live Sandbox verification
+and the separate two-batch partial-refund verification. Exact case, refund,
+Debug-ID, amount and audit-chain results are in
+[`docs/evidence/sandbox-verify-dc2c6b5-2026-11-07.md`](evidence/sandbox-verify-dc2c6b5-2026-11-07.md).
+This is evidence for the **published** commit only; the public demo may still serve `dc2c6b5` until redeployed.
+
+## Published demo recheck — 5 Nov 2026
+
+At 23:19 GMT, the public demo's `/healthz` reported commit
+`dc2c6b5cd40e19c2f859d54a71f06b593c350864`, PayPal mode `sandbox`, LLM and webhook configured, and autonomy off.
+Running `python scripts/sandbox_verify.py https://tradeos-s33z.onrender.com` against that published build returned
+**31/31 PASS**: human approval before refund, one completed Sandbox refund, a self-verified signed webhook, a
+matching PayPal reconciliation, a rejected Case B with zero refund calls, an exchange with zero refund calls, and a
+refused-then-retried Case R. The complete output is preserved in
+[`docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log`](evidence/sandbox-verify-dc2c6b5-2026-11-05.log).
+The verifier was run from this working tree; its uncommitted change adds optional Basic Auth for private deployments,
+while the default checks are unchanged from the committed script. This recheck proves the **published commit**, not
+the other uncommitted changes in this workspace or any future deployment. The PayPal Developer Dashboard debug-ID
+lookup remains a manual step and is not included in the 31 checks.
+
 ## Pre-merge checklist
 
 *(All done 2026-10-10 — #10, #11 and #12 are merged; kept for the record.)*
@@ -19,29 +60,33 @@
 | `PAYPAL_MOCK` | must be unset or `0` on Render | `1` switches to the mock (UI then says "MOCK PayPal") |
 | `TRADEOS_DB_PATH`, `TRADEOS_RESET_ON_START` | SQLite, reset + reseed on start | unchanged |
 | `TRADEOS_RECONCILE_IN_BACKGROUND` | optional, default on | background check of PENDING refunds only |
-| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | intent extraction | unchanged; the check below runs Case A/B (2 LLM calls) |
+| `LLM_API_KEY`, `LLM_BASE_URL`, `LLM_MODEL` | intent extraction (and optional note translation / safety AI) | unchanged. The default sandbox_verify path creates Case A, Case B, one free-text exchange, and Case R — each intake that uses the LLM extractor makes at least one `/chat/completions` call (more if HTTP 400 falls back to `json_object`, or if safety AI / non-English notes are enabled). Hosted demo model: `openai/gpt-oss-20b` (cases show `llm:openai/gpt-oss-20b`). For a single measured free-text path, use `--ai-e2e-only`. |
 
 No new required variables. No database migration is needed (Render reseeds on start; kept databases get the new columns automatically).
 
 ## Sandbox check after deploy (about 2 minutes)
-`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B, one exchange (size 42 → 43, no refund) and one Case R (a forced 422 refund failure, then a retry that refunds). 27 checks:
-1. `/healthz`: PayPal mode `sandbox`, webhook configured.
+`python scripts/sandbox_verify.py https://<render-host>`. It needs no credentials and only uses the public demo endpoints. It creates one Case A (one Sandbox order + one full Sandbox refund of the demo amount), one Case B, one exchange (size 42 → 43, no refund) and one Case R (a forced 422 refund failure, then a retry that refunds). **31 checks** (matches the default path in `scripts/sandbox_verify.py`):
+1. `/healthz`: PayPal mode `sandbox`, webhook configured, `auto_exchange_enabled` reported.
 2. Case A: approved; refund COMPLETED (or PENDING); **exactly one** refund call; a **real** `PayPal-Debug-Id` (not `mock-…`); `PayPal-Request-Id` recorded; retry on the finished refund returns 409.
-3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK).
+3. Signed webhook: `PAYMENT.CAPTURE.REFUNDED` verified within 90 s (earlier live runs: 16–18 s), and the method used (`self` expected; `postback` = fallback, still OK). When `PAYPAL_WEBHOOK_ID` is unset or the target has no public webhook receiver (e.g. localhost), these print `SKIP … (reason)` instead of failing after a 90 s wait; against the hosted demo after redeploy they run fully.
 4. "Check against PayPal": result "Reconciled with PayPal — all match".
 5. Case B: approve returns 409, the refund API is never called; audit trails intact; badge rendered.
 6. Logic-review fixes: Case A's decision / human approval / status are on the hash chain (`chained_state` in `/cases/{id}/audit/verify`); Case A's `refund_request_id` and how COMPLETED was confirmed (`completed_via`); Case B's rejection on the chain with no approval; `GET /cases/{id}/paypal-return` changes nothing.
 7. Exchange: awaiting approval of the exchange → approve → `EXCHANGE_ARRANGED` with **0** refund calls; refund endpoint 409; audit chain intact. Case A's intent is a return (`REFUND`).
-8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` (2 refund calls).
+8. Case R: PayPal 422 shown as "refused, no money moved" (`REFUND_ERROR`), then Retry → COMPLETED with the same `PayPal-Request-Id` inside Payments v2's 6-hour window (2 refund calls).
 
-Not provable live without breaking PayPal on purpose (covered by tests in `tests/test_logic_review.py`): a refund whose reply times out (`REFUND_OUTCOME_UNKNOWN` → recovery), a refund PayPal reports `FAILED` (new request id after a confirmed failure), a reset during an in-flight refund.
+Not provable live without breaking PayPal on purpose (covered by `tests/test_refund_faults.py` and
+`tests/test_mixed_orders.py` and `tests/test_refund_lookup.py`): a refund whose reply times out
+(`REFUND_OUTCOME_UNKNOWN` remains UNKNOWN in real Sandbox until a matching Refund ID is verified by GET, with no
+replay), a refund PayPal reports `FAILED` (new request id after a confirmed failure), and a
+reset during an in-flight refund. Mock mode separately tests same-request-ID recovery.
 
 Manual steps:
 - Open Case A in the browser. In the **PayPal evidence** panel, check the 4 summary lines and "Show details".
 - Debug id lookup: in the PayPal Developer Dashboard (Sandbox), search the API call / event logs for the printed debug id.
 - Also confirm the dashboard shows **no** "MOCK PayPal" tag and no "Pending refund (MOCK)" tile.
 
-Expected on the local mock (dry run of the script, 2026-10-10): every check passes except the four that need real Sandbox (mode, real debug id, signed webhook + its method).
+Expected on the local mock (dry run of the script, 2026-10-10): every check passes except those that need real Sandbox (mode, real debug id). Signed-webhook checks print `SKIP` with an explicit reason when `PAYPAL_WEBHOOK_ID` is unset or the target is not publicly reachable; they are not ambiguous failures.
 
 ## After merging feat/paypal-hardening (webhook re-registration)
 1. Dry run: `python scripts/register_webhook.py https://<render-host>/webhooks/paypal` (needs `PAYPAL_CLIENT_ID` / `PAYPAL_CLIENT_SECRET`). Expect `would update webhook <id> in place (ID unchanged)`.
@@ -57,7 +102,7 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   with a person; resolving one creates batch 2 on the same capture. Asserts: no refund before approval, two different refund ids and Debug-Ids,
   PayPal-reported = computed per batch, cumulative <= capture, third attempts refused with no new refund call, one verified signed webhook per refund id.
 * `--paypal-overrefund-probe` (with the above): one direct Sandbox refund call above the remaining capture using the env credentials. It is a probe of PayPal, outside the app.
-* Last run: main tip `1acae45` (the deployed commit, `/healthz` `version` 1acae45…), 2026-10-19 15:38–15:40 BST: default 31/31 PASS
+* Earlier run: main tip `1acae45` (the deployed commit then, `/healthz` `version` 1acae45…), 2026-10-19 15:38–15:40 BST: default 31/31 PASS
   (webhook verification method `self`), `--mixed-only` 16/16 PASS (partial refund 161.69 of 191.21 USD), `--multi-batch-only`
   21/21 PASS (55.74 + 85.32 USD on one capture, two refund ids, one verified signed webhook each; the over-refund probe was
   not run this time). Logs are kept outside the repo. App code for money/safety is unchanged since `5325db7` (#69 docs,
@@ -66,5 +111,10 @@ Expected on the local mock (dry run of the script, 2026-10-10): every check pass
   (a first multi-batch attempt hit a PayPal Sandbox `ReadTimeout` on order creation — no capture, no money moved — then
   passed on retry).
 * Previous day: main `3ad67b3`, 2026-10-18: default 31/31 PASS, `--mixed-only` PASS, `--multi-batch-only --paypal-overrefund-probe` 23/23 PASS.
+* `--ai-e2e-only`: one fixed English free-text return through the target's live LLM extractor → human approve → Sandbox
+  refund. Prints `AI e2e LLM chat completions: N` where **N** is the measured intake count from
+  `case.extraction.llm_chat_completions` (intent extract, plus any 400 json_schema→json_object retry, plus optional
+  safety-AI / note-translation calls — English template notes usually add none). Requires `/healthz`
+  `llm_configured=true` (LLM env on the **target**, not in the script). Not part of the default 31.
 * The `Deploy verify` GitHub workflow does **not** run these checks for this repository: the `TRADEOS_DEPLOY_URL` secret
   is not set, so its verify job is skipped. The runs above were started by hand.

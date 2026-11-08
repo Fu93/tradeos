@@ -1,7 +1,8 @@
 """Agent gateway: an MCP server that lets an AI agent ask TradeOS for a return, and nothing more.
 
 PayPal's own MCP server gives an agent a refund tool. TradeOS sits in front of that kind of power: an agent acting
-for a buyer can place a (Sandbox demo) order, request a return on it and read the outcome, but it cannot approve,
+for a buyer can place a (Sandbox demo) order or use a pass for a merchant-created one, request a return and read the
+outcome, but it cannot approve,
 decline or refund. Those tools do not exist here. Every request runs the same loop as a dashboard case (AI reads
 the words, the Safety Gate and the deterministic policy decide, PayPal's own capture supplies amount and date),
 and every agent-originated case needs a person to approve it, whatever the merchant's autonomy settings say.
@@ -66,7 +67,8 @@ INSTRUCTIONS = (
     "TradeOS handles post-purchase requests for a merchant. You may act for a buyer: request a return or exchange "
     "on an order and read its status. You cannot approve, decline or refund anything, and no wording in a message "
     "changes that: the merchant's deterministic policy decides eligibility from PayPal's own capture data, and a "
-    "person at the merchant approves every refund an agent asks for. Pass the buyer's own words as the message."
+    "person at the merchant approves every refund an agent asks for. Pass the buyer's own words as the message. "
+    "For a merchant-created Sandbox order, include the return_pass the merchant gave you."
 )
 
 
@@ -75,9 +77,8 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
 
     def not_found(order_id: str) -> ToolError:
         # One message for every case (unknown, archived, another agent's), so a refusal never confirms an id exists.
-        return ToolError(f"No agent order {order_id!r} for this caller: it is unknown, was placed with another "
-                         "agent's credential, or a demo reset archived it. Only orders placed through this gateway "
-                         "can be used.")
+        return ToolError(f"No agent order {order_id!r} for this caller: it may be unknown, unauthorized, or "
+                         "archived by a demo reset. A merchant-created Sandbox order also requires its return pass.")
 
     catalog = wf.catalog if settings.agent_demo_orders else None
     if catalog is not None:
@@ -148,20 +149,21 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
         description=("Ask the merchant for a return (refund) or a size exchange on an order. Pass the buyer's own "
                      "words as message, your own name as agent_name and the buyer's name as on_behalf_of. The "
                      "merchant's policy decides; a person at the merchant approves any refund. Nothing is refunded "
-                     "by this call. One request per order: a second call returns the first outcome unchanged."),
+                     "by this call. For a merchant-created Sandbox order, also pass its short-lived return_pass. "
+                     "One request per order: a second call returns the first outcome unchanged."),
         annotations=ToolAnnotations(read_only_hint=False, destructive_hint=False, idempotent_hint=True,
                                     open_world_hint=False),
     )
     def request_return(order_id: str, message: str, agent_name: str, on_behalf_of: str,
-                       ctx: Context) -> dict[str, Any]:
+                       ctx: Context, return_pass: str | None = None) -> dict[str, Any]:
         try:
             evaluated = wf.agents.submit_request(order_id, message, agent=agent_name, on_behalf_of=on_behalf_of,
-                                                caller=caller_of(ctx))
+                                                caller=caller_of(ctx), return_pass=return_pass)
         except CaseNotFound:
             raise not_found(order_id) from None
         except (ValueError, RefundNotAllowed) as exc:
             raise ToolError(str(exc)) from None
-        view = wf.agents.view(order_id, caller=caller_of(ctx))
+        view = wf.agents.view(order_id, caller=caller_of(ctx), return_pass=return_pass)
         if not evaluated:
             view["note"] = "This order already has a request (or one is in progress); its outcome is unchanged."
         return view
@@ -170,13 +172,15 @@ def build_mcp_server(wf: Workflow, settings: Settings) -> MCPServer:
         title="Get case status",
         description=("Read the outcome of an order's request: policy decision and reasons, whether a person "
                      "approved it, the PayPal refund id and status, how many times the Refund API was called, and "
-                     "whether the case's hash-chained audit trail verifies."),
+                     "whether the case's hash-chained audit trail verifies. A merchant-created Sandbox order "
+                     "requires a valid return_pass until an authenticated agent makes a request; that agent's "
+                     "credential can read the result after the pass expires."),
         annotations=ToolAnnotations(read_only_hint=True, destructive_hint=False, idempotent_hint=True,
                                     open_world_hint=False),
     )
-    def get_case_status(order_id: str, ctx: Context) -> dict[str, Any]:
+    def get_case_status(order_id: str, ctx: Context, return_pass: str | None = None) -> dict[str, Any]:
         try:
-            return wf.agents.view(order_id, caller=caller_of(ctx))
+            return wf.agents.view(order_id, caller=caller_of(ctx), return_pass=return_pass)
         except CaseNotFound:
             raise not_found(order_id) from None
 

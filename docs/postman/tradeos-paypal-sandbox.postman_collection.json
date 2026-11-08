@@ -309,7 +309,7 @@
                 "refund"
               ]
             },
-            "description": "POST /v2/payments/captures/{id}/refund with no amount = refund the remaining captured amount (current single-item flow; optional note_to_payer).",
+            "description": "POST /v2/payments/captures/{id}/refund with no amount = refund the remaining captured amount (PayPal API example). TradeOS sends the exact verified case amount instead; optional note_to_payer.",
             "auth": {
               "type": "bearer",
               "bearer": [

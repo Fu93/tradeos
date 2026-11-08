@@ -6,10 +6,10 @@
 {% macro status_chip(case) -%}
   {%- set status = case.status -%}
   {%- set cls = {"REFUND_COMPLETED": "ok", "PENDING_APPROVAL": "warn", "AWAITING_BUYER_APPROVAL": "warn",
-                 "REFUND_PENDING": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
+                 "REFUND_PENDING": "warn", "REFUND_AMOUNT_REVIEW": "warn", "REJECTED": "bad", "ERROR": "bad", "REFUND_ERROR": "bad",
                  "REFUND_FAILED": "bad", "EXCHANGE_ARRANGED": "ok", "MIXED_PENDING_APPROVAL": "warn", "MIXED_REFUND_PENDING": "warn",
                  "MIXED_NEEDS_HUMAN": "warn", "MIXED_ATTENTION": "bad", "MIXED_OUTCOME_UNKNOWN": "warn", "MIXED_DONE": "ok", "NEEDS_HUMAN": "warn", "NEEDS_HUMAN_SAFETY_REVIEW": "bad", "SAFETY_REVIEWED": "ok", "REFUND_OUTCOME_UNKNOWN": "warn", "DECLINED_BY_HUMAN": "neutral", "NEW": "neutral"} -%}
-  {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_FAILED", "REFUND_ERROR",
+  {%- set handled = status in ("REFUND_COMPLETED", "REFUND_PENDING", "REFUND_AMOUNT_REVIEW", "REFUND_FAILED", "REFUND_ERROR",
                                "REFUND_OUTCOME_UNKNOWN", "EXCHANGE_ARRANGED") -%}
   {%- set prefix = {"auto": "AUTO · ", "human": "HUMAN · "}.get(case.approval_source, "") if handled else "" -%}
   {%- if status == "ERROR" and case.order_status == "OUTCOME_UNKNOWN" -%}{# workflow.PAYMENT_UNKNOWN #}
@@ -42,34 +42,56 @@
     <form method="post" action="/demo/run/A" class="js-busy"><button class="btn primary" title="Order + capture on PayPal Sandbox, then run the loop">▶ Run Case A — eligible return (refund)</button></form>
     <form method="post" action="/demo/run/B" class="js-busy"><button class="btn" title="Same return request, purchase seeded 45 days ago">▶ Run Case B — outside return window</button></form>
     <form method="post" action="/demo/run/M" class="js-busy"><button class="btn" title="Real sandbox order with 4 line items (DEMO-DATA): 3 returned for a partial refund, 1 exchanged">▶ Run Case M — mixed order (3 returned, 1 exchanged)</button></form>
-    <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
   </div>
 </section>
 
 <section class="demo-guide" aria-labelledby="demo-guide-title">
   <div class="guide-copy">
     <div class="eyebrow">Judge path · about 3 minutes</div>
-    <h2 id="demo-guide-title">See the complete money-safe workflow</h2>
+    <h2 id="demo-guide-title">Agents ask. People approve. PayPal proves.</h2>
     <ol class="guide-steps">
-      <li><strong>Pick a case</strong><span>press ▶ Run Case A, or choose a preset below</span></li>
-      <li><strong>Press approve</strong><span>you are the human gate</span></li>
-      <li><strong>See the PayPal result</strong><span>refund ID · signed webhook · check</span></li>
+      {% if agents and agents.demo_orders %}
+      <li><strong>Agent asks</strong><span>run the scripted MCP scenes; an honest return waits for a person</span></li>
+      <li><strong>Inspect, then approve</strong><span>see the extracted intent and extractor used, then check PayPal's refund and signed notice</span></li>
+      <li><strong>Compare the refusal</strong><span>the injected request ends with zero Refund API calls</span></li>
+      {% else %}
+      <li><strong>Run Case A</strong><span>create an eligible Sandbox return</span></li>
+      <li><strong>You approve</strong><span>the Refund API is called only after your decision</span></li>
+      <li><strong>Check PayPal</strong><span>refund ID · signed notice · reconciliation</span></li>
+      {% endif %}
     </ol>
-    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong> Every payment and refund here is a test transaction between sandbox accounts. The demo is shared with other visitors and may be reset.</p>
+    <p class="sandbox-note" role="note"><strong>PayPal Sandbox: no real money moves.</strong> The MCP scenes use a script, not a model. The demo is shared with other visitors; your case links remain available without resetting it.</p>
   </div>
   <div class="guide-links">
-    <a class="btn primary" href="#pending">Start with Case A above</a>
-    <a class="btn" href="#evidence">Jump to PayPal evidence</a>
-    <a class="btn ghost" href="#failures">See failure &amp; safety modes</a>
-    {% if agents %}<a class="btn ghost" href="#agents">Try the AI-agent gateway</a>{% endif %}
+    {% if agents and agents.demo_orders %}
+      {% if agent_run_in_progress %}
+      <p class="muted small" role="status">An agent run is already in progress —
+        <a href="/agent-runs/{{ agent_run_in_progress }}">watch it</a>. Steps 2–3 appear when it finishes.</p>
+      {% else %}
+      <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn primary">1 · Run agent scenes</button></form>
+      {% endif %}
+      {% if judge_honest_case %}<a class="btn" href="/?case={{ judge_honest_case.id }}#pending">2 · Open honest return</a>{% endif %}
+      {% if judge_honest_case %}<a class="btn ghost" href="/?case={{ judge_honest_case.id }}#ai">See intent reading</a>{% endif %}
+      {% if judge_blocked_case %}<a class="btn ghost" href="/?case={{ judge_blocked_case.id }}#pending">3 · See blocked request</a>{% endif %}
+      {% if not judge_honest_case and not agent_run_in_progress %}<p class="muted small">After the scenes finish (about 30–60&nbsp;s on a cold start), steps 2–3 appear here.</p>{% endif %}
+    {% else %}
+      <a class="btn primary" href="#pending">Start with Case A above</a>
+      <a class="btn" href="#evidence">Jump to PayPal evidence</a>
+    {% endif %}
   </div>
 </section>
+{% if allow_public_reset %}
+<details class="small muted"><summary>Reset the shared demo (advanced)</summary>
+  <p>This archives every visitor's active cases. The judge path above does not need a reset.</p>
+  <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
+</details>
+{% endif %}
 
-{% if flash %}<div class="flash bad" role="alert">{{ flash }}</div>{% endif %}
+{% if flash %}<div class="flash {{ flash_kind or 'bad' }}" role="alert">{{ flash }}{% if flash_link %} <a href="{{ flash_link.href }}">{{ flash_link.text }}</a>{% endif %}</div>{% endif %}
 
 <nav class="tabs" aria-label="Cases">
   <span class="muted small">Cases:</span>
-  {% for c in cases[:14] %}
+  {% for c in case_tabs %}
     <a href="/?case={{ c.id }}" class="tab {{ 'active' if current and c.id == current.id }}"{% if current and c.id == current.id %} aria-current="true"{% endif %} title="{{ c.label }}">
       <strong>{{ c.label or c.id }}</strong> <span class="muted">{{ c.id }}</span>{% if c.scenario == 'G' %} <span class="chip agent">AI agent</span>{% endif %} {{ status_chip(c) }}</a>
   {% endfor %}
@@ -155,17 +177,25 @@
           </form>
         {% elif current.status in ("REFUND_ERROR", "REFUND_OUTCOME_UNKNOWN") %}
           <div class="row gap actions">
-            <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>
+            {% if current.status == "REFUND_ERROR" or paypal_mode == "mock" %}<form method="post" action="/cases/{{ current.id }}/refund" class="js-busy"><button class="btn">Retry refund (same PayPal-Request-Id)</button></form>{% endif %}
             {% if current.status == "REFUND_OUTCOME_UNKNOWN" %}<form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy"><button class="btn small">Check with PayPal</button></form>{% endif %}
           </div>
+          {% if current.status == "REFUND_OUTCOME_UNKNOWN" and paypal_mode == "sandbox" %}
+          <form method="post" action="/cases/{{ current.id }}/confirm-refund" class="actions">
+            <label class="small">Found this refund in PayPal? Enter its Refund ID to verify its capture, case ID and amount.
+              <input name="refund_id" maxlength="64" pattern="[A-Za-z0-9-]+" required autocomplete="off" placeholder="PayPal Refund ID">
+            </label>
+            <button class="btn small">Verify Refund ID (GET only)</button>
+          </form>
+          {% endif %}
         {% elif current.status == "REFUND_FAILED" %}
           <form method="post" action="/cases/{{ current.id }}/refund" class="js-busy actions"><button class="btn">Retry with a new request (re-checks policy)</button></form>
         {% elif current.status == "ERROR" and result.retry_payment %}
           <form method="post" action="/cases/{{ current.id }}/retry-payment" class="js-busy actions"><button class="btn">Check the payment with PayPal (same request id)</button></form>
         {% elif current.status == "ERROR" and result.retry_policy %}
           <form method="post" action="/cases/{{ current.id }}/retry-policy" class="js-busy actions"><button class="btn">Retry the policy check</button></form>
-        {% elif current.status == "REFUND_PENDING" %}
-          <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy actions"><button class="btn small">Refresh status</button></form>
+        {% elif current.status in ("REFUND_PENDING", "REFUND_AMOUNT_REVIEW") %}
+          <form method="post" action="/cases/{{ current.id }}/refresh-refund" class="js-busy actions"><button class="btn small">Check with PayPal</button></form>
         {% elif current.status == "AWAITING_BUYER_APPROVAL" and current.approve_url %}
           <div class="row gap actions">
             <a class="btn" href="{{ current.approve_url }}" target="_blank" rel="noopener">Open PayPal approval (sandbox buyer login)</a>
@@ -174,12 +204,16 @@
         {% elif current.status == "NEW" %}
           {% if current.scenario in ("A", "B") %}<form method="post" action="/demo/run/{{ current.scenario }}" class="js-busy actions"><button class="btn primary">▶ Run {{ current.label }}</button></form>{% endif %}
         {% endif %}
+        {% if settings.operator_token and settings.persistent_data_dir and current.scenario == "G" and current.status == "AGENT_ORDERED" and (current.label.startswith("Merchant Sandbox order") or current.label.startswith("Imported Sandbox capture")) %}
+          <form method="post" action="/merchant/orders/{{ current.id }}/revoke-return-pass" class="js-busy actions"><button class="btn ghost">Revoke unused agent return pass</button></form>
+        {% endif %}
         {% if current.duplicate %}
           <div class="dup">
             <strong>Double-click evidence:</strong> clicks 2 · second click {{ current.duplicate.second_click }} ·
             Refund API calls {{ current.duplicate.refund_api_calls }} with PayPal-Request-Id <code>{{ current.duplicate.paypal_request_id }}</code> ·
-            Refund IDs {{ current.duplicate.first_refund_id }} / {{ current.duplicate.replayed_refund_id }}
+            {% if current.duplicate.replayed_refund_id %}Refund IDs {{ current.duplicate.first_refund_id }} / {{ current.duplicate.replayed_refund_id }}
             → <strong>{{ 'one refund' if current.duplicate.same_refund else 'TWO DIFFERENT REFUNDS' }}</strong>
+            {% else %}Refund ID {{ current.duplicate.first_refund_id }} · <strong>second Refund API call blocked</strong>{% endif %}
             {% if current.duplicate.total_refunded %}· total refunded {{ current.duplicate.total_refunded }}{% endif %}
           </div>
         {% endif %}
@@ -194,6 +228,7 @@
             <span class="muted small">${{ c.amount }}</span></li>
         {% endfor %}
       </ul>
+      {% if pending_more %}<p class="muted small">More cases need attention. <a href="/inbox">Open the full inbox</a>.</p>{% endif %}
     {% endif %}
   </section>
 
@@ -440,6 +475,25 @@
       do the same at <code>/mcp</code>.</p>
     <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn small">Run agent scenes</button></form>
   </div>
+  <details class="small">
+    <summary>Try a merchant-created Sandbox order</summary>
+    <p>Create a new demo order before an agent acts. TradeOS shows a 30-minute return pass once; give it to an MCP client with the order ID. This does not import an existing store order or verify the buyer.</p>
+    <form method="post" action="/demo/merchant-order" class="js-busy row gap">
+      <label>Demo buyer <input name="buyer_name" value="Maria" maxlength="80" required></label>
+      <button class="btn small" type="submit">Create Sandbox order and pass</button>
+    </form>
+  </details>
+  {% if private_capture_import_available %}
+  <details class="small">
+    <summary>Import an existing PayPal Sandbox capture (private operator)</summary>
+    <p>Use a completed, unrefunded capture under this merchant's PayPal Sandbox credentials. This demo path accepts only the configured sneaker amount and currency. You attest the buyer and product; PayPal's capture lookup does not prove either. A capture already used by any TradeOS case cannot be imported again.</p>
+    <form method="post" action="/merchant/import-sandbox-capture" class="js-busy row gap">
+      <label>PayPal capture ID <input name="capture_id" maxlength="64" required></label>
+      <label>Demo buyer <input name="buyer_name" maxlength="80" required></label>
+      <button class="btn small" type="submit">Verify capture and issue pass</button>
+    </form>
+  </details>
+  {% endif %}
   {% endif %}
   {% if agents.demo_orders %}
   <div class="live-agent">

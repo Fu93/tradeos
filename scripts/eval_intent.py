@@ -2,6 +2,7 @@
 
     LLM_API_KEY=... python scripts/eval_intent.py            # full run (throttled for Groq free tier)
     python scripts/eval_intent.py --keyword-only               # no API key needed
+    python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample
 
 Reads docs/eval/dataset.json (hand-labelled), runs the production extractors from
 app/intent.py unchanged, and writes docs/eval/results.json + docs/eval/results.md.
@@ -19,6 +20,7 @@ import json
 import os
 import statistics
 import sys
+import tempfile
 import time
 from datetime import date, datetime, timezone
 from decimal import Decimal
@@ -37,6 +39,7 @@ DATASET = ROOT / "docs" / "eval" / "dataset.json"
 OUT_JSON = ROOT / "docs" / "eval" / "results.json"
 OUT_MD = ROOT / "docs" / "eval" / "results.md"
 FIELDS = ("intent", "reason", "requested_action")
+DATASET_FIELDS = ("id", "lang", "message", "expected", "injection")
 LANG_ORDER = ("en", "zh-Hant", "es", "de", "ja", "mixed")
 # Groq price for openai/gpt-oss-20b, USD per 1M tokens (https://console.groq.com/docs/model/openai/gpt-oss-20b,
 # read 2026-10-08). Update if Groq changes it.
@@ -115,28 +118,51 @@ def score(rows: list[dict], key: str) -> dict:
     return out
 
 
+def same_dataset(messages: list[dict], rows: list[dict]) -> bool:
+    """Saved model outputs may be reused only for the exact inputs and labels they were scored against."""
+    return len(messages) == len(rows) and all(
+        all(message.get(field) == row.get(field) for field in DATASET_FIELDS)
+        for message, row in zip(messages, rows)
+    )
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--keyword-only", action="store_true",
                     help="re-run only the keyword fallback; LLM results already in results.json are kept")
     ap.add_argument("--delay", type=float, default=8.0, help="seconds between LLM calls (Groq free-tier friendly)")
     ap.add_argument("--limit", type=int, default=0)
+    ap.add_argument("--output-dir", type=Path, help="write results outside docs/eval (required with --limit)")
     ap.add_argument("--rescore", action="store_true", help="recompute metrics from saved results.json (no API calls)")
     args = ap.parse_args()
-    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
-    if args.rescore:
-        old = json.loads(OUT_JSON.read_text())
-        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
-              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"),
-              policy_scored_at=now)
-        return
-
+    if args.limit < 0:
+        ap.error("--limit must be non-negative")
+    if args.limit and args.output_dir is None:
+        ap.error("--limit requires --output-dir so a sample cannot replace the full report")
+    if args.limit and args.output_dir.resolve() == OUT_JSON.parent.resolve():
+        ap.error("--output-dir must differ from docs/eval for a sample run")
+    out_json = args.output_dir / "results.json" if args.output_dir else OUT_JSON
+    out_md = args.output_dir / "results.md" if args.output_dir else OUT_MD
+    if not args.rescore and not args.keyword_only and not os.environ.get("LLM_API_KEY"):
+        ap.error("LLM_API_KEY is required for a model run; use --keyword-only for an offline run")
     data = json.loads(DATASET.read_text())
     msgs = data["messages"][: args.limit or None]
+    now = datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+    if args.rescore:
+        old = json.loads(out_json.read_text())
+        if not same_dataset(msgs, old["rows"]):
+            ap.error("saved results do not match the current dataset; run a fresh evaluation")
+        write(old["rows"], old["model"], old["run_at"], old.get("llm_meta", {}).get("retries_429", 0),
+              keyword_run_at=old.get("keyword_run_at"), keyword_history=old.get("keyword_history"),
+              policy_scored_at=now, out_json=out_json, out_md=out_md)
+        return
+
     kw = KeywordIntentExtractor()
-    if args.keyword_only and OUT_JSON.exists():
-        old = json.loads(OUT_JSON.read_text())
-        if old.get("model") and [r["id"] for r in old["rows"]] == [m["id"] for m in msgs]:
+    if args.keyword_only and out_json.exists():
+        old = json.loads(out_json.read_text())
+        if old.get("model") and not same_dataset(msgs, old["rows"]):
+            ap.error("saved model results do not match the current dataset; run a fresh model evaluation")
+        if old.get("model"):
             history = old.get("keyword_history") or []
             history.append({"run_at": old.get("keyword_run_at") or old["run_at"], "exact": old["keyword"]["exact"],
                             "unwarranted_accept": old["keyword"]["unwarranted_accept"],
@@ -144,9 +170,10 @@ def main() -> None:
             for r, m in zip(old["rows"], msgs):
                 r["keyword"] = kw.extract(m["message"]).result.model_dump()
             write(old["rows"], old["model"], old["run_at"], old["llm_meta"]["retries_429"],
-                  keyword_run_at=now, keyword_history=history, policy_scored_at=now)
+                  keyword_run_at=now, keyword_history=history, policy_scored_at=now,
+                  out_json=out_json, out_md=out_md)
             return
-    use_llm = not args.keyword_only and bool(os.environ.get("LLM_API_KEY"))
+    use_llm = not args.keyword_only
     model = os.environ.get("LLM_MODEL") or DEFAULT_LLM_MODEL
     rec = RecordingTransport()
     llm = LLMIntentExtractor(os.environ.get("LLM_API_KEY", ""), os.environ.get("LLM_BASE_URL") or DEFAULT_LLM_BASE_URL,
@@ -161,24 +188,34 @@ def main() -> None:
                 time.sleep(args.delay)
             rec.last = None
             t0 = time.perf_counter()
+            # Same resilient client as production intake: ChatJSONClient retries HTTP 400
+            # (json_schema unsupported / json_validate_failed) once in json_object mode;
+            # LLMIntentExtractor then falls back to keywords. Never abort the whole run.
             ex = llm.extract(m["message"])
             row["llm"] = ex.result.model_dump()
             row["llm_wall_s"] = round(time.perf_counter() - t0, 3)
             row["llm_http_s"] = round(rec.last["latency_s"], 3) if rec.last else None
-            row["llm_usage"] = rec.last["usage"] if rec.last else {}
+            row["llm_usage"] = (rec.last or {}).get("usage") or {}
             row["llm_extractor"] = ex.extractor
             row["llm_note"] = ex.note
+            row["llm_unavailable"] = bool(ex.llm_unavailable)
+            row["llm_error"] = ex.note if ex.llm_unavailable else None
             row["llm_language"] = ex.assist.language_code if ex.assist else None
             row["llm_sizes"] = [ex.assist.current_size, ex.assist.requested_size] if ex.assist else None
+            mark = "fb" if ex.llm_unavailable else ("✓" if row["llm"] == m["expected"] else "✗")
             print(f"{m['id']} {m['lang']:7} kw={'✓' if row['keyword'] == m['expected'] else '✗'} "
-                  f"llm={'✓' if row['llm'] == m['expected'] else '✗'} {row['llm_http_s']}s", flush=True)
+                  f"llm={mark} {row['llm_http_s']}s"
+                  + (f" ({ex.note})" if ex.llm_unavailable else ""), flush=True)
         rows.append(row)
-    write(rows, model if llm else None, datetime.now(timezone.utc).replace(microsecond=0).isoformat(), rec.retries_429)
+    write(rows, model if llm else None, datetime.now(timezone.utc).replace(microsecond=0).isoformat(), rec.retries_429,
+          out_json=out_json, out_md=out_md)
 
 
 def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
           keyword_run_at: str | None = None, keyword_history: list | None = None,
-          policy_scored_at: str | None = None) -> None:
+          policy_scored_at: str | None = None, out_json: Path | None = None, out_md: Path | None = None) -> None:
+    out_json = out_json or OUT_JSON
+    out_md = out_md or OUT_MD
     llm = "llm" in rows[0]
     results = {"run_at": run_at, "keyword_run_at": keyword_run_at or run_at, "keyword_history": keyword_history or [],
                # When the policy-level rows were last computed from the saved outputs (the policy engine is the code
@@ -197,33 +234,66 @@ def write(rows: list[dict], model: str | None, run_at: str, retries_429: int,
             results["per_language"][l]["llm"] = score([r for r in rows if r["lang"] == l], "llm")
         results["injection"]["llm"] = score(inj, "llm")
         lat = [r["llm_http_s"] for r in rows if r.get("llm_http_s") is not None]
-        tok_in = [r["llm_usage"].get("prompt_tokens", 0) for r in rows]
-        tok_out = [r["llm_usage"].get("completion_tokens", 0) for r in rows]
+        tok_in = [(r.get("llm_usage") or {}).get("prompt_tokens", 0) for r in rows]
+        tok_out = [(r.get("llm_usage") or {}).get("completion_tokens", 0) for r in rows]
         cost = [(a * PRICE_IN + b * PRICE_OUT) / 1e6 for a, b in zip(tok_in, tok_out)]
         lang_rows = [(r, r["lang"] if r["lang"] != "mixed" else MIXED_LANG.get(r["id"])) for r in rows]
         lang_rows = [(r, exp) for r, exp in lang_rows if exp]
         lang_ok = sum((r["llm_language"] or "").lower() == exp.lower()
                       or (exp == "zh-Hant" and (r["llm_language"] or "").lower() == "zh-hant") for r, exp in lang_rows)
+        fallbacks = sum(bool(r.get("llm_unavailable")) or "LLM unavailable" in (r.get("llm_extractor") or "")
+                        for r in rows)
         results["llm_meta"] = {
-            "latency_p50_s": round(statistics.median(lat), 3), "latency_p95_s": round(percentile(lat, 0.95), 3),
-            "latency_max_s": round(max(lat), 3), "fallbacks": sum("LLM unavailable" in r["llm_extractor"] for r in rows),
-            "schema_failures": sum("failed strict schema" in r["llm_note"] for r in rows),
-            "retries_429": retries_429, "tokens_in_avg": round(statistics.mean(tok_in), 1),
-            "tokens_out_avg": round(statistics.mean(tok_out), 1), "cost_per_msg_usd": round(statistics.mean(cost), 7),
-            "cost_per_1000_msgs_usd": round(1000 * statistics.mean(cost), 4), "price_source": PRICE_SOURCE,
+            "latency_p50_s": round(statistics.median(lat), 3) if lat else None,
+            "latency_p95_s": round(percentile(lat, 0.95), 3) if lat else None,
+            "latency_max_s": round(max(lat), 3) if lat else None,
+            "fallbacks": fallbacks,
+            "schema_failures": sum("failed strict schema" in (r.get("llm_note") or "") for r in rows),
+            "retries_429": retries_429,
+            "tokens_in_avg": round(statistics.mean(tok_in), 1) if rows else 0,
+            "tokens_out_avg": round(statistics.mean(tok_out), 1) if rows else 0,
+            "cost_per_msg_usd": round(statistics.mean(cost), 7) if cost else 0,
+            "cost_per_1000_msgs_usd": round(1000 * statistics.mean(cost), 4) if cost else 0,
+            "price_source": PRICE_SOURCE,
             "language_detect": {"correct": lang_ok, "n": len(lang_rows)},
+            "per_case_errors": [{"id": r["id"], "error": r.get("llm_error")}
+                                for r in rows if r.get("llm_unavailable")],
         }
-    OUT_JSON.write_text(json.dumps(results, ensure_ascii=False, indent=1))
-    OUT_MD.write_text(render_md(results))
-    print(f"wrote {OUT_JSON.relative_to(ROOT)} and {OUT_MD.relative_to(ROOT)}")
+    json_text = json.dumps(results, ensure_ascii=False, indent=1)
+    md_text = render_md(results, os.path.relpath(DATASET, out_md.parent))
+    staged: list[Path] = []
+    try:
+        staged.append(_stage_report(out_json, json_text))
+        staged.append(_stage_report(out_md, md_text))
+        os.replace(staged[0], out_json)
+        os.replace(staged[1], out_md)
+    finally:
+        for path in staged:
+            path.unlink(missing_ok=True)
+    print(f"wrote {out_json} and {out_md}")
 
 
-def render_md(res: dict) -> str:
+def _stage_report(path: Path, content: str) -> Path:
+    """Write beside the target so a failed write never truncates an existing report."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fd, name = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    staged = Path(name)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as stream:
+            stream.write(content)
+    except BaseException:
+        staged.unlink(missing_ok=True)
+        raise
+    return staged
+
+
+def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
     has_llm = "llm" in res
     k, L, rows = res["keyword"], res.get("llm"), res["rows"]
+    model_label = f"model: `{res['model']}` via Groq" if has_llm else "keyword fallback only; no model call"
     lines = ["# Intent extraction eval — LLM vs keyword fallback", "",
              f"Run: {res['run_at']} · dataset: {res['dataset_size']} hand-labelled messages "
-             f"([dataset.json](dataset.json)) · model: `{res['model']}` via Groq · script: `scripts/eval_intent.py`.", "",
+             f"([dataset.json]({dataset_link})) · {model_label} · script: `scripts/eval_intent.py`.", "",
              "Labels were written by hand from the schema in `app/intent.py` before the run and were not changed afterwards "
              "to fit the model. The dataset is small; treat every number as indicative (±1 message = ±2 points).", ""]
     scored = res.get("policy_scored_at") or res["run_at"]
@@ -292,8 +362,10 @@ def render_md(res: dict) -> str:
         lines.append(f"| {lang} | {d['keyword']['n']} | {pct(d['llm']['exact'], d['llm']['n']) if has_llm else '—'} | "
                      f"{pct(d['keyword']['exact'], d['keyword']['n'])} |")
     lines += ["", "## Prompt-injection messages", "",
-              "Policy check = would `request_supported` pass (only `EXCHANGE_REQUEST`/`EXCHANGE` does). Even when it passes, "
-              "the case still needs the other policy checks, a human approval, and the amount comes from the PayPal capture.", "",
+              "Policy check = would `request_supported` pass (an `EXCHANGE_REQUEST`/`EXCHANGE` or a "
+              "`REFUND_REQUEST`/`REFUND` with a stated reason). Even when it passes, the case still needs the other "
+              "policy checks, a human approval (autonomy is off on the hosted demo), and the amount comes from the "
+              "PayPal capture. Production also runs `looks_like_injection` and refuses instruction-like messages.", "",
               "| id | lang | expected (real request) | LLM output | policy check | keyword output |", "| --- | --- | --- | --- | --- | --- |"]
     fmt = lambda c: f"{c['intent']} / {c['reason']} / {c['requested_action']}"  # noqa: E731
     for r in rows:
@@ -305,15 +377,22 @@ def render_md(res: dict) -> str:
                          f"{fmt(r['keyword'])} |")
     if has_llm:
         m = res["llm_meta"]
+        lat = (f"p50 **{m['latency_p50_s']} s**, p95 **{m['latency_p95_s']} s**, max {m['latency_max_s']} s"
+               if m.get("latency_p50_s") is not None else "n/a (every call fell back)")
+        err = m.get("per_case_errors") or []
+        err_line = ("* Per-case provider errors (continued with keyword fallback): "
+                    + ", ".join(f"`{e['id']}`" for e in err) + "." if err else
+                    "* Per-case provider errors: none.")
         lines += ["", "## Latency, cost, robustness (LLM)", "",
-                  f"* HTTP latency per message: p50 **{m['latency_p50_s']} s**, p95 **{m['latency_p95_s']} s**, max {m['latency_max_s']} s "
+                  f"* HTTP latency per message: {lat} "
                   "(from this box, one call per message, includes the assist fields).",
                   f"* Tokens per message: {m['tokens_in_avg']} input, {m['tokens_out_avg']} output on average (output includes reasoning tokens).",
                   f"* Estimated cost: **${m['cost_per_msg_usd']:.6f} per message** (${m['cost_per_1000_msgs_usd']:.2f} per 1,000), "
                   f"price from {m['price_source']}. The customer-note translation is a second, smaller call not measured here.",
                   f"* Detected language (assist field): {pct(m['language_detect']['correct'], m['language_detect']['n'])} correct.",
                   f"* LLM call failures → keyword fallback: {m['fallbacks']} · strict-schema failures: {m['schema_failures']} · "
-                  f"429 retries: {m['retries_429']}."]
+                  f"429 retries: {m['retries_429']}.",
+                  err_line]
         lines += ["", "## Every LLM miss", "", "| id | lang | message | expected | LLM |", "| --- | --- | --- | --- | --- |"]
         for r in rows:
             if r["llm"] != r["expected"]:
@@ -323,8 +402,9 @@ def render_md(res: dict) -> str:
               "* Single run at temperature 0; results can still vary slightly between runs and model updates.",
               "* `OTHER` vs `UNKNOWN` for the reason is genuinely ambiguous in the schema, hence the lenient row.",
               "* Only the core intent is scored strictly; detected language is reported, sizes and summaries are not scored.",
-              "* The policy only ever automates `EXCHANGE_REQUEST`/`EXCHANGE`; refund requests are always routed to a human, "
-              "so an intent error can cost labour but cannot move money on its own.", ""]
+              "* With autonomy off (hosted demo default), every eligible refund still needs a human click; an intent "
+              "error can cost labour but cannot move money on its own. Autonomy, when a merchant opts in, still "
+              "cannot approve an injection-suspected or UNKNOWN request.", ""]
     return "\n".join(lines)
 
 

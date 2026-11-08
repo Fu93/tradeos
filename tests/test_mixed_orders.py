@@ -39,6 +39,62 @@ def refund_calls(pp):
     return [c for c in pp.method_calls if c[0] == "refund_capture"]
 
 
+def test_chained_human_decline_blocks_a_tampered_batch_row(settings):
+    wf, pp, cid = start(settings)
+    batch = only_batch(wf, cid)
+    pp.get_capture.side_effect = PayPalError("temporarily unavailable", status_code=503)
+    with pytest.raises(PayPalError):
+        approve(wf, cid, batch)  # approval is chained, but no refund was sent
+    pp.get_capture.side_effect = None
+    wf.mixed.decline_batch(cid, batch["id"])
+    assert wf.db.verify_chain(cid)["ok"]
+
+    # Even a chained status edit must not resurrect a human approval later revoked.
+    wf.db.update_batch(batch["id"], status="APPROVED")
+    with pytest.raises(RefundNotAllowed, match="human decline"):
+        wf.mixed.retry_batch(cid, batch["id"])
+    assert pp.refund_capture.call_count == 0
+
+
+def test_mixed_money_gate_reverifies_chain_after_old_entry_is_tampered(settings):
+    wf, pp, cid = start(settings)
+    batch = only_batch(wf, cid)
+    pp.get_capture.side_effect = PayPalError("temporarily unavailable", status_code=503)
+    with pytest.raises(PayPalError):
+        approve(wf, cid, batch)
+    pp.get_capture.side_effect = None
+    wf.mixed.decline_batch(cid, batch["id"])
+    assert wf.db.verify_chain(cid)["ok"]  # warm the dashboard cache
+
+    declined = next(e for e in wf.db.chain_entries(cid)
+                    if e["type"].startswith("audit:") and
+                    json.loads(e["payload_json"]).get("title", "").startswith("Human declined batch"))
+    forged = json.loads(declined["payload_json"])
+    forged["title"] = "Human reviewed batch"
+    with wf.db.connect() as conn:
+        conn.execute("UPDATE case_batches SET status='APPROVED' WHERE id=?", (batch["id"],))
+        # A database writer with DDL rights can remove the append-only trigger;
+        # the refund gate must still detect the broken hash chain itself.
+        conn.execute("DROP TRIGGER audit_chain_no_update")
+        conn.execute("UPDATE audit_chain SET payload_json=? WHERE case_id=? AND seq=?",
+                     (json.dumps(forged), cid, declined["seq"]))
+    with pytest.raises(RefundNotAllowed, match="Audit trail BROKEN"):
+        wf.mixed.retry_batch(cid, batch["id"])
+    assert pp.refund_capture.call_count == 0
+
+
+def test_completed_batch_cannot_be_replayed_by_editing_its_row(settings):
+    wf, pp, cid = start(settings)
+    batch = only_batch(wf, cid)
+    approve(wf, cid, batch)
+    assert only_batch(wf, cid)["status"] == mx.COMPLETED
+    wf.db.update_batch(batch["id"], status="ERROR", refund_id=None, refund_status=None)
+    assert wf.db.verify_chain(cid)["ok"]  # a later status snapshot does not erase an earlier refund result
+    with pytest.raises(RefundNotAllowed, match="already records a PayPal refund"):
+        wf.mixed.retry_batch(cid, batch["id"])
+    assert pp.refund_capture.call_count == 1
+
+
 def partial_proposals(monkeypatch, overrides):
     props = [dict(p) for p in mx.DEMO_PROPOSALS]
     for n, patch in overrides.items():
@@ -83,6 +139,28 @@ def test_approve_sends_partial_amount_with_deterministic_id_and_paypal_amount_eq
     assert any("Exchange arranged" in t for t in titles)
     assert wf.db.verify_chain(cid)["ok"]
     assert wf.db.get_case(cid)["refund_id"] is None  # the legacy single-refund columns are untouched
+
+
+@pytest.mark.parametrize("patch, issue", [
+    ({"id": ""}, "no refund ID"),
+    ({"status": None}, "no recognized refund status"),
+    ({"links": [{"rel": "up", "href": "https://api-m.sandbox.paypal.com/v2/payments/captures/OTHER"}]},
+     "another capture"),
+    ({"links": ["invalid"]}, "malformed refund links"),
+])
+def test_unverifiable_partial_refund_reply_stays_unknown(settings, patch, issue):
+    wf, pp, cid = start(settings)
+    real_refund = pp._mock_wraps.refund_capture
+    pp.refund_capture.side_effect = lambda *a, **kw: {**real_refund(*a, **kw), **patch}
+    batch = only_batch(wf, cid)
+
+    approve(wf, cid, batch)
+    recorded = only_batch(wf, cid)
+    assert recorded["status"] == mx.UNKNOWN and not recorded["refund_id"]
+    assert wf.db.get_case(cid)["status"] == mx.S_UNKNOWN
+    assert issue in recorded["error"]
+    assert len(pp._mock_wraps.refunds_by_request) == 1
+    assert wf.db.verify_chain(cid)["ok"]
 
 
 def test_remaining_balance_after_first_batch_matches_capture_minus_refund(settings):
@@ -211,12 +289,17 @@ def test_policy_blocks_injection_and_final_sale(settings):
     assert wf.db.list_batches(cid) == [] and wf.db.get_case(cid)["status"] == mx.S_NEEDS and not refund_calls(pp)
 
 
-def test_final_sale_item_is_rejected_not_refunded(settings):
+def test_final_sale_item_is_rejected_not_refunded(settings, monkeypatch):
+    real_order = mx.demo_order
+
+    def with_final_sale(currency):
+        model = real_order(currency)
+        return replace(model, lines=tuple(replace(line, returnable=False) if line.line_no == 2 else line
+                                          for line in model.lines))
+
+    monkeypatch.setattr(mx, "demo_order", with_final_sale)
     wf, pp = make_wf(settings)
     cid = wf.mixed.create_case()
-    wf.db.upsert_product("MX-JACKET-M", "Rain jacket, size M", "apparel", False, "79.00", "x")
-    with wf.db.connect() as conn:
-        conn.execute("UPDATE case_items SET returnable=0 WHERE case_id=? AND line_no=2", (cid,))
     wf.process(cid)
     res = {r["line_no"]: r["resolution"] for r in wf.db.get_items(cid)}
     assert res[2] == "REJECT" and res[1] == "REFUND"
@@ -271,19 +354,56 @@ def test_second_partial_cannot_refund_an_already_refunded_unit(settings):
     assert len(wf.db.list_batches(cid)) == 1 and len(refund_calls(pp)) == 1
 
 
-def test_overrefund_at_paypal_is_refused_and_recorded_as_no_money(settings):
+def test_external_partial_refund_that_exceeds_balance_is_blocked_before_paypal_refund_call(settings):
     mock = MockPayPalClient()
     wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
     cap = wf.db.get_case(cid)["capture_id"]
     mock.refund_capture(cap, "someone-else", amount={"currency_code": "USD", "value": "100.00"})  # refunded outside TradeOS
     b = only_batch(wf, cid)
-    with pytest.raises(PayPalError):
+    with pytest.raises(RefundNotAllowed, match="outside TradeOS"):
         approve(wf, cid, b)
     after = only_batch(wf, cid)
     assert after["status"] == "ERROR" and not after["refund_id"] and wf.db.get_case(cid)["status"] == mx.S_ATTENTION
-    assert "REFUND_AMOUNT_EXCEEDED" in json.dumps(wf.db.paypal_calls(cid, "refund_capture")[-1])
+    assert pp.refund_capture.call_count == 0 and wf.db.paypal_calls(cid, "refund_capture") == []
     wf.mixed.decline_batch(cid, b["id"])  # a human releases it
     assert only_batch(wf, cid)["status"] == "DECLINED"
+
+
+def test_external_partial_refund_blocks_first_tradeos_batch_even_when_balance_is_sufficient(settings):
+    mock = MockPayPalClient()
+    wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
+    cap = wf.db.get_case(cid)["capture_id"]
+    mock.refund_capture(cap, "external-small", amount={"currency_code": "USD", "value": "10.00"})
+    batch = only_batch(wf, cid)
+    # 191.21 - 10.00 still covers 161.69; an amount cap alone cannot identify which item was refunded.
+    with pytest.raises(RefundNotAllowed, match="outside TradeOS"):
+        approve(wf, cid, batch)
+    assert only_batch(wf, cid)["status"] == "ERROR" and wf.db.get_case(cid)["status"] == mx.S_ATTENTION
+    assert pp.refund_capture.call_count == 0
+    assert wf.db.paypal_calls(cid, "refund_capture") == []
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+@pytest.mark.parametrize("reported_status", ["COMPLETED", None])
+def test_verified_external_refund_webhook_blocks_second_batch(settings, monkeypatch, reported_status):
+    partial_proposals(monkeypatch, {2: {"action": "UNKNOWN", "reason": "UNKNOWN"},
+                                    3: {"action": "UNKNOWN", "reason": "UNKNOWN"}})
+    mock = MockPayPalClient()
+    wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
+    approve(wf, cid, only_batch(wf, cid))
+    cap = wf.db.get_case(cid)["capture_id"]
+    external = mock.refund_capture(cap, "external-after-first-batch",
+                                   amount={"currency_code": "USD", "value": "5.00"})
+    wf.record_webhook({"id": "WH-EXTERNAL-BATCH", "event_type": "PAYMENT.CAPTURE.REFUNDED",
+                       "resource": {"id": external["id"], "status": reported_status, "links": [
+                           {"rel": "up", "href": f"https://api-m.sandbox.paypal.com/v2/payments/captures/{cap}"}]}},
+                      "SUCCESS", method="self")
+    second = wf.mixed.resolve_line(cid, 2, "RETURN", "CHANGED_MIND")
+    with pytest.raises(RefundNotAllowed, match="outside TradeOS"):
+        approve(wf, cid, second)
+    assert pp.refund_capture.call_count == 1  # first TradeOS batch only
+    assert len(wf.db.paypal_calls(cid, "refund_capture")) == 1
+    assert wf.db.verify_chain(cid)["ok"]
 
 
 def test_ledger_blocks_a_batch_that_exceeds_remaining_balance(settings):
@@ -340,6 +460,31 @@ def test_unknown_outcome_is_reconciled_with_same_request_id_and_one_refund(setti
     assert done["status"] == "COMPLETED" and done["refund_id"]
     assert len(mock.refunds_by_request) == 1 and {c.args[1] for c in refund_calls(pp)} == {b["request_id"]}
     assert wf.db.get_case(cid)["status"] == mx.S_DONE
+
+
+def test_real_sandbox_unknown_partial_refund_is_never_replayed(settings):
+    mock = MockPayPalClient()
+    pp = MagicMock(wraps=mock, is_mock=False)
+    wf, _, cid = start(settings, pp=pp)
+    batch = only_batch(wf, cid)
+    original = mock.refund_capture
+
+    def lost_reply(*args, **kwargs):
+        original(*args, **kwargs)
+        raise PayPalError("timeout after refund", status_code=408)
+
+    pp.refund_capture.side_effect = lost_reply
+    with pytest.raises(PayPalError):
+        approve(wf, cid, batch)
+    assert only_batch(wf, cid)["status"] == mx.UNKNOWN
+    assert len(mock.refunds_by_request) == 1
+    wf.reconcile(cid)
+    assert pp.refund_capture.call_count == 1
+    assert not wf.mixed.view(cid)["batches"][0]["retryable"]
+    with pytest.raises(RefundNotAllowed, match="UNKNOWN|Refund ID|by hand"):
+        wf.mixed.retry_batch(cid, batch["id"])
+    assert pp.refund_capture.call_count == 1
+    assert wf.db.verify_chain(cid)["ok"]
 
 
 def test_unknown_outcome_when_paypal_did_not_process_waits_for_human_retry(settings):
@@ -421,6 +566,24 @@ def test_webhook_with_wrong_refund_id_or_amount_changes_nothing(settings):
     assert any(w["outcome"] == "NEEDS_HUMAN" for w in wf.db.webhook_events(cid))
 
 
+def test_mixed_webhook_cannot_apply_another_orders_refund(settings):
+    client, pp, wf = make_app(settings, mock=MockPayPalClient(refund_status="PENDING"))
+    first = wf.run_scenario("M")
+    approve(wf, first, only_batch(wf, first))
+    second = wf.run_scenario("M")
+    approve(wf, second, only_batch(wf, second))
+    foreign_refund = only_batch(wf, second)["refund_id"]
+    capture_id = wf.db.get_case(first)["capture_id"]
+    wf.record_webhook({"id": "WH-CROSS-ORDER", "event_type": "PAYMENT.CAPTURE.REFUNDED",
+                       "resource": {"id": foreign_refund, "status": "COMPLETED",
+                                    "links": [{"rel": "up", "href": "https://api-m.sandbox.paypal.com/"
+                                               f"v2/payments/captures/{capture_id}"}]}}, "SUCCESS")
+    assert only_batch(wf, first)["status"] == "PENDING"
+    assert only_batch(wf, second)["status"] == "PENDING"
+    assert wf.db.webhook_events(second)[-1]["outcome"] == "MISMATCH_IGNORED"
+    assert wf.db.verify_chain(first)["ok"] and wf.db.verify_chain(second)["ok"]
+
+
 def test_reconcile_moves_pending_batch_to_completed_and_never_calls_refund_api(settings):
     client, pp, wf, cid, mock, b = pending_mixed(settings)
     n = len(refund_calls(pp))
@@ -428,6 +591,64 @@ def test_reconcile_moves_pending_batch_to_completed_and_never_calls_refund_api(s
     res = wf.reconcile(cid)
     assert res["ok"] and only_batch(wf, cid)["status"] == "COMPLETED" and len(refund_calls(pp)) == n
     assert wf.reconcile(cid)["ok"]  # idempotent
+
+
+@pytest.mark.parametrize("bad", [
+    {"capture": {"id": "OTHER-CAPTURE"}},
+    {"capture": {"status": "DENIED"}},
+    {"capture": {"amount": {"value": "5.00", "currency_code": "USD"}}},
+    {"refund": {"id": "OTHER-REFUND"}},
+    {"refund": {"links": [{"rel": "up", "href": "https://api-m.sandbox.paypal.com/v2/payments/captures/OTHER"}]}},
+])
+def test_mixed_reconcile_rejects_wrong_paypal_identity_before_advancing(settings, bad):
+    client, pp, wf, cid, mock, batch = pending_mixed(settings)
+    mock.complete_refund(batch["refund_id"])
+    if "capture" in bad:
+        original = mock.get_capture
+        pp.get_capture.side_effect = lambda cap_id, timeout=None: {**original(cap_id), **bad["capture"]}
+    else:
+        original = mock.get_refund
+        pp.get_refund.side_effect = lambda refund_id, timeout=None: {**original(refund_id), **bad["refund"]}
+    result = wf.reconcile(cid)
+    assert not result["ok"]
+    assert only_batch(wf, cid)["status"] == "PENDING"
+    assert wf.db.get_case(cid)["status"] == mx.S_PROGRESS
+    assert len(refund_calls(pp)) == 1
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_mixed_reconcile_reports_amount_mismatch_as_failure(settings):
+    client, pp, wf, cid, mock, batch = pending_mixed(settings)
+    mock.complete_refund(batch["refund_id"])
+    original = mock.get_refund
+    pp.get_refund.side_effect = lambda refund_id, timeout=None: {
+        **original(refund_id), "amount": {"value": "0.01", "currency_code": "USD"}}
+    result = wf.reconcile(cid)
+    assert not result["ok"]
+    assert any(c["field"].endswith("refund.amount") and not c["match"] for c in result["checks"])
+    assert only_batch(wf, cid)["status"] == mx.MISMATCH
+    assert wf.db.get_case(cid)["status"] == mx.S_ATTENTION
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_mixed_reconcile_cannot_downgrade_a_webhook_completed_batch(settings):
+    client, pp, wf, cid, mock, batch = pending_mixed(settings)
+    capture_id = wf.db.get_case(cid)["capture_id"]
+
+    def stale_get(refund_id, timeout=None):
+        wf.record_webhook({"id": "WH-MIX-RACE", "event_type": "PAYMENT.CAPTURE.REFUNDED",
+                           "resource": {"id": refund_id, "status": "COMPLETED",
+                                        "links": [{"rel": "up", "href": "https://api-m.sandbox.paypal.com/"
+                                                   f"v2/payments/captures/{capture_id}"}]}}, "SUCCESS")
+        return {"id": refund_id, "status": "PENDING"}
+
+    pp.get_refund.side_effect = stale_get
+    result = wf.reconcile(cid)
+    assert not result["ok"]  # the stale GET is logged as a mismatch
+    assert only_batch(wf, cid)["status"] == "COMPLETED"
+    assert wf.db.get_case(cid)["status"] == mx.S_DONE
+    assert len(refund_calls(pp)) == 1
+    assert wf.db.verify_chain(cid)["ok"]
 
 
 def test_resume_reconciles_pending_batches_after_restart(settings):
@@ -530,12 +751,13 @@ def test_batch_routes_404_for_other_scenarios_and_unknown_batches(settings):
     assert not refund_calls(pp)
 
 
-def test_other_scenarios_unchanged_and_single_item_still_full_refund(settings):
+def test_other_scenarios_single_item_uses_exact_full_amount(settings):
     client, pp, wf = make_app(settings)
     cid = wf.run_scenario("A")
     wf.approve(cid)
     call = refund_calls(pp)[0]
-    assert "amount" not in call.kwargs and "custom_id" not in call.kwargs     # legacy: empty body = full refund
+    assert call.kwargs["amount"] == {"currency_code": "USD", "value": "49.99"}
+    assert call.kwargs["custom_id"] == cid
     assert wf.db.get_case(cid)["status"] == "REFUND_COMPLETED"
 
 
@@ -580,6 +802,91 @@ def test_capture_mismatch_blocks_proposal(settings):
     assert wf.db.list_batches(cid) == [] and wf.db.get_case(cid)["status"] == mx.S_NEEDS and not refund_calls(pp)
 
 
+def test_wrong_capture_id_blocks_mixed_proposal(settings):
+    mock = MockPayPalClient()
+    original = mock.get_capture
+    mock.get_capture = lambda cid, timeout=None: {**original(cid), "id": "OTHER-CAPTURE"}
+    wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
+    assert wf.db.list_batches(cid) == []
+    assert wf.db.get_case(cid)["status"] == mx.S_NEEDS
+    assert not refund_calls(pp)
+
+
+def test_wrong_capture_id_at_approval_blocks_mixed_refund(settings):
+    wf, pp, cid = start(settings)
+    batch = only_batch(wf, cid)
+    original = pp._mock_wraps.get_capture
+    pp.get_capture.side_effect = lambda capture_id, timeout=None: {**original(capture_id), "id": "OTHER-CAPTURE"}
+    with pytest.raises(RefundNotAllowed, match="capture identity"):
+        approve(wf, cid, batch)
+    assert not refund_calls(pp)
+    assert only_batch(wf, cid)["status"] == mx.ERROR
+    assert wf.db.get_case(cid)["status"] == mx.S_ATTENTION
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_unknown_batch_stays_unknown_when_retry_capture_evidence_is_wrong(settings):
+    mock = MockPayPalClient()
+    pp = MagicMock(wraps=mock, is_mock=True)
+    wf, pp, cid = start(settings, pp=pp)
+    batch = only_batch(wf, cid)
+    pp.refund_capture.side_effect = PayPalError("timeout", status_code=408)
+    with pytest.raises(PayPalError):
+        approve(wf, cid, batch)
+    assert only_batch(wf, cid)["status"] == mx.UNKNOWN
+    calls = len(refund_calls(pp))
+    original = mock.get_capture
+    pp.get_capture.side_effect = lambda capture_id, timeout=None: {
+        **original(capture_id), "id": "OTHER-CAPTURE"}
+    with pytest.raises(RefundNotAllowed, match="capture identity"):
+        wf.mixed.retry_batch(cid, batch["id"])
+    assert only_batch(wf, cid)["status"] == mx.UNKNOWN
+    assert wf.db.get_case(cid)["status"] == mx.S_UNKNOWN
+    assert len(refund_calls(pp)) == calls
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_missing_amount_cannot_be_proved_by_another_refunds_get(settings):
+    wf, pp, cid = start(settings)
+    original = pp._mock_wraps.refund_capture
+
+    def minimal(*args, **kwargs):
+        refund = original(*args, **kwargs)
+        refund.pop("amount", None)
+        return refund
+
+    pp.refund_capture.side_effect = minimal
+    pp.get_refund.side_effect = lambda rid, timeout=None: {
+        "id": "OTHER-REFUND", "status": "COMPLETED",
+        "amount": {"value": li.to_str(only_batch(wf, cid)["amount_minor"], "USD"), "currency_code": "USD"}}
+    approve(wf, cid, only_batch(wf, cid))
+    batch = only_batch(wf, cid)
+    assert batch["status"] == mx.MISMATCH
+    assert batch["refund_id"] != "OTHER-REFUND"
+    assert wf.db.get_case(cid)["status"] == mx.S_ATTENTION
+    assert wf.db.verify_chain(cid)["ok"]
+
+
+def test_missing_amount_get_cannot_replace_the_refund_api_status(settings):
+    wf, pp, cid = start(settings)
+    original_refund = pp._mock_wraps.refund_capture
+    original_get = pp._mock_wraps.get_refund
+
+    def minimal(*args, **kwargs):
+        refund = original_refund(*args, **kwargs)
+        refund.pop("amount", None)
+        return refund
+
+    pp.refund_capture.side_effect = minimal
+    pp.get_refund.side_effect = lambda rid, timeout=None: {**original_get(rid), "status": "PENDING"}
+    approve(wf, cid, only_batch(wf, cid))
+    batch = only_batch(wf, cid)
+    assert batch["status"] == "COMPLETED"
+    assert batch["refund_status"] == "COMPLETED"
+    assert batch["refund"]["status"] == "COMPLETED"
+    assert batch["paypal_amount"] == f"{li.to_str(batch['amount_minor'], 'USD')} USD"
+
+
 def test_autonomy_settings_never_approve_a_mixed_order(settings):
     wf, pp, cid = start(settings, auto_enabled=True, auto_exchange_enabled=True, auto_refund_max_amount=Decimal("9999"))
     assert only_batch(wf, cid)["status"] == "PROPOSED" and not refund_calls(pp)
@@ -620,6 +927,8 @@ def test_capture_already_fully_refunded_blocks_refund(settings):
     with pytest.raises(RefundNotAllowed, match="REFUNDED"):
         approve(wf, cid, only_batch(wf, cid))
     assert not refund_calls(pp)
+    assert only_batch(wf, cid)["status"] == mx.ERROR
+    assert wf.db.get_case(cid)["status"] == mx.S_ATTENTION
 
 
 # ------------------------------------------------------------------------------------- gaps found by mutation sanity
@@ -639,6 +948,24 @@ def test_failed_batch_releases_its_units_so_the_same_items_can_be_proposed_again
     assert wf.mixed.ledger(cid).refunded_minor == 0       # a FAILED batch moved no money and holds no units
     b2 = wf.mixed.propose_batch(cid)
     assert b2 and b2["id"] != b1["id"] and b2["amount_minor"] == b1["amount_minor"]
+
+
+def test_execute_refuses_non_approved_row_even_when_chain_still_shows_approval(settings):
+    """Row status APPROVED is its own gate: chained approval alone must not send money."""
+    mock = MockPayPalClient()
+    wf, pp, cid = start(settings, pp=MagicMock(wraps=mock, is_mock=True))
+    b = only_batch(wf, cid)
+    mock.fail_refund = True
+    with pytest.raises(PayPalError):
+        approve(wf, cid, b)
+    saved = only_batch(wf, cid)
+    assert saved["status"] == "ERROR" and saved["approved_by"] == "merchant"
+    # Row rewritten to look unsent while the hash chain still holds the human approval.
+    wf.db.update_batch(b["id"], status="PROPOSED")
+    with pytest.raises(RefundNotAllowed, match="is PROPOSED"):
+        wf.mixed._execute(cid, b["id"])
+    assert pp.refund_capture.call_count == 1
+    assert wf.db.verify_chain(cid)["ok"]
 
 
 def test_ledger_check_at_send_time_blocks_when_paypal_reports_a_smaller_capture(settings):

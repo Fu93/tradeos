@@ -9,6 +9,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from decimal import Decimal
+from pathlib import Path
+from urllib.parse import urlsplit
 
 SANDBOX_BASE_URL = "https://api-m.sandbox.paypal.com"
 # Default LLM provider behind the adapter: Groq's OpenAI-compatible endpoint.
@@ -84,7 +86,11 @@ class Settings:
     # App
     db_path: str = "tradeos.db"
     reset_on_start: bool = True
+    # Set to the mounted persistent disk directory for the private single-instance profile.
+    persistent_data_dir: str = ""
     public_base_url: str = "http://localhost:8000"
+    # Optional private-Sandbox operator gate. Empty keeps the public hackathon demo open.
+    operator_token: str = ""
     # The PayPal client refuses any base_url that is not the sandbox unless this is explicitly set,
     # so a mistyped PAYPAL_BASE_URL can never point a card payload or a refund at the live API.
     allow_live: bool = False
@@ -122,6 +128,10 @@ class Settings:
     trust_cf_connecting_ip: bool = False
     reset_cooldown_per_ip_s: int = 60
     reset_cooldown_global_s: int = 15
+    # Safe default off: any public host (local tunnel, misconfigured deploy, Blueprint) must not let one
+    # visitor archive every other judge's cases. Opt in with TRADEOS_ALLOW_PUBLIC_RESET=1 for private local
+    # demos; operator-gated demos keep reset via TRADEOS_OPERATOR_TOKEN. Tests set this True in fixtures.
+    allow_public_reset: bool = False
     disputes_sync_interval_s: int = 20      # min seconds between two 'Fetch from PayPal' syncs (whole app)
     disputes_refresh_interval_s: int = 10   # min seconds between two refreshes of the same dispute
     webhook_max_age_s: int = 600
@@ -162,6 +172,24 @@ class Settings:
 
     costs: CostAssumptions = field(default_factory=CostAssumptions)
 
+    def __post_init__(self) -> None:
+        if self.persistent_data_dir:
+            disk = Path(self.persistent_data_dir)
+            db = Path(self.db_path)
+            if not disk.is_absolute() or not db.is_absolute() or not db.parent.resolve().is_relative_to(disk.resolve()):
+                raise ValueError("TRADEOS_DB_PATH must be inside the absolute persistent data directory")
+            if self.reset_on_start:
+                raise ValueError("persistent deployment requires TRADEOS_RESET_ON_START=0")
+            if not self.operator_token:
+                raise ValueError("persistent deployment requires TRADEOS_OPERATOR_TOKEN")
+        if self.operator_token and len(self.operator_token) < 24:
+            raise ValueError("TRADEOS_OPERATOR_TOKEN must be at least 24 characters")
+        if self.operator_token:
+            public = urlsplit(self.public_base_url)
+            local_http = public.scheme == "http" and public.hostname in {"localhost", "127.0.0.1", "::1"}
+            if not (public.hostname and (public.scheme == "https" or local_http)):
+                raise ValueError("TRADEOS_OPERATOR_TOKEN requires an HTTPS public URL (or local HTTP)")
+
     @property
     def paypal_configured(self) -> bool:
         return bool(self.paypal_client_id and self.paypal_client_secret)
@@ -173,6 +201,7 @@ class Settings:
     @classmethod
     def from_env(cls) -> "Settings":
         public = _env("PUBLIC_BASE_URL") or _env("RENDER_EXTERNAL_URL") or "http://localhost:8000"
+        operator_token = _env("TRADEOS_OPERATOR_TOKEN")
         return cls(
             paypal_client_id=_env("PAYPAL_CLIENT_ID"),
             paypal_client_secret=_env("PAYPAL_CLIENT_SECRET"),
@@ -186,6 +215,7 @@ class Settings:
             trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", _env("RENDER").lower() == "true"),
             reset_cooldown_per_ip_s=int(_env("TRADEOS_RESET_COOLDOWN_PER_IP_S") or 60),
             reset_cooldown_global_s=int(_env("TRADEOS_RESET_COOLDOWN_GLOBAL_S") or 15),
+            allow_public_reset=_env_bool("TRADEOS_ALLOW_PUBLIC_RESET", False),
             disputes_sync_interval_s=int(_env("TRADEOS_DISPUTES_SYNC_INTERVAL_S") or 20),
             disputes_refresh_interval_s=int(_env("TRADEOS_DISPUTES_REFRESH_INTERVAL_S") or 10),
             webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),
@@ -195,8 +225,10 @@ class Settings:
             llm_model=_env("LLM_MODEL") or DEFAULT_LLM_MODEL,
             db_path=_env("TRADEOS_DB_PATH", "tradeos.db"),
             reset_on_start=_env_bool("TRADEOS_RESET_ON_START", True),
+            persistent_data_dir=_env("TRADEOS_PERSISTENT_DATA_DIR"),
             allow_live=_env_bool("TRADEOS_ALLOW_LIVE", False),
             public_base_url=public.rstrip("/"),
+            operator_token=operator_token,
             return_window_days=int(_env("RETURN_WINDOW_DAYS", "30")),
             free_text_max_chars=int(_env("FREE_TEXT_MAX_CHARS", "500")),
             rate_limit_per_minute=int(_env("RATE_LIMIT_PER_MINUTE", "5")),

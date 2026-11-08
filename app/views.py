@@ -93,7 +93,7 @@ def evidence_a(db: Database, case: dict | None) -> list[dict] | None:
         ("Supplier", "replacement approved (MOCK)" if case.get("supplier_reply") == "REPLACEMENT_APPROVED"
          else (case.get("supplier_reply") or "not involved (return)"), True),
         ("Approval", _approval_text(case), case.get("human_decision") == "APPROVED"),
-        ("Refund", refund_status or "not yet executed", refund_status == "COMPLETED"),
+        ("Refund", refund_status or "not yet executed", case["status"] == "REFUND_COMPLETED"),
     ]
     return [{"label": l, "value": v, "ok": ok} for l, v, ok in rows]
 
@@ -120,8 +120,11 @@ def evidence_b(db: Database, case: dict | None) -> list[dict] | None:
          else "not understood", understood),
         ("Policy", policy_text, window is not None and not window["passed"]),
         ("Decision", case.get("decision") or "—", case.get("decision") == "REJECTED"),
-        ("Refund API", "NOT CALLED" if calls == 0 else f"CALLED {calls}×", calls == 0),
-        ("Refund ID", case.get("refund_id") or "none", not case.get("refund_id")),
+        ("Refund API", "OUTCOME UNKNOWN" if case["status"] == "REFUND_OUTCOME_UNKNOWN" and calls == 0 else
+         "NOT CALLED" if calls == 0 else f"CALLED {calls}×",
+         None if case["status"] == "REFUND_OUTCOME_UNKNOWN" and calls == 0 else calls == 0),
+        ("Refund ID", case.get("refund_id") or "none",
+         None if case["status"] == "REFUND_OUTCOME_UNKNOWN" else not case.get("refund_id")),
     ]
     return [{"label": l, "value": v, "ok": ok} for l, v, ok in rows]
 
@@ -181,6 +184,11 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             st["supplier"] = ("skipped", "not contacted")
             st["human"] = ("waiting", "needs a human (AI model unavailable)")
             st["paypal"] = ("skipped", f"Refund API NOT CALLED · {calls} calls")
+        elif case.get("decision") == "NEEDS_HUMAN" and (case.get("policy") or {}).get("preflight_blocked"):
+            st["policy"] = ("blocked", "PayPal capture or policy changed before refund")
+            st["supplier"] = ("skipped", "not needed — return for a refund")
+            st["human"] = ("waiting", "manual payment review required")
+            st["paypal"] = ("blocked", f"No new refund request · {calls} prior calls")
         elif case.get("decision") in ("EXCHANGE_ELIGIBLE", "NEEDS_HUMAN"):
             st["policy"] = (("waiting", "exchange · supplier out of stock — human decides")
                             if case.get("decision") == "NEEDS_HUMAN" else ("done", "exchange · checks passed"))
@@ -211,7 +219,9 @@ def pipeline(db: Database, case: dict | None) -> list[dict]:
             else:
                 st["human"] = ("waiting", "awaiting your approval")
             rs = case.get("refund_status")
-            if rs == "COMPLETED":
+            if status == "REFUND_AMOUNT_REVIEW":
+                st["paypal"] = ("waiting", "PayPal says COMPLETED; amount needs verification")
+            elif rs == "COMPLETED":
                 st["paypal"] = ("done", "Refund COMPLETED")
             elif rs == "PENDING":
                 st["paypal"] = ("waiting", "Refund PENDING at PayPal")
@@ -279,6 +289,7 @@ _TITLE_BY_STATUS = {
     "REJECTED": "Result: rejected (no refund)", "DECLINED_BY_HUMAN": "Result: declined (no refund)",
     "REFUND_FAILED": "Result: refund failed at PayPal", "REFUND_ERROR": "Result: refund failed (no money moved)",
     "REFUND_PENDING": "Refund in progress at PayPal", "REFUND_OUTCOME_UNKNOWN": "Checking the refund with PayPal",
+    "REFUND_AMOUNT_REVIEW": "Check the refund amount with PayPal",
     "ERROR": "Result: PayPal error", "MIXED_DONE": "Result: all lines handled",
     "MIXED_REFUND_PENDING": "Refund in progress at PayPal", "MIXED_OUTCOME_UNKNOWN": "Checking the refund with PayPal",
     "MIXED_ATTENTION": "Needs attention: a partial refund",
@@ -294,7 +305,8 @@ def section_title(case: dict | None) -> str:
 
 
 # ---------------------------------------------------------------- result card
-def result_card(db: Database, case: dict | None, webhook_configured: bool = True) -> dict | None:
+def result_card(db: Database, case: dict | None, webhook_configured: bool = True,
+                paypal_mode: str = "mock") -> dict | None:
     if not case:
         return None
     status = case["status"]
@@ -302,14 +314,26 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     refund = case.get("refund") or {}
     amount = refund.get("amount") or {}
     base = {"case": case, "calls": calls}
+    if status == "REFUND_AMOUNT_REVIEW":
+        returned = refund.get("amount") or {}
+        shown = (f"{returned.get('value', '?')} {returned.get('currency_code', '?')}"
+                 if isinstance(returned, dict) else "missing")
+        return {**base, "kind": "warn", "icon": "?", "title": "Refund amount needs verification",
+                "subtitle": "PayPal reported COMPLETED, but its returned amount does not confirm the approved "
+                            "refund. Money may have moved. Check the refund with PayPal; do not retry it.",
+                "reason": case.get("error"),
+                "rows": [("Refund ID", case.get("refund_id") or "missing"),
+                         ("Approved amount", f"{case['amount']} {case['currency']}"),
+                         ("PayPal reported amount", shown), ("Refund API calls", str(calls))]}
     if status == "REFUND_COMPLETED":
         webhook = case.get("webhook_status")
         via = case.get("completed_via") or "refund_api"
-        api = None if via == "recovery" else _refund_api_status(db, case["id"])
+        api = None if via in ("recovery", "verified_get") else _refund_api_status(db, case["id"])
         via_text = {"refund_api": "the Refund API response",
                     "webhook": f"a signed PayPal webhook (the Refund API had returned {api})",
                     "reconcile": f"a PayPal GET during reconciliation (the Refund API had returned {api})",
-                    "recovery": "PayPal's answer to the same PayPal-Request-Id re-sent after an unanswered call"}[via]
+                    "recovery": "PayPal's answer to the same PayPal-Request-Id re-sent after an unanswered call",
+                    "verified_get": "a PayPal GET of the merchant-identified refund, bound to this case"}[via]
         auto = case.get("approval_source") == "auto"
         approval_line = ("Approved by the merchant's policy (auto) — no human involved. " if auto
                          else "Approved by a human. ")
@@ -323,7 +347,8 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                          ("PayPal timestamp", fmt_ts(refund.get("create_time") or case.get("updated_at")))],
                 "confirmations": [("PayPal Refund API response", api or "no reply (timeout)", api == "COMPLETED"),
                                   *([("COMPLETED confirmed by", {"webhook": "signed webhook", "reconcile": "PayPal GET",
-                                                                 "recovery": "same-request-id re-send"}[via], True)]
+                                                                 "recovery": "same-request-id re-send",
+                                                                 "verified_get": "verified PayPal GET"}[via], True)]
                                     if via != "refund_api" else []),
                                   ("Signed PayPal webhook", {"VERIFIED": "verified ✓", "UNVERIFIED": "received, NOT verified"}
                                    .get(webhook or "", "waiting…" if webhook_configured else
@@ -394,8 +419,11 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
     if status == "REFUND_OUTCOME_UNKNOWN":
         return {**base, "kind": "warn", "icon": "?", "title": "Refund outcome UNKNOWN — checking with PayPal",
                 "subtitle": "PayPal did not answer the refund call (timeout / 5xx), so TradeOS can't say whether money "
-                            "moved. It checks the capture with PayPal; a retry re-sends the SAME PayPal-Request-Id, so "
-                            "PayPal returns the existing refund instead of making a second one.",
+                            "moved. It checks the capture with PayPal. " +
+                            ("Mock mode can replay the same request ID to recover the result."
+                             if paypal_mode == "mock" else
+                             "Payments v2 stores request IDs for 6 hours, but a lost reply still needs a Refund ID — "
+                             "enter it here for a GET-only check; the refund request is never re-sent."),
                 "reason": case.get("error"),
                 "rows": [("PayPal-Request-Id", case.get("refund_request_id") or f"tradeos-refund-{case['id']}"),
                          ("Refund API calls", str(calls)), ("Capture ID", case.get("capture_id"))]}
@@ -437,6 +465,14 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                 "subtitle": LLM_DOWN_NOTICE,
                 "rows": [("Extractor", "keyword fallback (English-only)"), ("Refund API calls", str(calls)),
                          ("Refund ID", "none")]}
+    if status == "NEEDS_HUMAN" and (case.get("policy") or {}).get("preflight_blocked"):
+        reasons = (case.get("policy") or {}).get("reasons") or []
+        return {**base, "kind": "warn", "icon": "!", "title": "Refund re-check blocked — manual review required",
+                "subtitle": "The payment or refund policy changed before a refund request. TradeOS stopped the new "
+                            "request; check the payment with PayPal before deciding what to do next.",
+                "reason": "; ".join(reasons),
+                "rows": [("Capture ID", case.get("capture_id")), ("Capture status", case.get("capture_status")),
+                         ("Refund API calls", str(calls)), ("Refund ID", case.get("refund_id") or "none")]}
     if status == "NEEDS_HUMAN":
         return {**base, "kind": "warn", "icon": "!", "title": "Needs a human: replacement out of stock — offer a refund?",
                 "subtitle": "The (MOCK) supplier can't ship the requested replacement. TradeOS does not refund "
@@ -650,10 +686,10 @@ def narrate(e: dict) -> str:
     if t.startswith("Checked with PayPal after the unanswered refund call"):
         status = d.get("capture_status", "")
         if status in ("REFUNDED", "PARTIALLY_REFUNDED"):
-            return (f"Checked with PayPal: the capture is {status} — the refund request went through. Recovering "
-                    "it by re-sending the same PayPal-Request-Id once.")
-        return (f"Checked with PayPal: the capture is {status or 'unreachable'} — no refund seen yet, so a retry "
-                "stays safe (same PayPal-Request-Id).")
+            return (f"Checked with PayPal: the capture is {status}. The refund outcome must be reconciled "
+                    "against PayPal's refund record.")
+        return (f"Checked with PayPal: the capture is {status or 'unreachable'} — the refund outcome remains "
+                "UNKNOWN until PayPal confirms it.")
     if t.startswith("Recovered the refund from PayPal"):
         return (f"Recovered the refund from PayPal ({d.get('trigger', 'after the GET check')}): the same "
                 f"PayPal-Request-Id was re-sent once and PayPal returned the refund it had already made "
@@ -662,8 +698,7 @@ def narrate(e: dict) -> str:
         return ("Could not recover the refund from PayPal — the outcome is still UNKNOWN and a human must check "
                 "PayPal directly.")
     if t.startswith("Could not check with PayPal after the failed refund call"):
-        return (f"Could not check with PayPal ({d.get('error', 'unreachable')}) — the retry stays safe: it reuses "
-                "the same PayPal-Request-Id.")
+        return (f"Could not check with PayPal ({d.get('error', 'unreachable')}) — the refund outcome remains UNKNOWN.")
     if t.startswith("PayPal confirmed the refund FAILED"):
         return (f"PayPal confirmed refund {d.get('failed_refund_id')} FAILED — retrying once with a NEW "
                 f"PayPal-Request-Id ({d.get('paypal_request_id')}) after re-checking the policy.")
@@ -800,6 +835,7 @@ WEBHOOK_OUTCOME_WORDS = {
     "PENDING_CONFIRMED": "verified: still PENDING", "PENDING_TO_FAILED": "verified: refund FAILED — needs a human",
     "WARNING_NEEDS_HUMAN": "verified warning — needs a human", "NEEDS_HUMAN": "verified, differs — needs a human",
     "UNKNOWN_RECOVERY": "verified while outcome UNKNOWN — recovering the refund", "PROCESSING": "claimed, processing",
+    "UNKNOWN_NEEDS_REFUND_ID": "verified while outcome UNKNOWN — Refund ID needs PayPal GET verification",
     "STALE_GET_FAILED_WILL_RETRY": "late delivery — could not re-check, PayPal will retry",
 }
 
@@ -858,7 +894,8 @@ def evidence_summary(db: Database, case: dict, webhook_configured: bool = True) 
         amount = _money(refund.get("amount")) or f"${case['amount']} {case['currency']}"
         rows.append({"label": "PayPal refund", "value": f"{case['refund_id']} · "
                      f"{status_words(case.get('refund_status'), refund.get('status_details'))} · {amount}",
-                     "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status") or "", False)})
+                     "ok": (True if case["status"] == "REFUND_COMPLETED" else None
+                            if case["status"] in ("REFUND_PENDING", "REFUND_AMOUNT_REVIEW") else False)})
     elif refund_calls:
         rows.append({"label": "PayPal refund", "value": "Refund call failed — no money moved (see details)", "ok": False})
     else:
@@ -915,7 +952,8 @@ def paypal_proves(db: Database, case: dict, webhook_configured: bool = True) -> 
     elif case.get("refund_id"):
         out["refund"] = {"id": case["refund_id"], "status": case.get("refund_status") or "UNKNOWN",
                          "words": status_words(case.get("refund_status"), refund.get("status_details")),
-                         "ok": {"COMPLETED": True, "PENDING": None}.get(case.get("refund_status") or "", False)}
+                         "ok": (True if case["status"] == "REFUND_COMPLETED" else None
+                                if case["status"] in ("REFUND_PENDING", "REFUND_AMOUNT_REVIEW") else False)}
     for c in calls:
         if c.get("debug_id"):
             out["debug_ids"].append({"operation": OPERATION_LABELS.get(c["operation"], c["operation"]),
@@ -997,12 +1035,14 @@ def failure_modes(db: Database, mock: bool = False) -> list[dict]:
     ev = (dup or {}).get("duplicate") or {}
     tiles.append({
         "key": "D", "title": "Double-click approve", "action": ("run", "D"),
-        "expect": "Approve twice: the app refuses the 2nd click, and PayPal returns the same Refund ID for the same PayPal-Request-Id.",
+        "expect": ("Approve twice: the app refuses the 2nd click; mock PayPal returns the same Refund ID on replay."
+                   if mock else "Approve twice: the app refuses the 2nd click before another real Refund API call."),
         "case": dup,
         "result": None if not dup or dup["status"] == "NEW" else
-        (f"refund calls: {ev.get('refund_api_calls')} · unique Refund IDs: {1 if ev.get('same_refund') else 2}"
+        (f"refund calls: {ev.get('refund_api_calls')} · "
+         + (f"unique Refund IDs: {1 if ev.get('same_refund') else 2}" if mock else "second click blocked")
          if ev else dup["status"].replace("_", " ")),
-        "ok": bool(ev.get("same_refund")),
+        "ok": bool(ev.get("same_refund")) if mock else bool(ev) and ev.get("refund_api_calls") == 1,
     })
     if mock:
         p = latest("P")
@@ -1012,7 +1052,7 @@ def failure_modes(db: Database, mock: bool = False) -> list[dict]:
                       "Never shown as success until PayPal says COMPLETED — via “Check against PayPal” or a signed webhook.",
             "case": p,
             "result": None if not p or p["status"] == "NEW" else p["status"].replace("_", " "),
-            "ok": bool(p) and p.get("refund_status") == "COMPLETED",
+            "ok": bool(p) and p["status"] == "REFUND_COMPLETED",
         })
     return tiles
 

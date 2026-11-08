@@ -25,7 +25,9 @@ from app.workflow import Workflow  # noqa: E402
 
 @pytest.fixture
 def settings(tmp_path):
-    return Settings(db_path=str(tmp_path / "test.db"), paypal_client_id="", paypal_client_secret="")
+    # Tests need reset; production / Blueprint default is allow_public_reset=False.
+    return Settings(db_path=str(tmp_path / "test.db"), paypal_client_id="", paypal_client_secret="",
+                    allow_public_reset=True)
 
 
 @pytest.fixture

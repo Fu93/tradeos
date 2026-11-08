@@ -1,43 +1,20 @@
 {
- "run_at": "2026-10-08T23:04:09+00:00",
- "keyword_run_at": "2026-10-24T08:52:49+00:00",
- "keyword_history": [
-  {
-   "run_at": "2026-10-08T23:04:09+00:00",
-   "exact": 10,
-   "unwarranted_accept": [
-    "m37",
-    "m52"
-   ],
-   "injection_unwarranted_accept": [
-    "m37",
-    "m52"
-   ]
-  },
-  {
-   "run_at": "2026-10-08T23:50:54+00:00",
-   "exact": 8,
-   "unwarranted_accept": [],
-   "injection_unwarranted_accept": []
-  }
- ],
- "policy_scored_at": "2026-10-24T08:52:49+00:00",
+ "run_at": "2026-11-08T15:57:31+00:00",
+ "keyword_run_at": "2026-11-08T15:57:31+00:00",
+ "keyword_history": [],
+ "policy_scored_at": "2026-11-08T15:57:31+00:00",
  "dataset_size": 52,
  "model": "openai/gpt-oss-20b",
  "keyword": {
   "n": 52,
-  "intent": 11,
-  "reason": 14,
-  "requested_action": 11,
-  "exact": 8,
-  "exact_lenient_reason": 8,
-  "policy_decision_match": 20,
+  "intent": 17,
+  "reason": 23,
+  "requested_action": 17,
+  "exact": 17,
+  "exact_lenient_reason": 17,
+  "policy_decision_match": 27,
   "unwarranted_accept": [],
   "missed_accept": [
-   "m02",
-   "m03",
-   "m06",
-   "m08",
    "m11",
    "m12",
    "m13",
@@ -61,29 +38,22 @@
    "m40",
    "m42",
    "m43",
-   "m46",
    "m47",
-   "m49",
-   "m50",
-   "m51"
+   "m50"
   ]
  },
  "per_language": {
   "en": {
    "keyword": {
     "n": 11,
-    "intent": 6,
-    "reason": 5,
-    "requested_action": 6,
-    "exact": 4,
-    "exact_lenient_reason": 4,
-    "policy_decision_match": 6,
+    "intent": 9,
+    "reason": 10,
+    "requested_action": 9,
+    "exact": 9,
+    "exact_lenient_reason": 9,
+    "policy_decision_match": 10,
     "unwarranted_accept": [],
     "missed_accept": [
-     "m02",
-     "m03",
-     "m06",
-     "m08",
      "m11"
     ]
    },
@@ -121,9 +91,9 @@
    "llm": {
     "n": 9,
     "intent": 9,
-    "reason": 6,
+    "reason": 7,
     "requested_action": 9,
-    "exact": 6,
+    "exact": 7,
     "exact_lenient_reason": 8,
     "policy_decision_match": 9,
     "unwarranted_accept": [],
@@ -153,14 +123,12 @@
     "n": 9,
     "intent": 8,
     "reason": 8,
-    "requested_action": 7,
-    "exact": 6,
-    "exact_lenient_reason": 7,
-    "policy_decision_match": 8,
+    "requested_action": 8,
+    "exact": 7,
+    "exact_lenient_reason": 8,
+    "policy_decision_match": 9,
     "unwarranted_accept": [],
-    "missed_accept": [
-     "m23"
-    ]
+    "missed_accept": []
    }
   },
   "de": {
@@ -214,9 +182,9 @@
    "llm": {
     "n": 8,
     "intent": 8,
-    "reason": 5,
-    "requested_action": 8,
-    "exact": 5,
+    "reason": 7,
+    "requested_action": 7,
+    "exact": 6,
     "exact_lenient_reason": 7,
     "policy_decision_match": 8,
     "unwarranted_accept": [],
@@ -226,19 +194,16 @@
   "mixed": {
    "keyword": {
     "n": 7,
-    "intent": 1,
-    "reason": 1,
-    "requested_action": 1,
-    "exact": 0,
-    "exact_lenient_reason": 0,
-    "policy_decision_match": 2,
+    "intent": 4,
+    "reason": 5,
+    "requested_action": 4,
+    "exact": 4,
+    "exact_lenient_reason": 4,
+    "policy_decision_match": 5,
     "unwarranted_accept": [],
     "missed_accept": [
-     "m46",
      "m47",
-     "m49",
-     "m50",
-     "m51"
+     "m50"
     ]
    },
    "llm": {
@@ -275,25 +240,24 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.662,
-   "llm_http_s": 0.661,
+   "llm_wall_s": 0.653,
+   "llm_http_s": 0.652,
    "llm_usage": {
-    "queue_time": 0.170932923,
-    "prompt_tokens": 701,
-    "prompt_time": 0.029156978,
-    "completion_tokens": 213,
-    "completion_time": 0.269851193,
-    "total_tokens": 914,
-    "total_time": 0.299008171,
-    "prompt_tokens_details": {
-     "cached_tokens": 256
-    },
+    "queue_time": 0.241642624,
+    "prompt_tokens": 730,
+    "prompt_time": 0.050969948,
+    "completion_tokens": 210,
+    "completion_time": 0.236005957,
+    "total_tokens": 940,
+    "total_time": 0.286975905,
     "completion_tokens_details": {
-     "reasoning_tokens": 137
+     "reasoning_tokens": 134
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     "43",
@@ -312,7 +276,7 @@
    "injection": false,
    "keyword": {
     "intent": "REFUND_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
    "llm": {
@@ -320,22 +284,24 @@
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.817,
-   "llm_http_s": 0.816,
+   "llm_wall_s": 0.42,
+   "llm_http_s": 0.417,
    "llm_usage": {
-    "queue_time": 0.170405939,
-    "prompt_tokens": 694,
-    "prompt_time": 0.06138282,
-    "completion_tokens": 276,
-    "completion_time": 0.28229181,
-    "total_tokens": 970,
-    "total_time": 0.34367463,
+    "queue_time": 0.083666592,
+    "prompt_tokens": 723,
+    "prompt_time": 0.039110875,
+    "completion_tokens": 205,
+    "completion_time": 0.211089082,
+    "total_tokens": 928,
+    "total_time": 0.250199957,
     "completion_tokens_details": {
-     "reasoning_tokens": 211
+     "reasoning_tokens": 140
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -353,34 +319,33 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "WRONG_ITEM",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
     "reason": "WRONG_ITEM",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.607,
-   "llm_http_s": 0.606,
+   "llm_wall_s": 1.329,
+   "llm_http_s": 1.329,
    "llm_usage": {
-    "queue_time": 0.220061867,
-    "prompt_tokens": 693,
-    "prompt_time": 0.010138301,
-    "completion_tokens": 260,
-    "completion_time": 0.262336815,
-    "total_tokens": 953,
-    "total_time": 0.272475116,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.168890108,
+    "prompt_tokens": 722,
+    "prompt_time": 0.03880285,
+    "completion_tokens": 947,
+    "completion_time": 1.004101409,
+    "total_tokens": 1669,
+    "total_time": 1.042904259,
     "completion_tokens_details": {
-     "reasoning_tokens": 183
+     "reasoning_tokens": 876
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -407,25 +372,24 @@
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.41,
-   "llm_http_s": 0.409,
+   "llm_wall_s": 0.87,
+   "llm_http_s": 0.869,
    "llm_usage": {
-    "queue_time": 0.081944299,
-    "prompt_tokens": 689,
-    "prompt_time": 0.010208974,
-    "completion_tokens": 198,
-    "completion_time": 0.199994896,
-    "total_tokens": 887,
-    "total_time": 0.21020387,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.202254778,
+    "prompt_tokens": 718,
+    "prompt_time": 0.047893711,
+    "completion_tokens": 208,
+    "completion_time": 0.220417205,
+    "total_tokens": 926,
+    "total_time": 0.268310916,
     "completion_tokens_details": {
-     "reasoning_tokens": 135
+     "reasoning_tokens": 145
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -452,22 +416,27 @@
     "reason": "CHANGED_MIND",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.41,
-   "llm_http_s": 0.409,
+   "llm_wall_s": 0.47,
+   "llm_http_s": 0.469,
    "llm_usage": {
-    "queue_time": 0.082927225,
-    "prompt_tokens": 691,
-    "prompt_time": 0.036063286,
-    "completion_tokens": 164,
-    "completion_time": 0.166079539,
-    "total_tokens": 855,
-    "total_time": 0.202142825,
+    "queue_time": 0.083397106,
+    "prompt_tokens": 720,
+    "prompt_time": 0.01592756,
+    "completion_tokens": 206,
+    "completion_time": 0.212451776,
+    "total_tokens": 926,
+    "total_time": 0.228379336,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 97
+     "reasoning_tokens": 137
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -486,7 +455,7 @@
    "injection": false,
    "keyword": {
     "intent": "REFUND_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
    "llm": {
@@ -494,25 +463,24 @@
     "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 1.167,
-   "llm_http_s": 1.166,
+   "llm_wall_s": 0.563,
+   "llm_http_s": 0.562,
    "llm_usage": {
-    "queue_time": 0.241554801,
-    "prompt_tokens": 691,
-    "prompt_time": 0.273898828,
-    "completion_tokens": 207,
-    "completion_time": 0.219368813,
-    "total_tokens": 898,
-    "total_time": 0.493267641,
-    "prompt_tokens_details": {
-     "cached_tokens": 256
-    },
+    "queue_time": 0.177323225,
+    "prompt_tokens": 720,
+    "prompt_time": 0.038863833,
+    "completion_tokens": 208,
+    "completion_time": 0.220074063,
+    "total_tokens": 928,
+    "total_time": 0.258937896,
     "completion_tokens_details": {
      "reasoning_tokens": 135
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -539,22 +507,27 @@
     "reason": "UNKNOWN",
     "requested_action": "UNKNOWN"
    },
-   "llm_wall_s": 0.314,
-   "llm_http_s": 0.314,
+   "llm_wall_s": 0.382,
+   "llm_http_s": 0.381,
    "llm_usage": {
-    "queue_time": 0.003203313,
-    "prompt_tokens": 679,
-    "prompt_time": 0.034962443,
-    "completion_tokens": 144,
-    "completion_time": 0.161890269,
-    "total_tokens": 823,
-    "total_time": 0.196852712,
+    "queue_time": 0.083382539,
+    "prompt_tokens": 708,
+    "prompt_time": 0.011035913,
+    "completion_tokens": 142,
+    "completion_time": 0.166333093,
+    "total_tokens": 850,
+    "total_time": 0.177369006,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 87
+     "reasoning_tokens": 80
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -572,34 +545,33 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "SIZE_MISMATCH",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.644,
-   "llm_http_s": 0.643,
+   "llm_wall_s": 0.702,
+   "llm_http_s": 0.701,
    "llm_usage": {
-    "queue_time": 0.072063593,
-    "prompt_tokens": 699,
-    "prompt_time": 0.160762711,
-    "completion_tokens": 257,
-    "completion_time": 0.296875198,
-    "total_tokens": 956,
-    "total_time": 0.457637909,
-    "prompt_tokens_details": {
-     "cached_tokens": 256
-    },
+    "queue_time": 0.083773774,
+    "prompt_tokens": 728,
+    "prompt_time": 0.038363757,
+    "completion_tokens": 335,
+    "completion_time": 0.34329069,
+    "total_tokens": 1063,
+    "total_time": 0.381654447,
     "completion_tokens_details": {
-     "reasoning_tokens": 187
+     "reasoning_tokens": 258
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     "42",
@@ -617,31 +589,33 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "ORDER_STATUS",
+    "reason": "OTHER",
+    "requested_action": "INFO"
    },
    "llm": {
     "intent": "ORDER_STATUS",
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.493,
-   "llm_http_s": 0.492,
+   "llm_wall_s": 1.006,
+   "llm_http_s": 1.005,
    "llm_usage": {
-    "queue_time": 0.11744042,
-    "prompt_tokens": 690,
-    "prompt_time": 0.036442739,
-    "completion_tokens": 204,
-    "completion_time": 0.216299123,
-    "total_tokens": 894,
-    "total_time": 0.252741862,
+    "queue_time": 0.242109449,
+    "prompt_tokens": 719,
+    "prompt_time": 0.411681143,
+    "completion_tokens": 209,
+    "completion_time": 0.229409705,
+    "total_tokens": 928,
+    "total_time": 0.641090848,
     "completion_tokens_details": {
-     "reasoning_tokens": 133
+     "reasoning_tokens": 136
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -668,22 +642,27 @@
     "reason": "UNKNOWN",
     "requested_action": "UNKNOWN"
    },
-   "llm_wall_s": 0.829,
-   "llm_http_s": 0.828,
+   "llm_wall_s": 0.8,
+   "llm_http_s": 0.799,
    "llm_usage": {
-    "queue_time": 0.193282624,
-    "prompt_tokens": 709,
-    "prompt_time": 0.045418619,
-    "completion_tokens": 445,
-    "completion_time": 0.474697193,
-    "total_tokens": 1154,
-    "total_time": 0.520115812,
+    "queue_time": 0.241834925,
+    "prompt_tokens": 738,
+    "prompt_time": 0.016534865,
+    "completion_tokens": 386,
+    "completion_time": 0.434650229,
+    "total_tokens": 1124,
+    "total_time": 0.451185094,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 388
+     "reasoning_tokens": 334
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -710,25 +689,24 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 2.531,
-   "llm_http_s": 2.529,
+   "llm_wall_s": 1.304,
+   "llm_http_s": 1.303,
    "llm_usage": {
-    "queue_time": 0.241816047,
-    "prompt_tokens": 707,
-    "prompt_time": 1.364857083,
-    "completion_tokens": 522,
-    "completion_time": 0.52705835,
-    "total_tokens": 1229,
-    "total_time": 1.8919154329999999,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.221813239,
+    "prompt_tokens": 736,
+    "prompt_time": 0.154428889,
+    "completion_tokens": 641,
+    "completion_time": 0.704832576,
+    "total_tokens": 1377,
+    "total_time": 0.859261465,
     "completion_tokens_details": {
-     "reasoning_tokens": 451
+     "reasoning_tokens": 566
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     "42",
@@ -755,25 +733,24 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 5.774,
-   "llm_http_s": 5.772,
+   "llm_wall_s": 0.946,
+   "llm_http_s": 0.945,
    "llm_usage": {
-    "queue_time": 0.095421345,
-    "prompt_tokens": 697,
-    "prompt_time": 0.186549613,
-    "completion_tokens": 287,
-    "completion_time": 0.329030128,
-    "total_tokens": 984,
-    "total_time": 0.515579741,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.087955538,
+    "prompt_tokens": 726,
+    "prompt_time": 0.260818817,
+    "completion_tokens": 384,
+    "completion_time": 0.392477432,
+    "total_tokens": 1110,
+    "total_time": 0.653296249,
     "completion_tokens_details": {
-     "reasoning_tokens": 208
+     "reasoning_tokens": 305
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -800,25 +777,27 @@
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.744,
-   "llm_http_s": 0.743,
+   "llm_wall_s": 0.509,
+   "llm_http_s": 0.508,
    "llm_usage": {
-    "queue_time": 0.082317056,
-    "prompt_tokens": 691,
-    "prompt_time": 0.296384373,
-    "completion_tokens": 223,
-    "completion_time": 0.24677993,
-    "total_tokens": 914,
-    "total_time": 0.543164303,
+    "queue_time": 0.075367475,
+    "prompt_tokens": 720,
+    "prompt_time": 0.013634125,
+    "completion_tokens": 256,
+    "completion_time": 0.304395612,
+    "total_tokens": 976,
+    "total_time": 0.318029737,
     "prompt_tokens_details": {
-     "cached_tokens": 256
+     "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 152
+     "reasoning_tokens": 185
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -845,25 +824,24 @@
     "reason": "NOT_AS_DESCRIBED",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.722,
-   "llm_http_s": 0.721,
+   "llm_wall_s": 0.58,
+   "llm_http_s": 0.58,
    "llm_usage": {
-    "queue_time": 0.083441503,
-    "prompt_tokens": 700,
-    "prompt_time": 0.012174846,
-    "completion_tokens": 433,
-    "completion_time": 0.453585113,
-    "total_tokens": 1133,
-    "total_time": 0.465759959,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.083346185,
+    "prompt_tokens": 729,
+    "prompt_time": 0.038293562,
+    "completion_tokens": 350,
+    "completion_time": 0.367060883,
+    "total_tokens": 1079,
+    "total_time": 0.405354445,
     "completion_tokens_details": {
-     "reasoning_tokens": 358
+     "reasoning_tokens": 276
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -890,25 +868,27 @@
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.628,
-   "llm_http_s": 0.627,
+   "llm_wall_s": 0.708,
+   "llm_http_s": 0.706,
    "llm_usage": {
-    "queue_time": 0.090070008,
-    "prompt_tokens": 691,
-    "prompt_time": 0.012184967,
-    "completion_tokens": 352,
-    "completion_time": 0.402868369,
-    "total_tokens": 1043,
-    "total_time": 0.415053336,
+    "queue_time": 0.083465011,
+    "prompt_tokens": 720,
+    "prompt_time": 0.019590357,
+    "completion_tokens": 431,
+    "completion_time": 0.466611948,
+    "total_tokens": 1151,
+    "total_time": 0.486202305,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 277
+     "reasoning_tokens": 359
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -935,25 +915,24 @@
     "reason": "CHANGED_MIND",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.748,
-   "llm_http_s": 0.747,
+   "llm_wall_s": 0.849,
+   "llm_http_s": 0.848,
    "llm_usage": {
-    "queue_time": 0.201110082,
-    "prompt_tokens": 688,
-    "prompt_time": 0.009727769,
-    "completion_tokens": 353,
-    "completion_time": 0.408678821,
-    "total_tokens": 1041,
-    "total_time": 0.41840659,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.197961176,
+    "prompt_tokens": 717,
+    "prompt_time": 0.043400616,
+    "completion_tokens": 242,
+    "completion_time": 0.494629187,
+    "total_tokens": 959,
+    "total_time": 0.538029803,
     "completion_tokens_details": {
-     "reasoning_tokens": 278
+     "reasoning_tokens": 166
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -980,22 +959,24 @@
     "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.47,
-   "llm_http_s": 0.469,
+   "llm_wall_s": 0.617,
+   "llm_http_s": 0.616,
    "llm_usage": {
-    "queue_time": 0.08151646,
-    "prompt_tokens": 693,
-    "prompt_time": 0.047842842,
-    "completion_tokens": 205,
-    "completion_time": 0.210332874,
-    "total_tokens": 898,
-    "total_time": 0.258175716,
+    "queue_time": 0.145664008,
+    "prompt_tokens": 722,
+    "prompt_time": 0.045479843,
+    "completion_tokens": 248,
+    "completion_time": 0.288286854,
+    "total_tokens": 970,
+    "total_time": 0.333766697,
     "completion_tokens_details": {
-     "reasoning_tokens": 129
+     "reasoning_tokens": 168
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -1022,25 +1003,24 @@
     "reason": "UNKNOWN",
     "requested_action": "UNKNOWN"
    },
-   "llm_wall_s": 0.83,
-   "llm_http_s": 0.829,
+   "llm_wall_s": 0.582,
+   "llm_http_s": 0.58,
    "llm_usage": {
-    "queue_time": 0.081792386,
-    "prompt_tokens": 678,
-    "prompt_time": 0.159504464,
-    "completion_tokens": 347,
-    "completion_time": 0.381492154,
-    "total_tokens": 1025,
-    "total_time": 0.540996618,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.14529291,
+    "prompt_tokens": 707,
+    "prompt_time": 0.047591005,
+    "completion_tokens": 240,
+    "completion_time": 0.269485044,
+    "total_tokens": 947,
+    "total_time": 0.317076049,
     "completion_tokens_details": {
-     "reasoning_tokens": 284
+     "reasoning_tokens": 176
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -1067,25 +1047,24 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.502,
-   "llm_http_s": 0.5,
+   "llm_wall_s": 0.726,
+   "llm_http_s": 0.724,
    "llm_usage": {
-    "queue_time": 0.081733822,
-    "prompt_tokens": 689,
-    "prompt_time": 0.01336456,
-    "completion_tokens": 237,
-    "completion_time": 0.271567093,
-    "total_tokens": 926,
-    "total_time": 0.284931653,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.074841933,
+    "prompt_tokens": 718,
+    "prompt_time": 0.038023474,
+    "completion_tokens": 443,
+    "completion_time": 0.485084416,
+    "total_tokens": 1161,
+    "total_time": 0.52310789,
     "completion_tokens_details": {
-     "reasoning_tokens": 158
+     "reasoning_tokens": 364
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     "43",
@@ -1109,25 +1088,30 @@
    },
    "llm": {
     "intent": "REFUND_REQUEST",
-    "reason": "OTHER",
+    "reason": "UNKNOWN",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.762,
-   "llm_http_s": 0.761,
+   "llm_wall_s": 1.315,
+   "llm_http_s": 1.313,
    "llm_usage": {
-    "queue_time": 0.048742237,
-    "prompt_tokens": 703,
-    "prompt_time": 0.03550389,
-    "completion_tokens": 472,
-    "completion_time": 0.555987958,
-    "total_tokens": 1175,
-    "total_time": 0.591491848,
+    "queue_time": 0.202405517,
+    "prompt_tokens": 732,
+    "prompt_time": 0.534649657,
+    "completion_tokens": 287,
+    "completion_time": 0.312359864,
+    "total_tokens": 1019,
+    "total_time": 0.847009521,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 404
+     "reasoning_tokens": 219
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     null,
@@ -1154,25 +1138,24 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.807,
-   "llm_http_s": 0.805,
+   "llm_wall_s": 0.423,
+   "llm_http_s": 0.422,
    "llm_usage": {
-    "queue_time": 0.117930199,
-    "prompt_tokens": 695,
-    "prompt_time": 0.272985785,
-    "completion_tokens": 258,
-    "completion_time": 0.270870714,
-    "total_tokens": 953,
-    "total_time": 0.543856499,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.003387228,
+    "prompt_tokens": 724,
+    "prompt_time": 0.043394143,
+    "completion_tokens": 242,
+    "completion_time": 0.260547999,
+    "total_tokens": 966,
+    "total_time": 0.303942142,
     "completion_tokens_details": {
-     "reasoning_tokens": 183
+     "reasoning_tokens": 167
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1199,25 +1182,27 @@
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.509,
-   "llm_http_s": 0.506,
+   "llm_wall_s": 0.569,
+   "llm_http_s": 0.568,
    "llm_usage": {
-    "queue_time": 0.081814258,
-    "prompt_tokens": 701,
-    "prompt_time": 0.031838842,
-    "completion_tokens": 217,
-    "completion_time": 0.229422492,
-    "total_tokens": 918,
-    "total_time": 0.261261334,
+    "queue_time": 0.176840017,
+    "prompt_tokens": 730,
+    "prompt_time": 0.012056913,
+    "completion_tokens": 211,
+    "completion_time": 0.236064728,
+    "total_tokens": 941,
+    "total_time": 0.248121641,
     "prompt_tokens_details": {
-     "cached_tokens": 256
+     "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 152
+     "reasoning_tokens": 146
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1240,29 +1225,31 @@
     "requested_action": "UNKNOWN"
    },
    "llm": {
-    "intent": "REFUND_REQUEST",
+    "intent": "EXCHANGE_REQUEST",
     "reason": "WRONG_ITEM",
-    "requested_action": "UNKNOWN"
+    "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 1.36,
-   "llm_http_s": 1.359,
+   "llm_wall_s": 1.211,
+   "llm_http_s": 1.211,
    "llm_usage": {
-    "queue_time": 0.085940287,
-    "prompt_tokens": 694,
-    "prompt_time": 0.0121498,
-    "completion_tokens": 1017,
-    "completion_time": 1.121750264,
-    "total_tokens": 1711,
-    "total_time": 1.133900064,
+    "queue_time": 0.178971153,
+    "prompt_tokens": 723,
+    "prompt_time": 0.134285191,
+    "completion_tokens": 517,
+    "completion_time": 0.636903544,
+    "total_tokens": 1240,
+    "total_time": 0.771188735,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 952
+     "reasoning_tokens": 451
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1289,22 +1276,27 @@
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.497,
-   "llm_http_s": 0.495,
+   "llm_wall_s": 0.448,
+   "llm_http_s": 0.448,
    "llm_usage": {
-    "queue_time": 0.181346164,
-    "prompt_tokens": 692,
-    "prompt_time": 0.049303393,
-    "completion_tokens": 172,
-    "completion_time": 0.187711354,
-    "total_tokens": 864,
-    "total_time": 0.237014747,
+    "queue_time": 0.083905315,
+    "prompt_tokens": 721,
+    "prompt_time": 0.013726976,
+    "completion_tokens": 186,
+    "completion_time": 0.216598482,
+    "total_tokens": 907,
+    "total_time": 0.230325458,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 109
+     "reasoning_tokens": 123
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1331,22 +1323,27 @@
     "reason": "CHANGED_MIND",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.734,
-   "llm_http_s": 0.733,
+   "llm_wall_s": 0.554,
+   "llm_http_s": 0.553,
    "llm_usage": {
-    "queue_time": 0.170225352,
-    "prompt_tokens": 692,
-    "prompt_time": 0.041048502,
-    "completion_tokens": 205,
-    "completion_time": 0.216468868,
-    "total_tokens": 897,
-    "total_time": 0.25751737,
+    "queue_time": 0.241418582,
+    "prompt_tokens": 721,
+    "prompt_time": 0.013507288,
+    "completion_tokens": 203,
+    "completion_time": 0.212444132,
+    "total_tokens": 924,
+    "total_time": 0.22595142,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 131
+     "reasoning_tokens": 129
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1373,22 +1370,27 @@
     "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.532,
-   "llm_http_s": 0.531,
+   "llm_wall_s": 0.834,
+   "llm_http_s": 0.833,
    "llm_usage": {
-    "queue_time": 0.118193231,
-    "prompt_tokens": 692,
-    "prompt_time": 0.045809365,
-    "completion_tokens": 189,
-    "completion_time": 0.217337511,
-    "total_tokens": 881,
-    "total_time": 0.263146876,
+    "queue_time": 0.179206704,
+    "prompt_tokens": 721,
+    "prompt_time": 0.022752639,
+    "completion_tokens": 234,
+    "completion_time": 0.365162509,
+    "total_tokens": 955,
+    "total_time": 0.387915148,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 121
+     "reasoning_tokens": 161
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1411,29 +1413,31 @@
     "requested_action": "UNKNOWN"
    },
    "llm": {
-    "intent": "UNKNOWN",
+    "intent": "ORDER_STATUS",
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.607,
-   "llm_http_s": 0.606,
+   "llm_wall_s": 0.915,
+   "llm_http_s": 0.914,
    "llm_usage": {
-    "queue_time": 0.24181832,
-    "prompt_tokens": 682,
-    "prompt_time": 0.032416094,
-    "completion_tokens": 204,
-    "completion_time": 0.20709557,
-    "total_tokens": 886,
-    "total_time": 0.239511664,
+    "queue_time": 0.202605135,
+    "prompt_tokens": 711,
+    "prompt_time": 0.015881315,
+    "completion_tokens": 215,
+    "completion_time": 0.433951973,
+    "total_tokens": 926,
+    "total_time": 0.449833288,
     "prompt_tokens_details": {
-     "cached_tokens": 256
+     "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 143
+     "reasoning_tokens": 154
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1460,25 +1464,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.509,
-   "llm_http_s": 0.508,
+   "llm_wall_s": 1.08,
+   "llm_http_s": 1.08,
    "llm_usage": {
-    "queue_time": 0.081408143,
-    "prompt_tokens": 695,
-    "prompt_time": 0.013858714,
-    "completion_tokens": 189,
-    "completion_time": 0.213726713,
-    "total_tokens": 884,
-    "total_time": 0.227585427,
+    "queue_time": 0.202001368,
+    "prompt_tokens": 724,
+    "prompt_time": 0.011691976,
+    "completion_tokens": 219,
+    "completion_time": 0.597699568,
+    "total_tokens": 943,
+    "total_time": 0.609391544,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 115
+     "reasoning_tokens": 145
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     "39",
@@ -1505,22 +1511,27 @@
     "reason": "UNKNOWN",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.67,
-   "llm_http_s": 0.669,
+   "llm_wall_s": 0.552,
+   "llm_http_s": 0.552,
    "llm_usage": {
-    "queue_time": 0.277973204,
-    "prompt_tokens": 704,
-    "prompt_time": 0.053434755,
-    "completion_tokens": 196,
-    "completion_time": 0.218943086,
-    "total_tokens": 900,
-    "total_time": 0.272377841,
+    "queue_time": 0.083767429,
+    "prompt_tokens": 733,
+    "prompt_time": 0.021067439,
+    "completion_tokens": 227,
+    "completion_time": 0.239386083,
+    "total_tokens": 960,
+    "total_time": 0.260453522,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 132
+     "reasoning_tokens": 163
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -1547,22 +1558,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.718,
-   "llm_http_s": 0.717,
+   "llm_wall_s": 0.456,
+   "llm_http_s": 0.456,
    "llm_usage": {
-    "queue_time": 0.171168584,
-    "prompt_tokens": 694,
-    "prompt_time": 0.035550722,
+    "queue_time": 0.074876424,
+    "prompt_tokens": 723,
+    "prompt_time": 0.020127408,
     "completion_tokens": 238,
-    "completion_time": 0.297046503,
-    "total_tokens": 932,
-    "total_time": 0.332597225,
+    "completion_time": 0.271268603,
+    "total_tokens": 961,
+    "total_time": 0.291396011,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
      "reasoning_tokens": 166
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1589,25 +1605,24 @@
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.992,
-   "llm_http_s": 0.991,
+   "llm_wall_s": 0.367,
+   "llm_http_s": 0.366,
    "llm_usage": {
-    "queue_time": 0.219758614,
-    "prompt_tokens": 694,
-    "prompt_time": 0.431868703,
-    "completion_tokens": 205,
-    "completion_time": 0.222421952,
-    "total_tokens": 899,
-    "total_time": 0.654290655,
-    "prompt_tokens_details": {
-     "cached_tokens": 256
-    },
+    "queue_time": 0.003248024,
+    "prompt_tokens": 723,
+    "prompt_time": 0.039859365,
+    "completion_tokens": 182,
+    "completion_time": 0.214538277,
+    "total_tokens": 905,
+    "total_time": 0.254397642,
     "completion_tokens_details": {
-     "reasoning_tokens": 139
+     "reasoning_tokens": 116
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1634,22 +1649,27 @@
     "reason": "WRONG_ITEM",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.775,
-   "llm_http_s": 0.774,
+   "llm_wall_s": 0.408,
+   "llm_http_s": 0.407,
    "llm_usage": {
-    "queue_time": 0.031319448,
-    "prompt_tokens": 699,
-    "prompt_time": 0.040898837,
-    "completion_tokens": 460,
-    "completion_time": 0.57419311,
-    "total_tokens": 1159,
-    "total_time": 0.615091947,
+    "queue_time": 0.003152026,
+    "prompt_tokens": 728,
+    "prompt_time": 0.019923548,
+    "completion_tokens": 255,
+    "completion_time": 0.272297104,
+    "total_tokens": 983,
+    "total_time": 0.292220652,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 393
+     "reasoning_tokens": 188
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1676,25 +1696,27 @@
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.51,
-   "llm_http_s": 0.509,
+   "llm_wall_s": 0.462,
+   "llm_http_s": 0.461,
    "llm_usage": {
-    "queue_time": 0.081826485,
-    "prompt_tokens": 691,
-    "prompt_time": 0.010283447,
-    "completion_tokens": 215,
-    "completion_time": 0.217372984,
-    "total_tokens": 906,
-    "total_time": 0.227656431,
+    "queue_time": 0.083702181,
+    "prompt_tokens": 720,
+    "prompt_time": 0.011856963,
+    "completion_tokens": 213,
+    "completion_time": 0.251827851,
+    "total_tokens": 933,
+    "total_time": 0.263684814,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 152
+     "reasoning_tokens": 146
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1721,22 +1743,27 @@
     "reason": "CHANGED_MIND",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.394,
-   "llm_http_s": 0.393,
+   "llm_wall_s": 0.43,
+   "llm_http_s": 0.429,
    "llm_usage": {
-    "queue_time": 0.003120837,
-    "prompt_tokens": 695,
-    "prompt_time": 0.04409633,
-    "completion_tokens": 182,
-    "completion_time": 0.218646267,
-    "total_tokens": 877,
-    "total_time": 0.262742597,
+    "queue_time": 0.074914515,
+    "prompt_tokens": 724,
+    "prompt_time": 0.011866594,
+    "completion_tokens": 188,
+    "completion_time": 0.223383962,
+    "total_tokens": 912,
+    "total_time": 0.235250556,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 118
+     "reasoning_tokens": 119
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1763,25 +1790,27 @@
     "reason": "UNKNOWN",
     "requested_action": "UNKNOWN"
    },
-   "llm_wall_s": 0.636,
-   "llm_http_s": 0.634,
+   "llm_wall_s": 0.447,
+   "llm_http_s": 0.446,
    "llm_usage": {
-    "queue_time": 0.095371714,
-    "prompt_tokens": 684,
-    "prompt_time": 0.011751205,
-    "completion_tokens": 142,
-    "completion_time": 0.158890897,
-    "total_tokens": 826,
-    "total_time": 0.170642102,
+    "queue_time": 0.083575779,
+    "prompt_tokens": 713,
+    "prompt_time": 0.015731827,
+    "completion_tokens": 212,
+    "completion_time": 0.233275379,
+    "total_tokens": 925,
+    "total_time": 0.249007206,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 84
+     "reasoning_tokens": 154
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1808,22 +1837,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.365,
-   "llm_http_s": 0.364,
+   "llm_wall_s": 0.636,
+   "llm_http_s": 0.635,
    "llm_usage": {
-    "queue_time": 0.003396652,
-    "prompt_tokens": 691,
-    "prompt_time": 0.036484032,
+    "queue_time": 0.202235983,
+    "prompt_tokens": 720,
+    "prompt_time": 0.031948318,
     "completion_tokens": 188,
-    "completion_time": 0.19754667,
-    "total_tokens": 879,
-    "total_time": 0.234030702,
+    "completion_time": 0.218803475,
+    "total_tokens": 908,
+    "total_time": 0.250751793,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 117
+     "reasoning_tokens": 112
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     "44",
@@ -1850,25 +1884,27 @@
     "reason": "UNKNOWN",
     "requested_action": "UNKNOWN"
    },
-   "llm_wall_s": 1.085,
-   "llm_http_s": 1.084,
+   "llm_wall_s": 1.078,
+   "llm_http_s": 1.077,
    "llm_usage": {
-    "queue_time": 0.242089401,
-    "prompt_tokens": 711,
-    "prompt_time": 0.011033183,
-    "completion_tokens": 513,
-    "completion_time": 0.714124553,
-    "total_tokens": 1224,
-    "total_time": 0.725157736,
+    "queue_time": 0.179034002,
+    "prompt_tokens": 740,
+    "prompt_time": 0.083057403,
+    "completion_tokens": 457,
+    "completion_time": 0.499097998,
+    "total_tokens": 1197,
+    "total_time": 0.582155401,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 461
+     "reasoning_tokens": 400
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "de",
    "llm_sizes": [
     null,
@@ -1895,29 +1931,31 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.807,
-   "llm_http_s": 0.806,
+   "llm_wall_s": 0.658,
+   "llm_http_s": 0.653,
    "llm_usage": {
-    "queue_time": 0.09529472,
-    "prompt_tokens": 698,
-    "prompt_time": 0.308412176,
-    "completion_tokens": 268,
-    "completion_time": 0.279111403,
-    "total_tokens": 966,
-    "total_time": 0.587523579,
+    "queue_time": 0.241215995,
+    "prompt_tokens": 727,
+    "prompt_time": 0.013759122,
+    "completion_tokens": 262,
+    "completion_time": 0.273520457,
+    "total_tokens": 989,
+    "total_time": 0.287279579,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 191
+     "reasoning_tokens": 180
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
-    "27cm",
-    "27.5cm"
+    "27",
+    "27.5"
    ]
   },
   {
@@ -1940,22 +1978,27 @@
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.468,
-   "llm_http_s": 0.467,
+   "llm_wall_s": 0.452,
+   "llm_http_s": 0.451,
    "llm_usage": {
-    "queue_time": 0.064638038,
-    "prompt_tokens": 698,
-    "prompt_time": 0.04040843,
-    "completion_tokens": 193,
-    "completion_time": 0.223570742,
-    "total_tokens": 891,
-    "total_time": 0.263979172,
+    "queue_time": 0.083944872,
+    "prompt_tokens": 727,
+    "prompt_time": 0.013978792,
+    "completion_tokens": 210,
+    "completion_time": 0.222205333,
+    "total_tokens": 937,
+    "total_time": 0.236184125,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 125
+     "reasoning_tokens": 145
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -1979,28 +2022,30 @@
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
-    "reason": "NOT_AS_DESCRIBED",
+    "reason": "WRONG_ITEM",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.575,
-   "llm_http_s": 0.574,
+   "llm_wall_s": 0.552,
+   "llm_http_s": 0.551,
    "llm_usage": {
-    "queue_time": 0.064696924,
-    "prompt_tokens": 695,
-    "prompt_time": 0.024586177,
-    "completion_tokens": 323,
-    "completion_time": 0.356979097,
-    "total_tokens": 1018,
-    "total_time": 0.381565274,
+    "queue_time": 0.002955815,
+    "prompt_tokens": 724,
+    "prompt_time": 0.026162635,
+    "completion_tokens": 384,
+    "completion_time": 0.409534707,
+    "total_tokens": 1108,
+    "total_time": 0.435697342,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 254
+     "reasoning_tokens": 318
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2027,25 +2072,24 @@
     "reason": "UNKNOWN",
     "requested_action": "INFO"
    },
-   "llm_wall_s": 0.397,
-   "llm_http_s": 0.396,
+   "llm_wall_s": 0.659,
+   "llm_http_s": 0.658,
    "llm_usage": {
-    "queue_time": 0.081785553,
-    "prompt_tokens": 694,
-    "prompt_time": 0.011704934,
-    "completion_tokens": 193,
-    "completion_time": 0.198208624,
-    "total_tokens": 887,
-    "total_time": 0.209913558,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.219592024,
+    "prompt_tokens": 723,
+    "prompt_time": 0.042602035,
+    "completion_tokens": 250,
+    "completion_time": 0.288337241,
+    "total_tokens": 973,
+    "total_time": 0.330939276,
     "completion_tokens_details": {
-     "reasoning_tokens": 129
+     "reasoning_tokens": 179
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2072,22 +2116,24 @@
     "reason": "CHANGED_MIND",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.543,
-   "llm_http_s": 0.542,
+   "llm_wall_s": 0.596,
+   "llm_http_s": 0.595,
    "llm_usage": {
-    "queue_time": 0.18402683,
-    "prompt_tokens": 694,
-    "prompt_time": 0.034322739,
-    "completion_tokens": 195,
-    "completion_time": 0.207279823,
-    "total_tokens": 889,
-    "total_time": 0.241602562,
+    "queue_time": 0.24211374,
+    "prompt_tokens": 723,
+    "prompt_time": 0.042651674,
+    "completion_tokens": 201,
+    "completion_time": 0.243093457,
+    "total_tokens": 924,
+    "total_time": 0.285745131,
     "completion_tokens_details": {
-     "reasoning_tokens": 126
+     "reasoning_tokens": 132
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2114,22 +2160,24 @@
     "reason": "NOT_AS_DESCRIBED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.47,
-   "llm_http_s": 0.468,
+   "llm_wall_s": 0.472,
+   "llm_http_s": 0.471,
    "llm_usage": {
-    "queue_time": 0.117517859,
-    "prompt_tokens": 691,
-    "prompt_time": 0.036691791,
-    "completion_tokens": 183,
-    "completion_time": 0.196034671,
-    "total_tokens": 874,
-    "total_time": 0.232726462,
+    "queue_time": 0.003548147,
+    "prompt_tokens": 720,
+    "prompt_time": 0.036434375,
+    "completion_tokens": 192,
+    "completion_time": 0.286878418,
+    "total_tokens": 912,
+    "total_time": 0.323312793,
     "completion_tokens_details": {
-     "reasoning_tokens": 119
+     "reasoning_tokens": 123
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2154,24 +2202,29 @@
    "llm": {
     "intent": "UNKNOWN",
     "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "requested_action": "INFO"
    },
-   "llm_wall_s": 0.492,
-   "llm_http_s": 0.49,
+   "llm_wall_s": 0.643,
+   "llm_http_s": 0.642,
    "llm_usage": {
-    "queue_time": 0.146319423,
-    "prompt_tokens": 688,
-    "prompt_time": 0.041949562,
-    "completion_tokens": 155,
-    "completion_time": 0.181953892,
-    "total_tokens": 843,
-    "total_time": 0.223903454,
+    "queue_time": 0.24136313,
+    "prompt_tokens": 717,
+    "prompt_time": 0.014119405,
+    "completion_tokens": 248,
+    "completion_time": 0.27867169,
+    "total_tokens": 965,
+    "total_time": 0.292791095,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 94
+     "reasoning_tokens": 190
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2195,28 +2248,30 @@
    },
    "llm": {
     "intent": "REFUND_REQUEST",
-    "reason": "OTHER",
+    "reason": "UNKNOWN",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.443,
-   "llm_http_s": 0.442,
+   "llm_wall_s": 0.462,
+   "llm_http_s": 0.461,
    "llm_usage": {
-    "queue_time": 0.08166514,
-    "prompt_tokens": 711,
-    "prompt_time": 0.012770439,
-    "completion_tokens": 226,
-    "completion_time": 0.229917028,
-    "total_tokens": 937,
-    "total_time": 0.242687467,
+    "queue_time": 0.083750447,
+    "prompt_tokens": 740,
+    "prompt_time": 0.013138375,
+    "completion_tokens": 238,
+    "completion_time": 0.249012121,
+    "total_tokens": 978,
+    "total_time": 0.262150496,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 162
+     "reasoning_tokens": 174
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "ja",
    "llm_sizes": [
     null,
@@ -2234,34 +2289,36 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "SIZE_MISMATCH",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.615,
-   "llm_http_s": 0.614,
+   "llm_wall_s": 0.506,
+   "llm_http_s": 0.505,
    "llm_usage": {
-    "queue_time": 0.173356461,
-    "prompt_tokens": 693,
-    "prompt_time": 0.053965023,
-    "completion_tokens": 214,
-    "completion_time": 0.221104558,
-    "total_tokens": 907,
-    "total_time": 0.275069581,
+    "queue_time": 0.076382643,
+    "prompt_tokens": 722,
+    "prompt_time": 0.055189714,
+    "completion_tokens": 232,
+    "completion_time": 0.243089871,
+    "total_tokens": 954,
+    "total_time": 0.298279585,
     "prompt_tokens_details": {
-     "cached_tokens": 256
+     "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 138
+     "reasoning_tokens": 161
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     "42",
@@ -2288,25 +2345,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.475,
-   "llm_http_s": 0.474,
+   "llm_wall_s": 0.691,
+   "llm_http_s": 0.69,
    "llm_usage": {
-    "queue_time": 0.082125253,
-    "prompt_tokens": 692,
-    "prompt_time": 0.022922612,
-    "completion_tokens": 183,
-    "completion_time": 0.187216179,
-    "total_tokens": 875,
-    "total_time": 0.210138791,
+    "queue_time": 0.20247402,
+    "prompt_tokens": 721,
+    "prompt_time": 0.119473268,
+    "completion_tokens": 226,
+    "completion_time": 0.250166862,
+    "total_tokens": 947,
+    "total_time": 0.36964013,
     "prompt_tokens_details": {
-     "cached_tokens": 256
+     "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 110
+     "reasoning_tokens": 152
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "es",
    "llm_sizes": [
     null,
@@ -2325,7 +2384,7 @@
    "injection": false,
    "keyword": {
     "intent": "EXCHANGE_REQUEST",
-    "reason": "UNKNOWN",
+    "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
    "llm": {
@@ -2333,22 +2392,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.716,
-   "llm_http_s": 0.715,
+   "llm_wall_s": 0.504,
+   "llm_http_s": 0.503,
    "llm_usage": {
-    "queue_time": 0.196297201,
-    "prompt_tokens": 691,
-    "prompt_time": 0.108329329,
-    "completion_tokens": 265,
-    "completion_time": 0.273433349,
-    "total_tokens": 956,
-    "total_time": 0.381762678,
+    "queue_time": 0.002887683,
+    "prompt_tokens": 720,
+    "prompt_time": 0.017716743,
+    "completion_tokens": 274,
+    "completion_time": 0.354093582,
+    "total_tokens": 994,
+    "total_time": 0.371810325,
+    "prompt_tokens_details": {
+     "cached_tokens": 512
+    },
     "completion_tokens_details": {
-     "reasoning_tokens": 183
+     "reasoning_tokens": 191
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "zh-Hant",
    "llm_sizes": [
     "42",
@@ -2366,34 +2430,36 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "REFUND_REQUEST",
+    "reason": "DAMAGED",
+    "requested_action": "REFUND"
    },
    "llm": {
     "intent": "REFUND_REQUEST",
     "reason": "DAMAGED",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.562,
-   "llm_http_s": 0.561,
+   "llm_wall_s": 0.954,
+   "llm_http_s": 0.953,
    "llm_usage": {
-    "queue_time": 0.242213661,
-    "prompt_tokens": 692,
-    "prompt_time": 0.013041048,
-    "completion_tokens": 192,
-    "completion_time": 0.195283837,
-    "total_tokens": 884,
-    "total_time": 0.208324885,
+    "queue_time": 0.084145024,
+    "prompt_tokens": 721,
+    "prompt_time": 0.03113318,
+    "completion_tokens": 228,
+    "completion_time": 0.713911275,
+    "total_tokens": 949,
+    "total_time": 0.745044455,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 126
+     "reasoning_tokens": 158
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -2420,25 +2486,27 @@
     "reason": "SIZE_MISMATCH",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.657,
-   "llm_http_s": 0.656,
+   "llm_wall_s": 0.754,
+   "llm_http_s": 0.753,
    "llm_usage": {
-    "queue_time": 0.095611549,
-    "prompt_tokens": 695,
-    "prompt_time": 0.012151583,
-    "completion_tokens": 225,
-    "completion_time": 0.432136695,
-    "total_tokens": 920,
-    "total_time": 0.444288278,
+    "queue_time": 0.202072761,
+    "prompt_tokens": 724,
+    "prompt_time": 0.109796625,
+    "completion_tokens": 223,
+    "completion_time": 0.235406151,
+    "total_tokens": 947,
+    "total_time": 0.345202776,
     "prompt_tokens_details": {
      "cached_tokens": 512
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 153
+     "reasoning_tokens": 151
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "fr",
    "llm_sizes": [
     null,
@@ -2456,34 +2524,33 @@
    },
    "injection": false,
    "keyword": {
-    "intent": "UNKNOWN",
-    "reason": "UNKNOWN",
-    "requested_action": "UNKNOWN"
+    "intent": "EXCHANGE_REQUEST",
+    "reason": "WRONG_ITEM",
+    "requested_action": "EXCHANGE"
    },
    "llm": {
     "intent": "EXCHANGE_REQUEST",
     "reason": "WRONG_ITEM",
     "requested_action": "EXCHANGE"
    },
-   "llm_wall_s": 0.665,
-   "llm_http_s": 0.664,
+   "llm_wall_s": 0.503,
+   "llm_http_s": 0.502,
    "llm_usage": {
-    "queue_time": 0.081592631,
-    "prompt_tokens": 692,
-    "prompt_time": 0.193239394,
-    "completion_tokens": 256,
-    "completion_time": 0.279377479,
-    "total_tokens": 948,
-    "total_time": 0.472616873,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.063855997,
+    "prompt_tokens": 721,
+    "prompt_time": 0.036795034,
+    "completion_tokens": 248,
+    "completion_time": 0.287520202,
+    "total_tokens": 969,
+    "total_time": 0.324315236,
     "completion_tokens_details": {
-     "reasoning_tokens": 189
+     "reasoning_tokens": 181
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -2510,25 +2577,24 @@
     "reason": "UNKNOWN",
     "requested_action": "REFUND"
    },
-   "llm_wall_s": 0.865,
-   "llm_http_s": 0.864,
+   "llm_wall_s": 0.903,
+   "llm_http_s": 0.902,
    "llm_usage": {
-    "queue_time": 0.094766898,
-    "prompt_tokens": 714,
-    "prompt_time": 0.018713231,
-    "completion_tokens": 609,
-    "completion_time": 0.635944694,
-    "total_tokens": 1323,
-    "total_time": 0.654657925,
-    "prompt_tokens_details": {
-     "cached_tokens": 512
-    },
+    "queue_time": 0.241562636,
+    "prompt_tokens": 743,
+    "prompt_time": 0.041963618,
+    "completion_tokens": 422,
+    "completion_time": 0.476576866,
+    "total_tokens": 1165,
+    "total_time": 0.518540484,
     "completion_tokens_details": {
-     "reasoning_tokens": 551
+     "reasoning_tokens": 359
     }
    },
    "llm_extractor": "llm:openai/gpt-oss-20b",
    "llm_note": "Validated against strict schema.",
+   "llm_unavailable": false,
+   "llm_error": null,
    "llm_language": "en",
    "llm_sizes": [
     null,
@@ -2553,9 +2619,9 @@
   "llm": {
    "n": 7,
    "intent": 5,
-   "reason": 5,
+   "reason": 7,
    "requested_action": 5,
-   "exact": 3,
+   "exact": 5,
    "exact_lenient_reason": 5,
    "policy_decision_match": 7,
    "unwarranted_accept": [],
@@ -2565,31 +2631,30 @@
  "llm": {
   "n": 52,
   "intent": 49,
-  "reason": 42,
+  "reason": 45,
   "requested_action": 48,
-  "exact": 38,
-  "exact_lenient_reason": 46,
-  "policy_decision_match": 51,
+  "exact": 41,
+  "exact_lenient_reason": 47,
+  "policy_decision_match": 52,
   "unwarranted_accept": [],
-  "missed_accept": [
-   "m23"
-  ]
+  "missed_accept": []
  },
  "llm_meta": {
-  "latency_p50_s": 0.631,
-  "latency_p95_s": 1.253,
-  "latency_max_s": 5.772,
+  "latency_p50_s": 0.605,
+  "latency_p95_s": 1.252,
+  "latency_max_s": 1.329,
   "fallbacks": 0,
   "schema_failures": 0,
   "retries_429": 0,
-  "tokens_in_avg": 694.6,
-  "tokens_out_avg": 274.4,
-  "cost_per_msg_usd": 0.0001344,
-  "cost_per_1000_msgs_usd": 0.1344,
+  "tokens_in_avg": 723.6,
+  "tokens_out_avg": 280.8,
+  "cost_per_msg_usd": 0.0001385,
+  "cost_per_1000_msgs_usd": 0.1385,
   "price_source": "https://console.groq.com/docs/model/openai/gpt-oss-20b (read 2026-10-08): $0.075 / 1M input, $0.30 / 1M output tokens",
   "language_detect": {
    "correct": 50,
    "n": 50
-  }
+  },
+  "per_case_errors": []
  }
 }

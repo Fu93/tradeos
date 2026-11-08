@@ -1,5 +1,5 @@
 {
-  "rule_version": "safety-gate/3.3.0-main",
+  "rule_version": "safety-gate/3.4.0-main",
   "extractor": "keyword-fallback",
   "summary": {
     "fault_missed_by_words": {

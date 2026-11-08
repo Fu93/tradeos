@@ -33,25 +33,33 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
    `Refund 3 items = 161.69 USD; exchange 1 item, no refund`. The Approve button posts the total and fingerprint it
    displays; if either differs from the stored batch (stale screen, forged form) the approval is refused.
 5. The human approval is written to the per-case audit hash chain (proposal, approval, supplier mock note, PayPal call
-   and result each get an entry). The money gate re-reads the chain: it needs a chained proposal **and** a chained
+   and result each get an entry). Item and batch rows also receive a full chain snapshot in the same database
+   transaction as each write. The money gate re-reads the chain: it needs a chained proposal **and** a chained
    human approval for this exact batch id, fingerprint, amount and currency, and the chain must verify, and the amount
    is recomputed from item prices and must equal the stored amount.
 6. One `refund_capture` call with `amount`, `PayPal-Request-Id`, `custom_id` (batch id) and `note_to_payer`.
    The reply's amount must equal the computed amount; a mismatch goes to a human instead of "COMPLETED".
-7. Unknown outcome (timeout, 5xx): the batch becomes `UNKNOWN`; the existing reconcile mechanism asks PayPal
-   (GET capture/refund) and resends the **same** request id at most once. Startup resume and the verified webhook
-   (`PAYMENT.CAPTURE.REFUNDED`, matched by **refund id**) also settle it.
+7. Before sending the refund, the batch becomes `UNKNOWN` and keeps that state until PayPal answers, including
+   during a recovery retry. An unknown outcome (timeout, 5xx) therefore remains visible after a process crash.
+   The existing reconcile mechanism asks PayPal (GET capture/refund). Real Sandbox UNKNOWN requests are not
+   replayed because the refund endpoint has no documented request-ID retention period; a person checks PayPal and
+   supplies the Refund ID for a read-only GET. TradeOS requires matching ID, capture link, batch `custom_id`, amount
+   and currency before the UNKNOWN batch can be marked with PayPal's status.
+   Mock mode may replay within its six-hour simulation window. Startup resume and the verified webhook
+   (`PAYMENT.CAPTURE.REFUNDED`, matched by **refund id**) can settle refunds with a known refund ID.
    A webhook with an unknown refund id or a different amount changes nothing.
 
 ## Money rules (all integer minor units)
 
-* **An unanswered partial refund is re-sent only while PayPal can replay it.** A batch whose refund call got no answer
-  is recovered by re-sending the same `PayPal-Request-Id` (PayPal returns the refund it already made). PayPal documents
-  no retention window for refund request ids (it documents 6 hours for Orders), so TradeOS re-sends only within 6 hours
-  of the first call that carried the id, whether by a retry click, a webhook, a reconcile or startup. After that the
-  batch stays UNKNOWN and the timeline says to check the capture's refunds in PayPal by hand: past the window, the
-  same id could be taken as a new refund. (A single-item refund has no amount, so a late re-send of a refund PayPal
-  already made is refused by PayPal as a second full refund: `CAPTURE_FULLY_REFUNDED`,
+* **An unanswered partial refund is not re-sent in real Sandbox mode.** Payments v2 stores request IDs for 6 hours
+  by default, but a lost reply still needs an identified refund before TradeOS records money moved. A batch whose
+  refund call got no answer stays UNKNOWN; a person checks the capture's refunds in PayPal and verifies the matching
+  Refund ID through TradeOS's GET-only evidence gate (COMPLETED / PENDING / FAILED only; CANCELLED stays UNKNOWN).
+  The mock can replay its request for fault testing within six hours. A definite 4xx (`ERROR`) may reuse the same
+  request id inside the window, and mints a new id after six hours (the prior attempt moved no money).
+  (A single-item refund now sends its exact amount; if the first request already refunded the whole capture,
+  a late second request is refused because that amount exceeds the remaining balance. An unknown partial refund
+  must still be reconciled before any new request is created,
   [PayPal: Refund a payment](https://developer.paypal.com/checkout/refund-payment).)
 * **A mixed order is never refunded as a whole.** The whole-case approve and the single-refund guard refuse any case
   whose scenario is `M`, whatever its decision says, and "Retry the policy check" after a PayPal read failure
@@ -105,6 +113,13 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
 * **Cumulative cap:** `refunded or reserved (all batches that are not DECLINED/FAILED) + this batch <= captured`.
   The check is made when proposing, when approving, and again at send time against PayPal's own capture amount.
   `sum(refunded) + remaining == captured` always (property-tested).
+* **External partial refunds:** before the first TradeOS refund, a `PARTIALLY_REFUNDED` capture blocks the batch even
+  when enough balance remains: GET capture cannot identify which items an outside refund covered. After a known TradeOS
+  batch, a verified refund webhook for an unknown refund ID also blocks the next batch. The batch is left for manual
+  payment review with zero new Refund API calls. PayPal's capture GET does not expose an item-level refund ledger;
+  an outside refund after a known TradeOS batch **without a received webhook** cannot yet be distinguished from that
+  known batch by capture status alone. Multi-batch refunds should use a merchant-controlled refund ledger or a provider
+  endpoint that can enumerate all refunds on the capture before being relied on for external store orders.
 * A line quantity can never be refunded or exchanged twice (units used by earlier batches are subtracted).
 * **Request id:** `tos-mx-<case>-<10 hex of sha256(case, attempt, items, qty, amounts)>`. The same batch always yields
   the same id (safe retry); a different item set or a new attempt after `DECLINED`/`FAILED` yields a new id, so PayPal
@@ -159,10 +174,11 @@ DEMO-DATA badge visible).
   mock tests only.
 * Per-line request reading by the LLM is not built; demo proposals are seeded.
 * The supplier contact for exchanges is a **mock** audit entry; nothing is sent to a supplier.
-* A refund made outside TradeOS (PayPal dashboard) is not in the ledger; it surfaces only when PayPal rejects with an
-  amount-exceeded error, which is recorded as "no money moved".
-* PayPal's idempotency-key retention window is limited; a resend after a long outage could create a second refund.
-  The cumulative cap at PayPal still bounds the loss to the captured amount.
+* A refund made outside TradeOS (PayPal dashboard) is not in the item ledger. A verified webhook for an unknown refund
+  ID blocks a new batch; without one, capture-level GET cannot identify which items were refunded, and an outside
+  refund after a known TradeOS batch may surface only when PayPal refuses an amount-exceeded request.
+* PayPal does not publish refund request-ID retention. TradeOS refuses to replay any unanswered real refund;
+  a person must check PayPal because a replay could create a second refund.
 * A partial refund blocked by an open dispute (`TRANSACTION_DISPUTED`) is handled generically (batch `ERROR`, nothing
   moved, human decides).
 * No `invoice_id` is sent (it would have to be unique per refund; `custom_id` carries the batch id instead).

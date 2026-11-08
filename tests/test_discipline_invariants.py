@@ -106,17 +106,16 @@ def test_intent_schema_forbids_amount_fields():
                                      "requested_action": "REFUND", "refund_total": "1.00"})
 
 
-def test_single_path_refund_kwargs_never_carry_an_amount_from_intent(settings):
-    """Legacy full-refund path: refund_capture is called WITHOUT amount= (PayPal full capture).
-    Case amount is the merchant setting; PayPal-Request-Id is deterministic."""
+def test_single_path_refund_kwargs_use_only_the_server_amount(settings):
+    """The amount sent to PayPal comes from the case, never the customer's request or model."""
     client, pp, wf = make_app(settings)
     cid = case_from(client.post("/demo/run/A", follow_redirects=False))
     client.post(f"/cases/{cid}/approve", follow_redirects=False)
     assert pp.refund_capture.called
     args, kwargs = pp.refund_capture.call_args
-    assert "amount" not in kwargs or kwargs.get("amount") is None
     assert args[1] == f"tradeos-refund-{cid}"
     case = wf.db.get_case(cid)
+    assert kwargs["amount"] == {"currency_code": case["currency"], "value": case["amount"]}
     assert case["amount"] == wf.settings.order_amount
     assert case["refund_status"] == "COMPLETED"
 

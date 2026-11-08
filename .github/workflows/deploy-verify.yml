@@ -53,11 +53,13 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12.15"
-      - run: pip install httpx
+      - run: pip install httpx==0.28.1
       - name: Wait for the new deployment, then verify it
         env:
           TRADEOS_DEPLOY_URL: ${{ secrets.TRADEOS_DEPLOY_URL }}
           EXPECTED_SHA: ${{ github.sha }}
+          TRADEOS_EXPECTED_VERSION: ${{ github.sha }}
+          TRADEOS_OPERATOR_TOKEN: ${{ secrets.TRADEOS_OPERATOR_TOKEN }}
         run: |
           if [ -z "$TRADEOS_DEPLOY_URL" ]; then
             echo "::error::TRADEOS_DEPLOY_URL is empty although the config job saw it set"
@@ -80,7 +82,13 @@ jobs:
               set -e
               # External retention for the audit chains: one head list per deployment, kept as a
               # workflow artifact. Two lists from different times detect a truncated/rewritten chain.
-              curl -s --max-time 60 "$base/audit/heads" > "audit-heads-${EXPECTED_SHA}.json" || true
+              auth=()
+              if [ -n "$TRADEOS_OPERATOR_TOKEN" ]; then
+                auth=(--user "operator:$TRADEOS_OPERATOR_TOKEN")
+              fi
+              curl --fail --silent --show-error --max-time 60 "${auth[@]}" "$base/audit/heads" -o "audit-heads-${EXPECTED_SHA}.partial"
+              python scripts/validate_audit_heads.py "audit-heads-${EXPECTED_SHA}.partial"
+              mv "audit-heads-${EXPECTED_SHA}.partial" "audit-heads-${EXPECTED_SHA}.json"
               exit $rc
             fi
             echo "waiting for the new deployment ($i/40)..."

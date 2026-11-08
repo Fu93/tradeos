@@ -80,7 +80,9 @@ def test_self_verify_rejects_tampered_body_wrong_webhook_id_and_wrong_key():
                                  "https://evil.example.com/v1/notifications/certs/x",
                                  "https://paypal.com.evil.com/v1/notifications/certs/x",
                                  "https://api.paypal.com/other/path",
-                                 "https://api.paypal.com:8443/v1/notifications/certs/x"])
+                                 "https://api.paypal.com:8443/v1/notifications/certs/x",
+                                 "https://api.paypal.com:abc/v1/notifications/certs/x",
+                                 "https://[bad/v1/notifications/certs/x"])
 def test_cert_only_from_paypal_and_never_fetched_otherwise(url):
     raw = b"{}"
     fetch = MagicMock(return_value=PEM)
@@ -281,10 +283,19 @@ def test_check_runs_off_request_thread_when_backgrounded(settings):
     gate = threading.Event()
     real_get = pp._mock_wraps.get_capture
     case_id = case_from(client.post("/demo/run/A", follow_redirects=False))
-    pp.get_capture.side_effect = lambda cid, timeout=None: (gate.wait(3), real_get(cid))[1]
+    reads = 0
+
+    def delayed_reconciliation(cid, timeout=None):
+        nonlocal reads
+        reads += 1
+        if reads > 1:  # the first GET is the synchronous safety preflight before approval
+            gate.wait(3)
+        return real_get(cid)
+
+    pp.get_capture.side_effect = delayed_reconciliation
     t0 = time.monotonic()
     client.post(f"/cases/{case_id}/approve", follow_redirects=False)
-    assert time.monotonic() - t0 < 2  # approve did not wait for the GET
+    assert time.monotonic() - t0 < 2  # approve waited for preflight, not background reconciliation
     assert wf.refund_check_pending(case_id)
     gate.set()
     for _ in range(50):

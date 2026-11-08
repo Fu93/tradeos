@@ -1,0 +1,35 @@
+PASS PayPal mode is sandbox (got sandbox)
+PASS PAYPAL_WEBHOOK_ID configured
+PASS /healthz reports auto_exchange_enabled
+Autonomy OFF (auto_refund_max_amount=50.00)
+PASS Case A A-EB1B357BD8C24D94 waits for a person (status PENDING_APPROVAL)
+PASS no refund call before a person approves
+PASS Case A A-EB1B357BD8C24D94 approved by a person
+PASS approval_source recorded as human (got 'human')
+PASS Case A is a return for a refund: {'intent': 'REFUND_REQUEST', 'reason': 'NOT_AS_DESCRIBED', 'requested_action': 'REFUND'}
+PASS refund 1KN09096B1553903S status COMPLETED
+PASS exactly one refund call
+PASS real PayPal-Debug-Id on the refund call: f390029d2f451
+PASS PayPal-Request-Id recorded on order + refund
+PASS retry on a finished refund -> 409, no new call
+PASS signed PAYMENT.CAPTURE.REFUNDED verified (webhook_status=VERIFIED)
+PASS webhook verification method recorded: self (self expected)
+PASS reconcile result: Reconciled with PayPal — all match
+PASS Case A audit trail intact: 28 entries, head b0b76a8d6de6
+PASS Case B B-A4ED3686ECE944A2 approve -> 409
+PASS Case B: refund API not called
+PASS Case B audit trail intact: 12 entries
+PASS audit trail badge rendered on Case A page
+PASS Case A decision/approval/status on the hash chain: {'status': 'REFUND_COMPLETED', 'decision': 'ELIGIBLE', 'human_decision': 'APPROVED', 'approval_source': 'human', 'refund_status': 'COMPLETED', 'refund_id': '1KN09096B1553903S'}
+PASS Case A request id tradeos-refund-A-EB1B357BD8C24D94, COMPLETED confirmed via refund_api
+PASS Case B rejection on the hash chain, no approval: {'status': 'REJECTED', 'decision': 'REJECTED', 'human_decision': None, 'approval_source': None, 'refund_status': None, 'refund_id': None}
+PASS GET /paypal-return changes nothing
+PASS Exchange F-59411379D115482B: awaiting approval of the exchange (status PENDING_APPROVAL, decision EXCHANGE_ELIGIBLE)
+PASS Exchange F-59411379D115482B: EXCHANGE_ARRANGED with 0 refund calls (0)
+PASS Exchange: refund endpoint refused (409)
+PASS Exchange audit trail intact: 20 entries
+PASS Case R R-8FA38928FEDE4251: PayPal 422 shown as refused, no money moved (status REFUND_ERROR)
+PASS Case R retry COMPLETED with the same PayPal-Request-Id (2 calls)
+
+Manual step: look up debug id f390029d2f451 in the PayPal Developer Dashboard (Sandbox) logs.
+RESULT: ALL PASS
