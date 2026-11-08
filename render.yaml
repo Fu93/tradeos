@@ -5,7 +5,7 @@ services:
     runtime: python
     plan: starter
     buildCommand: pip install -r requirements.lock
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
     healthCheckPath: /healthz
     envVars:
       - key: PYTHON_VERSION
@@ -36,3 +36,5 @@ services:
         value: /tmp/tradeos.db
       - key: TRADEOS_RESET_ON_START
         value: "1"
+      - key: TRADEOS_ALLOW_PUBLIC_RESET
+        value: "0"                      # same as code default; explicit so a public host never opts in by accident

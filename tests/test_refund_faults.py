@@ -84,11 +84,11 @@ def test_real_sandbox_unknown_refund_is_never_replayed(settings):
     assert len(mock.refunds_by_request) == 1
     wf.reconcile(case_id)
     assert pp.refund_capture.call_count == 1
-    with pytest.raises(RefundNotAllowed, match="does not document"):
+    with pytest.raises(RefundNotAllowed, match="second refund|PayPal-Request-Id|by hand"):
         wf.execute_refund(case_id)
     # A migrated/incomplete UNKNOWN row must also fail closed if its request ID is missing.
     wf.db.update_case(case_id, refund_request_id=None)
-    with pytest.raises(RefundNotAllowed, match="does not document"):
+    with pytest.raises(RefundNotAllowed, match="second refund|PayPal-Request-Id|by hand"):
         wf.execute_refund(case_id)
     assert pp.refund_capture.call_count == 1
     assert wf.db.verify_chain(case_id)["ok"]
@@ -167,6 +167,24 @@ def test_unknown_refund_never_recovers_from_a_different_capture(settings, entry_
 
     assert wf.db.get_case(case_id)["status"] == REFUND_UNKNOWN
     assert not pp._mock_wraps.refunds_by_request
+    assert wf.db.verify_chain(case_id)["ok"]
+
+
+@pytest.mark.parametrize("missing_id", [None, ""])
+def test_unknown_refund_never_recovers_from_capture_without_id(settings, missing_id):
+    """A capture GET with no id must not count as matching evidence for recovery."""
+    pp = MagicMock(wraps=MockPayPalClient(), is_mock=True)
+    wf, _ = make_wf(settings, paypal=pp)
+    case_id = wf.run_scenario("A")
+    _unknown_then_refunded(wf, case_id)
+    original = pp._mock_wraps.get_capture
+    pp.get_capture.side_effect = lambda cid, timeout=None: {**original(cid), "id": missing_id}
+
+    wf._refund_check(case_id)
+    assert wf.db.get_case(case_id)["status"] == REFUND_UNKNOWN
+    assert not pp._mock_wraps.refunds_by_request
+    assert any("capture identity or amount differs" in e["title"] for e in wf.db.timeline(case_id))
+    assert wf.db.verify_chain(case_id)["ok"]
     assert wf.db.verify_chain(case_id)["ok"]
 
 

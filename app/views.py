@@ -422,8 +422,8 @@ def result_card(db: Database, case: dict | None, webhook_configured: bool = True
                             "moved. It checks the capture with PayPal. " +
                             ("Mock mode can replay the same request ID to recover the result."
                              if paypal_mode == "mock" else
-                             "PayPal does not document refund request ID retention. Find the Refund ID in PayPal "
-                             "and verify it here using GET; the refund request is never re-sent."),
+                             "Payments v2 stores request IDs for 6 hours, but a lost reply still needs a Refund ID — "
+                             "enter it here for a GET-only check; the refund request is never re-sent."),
                 "reason": case.get("error"),
                 "rows": [("PayPal-Request-Id", case.get("refund_request_id") or f"tradeos-refund-{case['id']}"),
                          ("Refund API calls", str(calls)), ("Capture ID", case.get("capture_id"))]}

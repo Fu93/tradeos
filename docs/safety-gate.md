@@ -4,10 +4,12 @@
 battery / thermal-risk product, plus any injury / burn / fire / shock / melting / smoke language in any covered language,
 is routed to a **human safety review**, ahead of refunds and supplier tasks.
 
-This page describes what is on `main` (`app/safety.py`, wired into `app/workflow.py`, `app/mixed.py`, `app/views.py`,
-`app/queue_demo.py`). It is a port of the *principle* from the experimental supplier-routing branch
-(`exp/supplier-routing-mvp1`, commit `f3d9442`), not a merge of that branch: `main` has no supplier-routing engine, so only
-the gate is here.
+This page describes the gate in this repository (`app/safety.py`, wired into `app/workflow.py`, `app/mixed.py`,
+`app/views.py`, `app/queue_demo.py`). It is a port of the *principle* from the experimental supplier-routing branch
+(`exp/supplier-routing-mvp1`, commit `f3d9442`), not a merge of that branch: there is no supplier-routing engine here, so
+only the gate is present. The optional AI safety classifier remains **off** on the hosted demo (`/healthz`
+`safety_ai_layer=false`); submission preflight requires that. Rule-version measurements below are historical evidence
+for the gate itself, not a claim about a newer tip's live demo until re-verified after redeploy.
 
 ## What it does
 

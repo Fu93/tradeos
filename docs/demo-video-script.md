@@ -1,9 +1,10 @@
 # TradeOS demo video v8: one agent return, one human decision, one blocked request
 
 Target: **2:35–2:45**, below the planned three-minute limit. This is a recording plan, not a claim that a new video
-exists. Record against one named deployed commit on the live **PayPal Sandbox**, with autonomy off. Use English narration
-and captions. Do not reset the public shared demo; use a private Sandbox copy or fresh cases. Cut waits honestly and
-label each cut, especially the measured webhook delay. Preserve the real result on screen.
+exists (**YouTube URL still TBD**). Record against one named deployed commit on the live **PayPal Sandbox**, with
+autonomy off — record only **after** `/healthz` shows the submission tip (hosted redeploy pending). Use
+English narration and captions. Do not reset the public shared demo; use a private Sandbox copy or fresh cases. Cut
+waits honestly and label each cut, especially the measured webhook delay. Preserve the real result on screen.
 
 The main path uses a **scripted MCP client**, labelled as such in the video and UI. It is reproducible and exercises the
 same tools an agent receives. The case's **What the AI understood** panel must show a real LLM extraction in the filmed

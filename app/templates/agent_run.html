@@ -35,7 +35,9 @@
   <div id="run-final"{% if run.status == "running" %} hidden{% endif %}>
     <p class="small"><strong id="run-report-label">{{ run.report_label }}:</strong> <span id="run-report">{{ run.final_report or '—' }}</span></p>
     <p class="small" id="run-outcome">
-      {% if run.case_link %}<a class="btn small" id="run-case" href="{{ run.case_link.href }}">{{ run.case_link.text }}</a>
+      {% if run.case_links %}
+        {% for link in run.case_links %}<a class="btn small{% if not loop.first %} ghost{% endif %}"{% if loop.first %} id="run-case"{% endif %} href="{{ link.href }}">{{ link.text }}</a> {% endfor %}
+      {% elif run.case_link %}<a class="btn small" id="run-case" href="{{ run.case_link.href }}">{{ run.case_link.text }}</a>
       {% elif run.status != "running" %}{{ run.no_case_text }}{% endif %}
     </p>
   </div>

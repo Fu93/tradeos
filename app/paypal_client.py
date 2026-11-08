@@ -18,6 +18,7 @@ refused outside the sandbox.
 
 from __future__ import annotations
 
+import hashlib
 import json as _json
 import threading
 import time
@@ -70,10 +71,40 @@ class PayPalError(Exception):
         return " · ".join(bits)
 
 
-# How long a PayPal-Request-Id can be relied on to replay the first result. The Orders v2 reference documents 6 hours
-# ("The server stores keys for 6 hours"). The refund endpoint documents no retention window, so real refunds
-# with an unknown outcome are never replayed. This bound also limits mock refund recovery tests.
+# Payments v2 (including POST /v2/payments/captures/{id}/refund) stores PayPal-Request-Id for 6 hours by
+# default; an expired key is treated as a new transaction with no distinct error
+# (developer.paypal.com/api/rest/integration/payments-api/v1-v2-migration — "Idempotency key window reduction").
+# Within the window, re-sending the same id returns the first result. Past it, TradeOS must not reuse the id.
 IDEMPOTENCY_WINDOW_HOURS = 6
+# PayPal documents UUID-length guidance for PayPal-Request-Id (38 chars). Longer values are rejected or
+# truncated by intermediaries; TradeOS keeps every minted/retry key within this budget.
+PAYPAL_REQUEST_ID_MAX_LEN = 38
+
+
+def mint_retry_request_id(prior: str) -> str:
+    """Deterministic successor of an expired (or FAILED) PayPal-Request-Id.
+
+    Always ``<= PAYPAL_REQUEST_ID_MAX_LEN``, always different from ``prior``, and derived by hashing
+    the previous key so a second expiry rotation cannot collide with the first successor (appending
+    a suffix and truncating to 38 collapses when ``prior`` is already near the limit).
+    """
+    if not prior:
+        raise ValueError("prior PayPal-Request-Id required")
+    digest = hashlib.sha256(f"tradeos-expired-retry:{prior}".encode()).hexdigest()
+    if prior.startswith("tos-mx-"):
+        out = f"tos-mx-{digest[:PAYPAL_REQUEST_ID_MAX_LEN - 7]}"
+    elif prior.startswith("tradeos-"):
+        out = f"tradeos-{digest[:PAYPAL_REQUEST_ID_MAX_LEN - 8]}"
+    else:
+        out = digest[:PAYPAL_REQUEST_ID_MAX_LEN]
+    if out == prior:  # astronomically unlikely with sha256; keep the invariant explicit
+        out = ("z" + digest)[:PAYPAL_REQUEST_ID_MAX_LEN]
+    return out
+
+# Statuses a merchant-supplied refund ID may bind to an UNKNOWN outcome (GET prove, no Refund API call).
+# COMPLETED/PENDING: money moved or is pending. FAILED: PayPal confirmed this attempt did not pay —
+# record it so "retry with a new request" can run. CANCELLED and anything else stay UNKNOWN.
+REFUND_CONFIRM_STATUSES = frozenset({"COMPLETED", "PENDING", "FAILED"})
 
 
 def outcome_unknown(exc: "PayPalError") -> bool:
@@ -101,6 +132,26 @@ def find_link(resource: dict, *rels: str) -> str | None:
     return None
 
 
+_PAYPAL_BROWSER_HOSTS = frozenset({"www.sandbox.paypal.com", "www.paypal.com"})
+
+
+def paypal_browser_url(url: str | None) -> str | None:
+    """Allow only official PayPal buyer-approval HTTPS hosts (reject javascript:/open redirects).
+
+    Malformed URLs must reject as None — never raise (urlsplit can ValueError on bad brackets).
+    """
+    if not url or not isinstance(url, str):
+        return None
+    from urllib.parse import urlsplit
+    try:
+        parsed = urlsplit(url.strip())
+    except ValueError:
+        return None
+    if parsed.scheme != "https" or parsed.netloc.lower() not in _PAYPAL_BROWSER_HOSTS:
+        return None
+    return url.strip()
+
+
 def refund_response_issue(refund: dict, capture_id: str) -> str | None:
     """A successful HTTP reply still needs enough identity to prove a refund result."""
     if not isinstance(refund.get("id"), str) or not refund["id"].strip():
@@ -123,13 +174,19 @@ def refund_lookup_issue(refund: dict, refund_id: str, capture_id: str, custom_id
     """Evidence required before a merchant-supplied refund ID can resolve an UNKNOWN outcome.
 
     A capture's status alone cannot identify an individual refund. Require the GET response to
-    bind this refund to the capture and TradeOS case/batch, with the exact approved amount.
+    bind this refund to the capture and TradeOS case/batch, with the exact approved amount, and a
+    status that the confirm state machine accepts (COMPLETED / PENDING / FAILED).
     """
     issue = refund_response_issue(refund, capture_id)
     if issue:
         return issue
     if refund["id"] != refund_id:
         return "PayPal returned a different refund ID"
+    status = refund.get("status")
+    if status == "CANCELLED":
+        return "PayPal refund was CANCELLED; leave UNKNOWN and check PayPal by hand"
+    if status not in REFUND_CONFIRM_STATUSES:
+        return "PayPal refund status cannot confirm an UNKNOWN outcome"
     links = refund.get("links") or []
     def matches_capture(link: dict) -> bool:
         href = link.get("href")

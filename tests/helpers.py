@@ -49,7 +49,7 @@ def make_app(settings, mock=None, webhook_id="WH-TEST", extractor=None, note_wri
     """The one HTTP app factory: real-ish PayPal semantics (MagicMock-wrapped) + FakeExtractor."""
     pp = MagicMock(wraps=mock or MockPayPalClient(), is_mock=True)
     s = Settings(db_path=settings.db_path, rate_limit_per_minute=100, rate_limit_per_hour=100,
-                 paypal_webhook_id=webhook_id, **kw)
+                 paypal_webhook_id=webhook_id, allow_public_reset=True, **kw)
     app = create_app(settings=s, paypal=pp, extractor=extractor or FakeExtractor(),
                      note_writer=note_writer or TemplateNoteWriter())
     return TestClient(app), pp, app.state.workflow

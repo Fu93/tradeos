@@ -51,10 +51,12 @@ refund cap), but a mock is only my reading of the docs. Do not treat Tier A/B as
 
 ## Money rules (all integer minor units)
 
-* **An unanswered partial refund is not re-sent in real Sandbox mode.** PayPal documents no retention window for
-  refund request IDs (the six-hour window belongs to Orders). A batch whose refund call got no answer stays UNKNOWN;
-  a person checks the capture's refunds in PayPal and verifies the matching Refund ID through TradeOS's GET-only
-  evidence gate. The mock can replay its request for fault testing within six hours.
+* **An unanswered partial refund is not re-sent in real Sandbox mode.** Payments v2 stores request IDs for 6 hours
+  by default, but a lost reply still needs an identified refund before TradeOS records money moved. A batch whose
+  refund call got no answer stays UNKNOWN; a person checks the capture's refunds in PayPal and verifies the matching
+  Refund ID through TradeOS's GET-only evidence gate (COMPLETED / PENDING / FAILED only; CANCELLED stays UNKNOWN).
+  The mock can replay its request for fault testing within six hours. A definite 4xx (`ERROR`) may reuse the same
+  request id inside the window, and mints a new id after six hours (the prior attempt moved no money).
   (A single-item refund now sends its exact amount; if the first request already refunded the whole capture,
   a late second request is refused because that amount exceeds the remaining balance. An unknown partial refund
   must still be reconciled before any new request is created,

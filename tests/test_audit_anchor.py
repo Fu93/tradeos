@@ -4,6 +4,7 @@ import json
 import sqlite3
 import subprocess
 import sys
+from contextlib import closing
 from pathlib import Path
 
 import pytest
@@ -49,9 +50,10 @@ def test_anchor_rejects_rewritten_chain(tmp_path):
     case_id = app.state.workflow.run_scenario("B")
     snapshot = tmp_path / "heads.json"
     snapshot.write_text(json.dumps({"generated_at": utcnow(), "heads": app.state.workflow.db.chain_heads()}))
-    with sqlite3.connect(source) as conn:
+    with closing(sqlite3.connect(source)) as conn:
         conn.execute("DROP TRIGGER audit_chain_no_update")
         conn.execute("UPDATE audit_chain SET entry_hash=? WHERE case_id=? AND seq=1", ("0" * 64, case_id))
+        conn.commit()
     with pytest.raises(ValueError, match="does not extend anchored head"):
         check_anchor(source, snapshot)
 

@@ -16,4 +16,7 @@ def test_doc_names_the_three_validation_levels_and_the_missing_audit():
 def test_main_eval_numbers_quoted_in_the_doc_match_results_json():
     res = json.loads((Path(__file__).resolve().parents[1] / "docs" / "eval" / "results.json").read_text())
     assert res["dataset_size"] == 52
-    assert "38/52" in DOC and "8/52" in DOC and "49/52" in DOC
+    llm_exact = f"{res['llm']['exact']}/{res['dataset_size']}"
+    kw_exact = f"{res['keyword']['exact']}/{res['dataset_size']}"
+    intent = f"{res['llm']['intent']}/{res['dataset_size']}"
+    assert llm_exact in DOC and kw_exact in DOC and intent in DOC

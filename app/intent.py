@@ -20,10 +20,31 @@ from __future__ import annotations
 
 import json
 import re
+import threading
 from typing import Literal, Protocol, get_args
 
 import httpx
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
+
+# Per-request scope: counts HTTP POSTs to /chat/completions (including a 400 json_schema →
+# json_object retry as a second call). Workflow begins a scope at case intake so the count
+# can be stored on the case as extraction.llm_chat_completions for sandbox_verify --ai-e2e-only.
+_llm_http = threading.local()
+
+
+def begin_llm_http_scope() -> None:
+    """Reset the current-thread chat-completions counter (call at case intake)."""
+    _llm_http.count = 0
+
+
+def record_llm_http_call() -> None:
+    """Increment by one HTTP POST attempt (success or 400 retry)."""
+    _llm_http.count = int(getattr(_llm_http, "count", 0)) + 1
+
+
+def llm_http_call_count() -> int:
+    """Chat-completions HTTP POSTs recorded in the current scope (0 if none begun)."""
+    return int(getattr(_llm_http, "count", 0))
 
 Intent = Literal["EXCHANGE_REQUEST", "REFUND_REQUEST", "ORDER_STATUS", "UNKNOWN"]
 Reason = Literal[
@@ -88,28 +109,51 @@ class KeywordIntentExtractor:
 
     _EXCHANGE = re.compile(
         r"\b(exchange|swap|switch|replace(ment)?|change (it|them|this) for)\b"
-        r"|size\s*\d+\s*(for|to|->)\s*(a\s*)?size\s*\d+",
+        r"|size\s*\d+\s*(for|to|->|→)\s*(a\s*)?(size\s*)?\d+"
+        # Plain "send the right pair" / "can I get a 41" / "get the 43" without the word "exchange".
+        r"|send (me )?the right\b|can i get (a |an |the |size )?\d{1,3}\b"
+        r"|send (the )?corect\b|send (the )?correct\b",
         re.I,
     )
-    _REFUND = re.compile(r"\b(refund|money back|reimburse)\b", re.I)
-    _STATUS = re.compile(r"\b(where is|tracking|shipped|delivery status|not arrived)\b", re.I)
-    _SIZE = re.compile(r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size)\b", re.I)
-    _DAMAGED = re.compile(r"\b(damaged|broken|torn|defective|faulty)\b", re.I)
-    _WRONG = re.compile(r"\b(wrong item|wrong product|not what i ordered)\b", re.I)
+    _REFUND = re.compile(r"\b(refund|money back|reimburse)\b|\$\$ back\b", re.I)
+    _STATUS = re.compile(
+        r"\b(where is|tracking|shipped|delivery status|not arrived|"
+        r"confirmation email|order went through)\b",
+        re.I,
+    )
+    _SIZE = re.compile(
+        r"\b(too (small|big|large|tight|loose)|doesn'?t fit|does not fit|wrong size|"
+        r"run(s)? really (big|small|large|tight|loose)|even that is (too )?(loose|tight)|"
+        r"\d+\s*small)\b"
+        r"|size\s*\d+\s*(for|to|->|→)\s*(a\s*)?(size\s*)?\d+",
+        re.I,
+    )
+    _DAMAGED = re.compile(
+        r"\b(damaged|broken|broke|torn|defective|faulty|crushed|cracked|ripped|split|came off)\b",
+        re.I,
+    )
+    _WRONG = re.compile(
+        r"\b(wrong item|wrong itme|wrong product|not what i ordered|but i ordered|"
+        r"sent me .{1,40}\bbut\b|ordred .{1,20} got)\b",
+        re.I,
+    )
     _COLOUR = re.compile(
         r"\b(wrong colou?r|different colou?r|colou?r\s+(is\s+)?(wrong|different|incorrect|off)|"
         r"colou?r\s+(does\s*n[o']?t|isn'?t|is\s+not)\s+(match|the\s+same)|"
-        r"(isn'?t|is\s+not|not)\s+the\s+(same\s+)?colou?r)",
+        r"(isn'?t|is\s+not|not)\s+the\s+(same\s+)?colou?r|"
+        r"colou?r looks nothing like|looks nothing like the (photo|photos|picture|pictures|listing))\b",
         re.I,
     )
     _CHANGED = re.compile(r"\b(changed my mind|don'?t want|no longer need)\b", re.I)
 
     def extract(self, message: str) -> Extraction:
         text = message or ""
-        if self._SIZE.search(text):
-            reason: Reason = "SIZE_MISMATCH"
-        elif self._DAMAGED.search(text):
-            reason = "DAMAGED"
+        # Prefer DAMAGED over SIZE when both match so a "damaged and too small" fault still
+        # routes through the Safety Gate's hazard-product path (CLEAR_REASON includes SIZE).
+        if self._DAMAGED.search(text):
+            reason: Reason = "DAMAGED"
+        elif self._SIZE.search(text):
+            reason = "SIZE_MISMATCH"
         elif self._COLOUR.search(text):
             reason = "NOT_AS_DESCRIBED"
         elif self._WRONG.search(text):
@@ -145,8 +189,10 @@ INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected �
 
 
 # ---------------------------------------------------------------------------
-# Instruction-like text detector. With the LLM, it only drives the UI banner. On the keyword-fallback path
-# it forces UNKNOWN (see KeywordIntentExtractor), because keyword rules have no notion of "data, not orders".
+# Instruction-like text detector. On the keyword-fallback path it forces UNKNOWN
+# (see KeywordIntentExtractor). On the LLM path the extractor may still return a structured
+# intent, but policy (_evaluate) and autonomy both consume looks_like_injection and refuse /
+# force HUMAN — it is not UI-only.
 # ---------------------------------------------------------------------------
 
 _INJECTION = re.compile(
@@ -299,8 +345,11 @@ def parse_llm_json(content: str) -> IntentResult | None:
 class ChatJSONClient:
     """Minimal OpenAI-compatible /chat/completions client returning the message content.
 
-    Asks for strict structured output (json_schema); if the provider rejects that with
-    HTTP 400 it retries once in plain JSON mode (json_object).
+    Asks for strict structured output (json_schema). Any HTTP 400 on that attempt —
+    including Groq ``json_validate_failed`` when the model output fails the schema, and
+    providers that do not support ``json_schema`` — retries once in plain ``json_object``
+    mode. Callers (LLMIntentExtractor) treat a second failure as keyword fallback + escalate;
+    nothing here can approve a refund.
     """
 
     def __init__(self, api_key: str, base_url: str, model: str, timeout: float = 20.0,
@@ -328,8 +377,11 @@ class ChatJSONClient:
         with httpx.Client(timeout=self._timeout, transport=self._transport) as client:
             url = f"{self._base_url}/chat/completions"
             headers = {"Authorization": f"Bearer {self._api_key}"}
+            record_llm_http_call()
             resp = client.post(url, headers=headers, json=payload(structured))
-            if resp.status_code == 400:  # provider/model without json_schema support
+            # Any 400 (unsupported schema OR json_validate_failed on the model output): one json_object retry.
+            if resp.status_code == 400:
+                record_llm_http_call()
                 resp = client.post(url, headers=headers, json=payload(JSON_MODE))
         resp.raise_for_status()
         return resp.json()["choices"][0]["message"]["content"]

@@ -139,6 +139,7 @@ class AgentRun:
     final_report: str = ""
     stop_reason: str = ""
     order_id: str | None = None
+    blocked_order_id: str | None = None  # scripted injection scene (judge step 3)
     tokens: int = 0
     seconds: float = 0.0
     model_calls: int = 0

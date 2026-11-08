@@ -128,6 +128,10 @@ class Settings:
     trust_cf_connecting_ip: bool = False
     reset_cooldown_per_ip_s: int = 60
     reset_cooldown_global_s: int = 15
+    # Safe default off: any public host (local tunnel, misconfigured deploy, Blueprint) must not let one
+    # visitor archive every other judge's cases. Opt in with TRADEOS_ALLOW_PUBLIC_RESET=1 for private local
+    # demos; operator-gated demos keep reset via TRADEOS_OPERATOR_TOKEN. Tests set this True in fixtures.
+    allow_public_reset: bool = False
     disputes_sync_interval_s: int = 20      # min seconds between two 'Fetch from PayPal' syncs (whole app)
     disputes_refresh_interval_s: int = 10   # min seconds between two refreshes of the same dispute
     webhook_max_age_s: int = 600
@@ -211,6 +215,7 @@ class Settings:
             trust_cf_connecting_ip=_env_bool("TRADEOS_TRUST_CF_CONNECTING_IP", _env("RENDER").lower() == "true"),
             reset_cooldown_per_ip_s=int(_env("TRADEOS_RESET_COOLDOWN_PER_IP_S") or 60),
             reset_cooldown_global_s=int(_env("TRADEOS_RESET_COOLDOWN_GLOBAL_S") or 15),
+            allow_public_reset=_env_bool("TRADEOS_ALLOW_PUBLIC_RESET", False),
             disputes_sync_interval_s=int(_env("TRADEOS_DISPUTES_SYNC_INTERVAL_S") or 20),
             disputes_refresh_interval_s=int(_env("TRADEOS_DISPUTES_REFRESH_INTERVAL_S") or 10),
             webhook_max_age_s=int(_env("TRADEOS_WEBHOOK_MAX_AGE_S") or 600),

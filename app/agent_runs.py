@@ -45,11 +45,27 @@ class RunState:
     tokens: int = 0
     seconds: float = 0.0
     case_id: str | None = None
+    blocked_case_id: str | None = None
     error: str = ""
     link: tuple[str, str] | None = None  # (href, text) shown when the run is done, instead of the order's link
 
     def snapshot(self) -> dict[str, Any]:
         live = self.kind == LIVE
+        case_links: list[dict[str, str]] = []
+        if self.status == "done":
+            if self.link:
+                case_links.append({"href": self.link[0], "text": self.link[1]})
+            elif self.case_id:
+                if live:
+                    case_links.append({"href": f"/?case={self.case_id}#live-run",
+                                       "text": "Open the order and its audit trail"})
+                else:
+                    case_links.append({"href": f"/?case={self.case_id}#pending",
+                                       "text": "2 · Open honest return (approve here)"})
+                    if self.blocked_case_id:
+                        case_links.append({"href": f"/?case={self.blocked_case_id}#pending",
+                                           "text": "3 · See blocked request (0 refund calls)"})
+        case_link = case_links[0] if case_links else None
         return {"id": self.id, "kind": self.kind, "kind_label": KIND_LABELS[self.kind], "goal": self.goal,
                 "title": self.title, "model": self.model, "status": self.status, "phase": self.phase,
                 "model_calls": self.model_calls, "steps": [dict(s) for s in self.steps],
@@ -58,11 +74,8 @@ class RunState:
                 # Every sentence the page shows is built here, once, so the server render and app.js agree.
                 "status_text": self._status_text(),
                 "report_label": "The model's report" if live else "What each scene showed",
-                "case_link": (({"href": self.link[0], "text": self.link[1]} if self.status == "done" else None)
-                              if self.link else
-                              {"href": f"/?case={self.case_id}#{'live-run' if live else 'agents'}",
-                               "text": "Open the order and its audit trail" if live
-                               else "Open the honest order (a person approves it there)"} if self.case_id else None),
+                "case_link": case_link,
+                "case_links": case_links,
                 "no_case_text": ("The model placed no order, so nothing was recorded on a case and nothing was "
                                  "refunded." if live else "No scene placed an order. Nothing was refunded.")}
 
@@ -146,6 +159,7 @@ class AgentRunRegistry:
         with self._lock:
             state = self._runs[run_id]
             state.status, state.phase, state.case_id = "done", "done", case_id
+            state.blocked_case_id = getattr(run, "blocked_order_id", None)
             state.steps = [dict(s) for s in run.steps]
             state.stop_reason, state.final_report = run.stop_reason, run.final_report
             state.tokens, state.model_calls, state.seconds = run.tokens, run.model_calls, run.seconds

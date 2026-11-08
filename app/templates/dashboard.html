@@ -64,22 +64,30 @@
   </div>
   <div class="guide-links">
     {% if agents and agents.demo_orders %}
+      {% if agent_run_in_progress %}
+      <p class="muted small" role="status">An agent run is already in progress —
+        <a href="/agent-runs/{{ agent_run_in_progress }}">watch it</a>. Steps 2–3 appear when it finishes.</p>
+      {% else %}
       <form method="post" action="/demo/agent-scenes" class="js-busy"><button class="btn primary">1 · Run agent scenes</button></form>
+      {% endif %}
       {% if judge_honest_case %}<a class="btn" href="/?case={{ judge_honest_case.id }}#pending">2 · Open honest return</a>{% endif %}
       {% if judge_honest_case %}<a class="btn ghost" href="/?case={{ judge_honest_case.id }}#ai">See intent reading</a>{% endif %}
       {% if judge_blocked_case %}<a class="btn ghost" href="/?case={{ judge_blocked_case.id }}#pending">3 · See blocked request</a>{% endif %}
+      {% if not judge_honest_case and not agent_run_in_progress %}<p class="muted small">After the scenes finish (about 30–60&nbsp;s on a cold start), steps 2–3 appear here.</p>{% endif %}
     {% else %}
       <a class="btn primary" href="#pending">Start with Case A above</a>
       <a class="btn" href="#evidence">Jump to PayPal evidence</a>
     {% endif %}
   </div>
 </section>
+{% if allow_public_reset %}
 <details class="small muted"><summary>Reset the shared demo (advanced)</summary>
   <p>This archives every visitor's active cases. The judge path above does not need a reset.</p>
   <form method="post" action="/demo/reset" class="js-busy" data-confirm="Reset the shared demo? This clears every visitor's cases (including other judges')."><button class="btn ghost">Reset demo</button></form>
 </details>
+{% endif %}
 
-{% if flash %}<div class="flash bad" role="alert">{{ flash }}</div>{% endif %}
+{% if flash %}<div class="flash {{ flash_kind or 'bad' }}" role="alert">{{ flash }}{% if flash_link %} <a href="{{ flash_link.href }}">{{ flash_link.text }}</a>{% endif %}</div>{% endif %}
 
 <nav class="tabs" aria-label="Cases">
   <span class="muted small">Cases:</span>

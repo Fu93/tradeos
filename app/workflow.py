@@ -29,12 +29,13 @@ from .config import Settings
 from .db import CaseFinalized, Database, next_seq
 from .disputes import DisputeService
 from .mixed import MIXED, MixedOrders
-from .intent import AssistFields, IntentExtractor
+from .intent import (AssistFields, IntentExtractor, LLM_DOWN_NOTICE, LLM_DOWN_TITLE,
+                     begin_llm_http_scope, llm_http_call_count, looks_like_injection)
 from .notes import Outcome, TemplateNoteWriter
-from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link, first_capture,
-                            outcome_unknown, refund_lookup_issue, refund_response_issue)
+from .paypal_client import (IDEMPOTENCY_WINDOW_HOURS, LIVE_HOSTS, PayPalClient, PayPalError, find_link,
+                            first_capture, mint_retry_request_id, outcome_unknown, paypal_browser_url,
+                            refund_lookup_issue, refund_response_issue)
 from .paypal_mock import MockPayPalClient
-from .intent import LLM_DOWN_NOTICE, LLM_DOWN_TITLE, looks_like_injection
 from .safety_ai import SafetyClassifier, build_safety_classifier, combine as safety_combine
 from .safety import SAFETY_LABEL, SAFETY_RULE_VERSION, SAFETY_STATUS, assess as safety_assess, assess_any as safety_assess_any
 from .policy import PolicyInput, PolicyResult, evaluate
@@ -432,7 +433,7 @@ class Workflow:
                     raise
             capture = first_capture(order)
             if not capture:
-                approve = find_link(order, "payer-action", "approve")
+                approve = paypal_browser_url(find_link(order, "payer-action", "approve"))
                 self.db.update_case(case_id, status=AWAITING_BUYER, approve_url=approve)
                 self.db.audit(case_id, "payment", "Waiting for sandbox buyer approval",
                               {"approve_url": approve, "order_status": order.get("status")})
@@ -499,6 +500,13 @@ class Workflow:
         self.db.update_case(case_id, status=status, error=str(exc))
         self.db.audit(case_id, stage, "PayPal error", exc.to_dict())
 
+    def _stamp_llm_chat_completions(self, case_id: str) -> None:
+        """Persist the intake-scoped /chat/completions HTTP count on the case (for AI e2e evidence)."""
+        case = self._case(case_id)
+        extraction = dict(case.get("extraction") or {})
+        extraction["llm_chat_completions"] = llm_http_call_count()
+        self.db.update_case(case_id, extraction_json=json.dumps(extraction, ensure_ascii=False))
+
     def _after_capture(self, case_id: str) -> None:
         case = self._case(case_id)
         product = self.db.get_product(case["product_sku"])
@@ -510,6 +518,8 @@ class Workflow:
                       {"customer": case["customer_name"], "message": case["customer_message"]})
 
         # Step 3: AI extracts intent (language only — it does not decide money).
+        # Scope counts every ChatJSONClient POST (intent, optional safety AI, note translation).
+        begin_llm_http_scope()
         extraction = self.extractor.extract(case["customer_message"])
         intent = extraction.result.model_dump()  # the ONLY AI output the policy engine reads
         # Safety Gate (code, LLM-independent): runs on the raw message + product, whatever the model said.
@@ -522,6 +532,7 @@ class Workflow:
                                                         "assist_note": extraction.assist_note,
                                                         "injection_guard": extraction.injection_guard,
                                                         "llm_unavailable": extraction.llm_unavailable,
+                                                        "llm_chat_completions": llm_http_call_count(),
                                                         "safety": gate.to_dict(), "safety_ai": ai_info}))
         self.db.audit(case_id, "intent", "Intent extracted",
                       {**intent, "extractor": extraction.extractor, "note": extraction.note,
@@ -557,6 +568,7 @@ class Workflow:
         self.db.audit(case_id, "policy", f"Policy pre-check: {pre.decision}", pre.to_dict())
         if not pre.eligible:
             self._reject(case_id, pre, extraction)
+            self._stamp_llm_chat_completions(case_id)
             return
 
         if pre.action == "REFUND":
@@ -568,6 +580,7 @@ class Workflow:
                                 status=PENDING_APPROVAL)
             if self._autonomy_verdict(case_id, case, pre, extraction).decision != "AUTO":
                 self._write_note(case_id, "PENDING_NOTE", pre.to_dict(), extraction.assist)
+                self._stamp_llm_chat_completions(case_id)
                 self.db.audit(case_id, "human", "Waiting for human approval of the refund",
                               {"amount": f"{case['amount']} {case['currency']}"})
                 return
@@ -597,6 +610,7 @@ class Workflow:
         self.db.audit(case_id, "policy", f"Policy final: {final.decision}", final.to_dict())
         if not final.eligible:
             self._reject(case_id, final, extraction)
+            self._stamp_llm_chat_completions(case_id)
             return
         # EXCHANGE_ELIGIBLE (not ELIGIBLE): the refund gate refuses anything but ELIGIBLE, so an exchange
         # can never reach the Refund API — whether a person approved it or the merchant's policy did.
@@ -604,6 +618,7 @@ class Workflow:
                             status=PENDING_APPROVAL)
         if self._autonomy_verdict(case_id, case, final, extraction).decision != "AUTO":
             self._write_note(case_id, "PENDING_NOTE", final.to_dict(), extraction.assist)
+            self._stamp_llm_chat_completions(case_id)
             self.db.audit(case_id, "human", "Waiting for human approval of the exchange (no refund)",
                           {"refund": "none — exchange"})
             return
@@ -963,32 +978,50 @@ class Workflow:
     def _request_id(case: dict) -> str:
         return case.get("refund_request_id") or f"tradeos-refund-{case['id']}"
 
-    def _refund_request_fresh(self, case_id: str, request_id: str) -> bool:
-        """Only mock refunds may be replayed: PayPal publishes no refund-key retention period.
-
-        For the mock, use the first chained reservation, which survives a crash before the call log.
-        """
-        if self.paypal_mode != "mock":
-            return False
+    def _refund_request_first_seen(self, case_id: str, request_id: str) -> datetime | None:
+        """Earliest time this PayPal-Request-Id was reserved or sent (chain survives a crash before the call log)."""
+        seen: list[str] = []
         for entry in self.db.chain_entries(case_id):
             if entry["type"] != "case:update":
                 continue
             if json.loads(entry["payload_json"]).get("refund_request_id") != request_id:
                 continue
-            try:
-                first = datetime.fromisoformat(entry["ts"].replace("Z", "+00:00"))
-                now = datetime.fromisoformat(self._now().replace("Z", "+00:00"))
-                return now - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
-            except ValueError:
-                return False
-        return False
+            seen.append(entry["ts"])
+        seen.extend(c["ts"] for c in self.db.paypal_calls(case_id, "refund_capture")
+                    if c.get("request_id") == request_id and c.get("ts"))
+        if not seen:
+            return None
+        try:
+            return datetime.fromisoformat(min(seen).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+
+    def _refund_request_fresh(self, case_id: str, request_id: str) -> bool:
+        """True while PayPal Payments v2 still stores this Request-Id (default 6 hours).
+
+        Sandbox UNKNOWN outcomes are never auto-replayed (confirm via GET). REFUND_ERROR retries
+        use this bound: same id inside the window, a new id after it (prior 4xx moved no money).
+        """
+        first = self._refund_request_first_seen(case_id, request_id)
+        if first is None:
+            return False
+        try:
+            now = datetime.fromisoformat(self._now().replace("Z", "+00:00"))
+        except ValueError:
+            return False
+        return now - first <= timedelta(hours=IDEMPOTENCY_WINDOW_HOURS)
 
     def _old_refund_request(self) -> str:
-        if self.paypal_mode != "mock":
-            return ("PayPal does not document how long refund request IDs are retained. Re-sending this "
-                    "request may create a second refund; check PayPal by hand.")
-        return (f"The refund request may have reached PayPal more than {IDEMPOTENCY_WINDOW_HOURS} hours ago. "
-                "Re-sending its PayPal-Request-Id could create a second refund; check PayPal by hand.")
+        return (f"PayPal stores a PayPal-Request-Id for {IDEMPOTENCY_WINDOW_HOURS} hours on Payments v2. "
+                "Re-sending this id after that window can create a second refund; check PayPal by hand.")
+
+    def _mint_error_retry_request_id(self, case_id: str, prior_request_id: str) -> str:
+        """Deterministic new id after a confirmed 4xx once the prior key may have expired.
+
+        Must stay within PayPal's 38-char Request-Id budget. Hashing ``prior`` (not appending to it)
+        keeps each successive expiry rotation unique.
+        """
+        return mint_retry_request_id(prior_request_id)
 
     @staticmethod
     def _refund_amount(case: dict) -> dict[str, str]:
@@ -1009,6 +1042,18 @@ class Workflow:
                         (not case.get("refund_request_id") and case.get("refund_status") not in ("COMPLETED", "PENDING"))):
                     self._guard_refund(case)
                     self._preflight_refund(case_id, case)
+                    if case["status"] == REFUND_ERROR and case.get("refund_request_id"):
+                        prior = case["refund_request_id"]
+                        if not self._refund_request_fresh(case_id, prior):
+                            # Payments v2 key may have expired: re-using it risks a second refund.
+                            # The prior 4xx confirmed that attempt moved no money, so a new id is safe
+                            # after capture/policy preflight above.
+                            new_id = self._mint_error_retry_request_id(case_id, prior)
+                            self.db.update_case(case_id, refund_request_id=new_id)
+                            self.db.audit(case_id, "paypal",
+                                          f"REFUND_ERROR retry after {IDEMPOTENCY_WINDOW_HOURS}h — new "
+                                          "PayPal-Request-Id (prior 4xx moved no money; capture re-checked)",
+                                          {"prior_paypal_request_id": prior, "paypal_request_id": new_id})
                 return self._execute_refund(case_id)
         finally:
             self._after_money(case_id)
@@ -1101,11 +1146,20 @@ class Workflow:
                               result.to_dict())
                 if not result.eligible:
                     raise RefundNotAllowed("Policy re-check failed; no new refund request was sent.")
-                new_id = f"tradeos-refund-{case_id}-after-{case['refund_id']}"
-                self.db.update_case(case_id, refund_request_id=new_id)
+                failed_refund_id = case["refund_id"]
+                prior_req = case.get("refund_request_id") or self._request_id(case)
+                # Hash into a ≤38-char id (do not embed the PayPal refund id — those alone can exceed
+                # the PayPal-Request-Id budget when concatenated with tradeos-refund-{case}-after-).
+                new_id = mint_retry_request_id(f"{prior_req}|failed|{failed_refund_id}")
+                # Drop the FAILED refund identity before the new attempt. Keeping it would leave
+                # REFUND_UNKNOWN / REFUND_ERROR retries looking like the old FAILED refund, which
+                # blocks confirm_unknown_refund, reconcile recovery, and a later execute_refund.
+                self.db.update_case(case_id, refund_request_id=new_id, refund_id=None, refund_status=None,
+                                    refund_json=None)
                 self.db.audit(case_id, "paypal", "PayPal confirmed the refund FAILED — retrying with a NEW "
                               "PayPal-Request-Id (policy re-checked, human approval on record)",
-                              {"failed_refund_id": case["refund_id"], "paypal_request_id": new_id})
+                              {"failed_refund_id": failed_refund_id, "prior_paypal_request_id": prior_req,
+                               "paypal_request_id": new_id})
                 return self._execute_refund(case_id, after_failed=True)
         finally:
             self._after_money(case_id)
@@ -1128,6 +1182,8 @@ class Workflow:
             raise RefundNotAllowed(self._old_refund_request())
 
         request_id = self._request_id(case)  # idempotent: double clicks return the same refund
+        # REFUND_ERROR retries: same id while Payments v2 still stores it (execute_refund mints a
+        # new id past the window). UNKNOWN sandbox never reaches here for a replay.
         if (case.get("refund_request_id") and case["status"] != REFUND_ERROR and not after_failed
                 and not self._refund_request_fresh(case_id, request_id)):
             raise RefundNotAllowed(self._old_refund_request())
@@ -1140,6 +1196,7 @@ class Workflow:
                           {"PayPal-Mock-Response": {"mock_application_codes": fault}})
         # A process may die after PayPal moves money but before its reply or the call log is
         # written. Persist UNKNOWN and the request ID first so restart will reconcile it.
+        # after_failed already cleared the prior FAILED refund identity in retry_failed_refund.
         self.db.update_case(case_id, refund_request_id=request_id, status=REFUND_UNKNOWN, error=None)
         try:
             refund = self._pp(case_id, "refund_capture", case["capture_id"], request_id, **kwargs)
@@ -1152,7 +1209,8 @@ class Workflow:
                 # Outcome UNKNOWN (timeout / throttled / network / 5xx): PayPal may have refunded
                 # anyway, so the UI must not say "no money moved". A bounded GET check runs next
                 # (outside the lock). Only mock mode may replay the request to recover its ID;
-                # the real refund API does not document its request-ID retention period.
+                # sandbox UNKNOWN uses confirm-by-GET (Payments v2 stores keys 6h, but a lost
+                # reply still needs an identified refund before we record money moved).
                 self.db.update_case(case_id, status=REFUND_UNKNOWN, error=str(exc), refund_fault=None)
                 self.db.audit(case_id, "paypal", "Refund outcome UNKNOWN — no reply from PayPal; checking",
                               {**exc.to_dict(), "paypal_request_id": request_id})
@@ -1168,7 +1226,11 @@ class Workflow:
         return refund
 
     def recover_unknown_refund(self, case_id: str, trigger: str) -> bool:
-        """Recover an UNKNOWN refund by replay only in mock mode, with the usual money guard."""
+        """Recover an UNKNOWN refund by replay only in mock mode, with the usual money guard.
+
+        Sandbox UNKNOWN never replays: Payments v2 stores keys for 6 hours, but a lost reply still
+        needs a merchant-confirmed refund ID (GET) before TradeOS records that money moved.
+        """
         with self._locks_guard:
             if case_id in self._pending_recovery:
                 return False
@@ -1180,9 +1242,14 @@ class Workflow:
                     return False
                 self._guard_refund(case)
                 request_id = self._request_id(case)
+                if self.paypal_mode != "mock":
+                    self.db.audit(case_id, "paypal", "Unknown refund not replayed on sandbox — verify Refund ID "
+                                  "with PayPal GET", {"paypal_request_id": request_id, "trigger": trigger})
+                    return False
                 if not self._refund_request_fresh(case_id, request_id):
-                    self.db.audit(case_id, "paypal", "Unknown refund not replayed: request ID retention unverified; "
-                                  "check PayPal by hand", {"paypal_request_id": request_id, "trigger": trigger})
+                    self.db.audit(case_id, "paypal", "Unknown refund not replayed: PayPal-Request-Id older than "
+                                  f"{IDEMPOTENCY_WINDOW_HOURS}h; check PayPal by hand",
+                                  {"paypal_request_id": request_id, "trigger": trigger})
                     return False
                 note = (case.get("payer_note") or {}).get("text")
                 try:
@@ -1621,12 +1688,18 @@ class Workflow:
                               f"(transmission time {transmission_time}) — no state change", info)
                 return case_id
             if not verified:
-                # Log only: an unverified POST (anyone can hit the public URL) never changes what the case shows.
+                # Log only (webhook_events table): never write the case audit chain for an unverified
+                # POST — anyone can hit the public URL with a guessed refund id and would otherwise
+                # pollute the trail. No state change either way.
                 self.db.log_webhook_event(case_id=case_id, outcome="UNVERIFIED_IGNORED", **log)
-                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} received but NOT verified — ignored "
+                return case_id
+            if not event_id:
+                # Verified but missing id: cannot dedupe. Do not apply; ask PayPal to retry with an id.
+                self.db.log_webhook_event(case_id=case_id, outcome="MISSING_EVENT_ID", **{**log, "verified": False})
+                self.db.audit(case_id, "webhook", f"PayPal webhook {etype} verified but missing event id — ignored "
                               "(no state change)", info)
                 return case_id
-            if not event_id or not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
+            if not self.db.log_webhook_event(case_id=case_id, outcome="PROCESSING", **log):
                 self.db.log_webhook_event(case_id=case_id, outcome="DUPLICATE_IGNORED", **{**log, "verified": False})
                 self.db.audit(case_id, "webhook", "Duplicate PayPal webhook delivery ignored (event already processed)",
                               info)
@@ -1844,7 +1917,7 @@ def _verified_refund_amount(pp_amount: dict | None, local_value: str, local_curr
 
 def _capture_evidence_matches(capture: dict, case: dict) -> bool:
     """A GET for our capture must not justify recovery if PayPal returns different evidence."""
-    if capture.get("id") not in (None, case["capture_id"]):
+    if capture.get("id") != case["capture_id"]:
         return False
     amount = capture.get("amount")
     return not amount or _verified_refund_amount(amount, case["amount"], case["currency"])

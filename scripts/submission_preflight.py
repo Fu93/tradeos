@@ -1,6 +1,12 @@
 """Read-only check that the demo serves the exact commit intended for submission.
 
 This does not prove a refund works. Run sandbox_verify.py separately for live PayPal evidence.
+
+    python scripts/submission_preflight.py https://<demo-host> --commit <40-char-lowercase-sha>
+
+Requires /healthz: ok, version==commit, paypal_mode=sandbox, llm_configured, webhook_configured,
+auto_enabled=false, auto_exchange_enabled=false, safety_ai_layer=false (hosted demo claim),
+persistence=ephemeral (public shared demo). Prints JSON only (no secrets). Exit 0 = pass.
 """
 from __future__ import annotations
 
@@ -25,11 +31,18 @@ def check(url: str, commit: str) -> dict:
         "llm_configured": True,
         "webhook_configured": True,
         "auto_enabled": False,
+        "auto_exchange_enabled": False,
+        "safety_ai_layer": False,
+        "persistence": "ephemeral",
     }
     failed = {key: {"expected": value, "observed": health.get(key)}
               for key, value in expected.items() if health.get(key) != value}
+    # product_catalog is optional (Channel3); report only — do not fail the gate either way.
+    observed = {k: health.get(k) for k in expected}
+    observed["product_catalog"] = health.get("product_catalog")
+    observed["safety_rule_version"] = health.get("safety_rule_version")
     return {"checked_at_utc": datetime.now(timezone.utc).isoformat(), "url": url.rstrip('/'),
-            "expected_commit": commit, "checks": expected, "observed": {k: health.get(k) for k in expected},
+            "expected_commit": commit, "checks": expected, "observed": observed,
             "passed": not failed, "failures": failed,
             "scope": "read-only deployment/configuration preflight; run sandbox_verify.py for PayPal evidence"}
 

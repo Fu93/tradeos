@@ -95,8 +95,8 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | `scripts/sandbox_verify.py` against the published demo (`dc2c6b5`, 5 Nov 2026 23:19 GMT: 31/31 PASS; [complete log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); earlier checks and limits in [`docs/sandbox-verification.md`](docs/sandbox-verification.md) | Production (live) PayPal; real buyers; uncommitted changes in this working tree |
-| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last run on tip `1acae45`, 19 Oct 2026: 16/16; earlier same-day on `5325db7`: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes, shipping/tax policies or currencies; production (live) PayPal |
+| **Live PayPal Sandbox** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Published demo `dc2c6b5` (5 Nov 2026: 31/31 PASS; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on tip `9dafb70` (8 Nov 2026, isolated verification machine): 62 pass / 0 fail / 6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 — hosted redeploy of this tip still **pending** | Production (live) PayPal; real buyers; claiming the tip until `/healthz` matches after redeploy |
+| **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal; Case M re-proof on the final hosted tip (pending redeploy) |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
 | **Automated tests (mock PayPal)** | Policy, guards, safety gate, mixed-order partial refund maths, autonomy, hash chain, evidence report, accessibility structure | `pytest` (see Tests; CI: ruff, mypy, pip-audit, 90% coverage gate) | Any PayPal behaviour: the mock is not PayPal |
@@ -106,7 +106,7 @@ flowchart LR
 
 ### Built during the hackathon
 
-First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #88: 80 pull requests merged). Highlights:
+First commit **8 Oct 2026**; every commit on `main` is dated 8–25 Oct 2026 (as of #93: **85** pull requests merged). Highlights:
 
 | Date | What landed |
 |---|---|
@@ -393,35 +393,34 @@ post-purchase messages (EN, Traditional Chinese, Spanish, German, Japanese, plus
 including 7 prompt-injection attempts). Full results, every miss and the limits: **[docs/eval/results.md](docs/eval/results.md)**
 (raw: [results.json](docs/eval/results.json), data: [dataset.json](docs/eval/dataset.json)).
 
-| (one run, `openai/gpt-oss-20b` on Groq) | LLM | Keyword fallback |
+| (LLM: one run `openai/gpt-oss-20b` on Groq, **2026-11-08**, tip `9dafb70`; keyword: same tip offline) | LLM | Keyword fallback |
 | --- | --- | --- |
-| Exact match, all 3 core fields | 73% (38/52) | 15% (8/52) |
-| Exact match if reason `OTHER` ≈ `UNKNOWN` | 88% (46/52) | 15% (8/52) |
-| Intent accuracy | 94% (49/52) | 21% (11/52) |
-| Injections that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 (was 2 / 7 before the fallback guard) |
-| Latency p50 / p95 | 0.63 s / 1.25 s | — |
-| Estimated cost per message (Groq list price) | $0.00013 | $0 |
+| Exact match, all 3 core fields | 79% (41/52) | 33% (17/52) |
+| Exact match if reason `OTHER` ≈ `UNKNOWN` | 90% (47/52) | 33% (17/52) |
+| Intent / reason / action accuracy | 94% (49/52) / 87% (45/52) / 92% (48/52) | 33% / — / 33% |
+| Policy request-check match (same accept/reject as label) | 100% (52/52) | — |
+| `unwarranted_accept` / `missed_accept` | 0 / 0 | 0 / 25 |
+| Injections (7) that yielded a policy-acceptable request they shouldn't | 0 / 7 | 0 / 7 |
+| Tokens this eval run (incl. 3 AI e2e calls) | 39,637 in / 15,543 out ≈ **US$0.0076** (Groq list) | $0 |
 
-The model outputs were measured on 8 Oct 2026, before the return-vs-exchange change. On 24 Oct the policy-level rows
-were rescored against the current rules (a return with a stated reason and a size exchange are both acceptable
-requests), with no new model calls: still 0 policy-acceptable requests that should not be, and 0 / 7 injections. The
-keyword column was re-run in full (it is deterministic). A full LLM re-run with today's extractor prompt needs an API
-key: `python scripts/eval_intent.py`.
+Measured offline against tip `9dafb70` on **2026-11-08**: model `openai/gpt-oss-20b` via Groq, 52 cases, **one run,
+all HTTP 200** (no provider 400 and no keyword fallback on the LLM column). The HTTP 400 → `json_object` retry /
+keyword-fallback path is covered by unit tests on this tip; it was **not hit** in this live eval. Keyword column is
+deterministic on the same tip (17/52 exact, 0 unwarranted, 25 missed_accept). Committed
+[`docs/eval/results.json`](docs/eval/results.json) / [`results.md`](docs/eval/results.md) are that same 2026-11-08
+full LLM run (`run_at` 2026-11-08T15:57:31+00:00).
 
-The evaluation command requires `LLM_API_KEY` for a model run and stops if the provider fails, so a keyword fallback
-cannot be recorded as a new model result. For an offline sample without changing the committed report, run
-`python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`. A full offline keyword
-run uses `--keyword-only` without `--limit`.
+The evaluation command requires `LLM_API_KEY` for a model run. It uses the same resilient `ChatJSONClient` as
+production intake (one `json_object` retry on HTTP 400, including Groq `json_validate_failed`, then keyword
+fallback) and records per-case errors instead of aborting. For an offline sample without changing the committed
+report, run `python scripts/eval_intent.py --keyword-only --limit 5 --output-dir /tmp/tradeos-eval-sample`.
+A full offline keyword run uses `--keyword-only` without `--limit`.
 
-Small, self-written dataset — indicative, not a benchmark. Most LLM misses are the `OTHER` vs `UNKNOWN` reason
-convention for order-status questions; "wrong item" is sometimes read as "not as described". No output can move money:
-the policy still decides, and only an approval on the audit chain can start a refund (a person's, or the merchant's
-policy's when autonomy is on). Injection detection is heuristic (patterns):
-messages with instruction-like markers are never automated (the policy rejects them and a human reads them), but a
-cleverly worded message can avoid the patterns, so it is not the safety boundary. The keyword column was
-re-run after the **fallback injection guard**: before it, two injections containing the literal word "EXCHANGE" fooled
-the keyword rules. Now, when the LLM is unavailable and a message looks like a prompt injection, the fallback forces
-`UNKNOWN`. The case goes to a human with no Approve button, and the timeline says why. The LLM path is unchanged.
+Small, self-written dataset — indicative, not a benchmark. No output can move money: the policy still decides, and
+only an approval on the audit chain can start a refund (a person's, or the merchant's policy when autonomy is on).
+Injection detection is heuristic (patterns): messages with instruction-like markers are never automated on the
+keyword path (forced `UNKNOWN` → human); the LLM path still needs the other policy checks and a human click with
+autonomy off.
 
 See also [docs/impact-proof.md](docs/impact-proof.md): outcomes by case category from the committed eval artifacts, with
 the three validation levels (test results / human adjudication of specific labels / full human audit, **not done**) kept apart.
@@ -548,11 +547,12 @@ PayPal errors (HTTP status, name, message, `debug_id`) are stored on the case an
   times out or PayPal returns 5xx, the case remains
   `REFUND_OUTCOME_UNKNOWN` ("checking with PayPal" — never "no money moved", which is shown only when PayPal answered
   with an error). TradeOS GETs the capture in the background (5 s timeout). In real Sandbox mode, an unknown refund
-  is never re-sent: PayPal documents request-ID idempotency, but publishes no retention period for the refund endpoint,
-  so a replay could create another refund ([idempotency reference](https://developer.paypal.com/api/rest/reference/idempotency/),
-  [Payments v2 schema](https://developer.paypal.com/api/payments/v2/schema.json)). A person can inspect PayPal and
-  enter the Refund ID in TradeOS. TradeOS uses **GET refund** only and accepts it only if PayPal returns the same ID,
-  this case's capture link and `custom_id`, and the approved amount and currency. Otherwise the case stays UNKNOWN.
+  is never re-sent automatically. Payments v2 stores `PayPal-Request-Id` for **6 hours** by default
+  ([v1→v2 migration](https://developer.paypal.com/api/rest/integration/payments-api/v1-v2-migration)); after that
+  window the same id can create another refund. For a lost reply TradeOS therefore requires a person to enter the
+  Refund ID. TradeOS uses **GET refund** only and accepts it only if PayPal returns the same ID, this case's capture
+  link and `custom_id`, the approved amount/currency, and status COMPLETED, PENDING, or FAILED (CANCELLED stays
+  UNKNOWN). Otherwise the case stays UNKNOWN.
   New single refunds carry the case ID as `custom_id`; partial refunds carry the batch ID. Earlier refunds without
   this marker cannot be linked through this strict check and still need external manual review.
   In mock mode only, a matching capture, verified webhook, or manual check can replay the same request within a
@@ -646,14 +646,17 @@ git clone https://github.com/Fu93/tradeos.git && cd tradeos
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements-dev.lock  # hash-pinned build (regenerate with:
                                       #   uv pip compile requirements-dev.txt -o requirements-dev.lock --generate-hashes --universal)
-cp .env.example .env        # fill in PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET (Sandbox) and optionally LLM_API_KEY
-uvicorn app.main:app --reload
-# open http://localhost:8000 and click "Run Case A", approve it, then "Run Case B"
-# experimental, local only: to see the opt-in auto-approval path, AUTO_ENABLED=1 uvicorn app.main:app --reload
+# Zero-config offline loop (fake MOCK- PayPal IDs; red "MOCK mode" badge — not live proof):
+PAYPAL_MOCK=1 uvicorn app.main:app --reload
+# open http://localhost:8000 → Run Case A → Approve & refund → Run Case B
+
+# Live Sandbox (+ optional LLM): copy env and fill PAYPAL_CLIENT_ID / PAYPAL_CLIENT_SECRET
+# (and optionally LLM_API_KEY / LLM_BASE_URL / LLM_MODEL), then:
+#   cp .env.example .env && uvicorn app.main:app --reload
+# experimental, local only: AUTO_ENABLED=1 uvicorn app.main:app --reload
 ```
 
-No PayPal credentials yet? `PAYPAL_MOCK=1 uvicorn app.main:app` runs the whole loop offline with fake `MOCK-` IDs.
-A red "MOCK mode" badge is shown; nothing in that mode is a real PayPal result.
+`PAYPAL_MOCK=1` is the clean-checkout path that needs no secrets. Nothing in that mode is a real PayPal result.
 
 An offline run **without `LLM_API_KEY`** uses the keyword extractor, which reads **English only**. The non-English
 presets (Chinese / Spanish / German / Japanese) then come back as `UNKNOWN` and are rejected to a human — the intended
@@ -684,6 +687,7 @@ persistent disk.
 | `TRADEOS_DB_PATH` | no | `tradeos.db` | |
 | `TRADEOS_PERSISTENT_DATA_DIR` | no | — | opt-in private single-instance profile: absolute mounted directory containing `TRADEOS_DB_PATH`; requires reset off and operator token |
 | `TRADEOS_RESET_ON_START` | no | `1` | archive old cases and reseed demo data at boot |
+| `TRADEOS_ALLOW_PUBLIC_RESET` | no | `0` | safe default off: without an operator token, `POST /demo/reset` is refused so one visitor cannot wipe other judges' cases. Set `1` only for a private local demo that needs the Reset button |
 | `TRADEOS_ALLOW_LIVE` | no | `0` | the PayPal client refuses any base URL that is not the sandbox unless this is explicitly `1` |
 | `PUBLIC_BASE_URL` | no | `RENDER_EXTERNAL_URL` or `http://localhost:8000` | PayPal return URL for the approval fallback |
 | `TRADEOS_OPERATOR_TOKEN` | no | — | optional private Sandbox gate: HTTP Basic username `operator`, token as password (24+ characters); requires HTTPS and MCP credentials or `TRADEOS_MCP=0` |
@@ -732,22 +736,29 @@ escalate; an out-of-stock exchange stays a person's call even with every switch 
 NO; an auto approval is on the chain as `approval_source: auto`; and neither the timeline, the case list nor the UI
 ever calls an auto approval a human one), and the forward migration of a kept database (`TRADEOS_RESET_ON_START=0`):
 a database from before `approval_source` existed gains the column, keeps its chain verifiable, and still refunds.
-Over 1,600 tests (1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every push and PR (see the badge) together with
-`ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a `pytest-cov` gate at 90% line coverage
-(about 96% today). They include eval dataset checks, VAT-inclusive mock tests, CPSC sample integrity, mixed Safety Gate
-line-product scan, discipline invariants, the agent gateway and live-agent loop, the returns inbox, and lost-PayPal-reply
-recovery (`tests/test_payment_unknown.py`). The defect fixes of 24 Oct were each mutation-checked: putting the defect back
-makes a test fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
+**1,838** tests on this tip (8 Nov 2026; was 1,609 at `99dc962` on 25 Oct 2026), run by GitHub Actions CI on every
+push and PR (see the badge) together with `ruff`, `mypy` over `app/`, a `pip-audit` scan of the pinned dependencies, and a
+`pytest-cov` gate at 90% line coverage (**about 95%** today). They include eval dataset checks, VAT-inclusive mock tests,
+CPSC sample integrity, mixed Safety Gate line-product scan, discipline invariants, the agent gateway and live-agent loop,
+the returns inbox, lost-PayPal-reply recovery, confirm-by-GET status handling, and Request-Id expiry rotation. The
+defect fixes of 24 Oct (and later money-path hardening) were each mutation-checked: putting the defect back makes a test
+fail. The repository is public, so GitHub's standard hosted runners cost nothing here.
 
 ### Verify a deployment
 
 `scripts/sandbox_verify.py <base-url>` drives a running instance through the whole loop over HTTP and asserts the
-result. It needs no credentials, so it works against the Render demo or against `http://localhost:8000`:
+result. The default path needs no credentials (public demo endpoints). Optional `--ai-e2e-only` exercises the live LLM
+intent path (one fixed English free-text return → approve → Sandbox refund) and prints the **measured**
+`llm_chat_completions` count from case extraction metadata; the **target** must have `LLM_API_KEY` / `LLM_BASE_URL` /
+`LLM_MODEL` set (`/healthz` `llm_configured=true`) — the script itself needs no LLM key:
 
 ```bash
-python scripts/sandbox_verify.py https://<your-host>      # a deployed instance
-AUTO_ENABLED=1 uvicorn app.main:app --port 8000 &          # or a local one with real Sandbox credentials
-python scripts/sandbox_verify.py http://localhost:8000
+python scripts/sandbox_verify.py https://<your-host>      # default 31 checks
+python scripts/sandbox_verify.py https://<your-host> --ai-e2e-only
+# local Sandbox + LLM (example):
+#   export PAYPAL_CLIENT_ID=… PAYPAL_CLIENT_SECRET=… LLM_API_KEY=… LLM_BASE_URL=… LLM_MODEL=…
+#   uvicorn app.main:app --host 0.0.0.0 --port 8000
+#   python scripts/sandbox_verify.py http://127.0.0.1:8000 --ai-e2e-only
 ```
 
 The `Deploy verify` workflow can automate this after every push to `main`: it waits until `/healthz` reports the pushed
@@ -807,10 +818,11 @@ errors with independent participants; no study results are claimed yet.
 ## Deploy
 
 `render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, hash-pinned
-`requirements.lock`, health check `/healthz`). **The hosted demo does not follow the Blueprint in two respects:** that
-service's settings differ from the Blueprint: it installs `requirements.txt` (exact `==` pins, no hashes) and has
-**no health check path** configured (checked through the Render API on 19 Oct 2026). Without a health check path, Render
-only checks that the new instance accepts TCP connections on its port before switching traffic to it
+`requirements.lock`, `uvicorn --workers 1`, health check `/healthz`). **The currently hosted public service still
+diverges from this Blueprint in two respects** (checked through the Render API on 19 Oct 2026; aligning it is an
+operator action at redeploy time, not claimed done here): it installs `requirements.txt` (exact `==` pins, no hashes)
+and has **no health check path** configured. Without a health check path, Render only checks that the new instance
+accepts TCP connections on its port before switching traffic to it
 ([Render docs](https://render.com/docs/health-checks)); it does not check that `/healthz` answers. So after each deploy we
 check `/healthz` and run `sandbox_verify.py` by hand.
 Secrets are entered in the Render dashboard. For the webhook, run `scripts/register_webhook.py` once against the public
@@ -842,8 +854,10 @@ Out of scope for this MVP: product sourcing, scraping, multichannel commerce, li
 invoicing, autonomous financial decisions, acting on disputes (they are shown read-only), live (production) PayPal, real fulfilment, extra agents.
 Partial refunds exist only for seeded mixed orders and are live-Sandbox-proven for two seeded scenarios only: Case M (one partial refund) and Case M2 (two partial refunds on one capture) (see `docs/partial-refunds.md`). The customer note is a
 translated refund/decision note, not a chatbot.
-The [existing-order intake design](docs/existing-order-intake.md) describes the buyer/order authorization needed before
-agents can request returns for orders they did not create through this demo gateway. It is a proposal, not an implemented endpoint.
+The [existing-order intake](docs/existing-order-intake.md) is implemented for the private persistent Sandbox profile
+only: a merchant can create a demo order or import a matching Sandbox capture, issue a short-lived return pass, and let
+an authenticated agent request a return with that pass. It is not available on the public shared demo and does not verify
+a real store order, product or buyer.
 
 Also out of scope: full authentication and multi-tenancy (user accounts, roles, per-merchant workspaces).
 Money actions remain open by default for this shared hackathon demo; the optional operator gate makes a Sandbox

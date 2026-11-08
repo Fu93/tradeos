@@ -1,5 +1,6 @@
 """The private disk profile keeps cases and their audit chains across app restarts."""
 
+from contextlib import closing
 from pathlib import Path
 import sqlite3
 import subprocess
@@ -125,9 +126,12 @@ def test_backup_refuses_broken_foreign_keys(tmp_path):
     app = create_app(settings=settings, paypal=MockPayPalClient(), extractor=FakeExtractor(),
                      note_writer=TemplateNoteWriter())
     case_id = app.state.workflow.run_scenario("B")
-    with sqlite3.connect(settings.db_path) as conn:
+    # closing(): Connection.__exit__ only ends the transaction; without close() Python <3.12
+    # emits ResourceWarning: unclosed database connection.
+    with closing(sqlite3.connect(settings.db_path)) as conn:
         conn.execute("PRAGMA foreign_keys=OFF")
         conn.execute("DELETE FROM products WHERE sku=(SELECT product_sku FROM cases WHERE id=?)", (case_id,))
+        conn.commit()
     destination = tmp_path / "export" / "snapshot.db"
     with pytest.raises(ValueError, match="foreign-key check"):
         backup(Path(settings.db_path), destination)
