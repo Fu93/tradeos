@@ -174,6 +174,57 @@ def test_F2_retry_after_confirmed_failure_uses_new_id_once(tmp_path):
     assert [r["status"] for r in pp.refunds_by_request.values()] == ["FAILED", "COMPLETED"]
 
 
+def test_F2_retry_clears_failed_identity_so_unknown_is_recoverable(tmp_path):
+    """A lost reply on the NEW request must not keep the old FAILED refund_id.
+
+    Leaving that identity would block confirm_unknown_refund / reconcile (they treat any
+    refund_id as already bound) and would make a later execute_refund think the case is still
+    the FAILED refund that needs 'Retry with a new request'.
+    """
+    pp, db, wf, cid = _failed_case(tmp_path)
+    failed_id = db.get_case(cid)["refund_id"]
+    original = pp.refund_capture
+
+    def post_then_timeout(*args, **kwargs):
+        original(*args, **kwargs)
+        raise PayPalError("refund reply lost", status_code=408)
+
+    pp.refund_capture = post_then_timeout
+    with pytest.raises(PayPalError):
+        wf.retry_failed_refund(cid)
+    case = db.get_case(cid)
+    assert case["status"] == "REFUND_OUTCOME_UNKNOWN"
+    assert case["refund_id"] is None and case["refund_status"] is None
+    assert case["refund_request_id"] == f"tradeos-refund-{cid}-after-{failed_id}"
+
+
+def test_F2_retry_definite_error_does_not_stick_failed_status(tmp_path):
+    """A 4xx on the new request must leave REFUND_ERROR, not a FAILED refund_status ghost."""
+    pp, db, wf, cid = _failed_case(tmp_path)
+    failed_id = db.get_case(cid)["refund_id"]
+    calls = {"n": 0}
+    original = pp.refund_capture
+
+    def refuse_once(*args, **kwargs):
+        calls["n"] += 1
+        if calls["n"] == 1:
+            raise PayPalError("REFUND_FAILED_INSUFFICIENT_FUNDS", status_code=422, name="UNPROCESSABLE_ENTITY")
+        return original(*args, **kwargs)
+
+    pp.refund_capture = refuse_once
+    with pytest.raises(PayPalError):
+        wf.retry_failed_refund(cid)
+    case = db.get_case(cid)
+    assert case["status"] == "REFUND_ERROR"
+    assert case["refund_id"] is None and case["refund_status"] is None
+    assert case["refund_request_id"] == f"tradeos-refund-{cid}-after-{failed_id}"
+    # execute_refund must be able to try the same new request again (not demand retry_failed_refund).
+    pp.refund_status = "COMPLETED"
+    wf.execute_refund(cid)
+    assert db.get_case(cid)["status"] == "REFUND_COMPLETED"
+    assert calls["n"] == 2
+
+
 def test_F2_new_id_only_after_paypal_confirms_failed(tmp_path):
     pp, db, wf, cid = _failed_case(tmp_path)
     pp.refunds_by_request[f"tradeos-refund-{cid}"]["status"] = "PENDING"  # PayPal GET disagrees

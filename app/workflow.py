@@ -1101,11 +1101,16 @@ class Workflow:
                               result.to_dict())
                 if not result.eligible:
                     raise RefundNotAllowed("Policy re-check failed; no new refund request was sent.")
-                new_id = f"tradeos-refund-{case_id}-after-{case['refund_id']}"
-                self.db.update_case(case_id, refund_request_id=new_id)
+                failed_refund_id = case["refund_id"]
+                new_id = f"tradeos-refund-{case_id}-after-{failed_refund_id}"
+                # Drop the FAILED refund identity before the new attempt. Keeping it would leave
+                # REFUND_UNKNOWN / REFUND_ERROR retries looking like the old FAILED refund, which
+                # blocks confirm_unknown_refund, reconcile recovery, and a later execute_refund.
+                self.db.update_case(case_id, refund_request_id=new_id, refund_id=None, refund_status=None,
+                                    refund_json=None)
                 self.db.audit(case_id, "paypal", "PayPal confirmed the refund FAILED — retrying with a NEW "
                               "PayPal-Request-Id (policy re-checked, human approval on record)",
-                              {"failed_refund_id": case["refund_id"], "paypal_request_id": new_id})
+                              {"failed_refund_id": failed_refund_id, "paypal_request_id": new_id})
                 return self._execute_refund(case_id, after_failed=True)
         finally:
             self._after_money(case_id)
@@ -1140,6 +1145,7 @@ class Workflow:
                           {"PayPal-Mock-Response": {"mock_application_codes": fault}})
         # A process may die after PayPal moves money but before its reply or the call log is
         # written. Persist UNKNOWN and the request ID first so restart will reconcile it.
+        # after_failed already cleared the prior FAILED refund identity in retry_failed_refund.
         self.db.update_case(case_id, refund_request_id=request_id, status=REFUND_UNKNOWN, error=None)
         try:
             refund = self._pp(case_id, "refund_capture", case["capture_id"], request_id, **kwargs)
