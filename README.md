@@ -98,7 +98,7 @@ flowchart LR
 
 | Tier | Claim | Evidence | Not claimed |
 |---|---|---|---|
-| **Live PayPal Sandbox (current hosted tip)** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Hosted `https://tradeos-s33z.onrender.com` **verified on `49261e5`** (8 Nov 2026; these results apply to this named SHA; later deployed commits need a fresh verification record): `sandbox_verify` **31/31**, AI e2e **11/11**, signed webhooks **3/3 VERIFIED**, GET reconciliation **3/3**, audits **10/10**, malformed Origin/Referer → **403** (58/58), UI **10/10**. Sample refund IDs: `8J695063YN268980W`, `5T938247AP7025502`, `20907736BD190784X`. Differs from `1d5ab96` only in copy/templates (no money-path logic change). Historical: hosted `1d5ab96` (same Sandbox suite; preflight 9/9; public reset → 403); hosted `f2c7430`; published `dc2c6b5` (5 Nov 2026: 31/31; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on `9dafb70` (8 Nov 2026): 62/0/6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 | Production (live) PayPal; real buyers |
+| **Live PayPal Sandbox (current hosted tip)** | Real order, capture, refund ids; signed webhook verified; reconcile GET; Refund API call count 0 on rejected cases | Hosted `https://tradeos-s33z.onrender.com` **verified on `88b0be9`** (9 Nov 2026; deploy `dep-dboq6gbl550s73aibng0`; these results apply to this named SHA; later deployed commits need a fresh verification record): `sandbox_verify` **31/31**, AI e2e **11/11**, signed webhooks **3/3 VERIFIED**, GET reconciliation **3/3**, audits **10/10**, malformed Origin/Referer → **403** (58/58), HTTP routes **35/35** (not a browser run). Sample refund IDs: `84R36954519561114`, `1LF75336ME8988949`, `6TJ28435C8083362L`. Differs from `49261e5` (video recording build) only in docs/copy. Historical: hosted `49261e5` (8 Nov 2026; video); hosted `1d5ab96` (preflight 9/9; public reset → 403); hosted `f2c7430`; published `dc2c6b5` (5 Nov 2026: 31/31; [log](docs/evidence/sandbox-verify-dc2c6b5-2026-11-05.log)); local Sandbox on `9dafb70` (8 Nov 2026): 62/0/6 webhook SKIP; UNKNOWN 2/2; ERROR 4/4; over-refund 422; AI e2e 11/11 | Production (live) PayPal; real buyers |
 | **Live Sandbox, mixed order** | One seeded mixed order (Case M: 3 refund lines + 1 exchange): partial refund of 161.69 of 191.21 USD, PayPal-reported amount equals the amount the code computed, second approval refused, signed webhook matched, reconcile matched (`sandbox_verify.py --mixed` / `--mixed-only`, 16 checks; last published-tip run on `1acae45`, 19 Oct 2026: 16/16; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Other item mixes; production PayPal |
 | **Live, partly** | Disputes: read-only GET (the Sandbox app has no disputes: empty list) and **one PayPal-simulated** `CUSTOMER.DISPUTE.CREATED` webhook (a PayPal sample payload) | [`docs/disputes-readonly.md`](docs/disputes-readonly.md) | A real buyer dispute, parsing a real dispute object, any dispute action |
 | **Live Sandbox, two partial refunds on one capture** | Case M2: batch 1 (55.74 USD) and batch 2 (85.32 USD) on one capture, each approved by a person, cumulative <= capture, two refund ids each matched by its own signed webhook; third attempts refused (app: no refund call; one direct Sandbox over-refund probe: PayPal `REFUND_AMOUNT_EXCEEDED`) (`sandbox_verify.py --multi-batch-only --paypal-overrefund-probe` on `3ad67b3`; re-run on tip `1acae45`, 19 Oct 2026, without the probe: 21/21; earlier same-day on `5325db7`: 21/21; logs kept outside the repo) | [`docs/partial-refunds.md`](docs/partial-refunds.md) | Showing the VAT split / a tax-inclusive mode (gross VAT-inclusive amounts: mock tests only), other item mixes, currencies, production PayPal |
@@ -144,7 +144,7 @@ Full list: [merged pull requests](https://github.com/Fu93/tradeos/pulls?q=is%3Ap
 | [`docs/impact-proof.md`](docs/impact-proof.md), [`docs/eval/`](docs/eval/results.md) | Eval results and their limits |
 | [`docs/postman/`](docs/postman/README.md) | Postman collection of the Sandbox calls (dev-time tooling, not run by us as evidence) |
 | [`docs/demo-video-script.md`](docs/demo-video-script.md) | Demo video script v9 (≤2:45) |
-| [`docs/devpost-submission-final.md`](docs/devpost-submission-final.md) | English Devpost paste; hosted evidence pinned to `49261e5` |
+| [`docs/devpost-submission-final.md`](docs/devpost-submission-final.md) | English Devpost paste; hosted evidence pinned to `88b0be9` |
 | [`docs/submission-evidence.md`](docs/submission-evidence.md) | Hosted evidence checklist |
 
 ## For AI agents: request, never approve (MCP)
@@ -430,9 +430,8 @@ A full offline keyword run uses `--keyword-only` without `--limit`.
 
 Small, author-written dataset — indicative, not a benchmark. No LLM output can move money: the policy still decides,
 and only an approval on the tamper-evident audit chain can start a refund (a person's, or the merchant's policy when
-autonomy is on). Injection detection is heuristic (patterns): messages with instruction-like markers are never
-automated on the keyword path (forced `UNKNOWN` → human); the LLM path still needs the other policy checks and a
-human click with autonomy off.
+autonomy is on). Injection detection is heuristic (patterns): on both the LLM and keyword paths a hit fails
+`no_injection_markers` and the policy **rejects** the request (no Approve button, 0 refund calls).
 
 See also [docs/impact-proof.md](docs/impact-proof.md): outcomes by case category from the committed eval artifacts, with
 the three validation levels (test results / human adjudication of specific labels / full human audit, **not done**) kept apart.
@@ -804,12 +803,13 @@ credits the merchant's policy rather than a human. Exit code 0 = every check pas
    note travels with the refund as `note_to_payer`.
 3b. **Chinese-language preset (exchange 42 → 43)** → MOCK supplier approves a replacement → **Approve exchange (no refund)** →
    `Exchange arranged — no refund`, Refund API calls 0.
-3c. **The agent completes cases on its own** (start the app with `AUTO_ENABLED=1 AUTO_EXCHANGE_ENABLED=1`) → run the
-   same return and the Chinese-language exchange → neither shows an Approve button, both finish (`Refund COMPLETED`,
-   `Exchange arranged — no refund`), and the case list marks them **AUTO**. The timeline shows *"Autonomy: AUTO —
-   within the merchant's limits"* followed by *"Auto-approved by the merchant's policy — no human involved"*. Then set
-   `AUTO_REFUND_MAX_AMOUNT=10.00` and run the return again: it waits for a person, because $49.99 is outside the
-   merchant's limit. That contrast — and the fact that the exchange still moves no money — is the point.
+3c. **The merchant's policy completes ordinary customer cases on its own** (agent requests still wait for a person)
+   (start the app with `AUTO_ENABLED=1 AUTO_EXCHANGE_ENABLED=1`) → run the same ordinary return and the Chinese-language
+   exchange → neither shows an Approve button, both finish (`Refund COMPLETED`, `Exchange arranged — no refund`), and
+   the case list marks them **AUTO**. The timeline shows *"Autonomy: AUTO — within the merchant's limits"* followed by
+   *"Auto-approved by the merchant's policy — no human involved"*. Then set `AUTO_REFUND_MAX_AMOUNT=10.00` and run the
+   return again: it waits for a person, because $49.99 is outside the merchant's limit. That contrast — and the fact
+   that the exchange still moves no money — is the point.
 4. **Run Case B** (or the *Late request* preset) → policy REJECTED → `Refund not executed`, Refund API calls 0, Refund ID none.
 5. **Failure & safety modes**: the prompt-injection preset is rejected and can't change the amount; forced PayPal refund failure is shown as a failure and
    retried; a double-clicked approve yields one refund.
@@ -835,7 +835,7 @@ errors with independent participants; no study results are claimed yet.
 
 `render.yaml` is a Render Blueprint (Starter plan, no disk, SQLite in `/tmp`, demo reseeded at boot, hash-pinned
 `requirements.lock`, `uvicorn --workers 1`, health check `/healthz`). **The currently hosted public service still
-diverges from this Blueprint in two respects** (checked through the Render API on 19 Oct 2026; aligning it is an
+diverges from this Blueprint in two respects** (re-checked through the Render API on 9 Nov 2026; aligning it is an
 operator action at redeploy time, not claimed done here): it installs `requirements.txt` (exact `==` pins, no hashes)
 and has **no health check path** configured. Without a health check path, Render only checks that the new instance
 accepts TCP connections on its port before switching traffic to it

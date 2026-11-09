@@ -14,12 +14,13 @@ through the judging period ending 15 Dec 2026, 08:00 Pacific Time (16:00 in Lond
 English copy for the form: [`devpost-submission-final.md`](devpost-submission-final.md) (and the earlier
 [`devpost-submission-draft.md`](devpost-submission-draft.md)).
 
-## Latest verified hosted build — `49261e5` (8 Nov 2026)
+## Latest verified hosted build — `88b0be9` (9 Nov 2026)
 
-**Commit:** `49261e5f46dd2fb879fc9b24513ae65cb9328645`  
+**Commit:** `88b0be9300a2639979c388020a967d045713d71c`  
+**Deploy:** `dep-dboq6gbl550s73aibng0`  
 **Demo:** https://tradeos-s33z.onrender.com (`/healthz` `version` matches this SHA; PayPal `sandbox`; LLM + webhook on;
-autonomy off; ephemeral persistence; safety AI layer off). Differs from `1d5ab96` only in copy/templates (no money-path
-logic change).
+autonomy off; ephemeral persistence; safety AI layer off). Differs from `49261e5` (the recorded video build) only in
+docs/copy (no money-path logic change).
 
 | Check | Result |
 | --- | --- |
@@ -28,12 +29,15 @@ logic change).
 | Signed webhooks | **3/3 VERIFIED** |
 | GET reconciliation | **3/3** |
 | Audits | **10/10** |
-| UI checks | **10/10** |
+| HTTP routes (not a browser run) | **35/35** |
 | Malformed Origin / Referer | **403** (58/58); no 500 |
 | Deterministic policy matrix | **582/582** (rules, not LLM requests) |
 | Offline pytest (local source, this tip) | **1845** passed, coverage **95.09%**, ruff + mypy clean; mock PayPal (not hosted refund evidence) |
 
-Sample refund IDs from this hosted run: `8J695063YN268980W`, `5T938247AP7025502`, `20907736BD190784X`.
+Sample refund IDs from this hosted run: `84R36954519561114`, `1LF75336ME8988949`, `6TJ28435C8083362L`.
+
+**Honest limits on the public demo:** no merchant login — any visitor can press Approve (Sandbox only, no live money).
+`/mcp` is open on the public demo but has **no approve or refund tool**. A private operator-token profile exists.
 
 **LLM intent eval** (historical measurement on tip `9dafb70`, 2026-11-08, still the committed
 [`docs/eval/results.json`](eval/results.json)): on **52 author-written messages**, Groq `openai/gpt-oss-20b`, one run —
@@ -43,9 +47,10 @@ exact **41/52** vs keyword **17/52**; policy request-check **52/52** on this sma
 
 ### Historical (labelled)
 
+- Hosted `49261e5` (8 Nov 2026): video recording build; sandbox 31/31, AI e2e 11/11, webhooks 3/3, GET 3/3, audits
+  10/10, Origin/Referer 58/58 → 403, UI HTTP checks 10/10. Superseded for tip pinning by `88b0be9` (docs/copy only).
 - Hosted `1d5ab96` (8 Nov 2026): preflight 9/9, sandbox 31/31, AI e2e 11/11, 3 signed webhooks VERIFIED, GET
-  reconciliation all match, malformed Origin/Referer 58/58 → 403, public reset → 403. Superseded for tip pinning by
-  `49261e5` (copy/templates only).
+  reconciliation all match, malformed Origin/Referer 58/58 → 403, public reset → 403.
 - Published `dc2c6b5` (5–7 Nov 2026): hosted 31/31 — see [`docs/evidence/`](evidence/) and
   [`sandbox-verification.md`](sandbox-verification.md).
 - Local Sandbox on `9dafb70` (8 Nov 2026, isolated machine): 62 pass / 0 fail / 6 webhook SKIP; UNKNOWN 2/2;
@@ -91,7 +96,7 @@ not immutable.
 | B1 | Soft | Hosted service ≠ Blueprint | **Documented** |
 | B8 | Low | README test count drift | **Fixed** — tip count lives in this table (**1845**); avoid scattering stale counts elsewhere |
 | D7 | Low | Full LLM eval refresh | **Done** — committed results from 2026-11-08 |
-| D8 | Soft | Hosted tip ≠ `dc2c6b5` | **Done** — historical `f2c7430` / `1d5ab96` verifies; latest hosted verification is `49261e5` (8 Nov 2026) |
+| D8 | Soft | Hosted tip ≠ `dc2c6b5` | **Done** — historical `f2c7430` / `1d5ab96` / `49261e5` verifies; latest hosted verification is `88b0be9` (9 Nov 2026) |
 | E4 | High | Public reset archives all cases | **Fixed** (`TRADEOS_ALLOW_PUBLIC_RESET=0`) |
 | E10 | Soft | YouTube URL TBD | **Open** — owner content |
 | F1 / B01 | Low→Med | Malformed Origin/Referer → 500 | **Fixed** — 403 (58/58) on `f2c7430` |

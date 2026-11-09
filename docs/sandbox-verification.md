@@ -1,12 +1,13 @@
 # PayPal depth (#10 → #11 → #12): pre-merge checklist and Sandbox verification
 
-## Current hosted tip — `49261e5` (8 Nov 2026)
+## Current hosted tip — `88b0be9` (9 Nov 2026)
 
-https://tradeos-s33z.onrender.com serves `49261e5f46dd2fb879fc9b24513ae65cb9328645` (`/healthz` matches). Measured on
-this hosted tip: `sandbox_verify` **31/31**, AI e2e **11/11**, signed webhooks **3/3 VERIFIED**, GET reconciliation
-**3/3**, audits **10/10**, malformed Origin/Referer → **403** (58/58), UI **10/10**. Differs from `1d5ab96` only in
-copy/templates. Offline pytest tip count and coverage live in [`submission-evidence.md`](submission-evidence.md).
-Historical hosted tips `1d5ab96` and `f2c7430` keep their earlier verify numbers there.
+https://tradeos-s33z.onrender.com serves `88b0be9300a2639979c388020a967d045713d71c` (`/healthz` matches; deploy
+`dep-dboq6gbl550s73aibng0`). Measured on this hosted tip: `sandbox_verify` **31/31**, AI e2e **11/11**, signed
+webhooks **3/3 VERIFIED**, GET reconciliation **3/3**, audits **10/10**, malformed Origin/Referer → **403** (58/58),
+HTTP routes **35/35** (not a browser run). Differs from `49261e5` (video recording build) only in docs/copy. Offline
+pytest tip count and coverage live in [`submission-evidence.md`](submission-evidence.md). Historical hosted tips
+`49261e5`, `1d5ab96` and `f2c7430` keep their earlier verify numbers there.
 
 ## Historical — local Sandbox + LLM eval on `9dafb70` (8 Nov 2026)
 

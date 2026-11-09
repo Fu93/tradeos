@@ -1,6 +1,6 @@
 # TradeOS — Devpost submission (English, final paste)
 
-**Verified hosted build (8 Nov 2026):** `49261e5f46dd2fb879fc9b24513ae65cb9328645` · **Demo:** https://tradeos-s33z.onrender.com  
+**Verified hosted build (9 Nov 2026):** `88b0be9300a2639979c388020a967d045713d71c` · **Video recorded on:** `49261e5` (docs/copy-only difference) · **Demo:** https://tradeos-s33z.onrender.com  
 **License:** MIT · **YouTube:** _TBD — placeholder; do not submit until a public video under 3:00 exists_
 
 ---
@@ -52,7 +52,7 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 - **AG Grid** Community for the returns inbox; **Channel3** for optional agent product discovery; **Render** for hosting.
 - A toolkit-contrast script only **reads** PayPal agent-toolkit tool lists; it does not call PayPal MCP.
 
-## Measured evidence (hosted `49261e5`; local checks labelled separately)
+## Measured evidence (hosted `88b0be9`, 9 Nov 2026; local checks labelled separately)
 
 | Evidence | Result |
 | --- | --- |
@@ -62,14 +62,14 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 | GET reconciliation | 3/3 |
 | Audits | 10/10 |
 | Malformed Origin / Referer | 403 (58/58) |
-| UI checks | 10/10 |
+| HTTP routes (not a browser run) | 35/35 |
 | Deterministic policy matrix | 582/582 (rules, not LLM requests) |
 | pytest / coverage / lint | See [`submission-evidence.md`](submission-evidence.md) for the tip count (mock PayPal; not hosted refund evidence) |
 | LLM intent eval (52 author-written messages) | exact 41/52 vs keyword 17/52; request-check 52/52 on this small set (not general accuracy) |
 
-Sample refund IDs from the hosted `49261e5` run: `8J695063YN268980W`, `5T938247AP7025502`, `20907736BD190784X`.
-`49261e5` differs from `1d5ab96` only in copy/templates. Historical runs (e.g. `1d5ab96`, published `dc2c6b5` 31/31;
-local `9dafb70` Sandbox) remain labelled historical in [`submission-evidence.md`](submission-evidence.md).
+Sample refund IDs from the hosted `88b0be9` run (deploy `dep-dboq6gbl550s73aibng0`): `84R36954519561114`,
+`1LF75336ME8988949`, `6TJ28435C8083362L`. `88b0be9` differs from `49261e5` (the recorded video build) only in
+docs/copy. Historical runs remain labelled historical in [`submission-evidence.md`](submission-evidence.md).
 
 ## Why different
 
@@ -90,6 +90,8 @@ and measurable.
 
 - **Sandbox only** — no live money.
 - Single-merchant **shared ephemeral** demo (resets on restart / deploy).
+- Public shared demo with **no merchant login**: any visitor plays the merchant and can press Approve (Sandbox only);
+  `/mcp` is open on the public demo but has **no approve or refund tool**. A private operator-token profile exists.
 - Free-text intake creates **demo orders**; order IDs typed in text are not looked up.
 - Supplier replies are **mocked**.
 - Opt-in auto-approval (non-agent refunds up to a merchant limit; size exchanges) is experimental, unit-tested only,
