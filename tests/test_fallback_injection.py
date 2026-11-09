@@ -98,13 +98,16 @@ def test_end_to_end_guarded_case_goes_to_human_without_approve_button(client_wf,
     assert case["intent"] == UNKNOWN and case["status"] == "REJECTED"
     assert "route to a human" in case["policy"]["reasons"][0]
     events = [e["title"] for e in wf.db.timeline(case_id)]
-    assert "Keyword fallback + injection detected → intent UNKNOWN, sent to a human" in events
+    assert "Keyword fallback + injection detected → intent UNKNOWN; policy REJECTS" in events
     html = client.get(f"/?case={case_id}").text
     assert f'action="/cases/{case_id}/approve"' not in html  # no Approve button for this case
     assert f'action="/cases/{case_id}/approve-twice"' not in html
     assert "intent was forced to <code>UNKNOWN</code>" in html
+    assert "policy rejects the case" in html and "no Approve button" in html
+    assert "forced to <code>UNKNOWN</code> and the case was sent to a human" not in html
     # narrate() translates the audit title into plain English; the raw title is not on the page
     assert "keyword fallback detected instruction-like wording" in html
+    assert "goes to a human" not in html
     assert client.post(f"/cases/{case_id}/approve", follow_redirects=False).status_code == 409
     pp.refund_capture.assert_not_called()
 

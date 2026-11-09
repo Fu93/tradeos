@@ -185,7 +185,7 @@ LLM_DOWN_TITLE = "Needs a human: AI model unavailable, message not understood"
 LLM_DOWN_NOTICE = ("AI model unavailable: using basic English-only rules, which could not read this message. "
                    "This case needs a human. Refund API NOT CALLED.")
 INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected → intent forced to UNKNOWN; "
-                        "sent to a human (keyword rules can be fooled by injected words).")
+                        "policy REJECTS (keyword rules can be fooled by injected words).")
 
 
 # ---------------------------------------------------------------------------
