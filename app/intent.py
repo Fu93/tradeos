@@ -231,7 +231,12 @@ def _fix_chinese_label(assist: AssistFields | None, message: str) -> AssistField
 
 
 def looks_like_injection(message: str) -> bool:
-    """Flags instruction-like text: a UI banner on the LLM path; forces UNKNOWN on the keyword-fallback path."""
+    """Flags instruction-like text.
+
+    On the keyword-fallback path the extractor forces UNKNOWN. On every path (including LLM)
+    policy consumes this flag and REJECTS the case via ``no_injection_markers`` — there is no
+    Approve button. Autonomy also refuses AUTO if the flag somehow reached it.
+    """
     return bool(_INJECTION.search(message or ""))
 
 

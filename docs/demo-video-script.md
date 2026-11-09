@@ -1,10 +1,11 @@
 # TradeOS demo video v9 — 2:45 (strictly under 3:00)
 
 **Status:** recording plan only. **YouTube URL: TBD (placeholder)** — do not claim a video exists until uploaded.  
-**Record against the hosted build verified on `1d5ab96`** at https://tradeos-s33z.onrender.com (confirm `/healthz`
-`version` is that full SHA; for another build, rerun hosted verification and record its exact SHA before filming). Hosted verify on `1d5ab96`: preflight **9/9**, sandbox **31/31**,
-AI e2e **11/11**, **3** signed webhooks **VERIFIED**, GET reconciliation **all match**, malformed Origin/Referer **58/58**
-→ **403**, public reset → **403**. PayPal **Sandbox**, autonomy **OFF**, English narration + captions. Do not reset the
+**Record against the hosted build verified on `49261e5`** at https://tradeos-s33z.onrender.com (confirm `/healthz`
+`version` is that full SHA; for another build, rerun hosted verification and record its exact SHA before filming). Hosted
+verify on `49261e5` (8 Nov 2026): sandbox **31/31**, AI e2e **11/11**, signed webhooks **3/3 VERIFIED**, GET
+reconciliation **3/3**, audits **10/10**, malformed Origin/Referer **58/58** → **403**, UI **10/10**. Differs from
+`1d5ab96` only in copy/templates. PayPal **Sandbox**, autonomy **OFF**, English narration + captions. Do not reset the
 public shared demo; use fresh cases or a private copy. Label every wait cut. Claims must match what the UI shows.
 
 **Agent honesty:** the main path uses the dashboard **scripted MCP client** (not a model). Say so on screen and in VO.
@@ -21,7 +22,7 @@ live extractor label). If it shows keyword fallback, refilm.
 | **1:00–1:30** | Click **Approve & refund**. Wait cut labelled if needed. Show Sandbox **Refund ID** and status **COMPLETED**. | The merchant approves. Only then does TradeOS call PayPal's Refund API. PayPal returns a Sandbox refund ID marked COMPLETED. | Merchant approves → Sandbox refund COMPLETED |
 | **1:30–1:55** | On-screen: **Wait cut — webhook ~Ns**. Chip **Signed PayPal notice: verified**. Click **Check against PayPal** → **all match**. Audit badge intact. | We cut the wait for PayPal’s signed notice. TradeOS verifies the signature, then checks the refund again with PayPal. All match — on a tamper-evident audit chain. | Verified signed webhook · Check against PayPal · all match |
 | **1:55–2:20** | Open blocked / injection case: **Refund API calls = 0**. **Prep (before this beat, or cut in ~8s):** Try it yourself → paste Spanish safety message *«La suela se derritió con el calor y me quemó el pie.»* → Run → open the new case showing **Needs human safety review** and Refund API calls = 0. (Scripted MCP scenes do **not** create a safety case; do not substitute only the Adversarial $500 tile for this narration.) | A hostile ask moves no money. Separately, a dangerous-product report is held for a human safety review before any refund or supplier task — zero refund calls. | Hostile ask → $0 · Safety review → human |
-| **2:20–2:45** | Inbox with honest + blocked + safety rows. End card: Sandbox only · recorded build's exact `/healthz` SHA (matching its fresh hosted verification) · demo URL · github.com/Fu93/tradeos · limits one-liner. | Buyer agents request. Merchants approve. PayPal confirms. Sandbox only — shared ephemeral demo, autonomy off. Links below. | Buyer agents request. Merchants approve. PayPal confirms. |
+| **2:20–2:45** | Inbox with honest + blocked + safety rows. End card: Sandbox only · `49261e5` · badge **Agent refunds need merchant approval** · demo URL · github.com/Fu93/tradeos. | PayPal Sandbox only, on a shared, ephemeral demo. An agent's refund request always waits for the merchant. No live money. | PayPal Sandbox only · shared ephemeral demo · agent refunds always wait for the merchant · no live money |
 
 ### Recording checklist
 
