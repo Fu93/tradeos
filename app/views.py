@@ -716,7 +716,7 @@ def narrate(e: dict) -> str:
         return "Waiting for the sandbox buyer to approve the wallet order; 'Capture payment' then continues the loop."
     if t.startswith("Keyword fallback + injection detected"):
         return ("The LLM was unavailable and the keyword fallback detected instruction-like wording: the intent is "
-                "forced to UNKNOWN and the case goes to a human.")
+                "forced to UNKNOWN; policy rejects the case (no Approve button).")
     if t == LLM_DOWN_TITLE:
         return LLM_DOWN_NOTICE
     if t.startswith("Needs a human: replacement out of stock"):

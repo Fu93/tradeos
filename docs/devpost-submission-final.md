@@ -1,6 +1,6 @@
 # TradeOS — Devpost submission (English, final paste)
 
-**Verified hosted build (8 Nov 2026):** `1d5ab96b19501f7827daf37538543141f9909e91` · **Demo:** https://tradeos-s33z.onrender.com  
+**Verified hosted build (8 Nov 2026):** `49261e5f46dd2fb879fc9b24513ae65cb9328645` · **Demo:** https://tradeos-s33z.onrender.com  
 **License:** MIT · **YouTube:** _TBD — placeholder; do not submit until a public video under 3:00 exists_
 
 ---
@@ -30,7 +30,9 @@ TradeOS is a returns inbox for small cross-border physical-goods merchants.
 - Deterministic Python policy checks PayPal's capture facts (amount, currency, window, product).
 - Dangerous-product reports are held for a **human safety review** before any refund or supplier task.
 - **Returns** and **size exchanges** take different paths (money vs supplier / no refund).
-- Eligible agent-originated refunds wait for a **merchant approval** (autonomy is OFF on the hosted demo).
+- **Agent-originated refunds always wait for a merchant's approval — even if a merchant turns on auto-approval.**
+  (Auto-approval is an experimental opt-in for ordinary customer requests, capped by an amount limit; it is off on
+  the hosted demo.)
 - After approval, TradeOS calls PayPal Sandbox refunds; success is shown only when PayPal reports `COMPLETED`, then a
   **signed webhook** and an **independent PayPal GET** reconcile the result on a **tamper-evident** audit chain.
 
@@ -43,26 +45,31 @@ Sandbox demo order, request a return/exchange, read status (+ optional read-only
 - **FastAPI** server-rendered merchant dashboard + JSON APIs.
 - **Groq** `openai/gpt-oss-20b` for a limited semantic role (intent / summary); keyword fallback if the model is down.
 - **Deterministic policy + Safety Gate** in pure Python (no LLM in the money decision).
-- **Human approval** before Refund API calls on the hosted demo.
+- **Merchant approval** before any agent-requested refund; on the hosted demo every refund needs a person
+  (opt-in auto-approval is off).
 - **PayPal Sandbox:** Orders, Captures, Payments v2 refunds; self-verified signed webhooks; GET reconciliation.
 - **SHA-256 hash-chained audit** (tamper-evident, not immutable).
 - **AG Grid** Community for the returns inbox; **Channel3** for optional agent product discovery; **Render** for hosting.
 - A toolkit-contrast script only **reads** PayPal agent-toolkit tool lists; it does not call PayPal MCP.
 
-## Measured evidence (hosted `1d5ab96`; local checks labelled separately)
+## Measured evidence (hosted `49261e5`; local checks labelled separately)
 
 | Evidence | Result |
 | --- | --- |
-| Submission preflight | 9/9 |
 | Hosted `sandbox_verify` | 31/31 |
 | AI end-to-end | 11/11 |
-| Deterministic policy matrix | 582/582 (rules, not LLM requests) |
-| pytest / coverage / lint | Local source (this tip): **1845** tests, **95.09%** coverage; ruff + mypy clean (mock PayPal). See [`submission-evidence.md`](submission-evidence.md) for named-build evidence |
+| Signed webhooks | 3/3 VERIFIED |
+| GET reconciliation | 3/3 |
+| Audits | 10/10 |
 | Malformed Origin / Referer | 403 (58/58) |
+| UI checks | 10/10 |
+| Deterministic policy matrix | 582/582 (rules, not LLM requests) |
+| pytest / coverage / lint | See [`submission-evidence.md`](submission-evidence.md) for the tip count (mock PayPal; not hosted refund evidence) |
 | LLM intent eval (52 author-written messages) | exact 41/52 vs keyword 17/52; request-check 52/52 on this small set (not general accuracy) |
 
-Historical runs (e.g. published `dc2c6b5` 31/31; local `9dafb70` Sandbox) remain labelled historical in
-[`submission-evidence.md`](submission-evidence.md).
+Sample refund IDs from the hosted `49261e5` run: `8J695063YN268980W`, `5T938247AP7025502`, `20907736BD190784X`.
+`49261e5` differs from `1d5ab96` only in copy/templates. Historical runs (e.g. `1d5ab96`, published `dc2c6b5` 31/31;
+local `9dafb70` Sandbox) remain labelled historical in [`submission-evidence.md`](submission-evidence.md).
 
 ## Why different
 
@@ -85,7 +92,8 @@ and measurable.
 - Single-merchant **shared ephemeral** demo (resets on restart / deploy).
 - Free-text intake creates **demo orders**; order IDs typed in text are not looked up.
 - Supplier replies are **mocked**.
-- Autonomy **OFF** on the hosted demo.
+- Opt-in auto-approval (non-agent refunds up to a merchant limit; size exchanges) is experimental, unit-tested only,
+  and **off** on the hosted demo. Agent requests still need a person even if it is turned on.
 - Buyer identity is **unverified** (self-declared agent / on-behalf-of names).
 - Not fraud-proof, not production-ready, not a claim of zero bugs or 100% accuracy.
 

@@ -397,7 +397,8 @@
       {% if ai.injection %}
         {% if ai.injection_guard %}
         <div class="inject">⚠ Instruction-like text detected while the LLM was unavailable. The keyword fallback can be
-          fooled by injected words, so the intent was forced to <code>UNKNOWN</code> and the case was sent to a human.</div>
+          fooled by injected words, so the intent was forced to <code>UNKNOWN</code>; policy rejects the case
+          (no Approve button).</div>
         {% else %}
         <div class="inject">⚠ Instruction-like text detected in the customer message. It is treated as data:
           the model can only fill the intent schema, and everything below the line is decided by code.</div>

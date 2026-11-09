@@ -185,7 +185,7 @@ LLM_DOWN_TITLE = "Needs a human: AI model unavailable, message not understood"
 LLM_DOWN_NOTICE = ("AI model unavailable: using basic English-only rules, which could not read this message. "
                    "This case needs a human. Refund API NOT CALLED.")
 INJECTION_GUARD_NOTE = ("Keyword fallback + prompt-injection pattern detected → intent forced to UNKNOWN; "
-                        "sent to a human (keyword rules can be fooled by injected words).")
+                        "policy REJECTS (keyword rules can be fooled by injected words).")
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +231,12 @@ def _fix_chinese_label(assist: AssistFields | None, message: str) -> AssistField
 
 
 def looks_like_injection(message: str) -> bool:
-    """Flags instruction-like text: a UI banner on the LLM path; forces UNKNOWN on the keyword-fallback path."""
+    """Flags instruction-like text.
+
+    On the keyword-fallback path the extractor forces UNKNOWN. On every path (including LLM)
+    policy consumes this flag and REJECTS the case via ``no_injection_markers`` — there is no
+    Approve button. Autonomy also refuses AUTO if the flag somehow reached it.
+    """
     return bool(_INJECTION.search(message or ""))
 
 

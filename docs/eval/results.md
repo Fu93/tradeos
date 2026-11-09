@@ -8,7 +8,7 @@ Labels were written by hand from the schema in `app/intent.py` before the run an
 
 * LLM exact match **79% (41/52)** vs keyword fallback **33% (17/52)**; intent alone 94% (49/52) vs 33% (17/52).
 * 11 LLM misses: 6 are only `OTHER` vs `UNKNOWN` in the reason (labelling convention), 1 pick a different concrete reason, 4 get intent or action wrong.
-* Prompt injections (7): the LLM output never produced a policy-acceptable request that was not warranted (0 across all 52 messages). The keyword fallback produced 0 (none) — with the injection guard, an instruction-like message on the fallback path becomes UNKNOWN and goes to a human (this also routes m11, a genuine exchange wrapped in an injection, to a human).
+* Prompt injections (7): the LLM output never produced a policy-acceptable request that was not warranted (0 across all 52 messages). The keyword fallback produced 0 (none) — with the injection guard, an instruction-like message on the fallback path becomes UNKNOWN and policy REJECTS it (no Approve button; this also rejects m11, a genuine exchange wrapped in an injection).
 * The keyword fallback is English-only by design (a no-key demo path); outside English it mostly returns UNKNOWN, which the policy routes to a human.
 
 ## Overall

@@ -64,7 +64,7 @@ was also mutation-checked: removing each defence below makes at least one test f
 | Property | How |
 |---|---|
 | No tool can approve, decline or refund | The server registers three tools (four with a product catalogue: the read-only `find_product`); the tests assert the set and that no name contains approve, decline, refund or capture, and no tool accepts an amount, a currency or a capture id. |
-| Every agent request waits for a person | `autonomy.decide_detailed(..., agent_originated=True)` returns HUMAN before any limit is read. Asserted with `AUTO_ENABLED=1` and the amount inside the limit, for refunds and exchanges. |
+| Eligible agent refunds/exchanges wait for a person | `autonomy.decide_detailed(..., agent_originated=True)` returns HUMAN before any limit is read. Asserted with `AUTO_ENABLED=1` and the amount inside the limit, for refunds and exchanges. Rejected agent requests cannot be approved. |
 | The agent cannot set the amount | The refund is PayPal's whole capture (no `amount` sent), and the policy reads amount, currency, status and date from `GET /v2/payments/captures/{id}`. A message claiming "500 USD" changes nothing. |
 | Prompt injection, a late order and a safety report end with Refund API calls = 0 | Same policy, injection heuristic and Safety Gate as the dashboard; `approve()` is refused afterwards too. |
 | No re-rolls | Only an `AGENT_ORDERED` case is evaluated. A second `request_return` on the same order returns the first outcome without another LLM call or PayPal read. |

@@ -354,7 +354,7 @@ def render_md(res: dict, dataset_link: str = "dataset.json") -> str:
             + (" — injected words like \"EXCHANGE\" fool keyword rules; such cases would still need every other "
                "policy check and a human click." if k["unwarranted_accept"] else
                " — with the injection guard, an instruction-like message on the fallback path becomes UNKNOWN and "
-               "goes to a human (this also routes m11, a genuine exchange wrapped in an injection, to a human)."),
+               "policy REJECTS it (no Approve button; this also rejects m11, a genuine exchange wrapped in an injection)."),
             "* The keyword fallback is English-only by design (a no-key demo path); outside English it mostly returns UNKNOWN, "
             "which the policy routes to a human.", ""]
     lines += ["", "## Exact match per language", "", "| Language | n | LLM | Keyword |", "| --- | --- | --- | --- |"]

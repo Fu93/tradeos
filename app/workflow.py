@@ -543,7 +543,7 @@ class Workflow:
             return
         if extraction.injection_guard:
             self.db.audit(case_id, "intent",
-                          "Keyword fallback + injection detected → intent UNKNOWN, sent to a human",
+                          "Keyword fallback + injection detected → intent UNKNOWN; policy REJECTS",
                           {"why": "The LLM was unavailable, and keyword rules can be steered by injected words, "
                                   "so this message cannot become an approvable request.", "forced": intent})
 
